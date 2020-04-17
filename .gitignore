@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# My test folders
+temp_test/
+live_streaming_test.py
+
 # Distribution / packaging
 .Python
 build/
