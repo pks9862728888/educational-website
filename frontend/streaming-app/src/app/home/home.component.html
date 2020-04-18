@@ -1,0 +1,4 @@
+<div id="full-height">
+    <input *ngIf="!loggedIn" type="button" value="Login" (click)=login() class="authButton" />
+    <input *ngIf="loggedIn" type="button" value="Logout" (click)=logout() class="authButton" />
+</div>
