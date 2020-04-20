@@ -46,6 +46,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(_('Username'), max_length=30, unique=True)
     is_active = models.BooleanField(_('Is Active'), default=True)
     is_staff = models.BooleanField(_('Is Staff'), default=False)
+    is_student = models.BooleanField(_('Is Student'), default=False)
+    is_teacher = models.BooleanField(_('Is Teacher'), default=False)
     created_date = models.DateTimeField(
         _('Created Date'), default=timezone.now, editable=False)
 
@@ -62,4 +64,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         permissions = (
             ('is_active', 'User is active'),
             ('is_staff', 'User is staff'),
+            ('is_student', 'User is student'),
+            ('is_teacher', 'User is teacher'),
         )

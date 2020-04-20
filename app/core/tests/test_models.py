@@ -64,6 +64,48 @@ class UserModelTests(TestCase):
         self.assertTrue(user.check_password(password))
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+        self.assertFalse(user.is_student)
+        self.assertFalse(user.is_teacher)
+
+    def test_create_student_successful(self):
+        """Test that creating student is successful"""
+        email = 'test@gmail.com'
+        password = 'trst@1234a'
+        username = 'testuser'
+        user = get_user_model().objects.create_superuser(
+            email=email,
+            password=password,
+            username=username,
+            is_student=True
+        )
+
+        self.assertEqual(user.email, email)
+        self.assertEqual(user.username, username)
+        self.assertTrue(user.check_password(password))
+        self.assertTrue(user.is_superuser)
+        self.assertTrue(user.is_staff)
+        self.assertTrue(user.is_student)
+        self.assertFalse(user.is_teacher)
+
+    def test_create_teacher_successful(self):
+        """Test that creating superuser is successful"""
+        email = 'test@gmail.com'
+        password = 'trst@1234a'
+        username = 'testuser'
+        user = get_user_model().objects.create_superuser(
+            email=email,
+            password=password,
+            username=username,
+            is_teacher=True
+        )
+
+        self.assertEqual(user.email, email)
+        self.assertEqual(user.username, username)
+        self.assertTrue(user.check_password(password))
+        self.assertTrue(user.is_superuser)
+        self.assertTrue(user.is_staff)
+        self.assertFalse(user.is_student)
+        self.assertTrue(user.is_teacher)
 
     def test_user_string_representation(self):
         """Test the string representation of user model"""

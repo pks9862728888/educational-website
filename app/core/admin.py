@@ -30,8 +30,10 @@ class CustomUserAdmin(UserAdmin):
     ordering = ['id']
     list_display = [
         'email', 'username', 'is_superuser', 'is_staff', 'is_active',
+        'is_student', 'is_teacher'
     ]
-    list_filter = ('is_superuser', 'is_staff', 'is_active')
+    list_filter = ('is_superuser', 'is_staff', 'is_active',
+                   'is_teacher', 'is_student')
     search_fields = ['email', 'username', ]
     actions = [
         activate_accounts,

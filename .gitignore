@@ -9,6 +9,7 @@ __pycache__/
 # My test folders
 temp_test/
 live_streaming_test.py
+.idea/
 
 # Distribution / packaging
 .Python
