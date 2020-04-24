@@ -1,14 +1,16 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { AuthenticationComponent } from './authentication/authentication.component';
-import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { MainComponent } from './main/main.component';
+import { SignupComponent } from './auth/signup/signup.component';
+import { LoginComponent } from './auth/login/login.component';
 
 
 const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
-  { path: 'login', component: AuthenticationComponent, },
-  { path: 'home', component: HomeComponent, },
+  { path: '', redirectTo: '/signup', pathMatch: 'full' },
+  { path: 'home', component: MainComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
 
@@ -19,7 +21,8 @@ const routes: Routes = [
 export class AppRoutingModule { }
 
 export const routingComponents = [
-  AuthenticationComponent,
-  HomeComponent,
+  MainComponent,
+  SignupComponent,
+  LoginComponent,
   PageNotFoundComponent,
 ];

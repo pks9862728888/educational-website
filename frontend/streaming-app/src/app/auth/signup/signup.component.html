@@ -1,0 +1,78 @@
+<section class="signup-form">
+    <form [formGroup]="signupForm" (submit)="signUp()" fxLayout="column" fxLayoutAlign="center center">
+        <mat-form-field>
+            <mat-label>Your email</mat-label>
+            <input type="email"
+                   matInput
+                   formControlName="email"
+                   placeholder="Your email">
+
+            <mat-error *ngIf="signupForm.controls['email'].errors?.required">
+                Email is required.
+            </mat-error>
+            <mat-error *ngIf="signupForm.controls['email'].errors &&
+                             !signupForm.controls['email'].errors?.required">
+                Enter a valid email address.
+            </mat-error>
+
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Your username</mat-label>
+            <input type="text"
+                   matInput
+                   formControlName="username"
+                   placeholder="Username should be at least 4 characters long.">
+
+            <mat-error *ngIf="signupForm.controls['username'].errors?.required">
+                Username is required.
+            </mat-error>
+            <mat-error *ngIf="signupForm.controls['username'].errors &&
+                             !signupForm.controls['username'].errors?.required">
+                Username should be at least 4 characters long.
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Your password</mat-label>
+            <input type="password"
+                   matInput
+                   formControlName="password"
+                   placeholder="Password should be at least 8 characters long.">
+
+            <mat-error *ngIf="signupForm.controls['password'].errors">
+                Password should be at least 8 characters long.
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Confirm password</mat-label>
+            <input type="password"
+                   matInput
+                   formControlName="confirmPassword"
+                   placeholder="Passwords should match.">
+
+            <mat-error *ngIf="signupForm.controls['confirmPassword'].errors?.required">
+                This field is required.
+            </mat-error>
+            <mat-hint *ngIf="signupForm.errors?.mismatch &&
+                         !signupForm.controls['confirmPassword'].errors?.required"
+                style="color:red">
+                Passwords does not match.
+            </mat-hint>
+        </mat-form-field>
+
+        <div class="form-field">
+            <div class="inner-form-field">
+                <mat-label>User type:</mat-label>
+                <div>
+                    <input type="radio" formControlName="userIsStudent" value="true" id="student">
+                    <label for="student">Student</label>
+                </div>
+                <div>
+                    <input type="radio" formControlName="userIsStudent" value="false" id="teacher">
+                    <label for="teacher">Teacher</label>
+                </div>
+            </div>
+        </div>
+
+        <button [disabled]="signupForm.invalid" mat-raised-button color="primary">Sign up</button>
+    </form>
+</section>

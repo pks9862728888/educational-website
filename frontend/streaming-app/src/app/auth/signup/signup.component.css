@@ -1,0 +1,14 @@
+mat-form-field {
+    width: 300px;
+}
+
+.form-field {
+    display: block;
+    width: 300px;
+    margin-bottom: 20px;
+}
+
+.inner-form-field {
+    display: flex;
+    justify-content: space-between;
+}
