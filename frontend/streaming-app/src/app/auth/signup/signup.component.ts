@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, FormGroupDirective, NgForm, FormBuilder } from '@angular/forms';
-import { passwordMatchValidator } from 'src/app/confirm.password.validator';
+import { passwordMatchValidator, usernamePasswordValidator } from 'src/app/custom.validator';
 import { AuthService } from 'src/app/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signup',
@@ -11,9 +12,19 @@ import { AuthService } from 'src/app/auth.service';
 export class SignupComponent implements OnInit {
 
   constructor( private formBuilder: FormBuilder,
-               private authService: AuthService ) { }
+               private authService: AuthService,
+               private router: Router ) { }
 
   signupForm: FormGroup;
+
+  serverResponseErrors = {
+    emailError: null,
+    usernameError: null,
+    passwordError: null
+  };
+
+  // Shows hint to login if user is present already with the email.
+  loginHint = false;
 
   ngOnInit(): void {
     this.signupForm = this.formBuilder.group({
@@ -22,14 +33,32 @@ export class SignupComponent implements OnInit {
       password: [null, [Validators.required, Validators.minLength(8)]],
       confirmPassword: [null, Validators.required],
       userIsStudent: [null, Validators.required]
-    }, { validators: passwordMatchValidator });
+    }, { validator: [passwordMatchValidator, usernamePasswordValidator] });
   }
 
+  // Used to sign in. If successful, then navigates to login page else displays errors.
   signUp() {
     this.authService.signup(this.signupForm.value).subscribe(
-      result => console.log(result),
-      error => console.error(error)
+      result => {
+        this.router.navigate(['/login']);
+      },
+      error => {
+        this.serverResponseErrors.emailError = error.error.email ? error.error.email[0] : null;
+        this.serverResponseErrors.usernameError = error.error.username ? error.error.username[0] : null;
+        this.serverResponseErrors.passwordError = error.error.password ? error.error.password[0] : null;
+        this.signupForm.reset({
+          email: this.signupForm.controls.email.value,
+          username: this.signupForm.controls.username.value,
+          userIsStudent: this.signupForm.controls.userIsStudent.value
+        });
+        this.loginHint = true;
+      }
     );
+  }
+
+  // Closes login message banner
+  closeMessage() {
+    this.loginHint = false;
   }
 
 }

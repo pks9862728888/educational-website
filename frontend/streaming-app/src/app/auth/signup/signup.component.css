@@ -1,14 +1,62 @@
+/* Error message design */
+.error-message {
+    width: 100%;
+    background-color: #eef202f2;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.material-icons {
+    font-size: 18px;
+    transform: translateY(3px);
+    float: right;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+/* Background color design */
+#set-screen-height-background {
+    height: 100vh;
+    background-color: #fcfdb5f2;
+}
+
+/* Form layout design */
+#sign-up-banner {
+    background-color: slateblue;
+    color: white;
+    width: 310px;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 10px 10px 0 0;
+}
+
+#sign-up-text {
+    margin: 0px;
+}
+
+#form-body {
+    background-color: hsl(173, 33%, 95%);
+    width: 310px;
+    border-radius: 0 0 10px 10px;
+    padding: 10px 0 20px;
+}
+
 mat-form-field {
-    width: 300px;
+    width: 290px;
+    padding-bottom: 5px;
 }
 
 .form-field {
     display: block;
-    width: 300px;
+    width: 290px;
     margin-bottom: 20px;
 }
 
 .inner-form-field {
     display: flex;
     justify-content: space-between;
+}
+
+#login {
+    padding-top: 10px;
 }
