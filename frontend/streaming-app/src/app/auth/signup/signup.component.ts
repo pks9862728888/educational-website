@@ -3,6 +3,7 @@ import { Validators, FormGroup, FormControl, FormGroupDirective, NgForm, FormBui
 import { passwordMatchValidator, usernamePasswordValidator } from 'src/app/custom.validator';
 import { AuthService } from 'src/app/auth.service';
 import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-signup',
@@ -11,9 +12,15 @@ import { Router } from '@angular/router';
 })
 export class SignupComponent implements OnInit {
 
-  constructor( private formBuilder: FormBuilder,
+  constructor( private cookieService: CookieService,
+               private formBuilder: FormBuilder,
                private authService: AuthService,
-               private router: Router ) { }
+               private router: Router ) {
+    // If auth token is already saved then skipping signup step
+    if (this.cookieService.get('auth-token-edu-website')) {
+      this.router.navigate(['/workspace']);
+    }
+  }
 
   signupForm: FormGroup;
 

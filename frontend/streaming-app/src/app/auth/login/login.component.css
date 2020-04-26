@@ -1,0 +1,82 @@
+/* Error message design */
+.error-message {
+    width: 100%;
+    background-color: #eef202f2;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.material-icons {
+    font-size: 18px;
+    transform: translateY(3px);
+    float: right;
+    padding-right: 10px;
+    cursor: pointer;
+}
+
+#new-account-hint {
+    background-color: #e2fff5;
+    padding: 5px;
+    border-radius: 20px;
+    border-bottom: 1px solid rgb(90, 74, 3);
+    border-right: 1px solid rgb(90, 74, 3);
+}
+
+.error-red {
+    color: red;
+}
+
+.auth-error {
+    padding-bottom: 20px;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* Background color design */
+#set-screen-height-background {
+    height: 100vh;
+    background-color: #fcfdb5f2;
+}
+
+/* Form layout design */
+#sign-in-banner {
+    background-color: slateblue;
+    color: white;
+    width: 310px;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 10px 10px 0 0;
+}
+
+#sign-in-text {
+    margin: 0px;
+}
+
+#form-body {
+    background-color: hsl(173, 33%, 95%);
+    width: 310px;
+    border-radius: 0 0 10px 10px;
+    padding: 10px 0 20px;
+}
+
+mat-form-field {
+    width: 290px;
+    padding-bottom: 5px;
+}
+
+.form-field {
+    display: block;
+    width: 290px;
+    margin-bottom: 20px;
+}
+
+.inner-form-field {
+    display: flex;
+    justify-content: space-between;
+}
+
+.bottom-hint {
+    padding-top: 10px;
+}

@@ -1,1 +1,49 @@
-<p>login works!</p>
+<div *ngIf="signupHint" class="error-message">
+    Login falied. Check your username, password and try again.
+    If you don't have an account then <strong id="new-account-hint"><a routerLink="/signup">create a new account</a></strong>
+    <span class="material-icons" aria-hidden="false" aria-label="Close message" (click)="closeMessage()">
+        cancel
+    </span>
+</div>
+
+<section class="login-form">
+    <form (submit)="login()" fxLayout="column" fxLayoutAlign="center center" id="set-screen-height-background">
+        <div id="sign-in-banner">
+            <h1 id="sign-in-text">Log In</h1>
+        </div>
+        <ng-container [formGroup]="loginForm">
+            <section id="form-body" fxLayout="column" fxLayoutAlign="center center">
+                <mat-form-field>
+                    <mat-label>Your email</mat-label>
+                    <input type="email" matInput formControlName="email" placeholder="Your email">
+
+                    <mat-error *ngIf="loginForm.controls['email'].errors?.required">
+                        Email is required.
+                    </mat-error>
+                    <mat-error *ngIf="loginForm.controls['email'].errors &&
+                                    !loginForm.controls['email'].errors?.required">
+                        Enter a valid email address.
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-label>Your password</mat-label>
+                    <input type="password" matInput formControlName="password">
+
+                    <mat-error *ngIf="loginForm.controls.password.errors?.required">
+                        Password is required.
+                    </mat-error>
+                </mat-form-field>
+                <mat-hint *ngIf="errorText" class="error-red auth-error">{{ errorText }}</mat-hint>
+                <button [disabled]="loginForm.invalid" mat-raised-button color="primary">Log in</button>
+                <mat-divider></mat-divider>
+                <p class="mat-caption" class="bottom-hint">
+                    <strong><a routerLink="/forgot-password">Forgot password</a></strong>
+                </p>
+                <p class="mat-caption">
+                    Don't have an account? <strong><a routerLink="/signup">Click here to register.</a></strong>
+                </p>
+            </section>
+        </ng-container>
+    </form>
+</section>

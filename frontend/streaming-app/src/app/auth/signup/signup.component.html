@@ -53,8 +53,12 @@
                         formControlName="password"
                         placeholder="Password should be at least 8 characters long.">
 
-                    <mat-error *ngIf="signupForm.controls.password.errors">
+                    <mat-error *ngIf="signupForm.controls.password.errors &&
+                                     !signupForm.controls.password.errors?.required">
                         Password should be at least 8 characters long.
+                    </mat-error>
+                    <mat-error *ngIf="signupForm.controls.password.errors?.required">
+                        Password is required.
                     </mat-error>
                     <mat-hint style="color: red">
                         {{ this.serverResponseErrors.passwordError | titlecase }}

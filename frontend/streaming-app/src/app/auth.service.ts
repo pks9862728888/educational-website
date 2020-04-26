@@ -3,6 +3,11 @@ import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { baseUrl } from '../urls';
 
+interface LoginFormFormat {
+  email: string;
+  password: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,6 +16,7 @@ export class AuthService {
   // Urls for communicating with backend
   baseUrl = baseUrl;
   signupUrl = `${baseUrl}user/signup`;
+  loginUrl = `${baseUrl}user/login`;
 
   // Headers for sending form data
   headers = new HttpHeaders({
@@ -32,9 +38,14 @@ export class AuthService {
     return this.httpClient.post(this.signupUrl, JSON.stringify(body), {headers: this.headers});
   }
 
+  // This method logs in new user
+  login(formdata: LoginFormFormat) {
+    return this.httpClient.post(this.loginUrl, JSON.stringify(formdata), {headers: this.headers});
+  }
+
   // This function gets authentication header from stored cookies.
   getAuthHeaders() {
-    const token = this.cookieService.get('auth-edu-token');
+    const token = this.cookieService.get('auth-token-edu-website');
     return new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Token ${token}`

@@ -9,11 +9,13 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from './material.module';
 import { AuthService } from './auth.service';
 import { HttpClientModule } from '@angular/common/http';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    routingComponents
+    routingComponents,
+    ForgotPasswordComponent
   ],
   imports: [
     BrowserModule,
