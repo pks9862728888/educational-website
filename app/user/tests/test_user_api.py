@@ -13,6 +13,7 @@ from rest_framework import status
 
 # Creating urls for making various api calls
 USER_SIGNUP_URL = reverse("user:user-signup")
+USER_LOGIN_URL = reverse("user:user-login")
 
 
 def create_new_user(**kwargs):
@@ -111,6 +112,83 @@ class PublicUserApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    def get_on_login_url_failure(self):
+        """Test that get request is not allowed on login url"""
+        create_new_user(**{
+            'email': 'temp@curesio.com',
+            'password': 'testpass@123df',
+            'username': 'tempusername',
+            'is_teacher': True,
+            'is_student': False
+        })
+
+        res = self.client.get(USER_SIGNUP_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_login_successful_valid_user(self):
+        """Test that login is successful for valid user"""
+        payload = {
+            'email': 'temp@education.com',
+            'password': 'testpass@123df',
+            'username': 'testuser12',
+            'is_teacher': True,
+            'is_student': False
+        }
+        create_new_user(**payload)
+
+        res = self.client.post(USER_LOGIN_URL, {
+            'email': payload['email'],
+            'password': payload['password']
+        })
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['email'], payload['email'])
+        self.assertEqual(res.data['username'], payload['username'])
+        self.assertIn('token', res.data)
+        self.assertNotIn('password', res.data)
+        self.assertTrue(res.data['is_teacher'])
+        self.assertFalse(res.data['is_student'])
+        self.assertFalse(res.data['is_staff'])
+        self.assertTrue(res.data['is_active'])
+
+    def test_login_unsuccessful_invalid_credentials_of_user(self):
+        """Test that login is unsuccessful for invalid user"""
+        payload = {
+            'email': 'temp@education.com',
+            'password': 'testpass@123df',
+            'username': 'testuser12',
+            'is_teacher': True,
+            'is_student': False
+        }
+        create_new_user(**payload)
+
+        res = self.client.post(USER_LOGIN_URL, {
+            'email': 'abc@gmail.com',
+            'password': payload['password']
+        })
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn('token', res.data)
+
+    def test_login_unsuccessful_no_user(self):
+        """Test that login is unsuccessful if no user is present"""
+
+        res = self.client.post(USER_LOGIN_URL, {
+            'email': 'abc@gmail.com',
+            'password': 'testPassword'
+        })
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn('token', res.data)
+
+    def test_login_fails_missing_field(self):
+        """Test that email and password are required"""
+        res = self.client.post(USER_LOGIN_URL, {'email': 'test@gmail.com',
+                                                'password': ''})
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertNotIn('token', res.data)
+
 
 class PrivateUserApiTests(TestCase):
     """Test API requests that requires authentication"""
@@ -129,6 +207,20 @@ class PrivateUserApiTests(TestCase):
 
     def test_get_not_allowed_on_USER_SIGNUP_URL(self):
         """Test that retrieving profile details of others fails"""
+        create_new_user(**{
+            'email': 'temp@education.com',
+            'password': 'testpass@123df',
+            'username': 'testuser12',
+            'is_teacher': True,
+            'is_student': False
+        })
+
+        res = self.client.get(USER_SIGNUP_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_not_allowed_on_USER_LOGIN_URL(self):
+        """Test that getting profile details of others fails for logged user"""
         create_new_user(**{
             'email': 'temp@education.com',
             'password': 'testpass@123df',
