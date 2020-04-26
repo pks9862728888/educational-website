@@ -15,6 +15,8 @@ Live streaming website with django and angular
 
 **Response on successful user login:** token, username, email, is_teacher, is_student, is_staff, is_active
 
+**Response on errors:** non_field_errors: ['Unable to authenticate with given credentials.']
+
 ## Get auth token url
 **URL:** https://127.0.0.1:8000/user/get-auth-token
 
