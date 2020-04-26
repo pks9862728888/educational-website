@@ -10,6 +10,7 @@ import { MaterialModule } from './material.module';
 import { AuthService } from './auth.service';
 import { HttpClientModule } from '@angular/common/http';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { WorkspaceModule } from './workspace/workspace.module';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
     ReactiveFormsModule,
     FlexLayoutModule,
     MaterialModule,
-    HttpClientModule
+    HttpClientModule,
+    WorkspaceModule
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]
