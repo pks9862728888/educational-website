@@ -14,10 +14,24 @@
     cursor: pointer;
 }
 
+a {
+    text-decoration: none;
+}
+
+#login-text {
+    background-color: #e2fff5;
+    padding: 6px;
+    border-radius: 20px;
+}
+
 /* Background color design */
 #set-screen-height-background {
     height: 100vh;
     background-color: #fcfdb5f2;
+}
+
+.error-text-red {
+    color: red;
 }
 
 /* Form layout design */

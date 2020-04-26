@@ -62,6 +62,9 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('is_staff', JSON.stringify(result.is_staff));
         localStorage.setItem('is_active', JSON.stringify(result.is_active));
 
+        // Sending logged in status as broadcast
+        this.authService.sendLoggedinStatusSignal(true);
+
         this.router.navigate(['/workspace']);
       },
       error => {

@@ -2,10 +2,18 @@ import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { baseUrl } from '../urls';
+import { Subject } from 'rxjs';
 
 interface LoginFormFormat {
   email: string;
   password: string;
+}
+
+interface SignupFormFormat {
+  email: string;
+  username: string;
+  password: string;
+  userIsStudent: boolean;
 }
 
 @Injectable({
@@ -23,11 +31,15 @@ export class AuthService {
     'Content-Type': 'application/json'
   });
 
+  // Creating observable to send response in case of user login
+  private userLoggedInSignalSource = new Subject<boolean>();
+  userLoggedInSignalSource$ = this.userLoggedInSignalSource.asObservable();
+
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) {}
 
   // Method to signup a new user
-  signup(formdata) {
+  signup(formdata: SignupFormFormat) {
     const body = {
       email: formdata.email,
       username: formdata.username,
@@ -43,12 +55,17 @@ export class AuthService {
     return this.httpClient.post(this.loginUrl, JSON.stringify(formdata), {headers: this.headers});
   }
 
-  // This function gets authentication header from stored cookies.
-  getAuthHeaders() {
-    const token = this.cookieService.get('auth-token-edu-website');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      Authorization: `Token ${token}`
-    });
+  // This method sends login status signal as true
+  sendLoggedinStatusSignal(status: boolean) {
+    this.userLoggedInSignalSource.next(status);
   }
+
+  // This function gets authentication header from stored cookies.
+  // getAuthHeaders() {
+  //   const token = this.cookieService.get('auth-token-edu-website');
+  //   return new HttpHeaders({
+  //     'Content-Type': 'application/json',
+  //     Authorization: `Token ${token}`
+  //   });
+  // }
 }
