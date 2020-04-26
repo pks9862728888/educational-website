@@ -13,4 +13,11 @@ Live streaming website with django and angular
 
 **Fields:** email, password
 
-**Response on successful user login:** token, username, is_teacher, is_student, is_staff, is_active
+**Response on successful user login:** token, username, email, is_teacher, is_student, is_staff, is_active
+
+## Get auth token url
+**URL:** https://127.0.0.1:8000/user/get-auth-token
+
+**Fields:** email, password
+
+**Response on successful user login:** token
