@@ -1,15 +1,41 @@
-<section fxLayout="row">
-    <button mat-button color="primary"
-                       [routerLink]="['/signup']"
-                       routerLinkActive="true"
-                       *ngIf="showLoginSignupButton">Sign up</button>
-    <button mat-button color="primary"
-                       [routerLink]="['/login']"
-                       routerLinkActive="true"
-                       *ngIf="showLoginSignupButton">Login</button>
-    <button mat-button color="primary"
-                       (click)="logout()"
-                       *ngIf="showLogoutButton">Logout</button>
-</section>
+<!-- Menu bar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="nav-background">
+    <div class="container-fluid">
+        <a class="navbar-brand d-inline-block" [routerLink]="['/home']">
+            <span id="brand-name"><strong>EduWeb</strong></span>
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarId"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarId">
+            <ul class="navbar-nav">
+                <a class="nav-link active" [routerLink]="['/home']" routerLinkActive="is-active"> Home </a>
+                <a class="nav-link active" [routerLink]="['/about']" routerLinkActive="is-active">About</a>
+                <a class="nav-link active" [routerLink]="['/help']" routerLinkActive="is-active">Help</a>
+                <a class="nav-link"
+                   [ngClass]="{'active': !showLoginSignupButton, 'disabled': showLoginSignupButton}"
+                   [routerLink]="getWorkSpaceRoute()" routerLinkActive="is-active">
+                   Workspace</a>
+            </ul>
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active mr-3">
+                    <a [routerLink]="['/signup']" routerLinkActive="is-active" *ngIf="showLoginSignupButton"
+                       class="nav-link"><i class="fas fa-user-plus"></i>Sign up</a>
+                </li>
+                <li class="nav-item active mr-3">
+                    <a [routerLink]="['/login']" routerLinkActive="is-active" *ngIf="showLoginSignupButton"
+                       class="nav-link"><i class="fas fa-sign-in-alt"></i>Login</a>
+                </li>
+                <li class="nav-item active mr-3">
+                    <a (click)="logout()" *ngIf="showLogoutButton" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i>Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
 
 <router-outlet></router-outlet>

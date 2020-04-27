@@ -1,0 +1,19 @@
+/* Styling navbar */
+#nav-background {
+    /* background-color: rgb(126, 11, 97); */
+    background-color: #6A5ACD;
+}
+
+.navbar-brand {
+    color: rgb(255, 255, 255);
+}
+
+.nav-link {
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+}
+
+.is-active {
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+}

@@ -9,6 +9,8 @@ import { WorkspaceComponent } from './workspace/workspace.component';
 import { StaffComponent } from './workspace/staff/staff.component';
 import { StudentComponent } from './workspace/student/student.component';
 import { TeacherComponent } from './workspace/teacher/teacher.component';
+import { HelpComponent } from './help/help.component';
+import { AboutComponent } from './about/about.component';
 
 
 const routes: Routes = [
@@ -24,6 +26,8 @@ const routes: Routes = [
       { path: 'teacher-workspace', component: TeacherComponent},
       { path: 'staff-workspace', component: StaffComponent }
     ]},
+  { path: 'about', component: AboutComponent },
+  { path: 'help', component: HelpComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
 
@@ -37,5 +41,8 @@ export const routingComponents = [
   MainComponent,
   SignupComponent,
   LoginComponent,
+  ForgotPasswordComponent,
+  AboutComponent,
+  HelpComponent,
   PageNotFoundComponent,
 ];
