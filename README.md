@@ -1,6 +1,8 @@
 # live-streaming
 Live streaming website with django and angular
 
+# Status: Still in development phase
+
 ## User signup url
 **URL:** https://127.0.0.1:8000/user/signup
 
