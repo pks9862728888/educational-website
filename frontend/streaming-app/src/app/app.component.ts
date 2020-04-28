@@ -3,6 +3,23 @@ import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from './auth.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+@Component({
+  selector: 'snack-bar-component-logout-snack',
+  template: `
+    <div class="logged-out-successfully">
+      Successfully logged out :)
+    </div>
+  `,
+  styles: [`
+    .logged-out-successfully {
+      color: hotpink;
+      text-align: center;
+    }
+  `],
+})
+export class SnackbarLoggedOutComponent { }
 
 @Component({
   selector: 'app-root',
@@ -11,6 +28,9 @@ import { Router } from '@angular/router';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'streaming-app';
+
+  // Duration for showing snackbar
+  durationInSeconds = 5;
 
   // Status button to show login and signup button controls
   showLoginSignupButton: boolean;
@@ -21,7 +41,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor( private cookieService: CookieService,
                private authService: AuthService,
-               private router: Router ) {}
+               private router: Router,
+               private snackBar: MatSnackBar ) {}
 
   ngOnInit() {
     // Subscribing to know user logged in status
@@ -50,6 +71,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.cookieService.deleteAll();
     localStorage.clear();
     this.authService.sendLoggedinStatusSignal(false);
+    this.snackBar.openFromComponent(SnackbarLoggedOutComponent, {
+      duration: this.durationInSeconds * 1000,
+    });
     this.router.navigate(['/home']);
   }
 
