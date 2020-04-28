@@ -31,6 +31,13 @@ export class AuthService {
     'Content-Type': 'application/json'
   });
 
+  // Kind of user who is logged in
+  userType: string;
+
+  // Creating observable to send response to type of login member
+  private userTypeSignalSource = new Subject<string>();
+  userTypeSignalSource$ = this.userTypeSignalSource.asObservable();
+
   // Creating observable to send response in case of user login
   private userLoggedInSignalSource = new Subject<boolean>();
   userLoggedInSignalSource$ = this.userLoggedInSignalSource.asObservable();
@@ -58,6 +65,18 @@ export class AuthService {
   // This method sends login status signal as true
   sendLoggedinStatusSignal(status: boolean) {
     this.userLoggedInSignalSource.next(status);
+  }
+
+  // This method sends type of logged in user
+  getUserType() {
+    const userType = this.userType;
+    this.userTypeSignalSource.next(userType);
+  }
+
+  // This method sets type of logged in user and sends broadcast
+  setUserType(user: string) {
+    this.userType = user;
+    this.getUserType();
   }
 
   // This function gets authentication header from stored cookies.
