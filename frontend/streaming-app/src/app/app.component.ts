@@ -30,7 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'streaming-app';
 
   // Duration for showing snackbar
-  durationInSeconds = 5;
+  durationInSeconds = 4;
 
   // Status button to show login and signup button controls
   showLoginSignupButton: boolean;
@@ -38,10 +38,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Subscription to logged status and user type
   private loggedinStatusSubscription: Subscription;
-  private userTypeLoggedInStatusSubscription: Subscription;
-
-  // For storing user type
-  private userType: string;
 
   constructor( private cookieService: CookieService,
                private authService: AuthService,
@@ -68,13 +64,6 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       this.authService.sendLoggedinStatusSignal(false);
     }
-
-    // Subsribing to logged in user type status
-    this.userTypeLoggedInStatusSubscription = this.authService.userTypeSignalSource$.subscribe(
-      userType => {
-        this.userType = userType;
-      }
-    );
   }
 
   // Clears token and saved info from local storage & then emits logged in signal as false
@@ -82,7 +71,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.cookieService.deleteAll();
     localStorage.clear();
     this.authService.sendLoggedinStatusSignal(false);
-    this.authService.setUserType(null);
     this.snackBar.openFromComponent(SnackbarLoggedOutComponent, {
       duration: this.durationInSeconds * 1000,
     });
@@ -91,11 +79,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   getWorkSpaceRoute() {
     // Rendering appropriate workspace
-    if (this.userType === 'STUDENT') {
+    if (localStorage.getItem('is_student') === JSON.stringify(true)) {
       return ['/workspace/student-workspace'];
-    } else if (this.userType === 'TEACHER') {
+    } else if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
       return ['/workspace/teacher-workspace'];
-    } else if (this.userType === 'STAFF') {
+    } else if (localStorage.getItem('is_staff') === JSON.stringify(true)) {
       return ['/workspace/staff-workspace'];
     } else {
       // Get the type of user and then again navigate to appropriate workspace
@@ -105,6 +93,5 @@ export class AppComponent implements OnInit, OnDestroy {
   // Unsubscribing from the subscriptions
   ngOnDestroy() {
     this.loggedinStatusSubscription.unsubscribe();
-    this.userTypeLoggedInStatusSubscription.unsubscribe();
   }
 }

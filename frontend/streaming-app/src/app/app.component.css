@@ -1,6 +1,5 @@
 /* Styling navbar */
 #nav-background {
-    /* background-color: rgb(126, 11, 97); */
     background-color: #6A5ACD;
 }
 
@@ -16,4 +15,10 @@
 .is-active {
     color: rgb(255, 255, 255);
     font-weight: bold;
+}
+
+.navbar {
+    -webkit-box-shadow: 0 8px 6px -6px #999;
+    -moz-box-shadow: 0 8px 6px -6px #999;
+    box-shadow: 0px 8px 6px -6px #999;
 }

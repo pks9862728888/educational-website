@@ -65,15 +65,6 @@ export class LoginComponent implements OnInit {
         // Sending logged in status as broadcast
         this.authService.sendLoggedinStatusSignal(true);
 
-        // Saving the type of user that is logged in
-        if (result.is_student === true) {
-          this.authService.setUserType('STUDENT');
-        } else if (result.is_teacher === true) {
-          this.authService.setUserType('TEACHER');
-        } else if (result.is_staff === true) {
-          this.authService.setUserType('STAFF');
-        }
-
         this.router.navigate(['/workspace']);
       },
       error => {

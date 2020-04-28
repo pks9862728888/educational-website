@@ -5,13 +5,15 @@ import { TeacherComponent } from './teacher/teacher.component';
 import { StaffComponent } from './staff/staff.component';
 import { WorkspaceComponent } from './workspace.component';
 import { AppRoutingModule } from '../app-routing.module';
+import { MaterialWorkspaceModule } from './material.workspace.module';
 
 
 @NgModule({
   declarations: [StudentComponent, TeacherComponent, StaffComponent, WorkspaceComponent],
   imports: [
     CommonModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MaterialWorkspaceModule
   ]
 })
 export class WorkspaceModule { }

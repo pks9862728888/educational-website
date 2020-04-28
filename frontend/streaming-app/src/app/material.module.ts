@@ -8,19 +8,23 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
-    imports: [MatInputModule,
-              MatFormFieldModule,
-              MatButtonModule,
-              MatCheckboxModule,
-              MatIconModule,
-              MatDividerModule,
-              MatSnackBarModule],
-    exports: [MatInputModule,
-              MatFormFieldModule,
-              MatButtonModule,
-              MatCheckboxModule,
-              MatIconModule,
-              MatDividerModule,
-              MatSnackBarModule]
+    imports: [
+        MatInputModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatIconModule,
+        MatDividerModule,
+        MatSnackBarModule
+    ],
+    exports: [
+        MatInputModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        MatCheckboxModule,
+        MatIconModule,
+        MatDividerModule,
+        MatSnackBarModule
+    ]
 })
 export class MaterialModule {}

@@ -89,11 +89,11 @@
                         <mat-label>User type:</mat-label>
                         <div>
                             <input type="radio" formControlName="userIsStudent" value="true" id="student">
-                            <label for="student">Student</label>
+                            <label for="student" class="padding-left-10">Student</label>
                         </div>
                         <div>
                             <input type="radio" formControlName="userIsStudent" value="false" id="teacher">
-                            <label for="teacher">Teacher</label>
+                            <label for="teacher" class="padding-left-10">Teacher</label>
                         </div>
                     </div>
                     <mat-hint *ngIf="signupForm.controls['userIsStudent'].errors?.required &&

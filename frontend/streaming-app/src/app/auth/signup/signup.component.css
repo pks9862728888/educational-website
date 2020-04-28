@@ -26,7 +26,10 @@ a {
 
 /* Background color design */
 #set-screen-height-background {
-    height: 100vh;
+    height: calc(100vh - 56px);
+    height: -o-calc(100vh - 56px); /* opera */
+    height: -webkit-calc(100vh - 56px); /* google, safari */
+    height: -moz-calc(100vh - 56px); /* firefox */
     background-color: #fcfdb5f2;
 }
 
@@ -69,6 +72,10 @@ mat-form-field {
 .inner-form-field {
     display: flex;
     justify-content: space-between;
+}
+
+.padding-left-10 {
+    padding-left: 10px;
 }
 
 #login {
