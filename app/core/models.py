@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
     PermissionsMixin
-from django.core.validators import EmailValidator
+from django.core.validators import EmailValidator, MinLengthValidator, \
+    ProhibitNullCharactersValidator
+from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
@@ -67,3 +69,28 @@ class User(AbstractBaseUser, PermissionsMixin):
             ('is_student', 'User is student'),
             ('is_teacher', 'User is teacher'),
         )
+
+
+class Subject(models.Model):
+    """Creates subject model where only teacher can create subject"""
+    user = models.ForeignKey(
+        'User', related_name='subjects', on_delete=models.CASCADE)
+    name = models.CharField(
+        _('Subject name'), max_length=30, blank=False, null=False,
+        validators=(MinLengthValidator(4), ProhibitNullCharactersValidator))
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """Overriding save method"""
+        self.name = self.name.lower().strip()
+
+        if len(self.name) == 0:
+            raise ValueError({'name': _('Subject name can not be blank')})
+
+        # Only teachers can create subject
+        if not self.user.is_teacher:
+            raise PermissionDenied()
+
+        super(Subject, self).save(*args, **kwargs)

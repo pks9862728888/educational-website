@@ -1,5 +1,8 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
+
+from core import models
 
 
 class UserModelTests(TestCase):
@@ -117,3 +120,45 @@ class UserModelTests(TestCase):
         )
 
         self.assertEqual(str(user), email)
+
+
+class SubjectModelTests(TestCase):
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email='abcd@gmail.com',
+            password='testuser@1234',
+            username='testusername',
+            is_teacher=True
+        )
+
+    def test_create_subject_with_valid_details_success(self):
+        """Test that creating subject with valid details success"""
+        subject = models.Subject.objects.create(user=self.user,
+                                                name='Science')
+
+        self.assertEqual(subject.user, self.user)
+        self.assertEqual(subject.name, 'science')
+
+    def test_create_subject_name_required(self):
+        """Test that creating subject with no name fails"""
+        with self.assertRaises(ValueError):
+            models.Subject.objects.create(user=self.user, name=' ')
+
+    def test_create_model_fails_non_teacher_user(self):
+        user1 = get_user_model().objects.create_user(
+            email='emailse@gmail.com',
+            username="tempusername",
+            password='tempwasswordr3',
+            is_student=True
+        )
+
+        with self.assertRaises(PermissionDenied):
+            models.Subject.objects.create(user=user1, name='tempss')
+
+    def test_string_representation_subject_model(self):
+        """Test stirng representation of subject model"""
+        subject = models.Subject.objects.create(user=self.user,
+                                                name='Biology')
+
+        self.assertEqual(str(subject), 'biology')
