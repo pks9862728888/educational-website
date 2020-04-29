@@ -94,3 +94,6 @@ class Subject(models.Model):
             raise PermissionDenied()
 
         super(Subject, self).save(*args, **kwargs)
+
+    class Meta:
+        unique_together = ('user', 'name')

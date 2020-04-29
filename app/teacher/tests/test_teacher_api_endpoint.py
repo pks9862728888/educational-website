@@ -78,7 +78,6 @@ class privateTeacherAPITests(TestCase):
     def test_create_subject_successful(self):
         """Test that creating subject is successful for teacher"""
         payload = {
-            'user': [self.user_teacher.pk],
             'name': 'Tempsubject'
         }
 
@@ -90,7 +89,6 @@ class privateTeacherAPITests(TestCase):
     def test_subject_name_required(self):
         """Test that subject name required"""
         payload = {
-            'user': [self.user_teacher.pk],
             'name': ' '
         }
 
@@ -101,11 +99,17 @@ class privateTeacherAPITests(TestCase):
     def test_subject_name_less_than_4_characters_fails(self):
         """Test that min length of subject name is 4 chars"""
         payload = {
-            'user': [self.user_teacher.pk],
             'name': 'aa'
         }
 
         res = self.client.post(CREATE_SUBJECT_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_duplicate_subject_creation_fails(self):
+        """Test that creating duplicate subject fails"""
+        self.client.post(CREATE_SUBJECT_URL, {'name': 'subjectname'})
+        res = self.client.post(CREATE_SUBJECT_URL, {'name': 'subjectname'})
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 

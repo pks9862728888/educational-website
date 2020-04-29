@@ -33,7 +33,6 @@ class privateStudentAPITests(TestCase):
     def test_create_subject_unsuccessful(self):
         """Test that creating subject is unsuccessful for student"""
         payload = {
-            'user': [self.user_student.pk],
             'name': 'Tempsubject'
         }
 
