@@ -137,6 +137,9 @@ class SubjectModelTests(TestCase):
         subject = models.Subject.objects.create(user=self.user,
                                                 name='Science')
 
+        self.assertTrue(models.Subject.objects.filter(
+            name='science').exists()
+        )
         self.assertEqual(subject.user, self.user)
         self.assertEqual(subject.name, 'science')
 

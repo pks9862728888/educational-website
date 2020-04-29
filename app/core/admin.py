@@ -48,7 +48,8 @@ class CustomUserAdmin(UserAdmin):
         ),
         (
             _('Permissions'),
-            {'fields': ('is_active', 'is_staff', 'is_superuser',)}
+            {'fields': ('is_active', 'is_staff', 'is_superuser',
+                        'is_student', 'is_teacher')}
         ),
         (
             _('Important Dates'),
@@ -64,3 +65,4 @@ class CustomUserAdmin(UserAdmin):
 
 
 admin.site.register(models.User, CustomUserAdmin)
+admin.site.register(models.Subject)

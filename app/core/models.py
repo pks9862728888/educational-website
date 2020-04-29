@@ -64,10 +64,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         permissions = (
-            ('is_active', 'User is active'),
-            ('is_staff', 'User is staff'),
-            ('is_student', 'User is student'),
-            ('is_teacher', 'User is teacher'),
+            ('is_active', 'user_is_active'),
+            ('is_staff', 'user_is_staff'),
+            ('is_student', 'user_is_student'),
+            ('is_teacher', 'user_is_teacher'),
         )
 
 
@@ -90,7 +90,7 @@ class Subject(models.Model):
             raise ValueError({'name': _('Subject name can not be blank')})
 
         # Only teachers can create subject
-        if not self.user.is_teacher:
+        if not User.objects.get(email=self.user).is_teacher:
             raise PermissionDenied()
 
         super(Subject, self).save(*args, **kwargs)
