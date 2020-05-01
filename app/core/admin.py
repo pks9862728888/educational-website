@@ -64,5 +64,32 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
+class CustomClassroomAdmin(admin.ModelAdmin):
+    model = models.Classroom
+    list_display = ['name', 'get_user']
+    list_filter = ['user__email', ]
+
+    def get_user(self, obj):
+        return obj.user.email
+    get_user.admin_order_field = 'name'  # Allows column order sorting
+    get_user.short_description = 'Email of user'  # Renames column head
+
+
+class CustomSubjectAdmin(admin.ModelAdmin):
+    model = models.Subject
+    list_display = ['name', 'get_classroom', 'get_user']
+    list_filter = ['user__email', 'classroom__name']
+
+    def get_user(self, obj):
+        return obj.user.email
+    get_user.admin_order_field = 'name'  # Allows column order sorting
+    get_user.short_description = 'Email of user'  # Renames column head
+
+    def get_classroom(self, obj):
+        return obj.classroom.name
+    get_classroom.short_description = 'Classroom name'  # Renames column head
+
+
 admin.site.register(models.User, CustomUserAdmin)
-admin.site.register(models.Subject)
+admin.site.register(models.Classroom, CustomClassroomAdmin)
+admin.site.register(models.Subject, CustomSubjectAdmin)

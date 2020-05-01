@@ -71,12 +71,49 @@ class User(AbstractBaseUser, PermissionsMixin):
         )
 
 
+class Classroom(models.Model):
+    """Creates classroom model where only teacher can create classroom"""
+    user = models.ForeignKey(
+        'User', related_name='classroom', on_delete=models.CASCADE)
+    name = models.CharField(
+        _('Classroom name'), max_length=30, blank=False, null=False,
+        validators=(MinLengthValidator(4), ProhibitNullCharactersValidator))
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """Overriding save method"""
+        self.name = self.name.lower().strip()
+
+        if len(self.name) == 0:
+            raise ValueError({'name': _('Classroom name can not be blank')})
+
+        # Only teachers can create classroom
+        if not User.objects.get(email=self.user).is_teacher:
+            raise PermissionDenied()
+
+        super(Classroom, self).save(*args, **kwargs)
+
+    class Meta:
+        unique_together = ('user', 'name')
+
+
 class Subject(models.Model):
     """Creates subject model where only teacher can create subject"""
     user = models.ForeignKey(
-        'User', related_name='subjects', on_delete=models.CASCADE)
+        'User',
+        related_name='user_subject',
+        on_delete=models.CASCADE)
+    classroom = models.ForeignKey(
+        'Classroom',
+        related_name='classroom_subject',
+        on_delete=models.CASCADE)
     name = models.CharField(
-        _('Subject name'), max_length=30, blank=False, null=False,
+        _('Subject name'),
+        max_length=30,
+        blank=False,
+        null=False,
         validators=(MinLengthValidator(4), ProhibitNullCharactersValidator))
 
     def __str__(self):
@@ -93,7 +130,11 @@ class Subject(models.Model):
         if not User.objects.get(email=self.user).is_teacher:
             raise PermissionDenied()
 
+        # Teacher can create subject in his classroom only
+        if Classroom.objects.get(name=self.classroom).user != self.user:
+            raise PermissionDenied()
+
         super(Subject, self).save(*args, **kwargs)
 
     class Meta:
-        unique_together = ('user', 'name')
+        unique_together = ('user', 'classroom', 'name')
