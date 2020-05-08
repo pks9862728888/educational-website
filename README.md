@@ -1,4 +1,4 @@
-# live-streaming
+# Educational Website
 Live streaming website with django and angular
 
 # Status: Still in development phase
