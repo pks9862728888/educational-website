@@ -1,0 +1,77 @@
+.full-body-container {
+    height: calc(100vh - 56px);
+    width: 100%;
+}
+
+/* Styling sidenav toggle icon */
+.toggle-icon {
+    top: 0;
+    left: 0;
+    position: absolute;
+    z-index: 100;
+    background-color: #000000;
+    padding: 6px 0px 2px 0px;
+    cursor: pointer;
+}
+
+.icon {
+    color: #ffffff;
+}
+
+/* Styling sidenav */
+.sidenav-container-20 {
+    height: 100%;
+    width: 20%;
+}
+
+.sidenav-container-75 {
+    width: 75%;
+    height: 100%;
+}
+
+.sidenav-container {
+    width: 100%;
+    height: 100%;
+}
+
+.sidenav-padding-top {
+    padding-top: 58px;
+}
+
+.is-mobile {
+    position: absolute;
+    z-index: 200;
+}
+
+/* Styling sidenav contents */
+.sidenav-background-color {
+    background-color: #262626;
+    color: #ffffff;
+}
+
+.sidenav-content-less-padding {
+    padding: 9px 20px;
+    cursor: pointer;
+}
+
+.sidenav-content-more-padding {
+    padding: 9px 30px;
+    cursor: pointer;
+}
+
+.selected-nav-option {
+    background-color: #1D1D1D;
+    outline: none;
+    border-width: 2px 0px 2px 0px;
+    border-color: #343434;
+    border-style: solid;
+}
+
+.sidenav-content:hover {
+    background-color: #373737;
+}
+
+/* Styling main body of router outlet */
+.main-body {
+    padding: 10px 30px;
+}

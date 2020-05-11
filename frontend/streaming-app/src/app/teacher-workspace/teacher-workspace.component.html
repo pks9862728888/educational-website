@@ -1,3 +1,101 @@
-<p>teacher-workspace works!</p>
+<!-- Showing sidenav -->
+<div class="full-body-container" [ngClass]="{'is-mobile': mobileQuery.matches}">
+    <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'"
+                           [fixedInViewport]="mobileQuery.matches"
+                           [ngClass]="{'sidenav-container-20': mobileQuery.matches === false,
+                                       'sidenav-container-75': mobileQuery.matches}"
+                           fixedTopGap="46px"
+                           [(opened)]="opened"
+                           autoFocus="false"
+                           class="sidenav-background-color">
 
-<router-outlet></router-outlet>
+            <!-- Sidenav contents -->
+            <mat-nav-list [ngClass]="{'sidenav-padding-top': mobileQuery.matches === true}">
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/profile']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">My Profile</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/institutes']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">My Institutes</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/classes']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">My Classes</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/subjects']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">My subjects</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                    [routerLink]="['/teacher-workspace/tests']"
+                    routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">Mock Tests</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                    [routerLink]="['/teacher-workspace/assignments']"
+                    routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">Assignments</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/attendance']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">Student Attendance</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/resources']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">Resources</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/time-table']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">My Time Table</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/chatrooms']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">Chatrooms</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/feedbacks']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">Feedbacks</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/announcements']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">Announcements</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                     [routerLink]="['/teacher-workspace/results']"
+                     routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">Results</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                                 'sidenav-content-more-padding': mobileQuery.matches === false}"
+                    [routerLink]="['/teacher-workspace/disciplinary-queue']"
+                    routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile()">
+                    Disciplinary Queue</div>
+            </mat-nav-list>
+        </mat-sidenav>
+
+        <mat-sidenav-content>
+            <section class="toggle-icon" (click)="snav.toggle()">
+                <mat-icon *ngIf="opened === false" class="icon"
+                          aria-hidden="false" aria-label="Show navigaion pane icon">keyboard_arrow_right</mat-icon>
+                <mat-icon *ngIf="opened" class="icon" aria-hidden="false" aria-label="Hide navigaion Pane icon">
+                    keyboard_arrow_left</mat-icon>
+            </section>
+
+            <!-- Main content rendering outlet -->
+            <div class="main-body">
+                <router-outlet></router-outlet>
+            </div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>

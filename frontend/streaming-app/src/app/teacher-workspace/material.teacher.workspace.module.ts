@@ -1,31 +1,25 @@
 import { NgModule } from '@angular/core';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatButtonModule } from '@angular/material/button';
+import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 
 
 @NgModule({
     imports: [
-        MatButtonModule,
         MatSidenavModule,
+        MatListModule,
         MatIconModule,
         MatToolbarModule,
-        MatTabsModule,
-        MatExpansionModule,
-        MatCardModule,
+        MatDividerModule,
     ],
     exports: [
-        MatButtonModule,
         MatSidenavModule,
+        MatListModule,
         MatIconModule,
         MatToolbarModule,
-        MatTabsModule,
-        MatExpansionModule,
-        MatCardModule,
+        MatDividerModule,
     ]
 })
 export class TeacherMaterialWorkspaceModule { }
