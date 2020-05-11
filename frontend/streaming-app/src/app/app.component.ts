@@ -80,11 +80,11 @@ export class AppComponent implements OnInit, OnDestroy {
   getWorkSpaceRoute() {
     // Rendering appropriate workspace
     if (localStorage.getItem('is_student') === JSON.stringify(true)) {
-      return ['/workspace/student-workspace'];
+      return ['/student-workspace'];
     } else if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
-      return ['/workspace/teacher-workspace'];
+      return ['/teacher-workspace'];
     } else if (localStorage.getItem('is_staff') === JSON.stringify(true)) {
-      return ['/workspace/staff-workspace'];
+      return ['/staff-workspace'];
     } else {
       // Get the type of user and then again navigate to appropriate workspace
     }

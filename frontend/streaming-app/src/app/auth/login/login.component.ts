@@ -37,7 +37,7 @@ export class LoginComponent implements OnInit {
 
     // If auth token is already saved then skipping login step
     if (this.cookieService.get('auth-token-edu-website')) {
-      this.router.navigate(['/workspace']);
+      this.redirectToAppropriateWorkspace();
     }
   }
 
@@ -65,7 +65,7 @@ export class LoginComponent implements OnInit {
         // Sending logged in status as broadcast
         this.authService.sendLoggedinStatusSignal(true);
 
-        this.router.navigate(['/workspace']);
+        this.redirectToAppropriateWorkspace();
       },
       error => {
         this.errorText = error.error.non_field_errors[0];
@@ -79,4 +79,17 @@ export class LoginComponent implements OnInit {
     this.signupHint = false;
   }
 
+  // To redirect to appropriate workspace
+  redirectToAppropriateWorkspace() {
+    // Rendering appropriate workspace
+    if (localStorage.getItem('is_student') === JSON.stringify(true)) {
+      this.router.navigate(['/student-workspace']);
+    } else if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
+      this.router.navigate(['/teacher-workspace']);
+    } else if (localStorage.getItem('is_staff') === JSON.stringify(true)) {
+      this.router.navigate(['/staff-workspace']);
+    } else {
+      // Get the type of user and then again navigate to appropriate workspace
+    }
+  }
 }

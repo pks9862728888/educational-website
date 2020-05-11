@@ -9,7 +9,15 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from './material.module';
 import { AuthService } from './auth.service';
 import { HttpClientModule } from '@angular/common/http';
-import { WorkspaceModule } from './workspace/workspace.module';
+
+import { TeacherWorkspaceModule } from './teacher-workspace/teacher-workspace.module';
+import { StudentWorkspaceModule } from './student-workspace/student-workspace.module';
+import { StaffWorkspaceModule } from './staff-workspace/staff-workspace.module';
+import { HelpModule } from './help/help.module';
+import { FeaturesModule } from './features/features.module';
+import { PricingModule } from './pricing/pricing.module';
+import { AboutModule } from './about/about.module';
+import { HomeModule } from './home/home.module';
 
 @NgModule({
   declarations: [
@@ -25,7 +33,14 @@ import { WorkspaceModule } from './workspace/workspace.module';
     FlexLayoutModule,
     MaterialModule,
     HttpClientModule,
-    WorkspaceModule
+    TeacherWorkspaceModule,
+    StudentWorkspaceModule,
+    StaffWorkspaceModule,
+    HomeModule,
+    FeaturesModule,
+    PricingModule,
+    AboutModule,
+    HelpModule,
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

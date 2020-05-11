@@ -18,7 +18,16 @@ export class SignupComponent implements OnInit {
                private router: Router ) {
     // If auth token is already saved then skipping signup step
     if (this.cookieService.get('auth-token-edu-website')) {
-      this.router.navigate(['/workspace']);
+      // Rendering appropriate workspace
+      if (localStorage.getItem('is_student') === JSON.stringify(true)) {
+        this.router.navigate(['/student-workspace']);
+      } else if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
+        this.router.navigate(['/teacher-workspace']);
+      } else if (localStorage.getItem('is_staff') === JSON.stringify(true)) {
+        this.router.navigate(['/staff-workspace']);
+      } else {
+        // Get the type of user and then again navigate to appropriate workspace
+      }
     }
   }
 
@@ -67,5 +76,4 @@ export class SignupComponent implements OnInit {
   closeMessage() {
     this.loginHint = false;
   }
-
 }
