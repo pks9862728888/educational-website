@@ -17,6 +17,7 @@ import { TeacherFeedbackComponent } from './teacher-feedback/teacher-feedback.co
 import { TeacherAnnouncementComponent } from './teacher-announcement/teacher-announcement.component';
 import { TeacherResultComponent } from './teacher-result/teacher-result.component';
 import { BlockedMembersComponent } from './blocked-members/blocked-members.component';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 
 @NgModule({
@@ -40,6 +41,7 @@ import { BlockedMembersComponent } from './blocked-members/blocked-members.compo
   imports: [
     CommonModule,
     AppRoutingModule,
+    FlexLayoutModule,
     TeacherMaterialWorkspaceModule,
   ]
 })

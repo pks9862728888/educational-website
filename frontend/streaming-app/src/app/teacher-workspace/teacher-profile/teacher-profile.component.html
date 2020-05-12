@@ -1,1 +1,82 @@
-Profile works
+<mat-card class="tabgroup-background">
+    <mat-tab-group dynamicHeight mat-stretch-tabs>
+        <!-- First tab -->
+        <mat-tab label="Profile">
+            <div class="tab-content mat-elevation-z4">
+                <!-- Profile section content -->
+                <div class="container profile-container">
+                    <div class="row">
+                        <!-- Left side content -->
+                        <div class="col-sm-4">
+                            <img mat-card-image src="../../../assets/imgs/cd6.png" alt="Profile picture">
+                        </div>
+                        <div class="col-sm-8 name-username" [ngClass]="{'name-username-desktop': mobileQuery.matches === false}">
+
+                            <!-- Right side content -->
+                            <div fxLayout="column">
+                                <div>
+                                    <h1 [ngClass]="{'mat-display-1': mobileQuery.matches === false, 'text-align-center-mobile': mobileQuery.matches}">
+                                        Pran Kumar Sarkar</h1>
+                                </div>
+                                <div class="margin-bottom-15">
+                                    <h4 [ngClass]="{'text-align-center-mobile': mobileQuery.matches}">@hackedlings</h4>
+                                </div>
+                                <div >
+                                    <mat-card class="biodata">
+                                        <h4>Email: pks9862728888@gmail.com</h4>
+                                        <h4>Mobile No: 9862727778</h4>
+                                        <h4>Gender: Male</h4>
+                                        <h4>Country: India</h4>
+                                        <h4>Birthday: 24/12/1997</h4>
+                                        <h4>Member since: 24/12/1997</h4>
+                                        <h4>User Type: Teacher</h4>
+                                    </mat-card>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+
+        <!-- Second tab -->
+        <mat-tab label="Edit Profile">
+            <div class="tab-content mat-elevation-z4">
+                <!-- Profile section content -->
+                <div class="container profile-container">
+                    <div class="row">
+                        <!-- Left side content -->
+                        <div class="col-sm-4">
+                            <img mat-card-image src="../../../assets/imgs/cd6.png" alt="Profile picture">
+                        </div>
+                        <div class="col-sm-8 name-username" [ngClass]="{'name-username-desktop': mobileQuery.matches === false}">
+
+                            <!-- Right side content -->
+                            <div fxLayout="column">
+                                <div>
+                                    <h1
+                                        [ngClass]="{'mat-display-1': mobileQuery.matches === false, 'text-align-center-mobile': mobileQuery.matches}">
+                                        Pran Kumar Sarkar</h1>
+                                </div>
+                                <div class="margin-bottom-15">
+                                    <h4 [ngClass]="{'text-align-center-mobile': mobileQuery.matches}">@hackedlings</h4>
+                                </div>
+                                <div>
+                                    <mat-card class="biodata">
+                                        <h4>Email: pks9862728888@gmail.com</h4>
+                                        <h4>Mobile No: 9862727778</h4>
+                                        <h4>Gender: Male</h4>
+                                        <h4>Country: India</h4>
+                                        <h4>Birthday: 24/12/1997</h4>
+                                        <h4>Member since: 24/12/1997</h4>
+                                        <h4>User Type: Teacher</h4>
+                                    </mat-card>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</mat-card>

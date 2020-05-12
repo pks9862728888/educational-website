@@ -1,0 +1,65 @@
+h1, h2, h3, h4, h5 {
+    margin: 0px;
+}
+
+/* Styling angular material tabs */
+::ng-deep.mat-tab-label.mat-tab-label-active {
+    color: #ffffff;
+}
+
+::ng-deep.mat-tab-label {
+    color: #ffffff;
+}
+
+::ng-deep.mat-ink-bar {
+    /* background-color: var(--primary-color,#1F89CE) !important; */
+    background-color: var(--primary-color,#9b27b0) !important;
+}
+
+.tabgroup-background {
+    background-color: #373737;
+}
+
+.tab-content {
+    background-color: #303030;
+}
+
+/* Styling profile picture row */
+.img {
+    object-fit: cover;
+}
+
+.mat-card-image {
+    margin: 15px 0 !important;
+    height: 250px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.name-username {
+    color: #92979C;
+}
+
+.name-username-desktop {                     /* For desktop */
+    padding-top: 10px;
+}
+
+.text-align-center-mobile {                   /*For mobile*/
+    text-align: center;
+}
+
+.mat-display-1 {
+    margin: 0px;
+}
+
+.margin-bottom-15 {
+    margin-bottom: 10px;
+}
+
+.biodata {
+    background-color: #424242;
+    color: #b1b1b1;
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 15px;
+}
