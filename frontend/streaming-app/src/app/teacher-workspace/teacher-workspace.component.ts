@@ -14,6 +14,9 @@ export class TeacherWorkspaceComponent implements OnInit {
   mobileQuery: MediaQueryList;
   opened: boolean;
 
+  // For breadcrumb
+  activeLink: string;
+
   constructor( private cookieService: CookieService,
                private router: Router,
                private media: MediaMatcher ) {
@@ -34,6 +37,9 @@ export class TeacherWorkspaceComponent implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
+
+    // Setting active link
+    this.activeLink = 'PROFILE';
   }
 
   ngOnInit(): void {
@@ -45,10 +51,24 @@ export class TeacherWorkspaceComponent implements OnInit {
     }
   }
 
-  hideNavbarInMobile() {
+  // For breadcrumb
+  navigateClicked(link) {
+    if (link !== this.activeLink) {
+      this.activeLink = link;
+
+      if (this.activeLink === 'HOME') {
+        this.router.navigate(['\home']);
+      }
+    }
+  }
+
+  // For navbar
+  hideNavbarInMobile(link) {
     if (this.mobileQuery.matches === true) {
       this.opened = false;
     }
+
+    this.navigateClicked(link);
   }
 
 }
