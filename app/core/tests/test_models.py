@@ -1,6 +1,12 @@
+import os
+import datetime
+
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 
 from core import models
 
@@ -120,6 +126,82 @@ class UserModelTests(TestCase):
         )
 
         self.assertEqual(str(user), email)
+
+
+class TeacherModelTesta(TestCase):
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email='abc@gmail.com',
+            password='testpassword',
+            username='testusername',
+            is_teacher=True
+        )
+
+    def test_profile_created_when_user_created(self):
+        """Test teacher profile is created when user registers"""
+        user = get_object_or_404(models.TeacherProfile, user=self.user)
+
+        self.assertEqual(str(self.user), str(user))
+
+    def test_create_teacher_profile_created_successfully(self):
+        """Test that profile is created successfully with full details"""
+        payload = {
+            'first_name': 'Temp name',
+            'last_name': 'Lastname',
+            'phone': '+919862727348',
+            'gender': 'M',
+            'birthday': '1997-12-23',             # YYYY-MM-DD
+            'country': 'IN',
+            'language': models.Languages.HINDI
+        }
+
+        self.user.teacher_profile.first_name = payload['first_name']
+        self.user.teacher_profile.last_name = payload['last_name']
+        self.user.teacher_profile.phone = payload['phone']
+        self.user.teacher_profile.gender = payload['gender']
+        self.user.teacher_profile.country = payload['country']
+        self.user.teacher_profile.secondary_language = payload['language']
+        self.user.save()
+        self.user.refresh_from_db()
+
+        self.assertEqual(self.user.teacher_profile.first_name,
+                         payload['first_name'].upper())
+        self.assertEqual(self.user.teacher_profile.last_name,
+                         payload['last_name'].upper())
+        self.assertEqual(self.user.teacher_profile.phone, payload['phone'])
+        self.assertEqual(self.user.teacher_profile.gender, payload['gender'])
+        self.assertEqual(self.user.teacher_profile.country, payload['country'])
+        self.assertEqual(self.user.teacher_profile.primary_language, None)
+        self.assertEqual(
+            self.user.teacher_profile.secondary_language, payload['language'])
+        self.assertEqual(self.user.teacher_profile.tertiary_language, None)
+
+    def test_string_representation_of_teacher_profile(self):
+        """Test the string representation of teacher profile model"""
+        email = 'test@gmail.com'
+        user = get_user_model().objects.create_user(
+            email=email,
+            password='testpass@1234',
+            username='testuser',
+            is_teacher=True
+        )
+        teacher_profile = models.TeacherProfile.objects.get(user=user)
+
+        self.assertEqual(str(teacher_profile), email)
+
+    @patch('uuid.uuid4')
+    def test_image_upload_url_uuid(self, mock_url):
+        """Test that teacher profile picture is uploaded in correct location"""
+        uuid = 'test-uuid'
+        mock_url.return_value = uuid
+        file_path = models.teacher_profile_picture_upload_file_path(None,
+                                                                    'img.jpg')
+        dt = datetime.date.today()
+        path = 'pictures/uploads/teacher/profile'
+        ini_path = f'{path}/{dt.year}/{dt.month}/{dt.day}'
+        expected_path = os.path.join(ini_path, f'{uuid}.jpg')
+        self.assertEqual(file_path, expected_path)
 
 
 class ClassroomModelTests(TestCase):

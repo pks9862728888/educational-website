@@ -64,6 +64,51 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
+class CustomTeacherUserProfile(admin.ModelAdmin):
+    """Customizing the user profile admin page"""
+    list_display = ['user', 'first_name', 'last_name',
+                    'country', 'phone',
+                    'primary_language', 'secondary_language',
+                    'tertiary_language']
+    search_fields = ['user__username', 'first_name',
+                     'last_name', 'country',
+                     'primary_language', 'secondary_language',
+                     'tertiary_language']
+    list_filter = ('country', )
+    fieldsets = (
+        (
+            _('Personal details'),
+            {
+                'fields': ('first_name', 'last_name', 'gender',
+                           'date_of_birth')
+            }
+        ),
+        (
+            _('Avatar'),
+            {
+                'fields': ('image', )
+            }
+        ),
+        (
+            _('Contact details'),
+            {
+                'fields': (
+                    'phone', 'country'
+                )
+            }
+        ),
+        (
+            _('Language preferences'),
+            {
+                'fields': (
+                    'primary_language',
+                    'secondary_language',
+                    'tertiary_language')
+            }
+        )
+    )
+
+
 class CustomClassroomAdmin(admin.ModelAdmin):
     model = models.Classroom
     list_display = ['name', 'get_user']
@@ -91,5 +136,6 @@ class CustomSubjectAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.User, CustomUserAdmin)
+admin.site.register(models.TeacherProfile, CustomTeacherUserProfile)
 admin.site.register(models.Classroom, CustomClassroomAdmin)
 admin.site.register(models.Subject, CustomSubjectAdmin)

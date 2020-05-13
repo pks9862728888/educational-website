@@ -1,13 +1,53 @@
+import os
+import uuid
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
     PermissionsMixin
 from django.core.validators import EmailValidator, MinLengthValidator, \
-    ProhibitNullCharactersValidator
+    ProhibitNullCharactersValidator, validate_image_file_extension
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.utils.translation import ugettext as _
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from django.core.exceptions import ObjectDoesNotExist
+
+from phonenumber_field.modelfields import PhoneNumberField
+from django_countries import Countries
+from django_countries.fields import CountryField
 
 from rest_framework.authtoken.models import Token
+
+
+class OperationalCountries(Countries):
+    """Overriding countries to include only operational countries."""
+    only = ['IN', ]
+
+
+# Languages available as options in language field
+class Languages:
+    ENGLISH = 'EN'
+    BENGALI = 'BN'
+    HINDI = 'HI'
+    LANGUAGE_IN_LANGUAGE_CHOICES = [
+        (ENGLISH, _(u'English')),
+        (BENGALI, _(u'Bengali')),
+        (HINDI, _(u'Hindi'))
+    ]
+
+
+def teacher_profile_picture_upload_file_path(instance, filename):
+    """Generates file path for uploading teacher images in teacher profile"""
+    extension = filename.split('.')[-1]
+    file_name = f'{uuid.uuid4()}.{extension}'
+    date = datetime.date.today()
+    path = 'pictures/uploads/teacher/profile'
+    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
+    full_path = os.path.join(ini_path, file_name)
+
+    return full_path
 
 
 class UserManager(BaseUserManager):
@@ -69,6 +109,79 @@ class User(AbstractBaseUser, PermissionsMixin):
             ('is_student', 'user_is_student'),
             ('is_teacher', 'user_is_teacher'),
         )
+
+
+class TeacherProfile(models.Model, Languages):
+    """Creates user profile model"""
+    user = models.OneToOneField(
+        'User',
+        related_name='teacher_profile',
+        on_delete=models.CASCADE
+    )
+    first_name = models.CharField(
+        _('First Name'), max_length=255, blank=True,
+        validators=(ProhibitNullCharactersValidator, ))
+    last_name = models.CharField(
+        _('Last Name'), max_length=255, blank=True,
+        validators=(ProhibitNullCharactersValidator, ))
+    gender = models.CharField(_('Gender'), max_length=1, blank=True)
+    phone = PhoneNumberField(_('Phone'), null=True, blank=True)
+    date_of_birth = models.DateField(
+        _('Date of Birth'), max_length=10, null=True, blank=True)
+    country = CountryField(
+        _('Country'), countries=OperationalCountries, default='IN')
+    primary_language = models.CharField(
+        _('Primary language'),
+        max_length=3,
+        choices=Languages.LANGUAGE_IN_LANGUAGE_CHOICES,
+        null=True, blank=True
+    )
+    secondary_language = models.CharField(
+        _('Secondary language'),
+        max_length=3,
+        choices=Languages.LANGUAGE_IN_LANGUAGE_CHOICES,
+        null=True, blank=True
+    )
+    tertiary_language = models.CharField(
+        _('Tertiary language'),
+        max_length=3,
+        choices=Languages.LANGUAGE_IN_LANGUAGE_CHOICES,
+        null=True, blank=True
+    )
+    image = models.ImageField(
+        _('Image'),
+        upload_to=teacher_profile_picture_upload_file_path,
+        null=True,
+        blank=True,
+        max_length=1024,
+        validators=(validate_image_file_extension,)
+    )
+
+    def save(self, *args, **kwargs):
+        """Overriding save method"""
+        self.first_name = self.first_name.upper().strip()
+        self.last_name = self.last_name.upper().strip()
+
+        super(TeacherProfile, self).save(*args, **kwargs)
+
+    def __str__(self):
+        """String representation"""
+        return str(self.user)
+
+
+@receiver(post_save, sender=User)
+def user_is_created(sender, instance, created, **kwargs):
+    if created:
+        # Creating teacher profile
+        if instance.is_teacher:
+            TeacherProfile.objects.create(user=instance)
+    else:
+        # Saving teacher profile and creating if not existing
+        if instance.is_teacher:
+            try:
+                instance.teacher_profile.save()
+            except ObjectDoesNotExist:
+                TeacherProfile.objects.create(user=instance)
 
 
 class Classroom(models.Model):
