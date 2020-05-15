@@ -2,9 +2,21 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import generics
 from rest_framework import status
 
 from . import serializer
+
+
+class ManageTeacherProfileView(generics.RetrieveUpdateAPIView):
+    """Manage the authenticated user"""
+    serializer_class = serializer.ManageTeacherProfileSerializer
+    authentication_classes = [TokenAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+
+    def get_object(self):
+        """Retrieve and return authenticated user and profile data"""
+        return self.request.user
 
 
 class CreateClassroomView(APIView):

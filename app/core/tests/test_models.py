@@ -172,7 +172,8 @@ class TeacherModelTesta(TestCase):
         self.assertEqual(self.user.teacher_profile.phone, payload['phone'])
         self.assertEqual(self.user.teacher_profile.gender, payload['gender'])
         self.assertEqual(self.user.teacher_profile.country, payload['country'])
-        self.assertEqual(self.user.teacher_profile.primary_language, None)
+        self.assertEqual(self.user.teacher_profile.primary_language,
+                         models.Languages.ENGLISH)
         self.assertEqual(
             self.user.teacher_profile.secondary_language, payload['language'])
         self.assertEqual(self.user.teacher_profile.tertiary_language, None)

@@ -8,8 +8,6 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 
-# from core import models
-
 
 # Creating urls for making various api calls
 USER_SIGNUP_URL = reverse("user:user-signup")

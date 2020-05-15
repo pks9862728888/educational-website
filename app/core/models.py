@@ -38,6 +38,18 @@ class Languages:
     ]
 
 
+# Gender available as options in Gender Field
+class Gender:
+    MALE = 'M'
+    FEMALE = 'F'
+    OTHER = 'O'
+    GENDER_IN_GENDER_CHOICES = [
+        (MALE, _(u'Male')),
+        (FEMALE, _(u'Female')),
+        (OTHER, _(u'Other'))
+    ]
+
+
 def teacher_profile_picture_upload_file_path(instance, filename):
     """Generates file path for uploading teacher images in teacher profile"""
     extension = filename.split('.')[-1]
@@ -124,7 +136,11 @@ class TeacherProfile(models.Model, Languages):
     last_name = models.CharField(
         _('Last Name'), max_length=255, blank=True,
         validators=(ProhibitNullCharactersValidator, ))
-    gender = models.CharField(_('Gender'), max_length=1, blank=True)
+    gender = models.CharField(
+        _('Gender'),
+        max_length=1,
+        blank=True,
+        choices=Gender.GENDER_IN_GENDER_CHOICES,)
     phone = PhoneNumberField(_('Phone'), null=True, blank=True)
     date_of_birth = models.DateField(
         _('Date of Birth'), max_length=10, null=True, blank=True)
@@ -134,7 +150,8 @@ class TeacherProfile(models.Model, Languages):
         _('Primary language'),
         max_length=3,
         choices=Languages.LANGUAGE_IN_LANGUAGE_CHOICES,
-        null=True, blank=True
+        default=Languages.ENGLISH,
+        blank=True
     )
     secondary_language = models.CharField(
         _('Secondary language'),
