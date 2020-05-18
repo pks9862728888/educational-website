@@ -26,7 +26,7 @@ Educational streaming website with django and angular
 
 **Response on successful user login:** token
 
-## List User url
+## List User Profile Picture url
 **URL:** https://127.0.0.1:8000/user/list-profile-picture
 
 **Allowed methods** GET
