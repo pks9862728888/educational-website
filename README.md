@@ -31,8 +31,8 @@ Live streaming website with django and angular
 
 **Allowed methods** GET, PUT, PATCH
 
-**GET Response:
-`
+**GET Response JSON format:**
+```
 {
     "id": "",
     "email": "",
@@ -55,9 +55,9 @@ Live streaming website with django and angular
         "uploaded_on": ""
     }
 }
-`
-**PUT, PATCH Format:
-`
+```
+**PUT, PATCH JSON Format:
+```
 {
     "id": 1,
     "email": "",
@@ -75,4 +75,4 @@ Live streaming website with django and angular
         "tertiary_language": ""
     }
 }
-`
+```
