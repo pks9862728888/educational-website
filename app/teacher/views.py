@@ -18,6 +18,15 @@ class ManageTeacherProfileView(generics.RetrieveUpdateAPIView):
         """Retrieve and return authenticated user and profile data"""
         return self.request.user
 
+    def get_serializer(self, instance=None, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        serializer_class = self.get_serializer_class()
+        return serializer_class(instance, *args, **kwargs,
+                                context={"request": self.request})
+
 
 class CreateClassroomView(APIView):
     """View for creating a new classroom"""

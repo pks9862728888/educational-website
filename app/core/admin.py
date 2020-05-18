@@ -109,9 +109,21 @@ class CustomTeacherUserProfile(admin.ModelAdmin):
     )
 
 
+class CustomProfilePictures(admin.ModelAdmin):
+    model = models.ProfilePictures
+    list_display = ['id', 'user', 'uploaded_on',
+                    'class_profile_picture', 'public_profile_picture']
+    list_filter = ['user__email', ]
+
+    def get_user(self, obj):
+        return obj.user.email
+    get_user.admin_order_field = 'name'  # Allows column order sorting
+    get_user.short_description = 'Email of user'  # Renames column head
+
+
 class CustomClassroomAdmin(admin.ModelAdmin):
     model = models.Classroom
-    list_display = ['name', 'get_user']
+    list_display = ['name', 'get_user', ]
     list_filter = ['user__email', ]
 
     def get_user(self, obj):
@@ -137,5 +149,6 @@ class CustomSubjectAdmin(admin.ModelAdmin):
 
 admin.site.register(models.User, CustomUserAdmin)
 admin.site.register(models.TeacherProfile, CustomTeacherUserProfile)
+admin.site.register(models.ProfilePictures, CustomProfilePictures)
 admin.site.register(models.Classroom, CustomClassroomAdmin)
 admin.site.register(models.Subject, CustomSubjectAdmin)

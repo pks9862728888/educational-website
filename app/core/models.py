@@ -50,12 +50,12 @@ class Gender:
     ]
 
 
-def teacher_profile_picture_upload_file_path(instance, filename):
-    """Generates file path for uploading teacher images in teacher profile"""
+def user_profile_picture_upload_file_path(instance, filename):
+    """Generates file path for uploading images in user profile"""
     extension = filename.split('.')[-1]
     file_name = f'{uuid.uuid4()}.{extension}'
     date = datetime.date.today()
-    path = 'pictures/uploads/teacher/profile'
+    path = 'pictures/uploads/user/profile'
     ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
     full_path = os.path.join(ini_path, file_name)
 
@@ -165,14 +165,6 @@ class TeacherProfile(models.Model, Languages):
         choices=Languages.LANGUAGE_IN_LANGUAGE_CHOICES,
         null=True, blank=True
     )
-    image = models.ImageField(
-        _('Image'),
-        upload_to=teacher_profile_picture_upload_file_path,
-        null=True,
-        blank=True,
-        max_length=1024,
-        validators=(validate_image_file_extension,)
-    )
 
     def save(self, *args, **kwargs):
         """Overriding save method"""
@@ -199,6 +191,32 @@ def user_is_created(sender, instance, created, **kwargs):
                 instance.teacher_profile.save()
             except ObjectDoesNotExist:
                 TeacherProfile.objects.create(user=instance)
+
+
+class ProfilePictures(models.Model):
+    """Creates profile pictures model to store profile pictures"""
+    user = models.ForeignKey(
+        'User', related_name='profile_pictures', on_delete=models.CASCADE)
+    image = models.ImageField(
+        _('Image'),
+        upload_to=user_profile_picture_upload_file_path,
+        null=True,
+        blank=True,
+        max_length=1024,
+        validators=(validate_image_file_extension,)
+    )
+    uploaded_on = models.DateTimeField(_('Uploaded on'),
+                                       default=timezone.now, editable=False)
+    class_profile_picture = models.BooleanField(
+        _("ClassProfilePicture"), default=False)
+    public_profile_picture = models.BooleanField(
+        _("PublicProfilePicture"), default=False)
+
+    class Meta:
+        verbose_name_plural = 'Profile Pictures'
+
+    def __str__(self):
+        return str(self.image)
 
 
 class Classroom(models.Model):

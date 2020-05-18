@@ -128,7 +128,7 @@ class UserModelTests(TestCase):
         self.assertEqual(str(user), email)
 
 
-class TeacherModelTesta(TestCase):
+class TeacherModelTests(TestCase):
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
@@ -196,10 +196,10 @@ class TeacherModelTesta(TestCase):
         """Test that teacher profile picture is uploaded in correct location"""
         uuid = 'test-uuid'
         mock_url.return_value = uuid
-        file_path = models.teacher_profile_picture_upload_file_path(None,
-                                                                    'img.jpg')
+        file_path = models.user_profile_picture_upload_file_path(
+            None, 'img.jpg')
         dt = datetime.date.today()
-        path = 'pictures/uploads/teacher/profile'
+        path = 'pictures/uploads/user/profile'
         ini_path = f'{path}/{dt.year}/{dt.month}/{dt.day}'
         expected_path = os.path.join(ini_path, f'{uuid}.jpg')
         self.assertEqual(file_path, expected_path)

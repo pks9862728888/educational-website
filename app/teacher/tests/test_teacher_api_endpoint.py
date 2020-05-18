@@ -126,7 +126,6 @@ class privateTeacherAPITests(TestCase):
                          ['secondary_language'], None)
         self.assertEqual(res.data['teacher_profile']
                          ['tertiary_language'], None)
-        self.assertEqual(res.data['teacher_profile']['image'], None)
 
     def test_update_successful_authorized_teacher(self):
         """Test that authenticated teacher can see their profile details"""
@@ -144,7 +143,6 @@ class privateTeacherAPITests(TestCase):
                 'primary_language': 'BN',
                 'secondary_language': 'HI',
                 'tertiary_language': '',
-                'image': None
             }
         }
 
@@ -173,7 +171,6 @@ class privateTeacherAPITests(TestCase):
         self.assertEqual(res_profile['secondary_language'],
                          payload['teacher_profile']['secondary_language'])
         self.assertEqual(res_profile['tertiary_language'], None)
-        self.assertEqual(res_profile['image'], None)
 
     def test_post_create_retrieve_update_not_allowed(self):
         """Test that post is not allowed on create retrieve update url"""

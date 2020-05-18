@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django_countries.serializer_fields import CountryField
 from django_countries.serializers import CountryFieldMixin
 
-from core.models import TeacherProfile, Subject, Classroom
+from core.models import TeacherProfile, ProfilePictures, Subject, Classroom
 
 
 class TeacherProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
@@ -15,27 +15,53 @@ class TeacherProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
         model = TeacherProfile
         fields = ('first_name', 'last_name', 'gender', 'phone', 'country',
                   'date_of_birth', 'primary_language', 'secondary_language',
-                  'tertiary_language', 'image')
+                  'tertiary_language')
+
+
+class ProfilePicturesSerializer(serializers.ModelSerializer):
+    """Serializer class for profile pictures"""
+
+    class Meta:
+        model = ProfilePictures
+        fields = ('id', 'image', 'uploaded_on')
 
 
 class ManageTeacherProfileSerializer(serializers.ModelSerializer):
     """Serializer class for creating, retrieving & updating teacher profile"""
-    teacher_profile = TeacherProfileSerializer(many=False, )
+    teacher_profile = TeacherProfileSerializer()
+    profile_pictures = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'email', 'username', 'created_date', 'teacher_profile')
+        fields = ('id', 'email', 'username', 'created_date',
+                  'teacher_profile', 'profile_pictures')
         read_only_fields = ('id', 'email', 'created_date')
+
+    def get_profile_pictures(self, instance):
+        profile_picture_instances = instance.profile_pictures.filter(
+            user=instance).filter(class_profile_picture=True)
+        try:
+            data = dict(ProfilePicturesSerializer(
+                profile_picture_instances, many=True).data[0])
+            image = self.context['request'].build_absolute_uri(data['image'])
+            return {
+                'id': data['id'],
+                'image': image,
+                'uploaded_on': data['uploaded_on']
+            }
+        except Exception:
+            return {}
 
     def update(self, instance, validated_data):
         """Add or modify details of user"""
         profile_data = validated_data.pop('teacher_profile', None)
+        validated_data.pop('profile_pictures', None)
         profile = instance.teacher_profile
 
         user = super().update(instance, validated_data)
         user.save()
 
-        # Updating profile data is profile data is present
+        # Updating profile if profile data is present
         if profile_data:
             if profile_data.get('first_name', None):
                 profile.first_name = profile_data.get(
@@ -72,10 +98,6 @@ class ManageTeacherProfileSerializer(serializers.ModelSerializer):
             if profile_data.get('tertiary_language', None):
                 profile.tertiary_language = profile_data.get(
                     'tertiary_language', profile.tertiary_language)
-
-            if profile_data.get('image', None):
-                profile.image = profile_data.get(
-                    'image', profile.image)
 
             profile.save()
             profile.refresh_from_db()

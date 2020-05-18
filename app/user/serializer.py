@@ -3,6 +3,8 @@ from django.utils.translation import gettext as _
 
 from rest_framework import serializers
 
+from core.models import ProfilePictures
+
 
 class CreateUserSerializer(serializers.ModelSerializer):
     """Serializer class for creating a new user"""
@@ -56,3 +58,36 @@ class LoginUserSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+
+class ListProfilePictureSerializer(serializers.ModelSerializer):
+    """Serializer class for listing all profile pictures"""
+
+    class Meta:
+        model = ProfilePictures
+        fields = ('id', 'image', 'uploaded_on',
+                  'public_profile_picture', 'class_profile_picture')
+        read_only_fields = ('id', 'image', 'uploaded_on', 'active'
+                            'public_profile_picture', 'class_profile_picture')
+
+
+class UploadUserProfilePictureSerializer(serializers.ModelSerializer):
+    """Serializer class for showing all profile pictures"""
+    image = serializers.ImageField(required=True)
+
+    class Meta:
+        model = ProfilePictures
+        fields = ('id', 'image', 'uploaded_on',
+                  'public_profile_picture', 'class_profile_picture')
+        read_only_fields = ('id', 'uploaded_on')
+
+
+class SetUserProfilePictureSerializer(serializers.ModelSerializer):
+    """Serializer class for setting profile picture"""
+    id = serializers.IntegerField(required=True)
+    uploaded_on = serializers.DateTimeField(required=False)
+
+    class Meta:
+        model = ProfilePictures
+        fields = ('id', 'image', 'uploaded_on',
+                  'public_profile_picture', 'class_profile_picture')
