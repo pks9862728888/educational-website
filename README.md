@@ -26,6 +26,70 @@ Live streaming website with django and angular
 
 **Response on successful user login:** token
 
+## List User url
+**URL:** https://127.0.0.1:8000/user/list-profile-picture
+
+**Allowed methods** GET
+
+**Response:** 
+```
+[
+    {
+        "id": 4,
+        "image": "http://127.0.0.1:8000/media/pictures/uploads/user/profile/2020/5/17/15b3b3be-9010-4c99-9882-46f828e15906.png",
+        "uploaded_on": "2020-05-17T17:53:57.612261Z",
+        "active": false
+    },
+    {
+        "id": 3,
+        "image": "http://127.0.0.1:8000/media/pictures/uploads/user/profile/2020/5/17/d7289061-c09c-4af3-8e4a-99444b59f4e3.png",
+        "uploaded_on": "2020-05-17T17:48:09.871949Z",
+        "active": true
+    }
+]
+```
+
+## User Upload Profile Picture url
+**URL:** https://127.0.0.1:8000/user/upload-profile-picture
+
+**Allowed methods** POST
+
+**Fields:** image
+
+**Response:** 
+```
+{
+    "id": 14,
+    "image": "http://127.0.0.1:8000/media/pictures/uploads/user/profile/2020/5/18/968ddd3e-59fa-41d7-a50e-b6c11af67af3.png",
+    "uploaded_on": "2020-05-18T14:39:40.394962Z"
+}
+```
+
+## User Set Profile Picture url
+**URL:** https://127.0.0.1:8000/user/set-profile-picture
+
+**Allowed methods** POST
+
+**Fields:** id
+
+**Response:** 
+```
+{
+    "id": 14,
+    "image": "http://127.0.0.1:8000/media/pictures/uploads/user/profile/2020/5/18/968ddd3e-59fa-41d7-a50e-b6c11af67af3.png",
+    "uploaded_on": "2020-05-18T14:39:40.394962Z"
+}
+```
+
+**Errors:**
+```
+{
+    "id": [
+        "Please send a valid id"
+    ]
+}
+```
+
 ## Teacher Profile url
 **URL:** https://127.0.0.1:8000/teacher/teacher-profile
 
@@ -56,7 +120,7 @@ Live streaming website with django and angular
     }
 }
 ```
-**PUT, PATCH JSON Format:
+**PUT, PATCH JSON Format:**
 ```
 {
     "id": 1,
