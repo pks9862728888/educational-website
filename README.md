@@ -59,18 +59,29 @@ Educational streaming website with django and angular
 **Response:** 
 ```
 {
-    "id": 14,
-    "image": "http://127.0.0.1:8000/media/pictures/uploads/user/profile/2020/5/18/968ddd3e-59fa-41d7-a50e-b6c11af67af3.png",
-    "uploaded_on": "2020-05-18T14:39:40.394962Z"
+    "id": 9,
+    "image": "http://127.0.0.1:8000/media/pictures/uploads/user/profile/2020/5/19/a41b0657-ee35-4fb5-8d22-f4cdacac8423.png",
+    "uploaded_on": "2020-05-19T02:04:22.193723Z",
+    "public_profile_picture": true,
+    "class_profile_picture": true
 }
 ```
+
+**Errors:**  image, non-field-errors
 
 ## User Set Profile Picture url
 **URL:** https://127.0.0.1:8000/user/set-profile-picture
 
 **Allowed methods** POST
 
-**Fields:** id
+**Fields:** 
+```
+{
+"id" : 9,
+"public_profile_picture": "True",
+"class_profile_picture": "False"
+}
+```
 
 **Response:** 
 ```
@@ -87,6 +98,20 @@ Educational streaming website with django and angular
     "id": [
         "Please send a valid id"
     ]
+}
+```
+
+## User Delete Profile Picture url
+**URL:** https://127.0.0.1:8000/user/delete-profile-picture/1
+
+**Allowed methods** DELETE
+
+**Response:** 
+```
+{
+    "class_profile_picture_deleted": false,
+    "public_profile_picture_deleted": false,
+    "deleted": true
 }
 ```
 
