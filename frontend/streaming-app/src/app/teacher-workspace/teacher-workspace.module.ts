@@ -18,6 +18,7 @@ import { TeacherAnnouncementComponent } from './teacher-announcement/teacher-ann
 import { TeacherResultComponent } from './teacher-result/teacher-result.component';
 import { BlockedMembersComponent } from './blocked-members/blocked-members.component';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { ApiService } from '../api.service';
 
 
 @NgModule({
@@ -43,6 +44,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     AppRoutingModule,
     FlexLayoutModule,
     TeacherMaterialWorkspaceModule,
-  ]
+  ],
+  providers: [ApiService, ]
 })
 export class TeacherWorkspaceModule { }

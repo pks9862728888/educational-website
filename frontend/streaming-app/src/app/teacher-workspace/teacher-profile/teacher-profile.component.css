@@ -36,6 +36,18 @@ h1, h2, h3, h4, h5 {
     overflow: hidden;
 }
 
+.profile-pic-uploaded-banner {
+    color: #b1b1b1;
+    background-color: #2c2c2c;
+    opacity: 0.7;
+    width: calc(100% - 30px);
+    font-size: 10px;
+    font-style: italic;
+    position: absolute;
+    transform: translateY(-31px);
+    text-align: center;
+}
+
 .name-username {
     color: #92979C;
 }

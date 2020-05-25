@@ -8,7 +8,11 @@
                     <div class="row">
                         <!-- Left side content -->
                         <div class="col-sm-4">
-                            <img mat-card-image src="../../../assets/imgs/cd6.png" alt="Profile picture">
+                            <img mat-card-image *ngIf="this.classProfilePicture" [src]=this.classProfilePicture alt="Profile picture">
+                            <img mat-card-image *ngIf="!this.classProfilePicture" src="../../../assets/imgs/cd6.png" alt="Profile picture">
+                            <mat-card-subtitle *ngIf="this.classProfilePictureUploadedOn" class="profile-pic-uploaded-banner">
+                                Uploaded on: {{ this.classProfilePictureUploadedOn }}
+                            </mat-card-subtitle>
                         </div>
                         <div class="col-sm-8 name-username" [ngClass]="{'name-username-desktop': mobileQuery.matches === false}">
 
@@ -16,19 +20,21 @@
                             <div fxLayout="column">
                                 <div>
                                     <h1 [ngClass]="{'mat-display-1': mobileQuery.matches === false, 'text-align-center-mobile': mobileQuery.matches}">
-                                        Pran Kumar Sarkar</h1>
+                                        <span *ngIf="this.firstName">{{ this.firstName | titlecase }} {{ this.lastName | titlecase}}</span>
+                                        <span *ngIf="!this.firstName">Your Name</span>
+                                    </h1>
                                 </div>
                                 <div class="margin-bottom-15">
-                                    <h4 [ngClass]="{'text-align-center-mobile': mobileQuery.matches}">@hackedlings</h4>
+                                    <h4 [ngClass]="{'text-align-center-mobile': mobileQuery.matches}">@ {{ this.username }}</h4>
                                 </div>
                                 <div >
                                     <mat-card class="biodata">
-                                        <h4>Email: pks9862728888@gmail.com</h4>
-                                        <h4>Mobile No: 9862727778</h4>
-                                        <h4>Gender: Male</h4>
-                                        <h4>Country: India</h4>
-                                        <h4>Birthday: 24/12/1997</h4>
-                                        <h4>Member since: 24/12/1997</h4>
+                                        <h4>Email: {{ this.email }}</h4>
+                                        <h4>Mobile No: <span *ngIf="this.phone">{{ this.phone }}</span></h4>
+                                        <h4>Gender: <span *ngIf="this.gender">{{ this.gender }}</span></h4>
+                                        <h4>Country: {{ this.country }}</h4>
+                                        <h4>Birthday: <span *ngIf="this.dateOfBirth">{{ this.dateOfBirth }}</span></h4>
+                                        <h4>Member since: {{ this.createdDate }}</h4>
                                         <h4>User Type: Teacher</h4>
                                     </mat-card>
                                 </div>
