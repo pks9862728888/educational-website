@@ -23,7 +23,8 @@ class ProfilePicturesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProfilePictures
-        fields = ('id', 'image', 'uploaded_on')
+        fields = ('id', 'image', 'uploaded_on',
+                  'class_profile_picture', 'public_profile_picture')
 
 
 class ManageTeacherProfileSerializer(serializers.ModelSerializer):
@@ -47,7 +48,9 @@ class ManageTeacherProfileSerializer(serializers.ModelSerializer):
             return {
                 'id': data['id'],
                 'image': image,
-                'uploaded_on': data['uploaded_on']
+                'uploaded_on': data['uploaded_on'],
+                'class_profile_picture': data['class_profile_picture'],
+                'public_profile_picture': data['public_profile_picture']
             }
         except Exception:
             return {}

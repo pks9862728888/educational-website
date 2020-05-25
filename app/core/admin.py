@@ -84,12 +84,6 @@ class CustomTeacherUserProfile(admin.ModelAdmin):
             }
         ),
         (
-            _('Avatar'),
-            {
-                'fields': ('image', )
-            }
-        ),
-        (
             _('Contact details'),
             {
                 'fields': (

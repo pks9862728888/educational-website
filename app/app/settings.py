@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     '192.168.43.25',
-    '192.168.43.216',
+    '192.168.43.215',
     '192.168.29.37'
 ]
 
@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:4200",
-    "http://192.168.43.216:4200"
+    "http://192.168.43.215:4200"
 ]
 
 # Database
