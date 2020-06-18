@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ApiService } from '../../api.service';
-import { GENDER, COUNTRY, LANGUAGE } from '../../../constants';
+import { GENDER, COUNTRY, LANGUAGE, LANGUAGE_REVERSE, GENDER_REVERSE, COUNTRY_REVERSE } from '../../../constants';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 interface TeacherProfileDetails {
   id: number;
@@ -28,6 +29,7 @@ interface TeacherProfileDetails {
   };
 }
 
+
 @Component({
   selector: 'app-teacher-profile',
   templateUrl: './teacher-profile.component.html',
@@ -37,6 +39,15 @@ export class TeacherProfileComponent implements OnInit {
 
   // For detecting whether device is mobile
   mobileQuery: MediaQueryList;
+
+  // For controlling edit views
+  editProfile = false;
+  editAccount = false;
+  editProfilePicture = false;
+  uploadProfilePicture = false;
+
+  // Edit Forms
+  editProfileForm: FormGroup;
 
   // Response data of user profile
   email: string;
@@ -54,12 +65,17 @@ export class TeacherProfileComponent implements OnInit {
   classProfilePicture: string;
   classProfilePictureUploadedOn: string;
 
+  maxDate: Date;
+
   constructor( private media: MediaMatcher,
-               private apiService: ApiService ) {
+               private apiService: ApiService,
+               private formBuilder: FormBuilder ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
+    this.maxDate = new Date();         // For selecting max date as today
   }
 
   ngOnInit(): void {
+    // For getting profile data from server
     if (sessionStorage.getItem('country')) {          // Assuming country will be set initially for all teacher
       this.email = sessionStorage.getItem('email');
       this.username = sessionStorage.getItem('username');
@@ -152,6 +168,67 @@ export class TeacherProfileComponent implements OnInit {
         }
       );
     }
+  }
+
+  createEditProfileForm() {
+    this.editProfileForm = this.formBuilder.group({
+      username: [this.username, [
+        Validators.required,
+        Validators.minLength(4),
+        Validators.maxLength(30)
+      ]],
+      teacher_profile: this.formBuilder.group({
+        first_name: [this.firstName, ],
+        last_name: [this.lastName, ],
+        phone: [this.phone, ],
+        gender: [GENDER_REVERSE[this.gender], ],
+        country: [COUNTRY_REVERSE[this.country], ],
+        date_of_birth: [this.dateOfBirth, ],
+        primary_language: [LANGUAGE_REVERSE[this.primaryLanguage], ],
+        secondary_language: [LANGUAGE_REVERSE[this.secondaryLanguage], ],
+        tertiary_language: [LANGUAGE_REVERSE[this.tertiaryLanguage], ]
+      })
+    });
+  }
+
+  editProfileClicked() {
+    if (this.editProfile === false) {
+      this.createEditProfileForm();
+    }
+    this.editProfile = !this.editProfile;
+  }
+
+  profileDetailsReset() {
+    this.editProfileForm.patchValue({
+      username: this.username,
+      teacher_profile: {
+        first_name: this.firstName,
+        last_name: this.lastName,
+        phone: this.phone,
+        gender: GENDER_REVERSE[this.gender],
+        country: COUNTRY_REVERSE[this.country],
+        date_of_birth: this.dateOfBirth,
+        primary_language: LANGUAGE_REVERSE[this.primaryLanguage],
+        secondary_language: LANGUAGE_REVERSE[this.secondaryLanguage],
+        tertiary_language: LANGUAGE_REVERSE[this.tertiaryLanguage]
+      }
+    });
+  }
+
+  profileDetailsSubmit() {
+    console.log(this.editProfileForm.value);
+  }
+
+  editAccountClicked() {
+    this.editAccount = !this.editAccount;
+  }
+
+  openEditProfilePictureDialog() {
+    this.editProfilePicture = !this.editProfilePicture;
+  }
+
+  openUploadPictureDialog() {
+    this.uploadProfilePicture = true;
   }
 
 }

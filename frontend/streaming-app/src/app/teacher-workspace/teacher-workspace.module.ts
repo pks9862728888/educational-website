@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TeacherWorkspaceComponent } from './teacher-workspace.component';
 import { TeacherMaterialWorkspaceModule } from './material.teacher.workspace.module';
 import { AppRoutingModule } from '../app-routing.module';
@@ -19,6 +20,9 @@ import { TeacherResultComponent } from './teacher-result/teacher-result.componen
 import { BlockedMembersComponent } from './blocked-members/blocked-members.component';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { ApiService } from '../api.service';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
+import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
 
 
 @NgModule({
@@ -42,9 +46,17 @@ import { ApiService } from '../api.service';
   imports: [
     CommonModule,
     AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
     FlexLayoutModule,
     TeacherMaterialWorkspaceModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
-  providers: [ApiService, ]
+  providers: [
+    ApiService,
+    {provide: DateAdapter, useClass: AppDateAdapter},
+    {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
+  ]
 })
 export class TeacherWorkspaceModule { }
