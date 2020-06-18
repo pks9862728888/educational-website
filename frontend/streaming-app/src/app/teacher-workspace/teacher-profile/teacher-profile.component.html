@@ -164,6 +164,17 @@
                                 <mat-form-field>
                                     <mat-label>Username</mat-label>
                                     <input matInput formControlName="username" placeholder="Your username">
+                                    <mat-error *ngIf="editProfileForm.controls['username'].errors?.required">
+                                        This field is required.
+                                    </mat-error>
+                                    <mat-error *ngIf="editProfileForm.controls['username'].errors &&
+                                                     !editProfileForm.controls['username'].errors?.required &&
+                                                     !usernameError">
+                                        Username should be 4 to 30 characters.
+                                    </mat-error>
+                                    <mat-error *ngIf="usernameError">
+                                        {{ usernameError }}
+                                    </mat-error>
                                 </mat-form-field>
 
                                 <div formGroupName="teacher_profile">
@@ -180,17 +191,23 @@
                                     <mat-form-field>
                                         <mat-label>Mobile No:</mat-label>
                                         <input matInput formControlName="phone" placeholder="Your mobile no">
+                                        <mat-hint *ngIf="!phoneNumberError" class="hint-normal">
+                                            Enter number in the format: +919999999999
+                                        </mat-hint>
+                                        <mat-hint *ngIf="phoneNumberError" class="hint-error">
+                                            Invalid (Enter in format +919999999999)
+                                        </mat-hint>
                                     </mat-form-field>
 
-                                    <!-- <mat-form-field>
-                                        <label id="gender-label">Gender</label>
-                                        <mat-radio-group aria-label="gender-label" formControlName="gender" class="radio-group">
-                                            <mat-radio-button value="">--</mat-radio-button>
-                                            <mat-radio-button value="M">Male</mat-radio-button>
-                                            <mat-radio-button value="F">Female</mat-radio-button>
-                                            <mat-radio-button value="O">Others</mat-radio-button>
-                                        </mat-radio-group>
-                                    </mat-form-field> -->
+                                    <mat-form-field>
+                                        <mat-label>Gender</mat-label>
+                                        <select matNativeControl formControlName="gender">
+                                        <option value="" class="options"></option>
+                                        <option value="M" class="options">Male</option>
+                                        <option value="F" class="options">Female</option>
+                                        <option value="O" class="options">Others</option>
+                                      </select>
+                                    </mat-form-field>
 
                                     <mat-form-field>
                                         <mat-label>Country</mat-label>
@@ -204,7 +221,7 @@
                                         <mat-label>Birthday</mat-label>
                                         <input matInput formControlName="date_of_birth" [max]="maxDate" [matDatepicker]="datepicker">
                                         <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
-                                        <mat-datepicker #datepicker></mat-datepicker>
+                                        <mat-datepicker touchUi #datepicker></mat-datepicker>
                                         <!-- <mat-error *ngIf="this.editProfileForm.teacher_profile.controls['date_of_birth'].errors">Enter date in format YYYY-MM-DD</mat-error> -->
                                     </mat-form-field>
 

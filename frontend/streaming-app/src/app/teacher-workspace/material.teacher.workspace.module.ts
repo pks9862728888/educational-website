@@ -14,6 +14,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -33,6 +34,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
         MatSelectModule,
         MatDatepickerModule,
         MatBottomSheetModule,
+        MatSnackBarModule,
     ],
     exports: [
         MatSidenavModule,
@@ -50,6 +52,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
         MatSelectModule,
         MatDatepickerModule,
         MatBottomSheetModule,
+        MatSnackBarModule,
     ]
 })
 export class TeacherMaterialWorkspaceModule { }

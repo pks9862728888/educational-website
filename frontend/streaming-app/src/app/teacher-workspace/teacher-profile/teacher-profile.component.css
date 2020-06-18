@@ -1,8 +1,14 @@
-h1, h2, h3, h4, h5 {
+h1,
+h2,
+h3,
+h4,
+h5 {
     margin: 0px;
 }
 
+
 /* Styling angular material tabs */
+
 ::ng-deep.mat-tab-label.mat-tab-label-active {
     color: #ffffff;
 }
@@ -13,7 +19,7 @@ h1, h2, h3, h4, h5 {
 
 ::ng-deep.mat-ink-bar {
     /* background-color: var(--primary-color,#1F89CE) !important; */
-    background-color: var(--primary-color,#9b27b0) !important;
+    background-color: var(--primary-color, #9b27b0) !important;
 }
 
 .tabgroup-background {
@@ -24,8 +30,12 @@ h1, h2, h3, h4, h5 {
     background-color: #303030;
 }
 
+
 /* For profile view  */
+
+
 /* Styling profile picture row */
+
 .img {
     object-fit: cover;
 }
@@ -53,11 +63,13 @@ h1, h2, h3, h4, h5 {
     color: #92979C;
 }
 
-.name-username-desktop {                     /* For desktop */
+.name-username-desktop {
+    /* For desktop */
     padding-top: 10px;
 }
 
-.text-align-center-mobile {                   /*For mobile*/
+.text-align-center-mobile {
+    /*For mobile*/
     text-align: center;
 }
 
@@ -82,7 +94,9 @@ h1, h2, h3, h4, h5 {
     padding-bottom: 2px;
 }
 
+
 /* For edit-profile view */
+
 .float-right-spacer {
     flex: 1 1 auto;
 }
@@ -158,24 +172,26 @@ h1, h2, h3, h4, h5 {
 
 
 /* Styling edit profile form */
+
 .mat-form-field {
     padding: 0 10px;
     width: 100%;
 }
 
 ::ng-deep.mat-form-field-label {
-  /*change color of label*/
-  color: green !important;
- }
+    /*change color of label*/
+    color: green !important;
+}
 
 ::ng-deep.mat-form-field-underline {
-  /*change color of underline*/
-  background-color: green !important;
+    /*change color of underline*/
+    background-color: green !important;
 }
 
 ::ng-deep.mat-form-field-ripple {
     /*change color of underline when focused*/
-    background-color: green !important;;
+    background-color: green !important;
+    ;
 }
 
 .options {
@@ -195,4 +211,12 @@ h1, h2, h3, h4, h5 {
 .reset {
     background-color: #008000;
     color: #ffffff;
+}
+
+.hint-normal {
+    color: #008000;
+}
+
+.hint-error {
+    color: #ff0000;
 }
