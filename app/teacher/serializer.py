@@ -58,6 +58,7 @@ class ManageTeacherProfileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Add or modify details of user"""
         profile_data = validated_data.pop('teacher_profile', None)
+        validated_data.pop('email', None)
         validated_data.pop('profile_pictures', None)
         profile = instance.teacher_profile
 

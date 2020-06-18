@@ -130,9 +130,7 @@ class privateTeacherAPITests(TestCase):
     def test_update_successful_authorized_teacher(self):
         """Test that authenticated teacher can see their profile details"""
         payload = {
-            'email': 'test@curesio.com',
             'username': 'changedusername',
-            'created_date': '',
             'teacher_profile': {
                 'first_name': 'teacheR',
                 'last_name': 'lastName',
