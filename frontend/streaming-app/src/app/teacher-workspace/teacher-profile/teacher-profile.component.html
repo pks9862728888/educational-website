@@ -180,17 +180,17 @@
                                 <div formGroupName="teacher_profile">
                                     <mat-form-field>
                                         <mat-label>First Name</mat-label>
-                                        <input matInput formControlName="first_name" placeholder="First name">
+                                        <input matInput formControlName="first_name">
                                     </mat-form-field>
 
                                     <mat-form-field>
                                         <mat-label>Last Name</mat-label>
-                                        <input matInput formControlName="last_name" placeholder="Last username">
+                                        <input matInput formControlName="last_name">
                                     </mat-form-field>
 
                                     <mat-form-field>
                                         <mat-label>Mobile No:</mat-label>
-                                        <input matInput formControlName="phone" placeholder="Your mobile no">
+                                        <input matInput formControlName="phone">
                                         <mat-hint *ngIf="!phoneNumberError" class="hint-normal">
                                             Enter number in the format: +919999999999
                                         </mat-hint>
@@ -222,7 +222,6 @@
                                         <input matInput formControlName="date_of_birth" [max]="maxDate" [matDatepicker]="datepicker">
                                         <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
                                         <mat-datepicker touchUi #datepicker></mat-datepicker>
-                                        <!-- <mat-error *ngIf="this.editProfileForm.teacher_profile.controls['date_of_birth'].errors">Enter date in format YYYY-MM-DD</mat-error> -->
                                     </mat-form-field>
 
                                     <mat-form-field>
