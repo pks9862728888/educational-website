@@ -27,19 +27,26 @@
                                 <div class="margin-bottom-15">
                                     <h4 [ngClass]="{'text-align-center-mobile': mobileQuery.matches}">@ {{ this.username }}</h4>
                                 </div>
-                                <div >
-                                    <mat-card class="biodata">
-                                        <h4>Email: {{ this.email }}</h4>
-                                        <h4>Mobile No: <span *ngIf="this.phone">{{ this.phone }}</span></h4>
-                                        <h4>Gender: <span *ngIf="this.gender">{{ this.gender }}</span></h4>
-                                        <h4>Country: {{ this.country }}</h4>
-                                        <h4>Birthday: <span *ngIf="this.dateOfBirth">{{ this.dateOfBirth }}</span></h4>
-                                        <h4>Member since: {{ this.createdDate }}</h4>
-                                        <h4>User Type: Teacher</h4>
-                                    </mat-card>
-                                </div>
+                                <mat-card class="biodata">
+                                    <h4>Email: {{ this.email }}</h4>
+                                    <h4>Mobile No: <span *ngIf="this.phone">{{ this.phone }}</span></h4>
+                                    <h4>Gender: <span *ngIf="this.gender">{{ this.gender }}</span></h4>
+                                    <h4>Country: {{ this.country }}</h4>
+                                    <h4>Birthday: <span *ngIf="this.dateOfBirth">{{ this.dateOfBirth }}</span></h4>
+                                    <h4>Member since: {{ this.createdDate }}</h4>
+                                    <h4>User Type: Teacher</h4>
+                                </mat-card>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Language Preferences row -->
+                    <div class="padding-bottom-2">
+                        <mat-card class="other-data">
+                            <h4>Primary Language: {{ this.primaryLanguage }}</h4>
+                            <h4>Secondary Language: {{ this.secondaryLanguage }}</h4>
+                            <h4>Tertiary Language: {{ this.tertiaryLanguage }}</h4>
+                        </mat-card>
                     </div>
                 </div>
             </div>
@@ -51,35 +58,207 @@
                 <!-- Profile section content -->
                 <div class="container profile-container">
                     <div class="row">
-                        <!-- Left side content -->
-                        <div class="col-sm-4">
-                            <img mat-card-image src="../../../assets/imgs/cd6.png" alt="Profile picture">
+                        <!-- Profile Picture Display -->
+                        <div class="col-sm-4" *ngIf="(!this.editProfilePicture && mobileQuery.matches) || !mobileQuery.matches">
+                            <img mat-card-image *ngIf="this.classProfilePicture" [src]=this.classProfilePicture alt="Profile picture">
+                            <img mat-card-image *ngIf="!this.classProfilePicture" src="../../../assets/imgs/cd6.png" alt="Profile picture">
+                            <mat-card-subtitle class="profile-pic-edit-banner">
+                                <mat-icon aria-hidden="false" class="edit-picture-icon" *ngIf="!this.editProfilePicture" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
+                                    edit
+                                </mat-icon>
+                                <mat-icon aria-hidden="false" class="edit-picture-icon" *ngIf="this.editProfilePicture && !mobileQuery.matches" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
+                                    cancel
+                                </mat-icon>
+                            </mat-card-subtitle>
                         </div>
-                        <div class="col-sm-8 name-username" [ngClass]="{'name-username-desktop': mobileQuery.matches === false}">
+                        <div class="col-sm-4" *ngIf="this.editProfilePicture" [ngClass]="{'padding-top-15': !mobileQuery.matches,
+                                         'padding-top-15-mobile': mobileQuery.matches}">
+                            <mat-card class="edit-profile-picture-card">
+                                <mat-list role="list">
+                                    <mat-list-item role="listitem" (click)="openUploadPictureDialog()">Upload A Photo</mat-list-item>
+                                    <mat-list-item role="listitem">Choose From Existing</mat-list-item>
+                                    <mat-list-item role="listitem">Delete Current Picture</mat-list-item>
+                                    <mat-list-item role="listitem">Remove Current Picture</mat-list-item>
+                                    <mat-list-item role="listitem" (click)="openEditProfilePictureDialog()">Cancel</mat-list-item>
+                                </mat-list>
+                            </mat-card>
+                        </div>
+                        <div class="col-sm-12" *ngIf="this.uploadProfilePicture">
+                            <mat-card>
+                                <!-- <form>
+                                    <mat-form-field>
+                                        <mat-label>Upload File</mat-label>
+                                        <input type="file">
+                                    </mat-form-field>
+                                </form> -->
+                            </mat-card>
+                        </div>
+                    </div>
 
-                            <!-- Right side content -->
-                            <div fxLayout="column">
-                                <div>
-                                    <h1
-                                        [ngClass]="{'mat-display-1': mobileQuery.matches === false, 'text-align-center-mobile': mobileQuery.matches}">
-                                        Pran Kumar Sarkar</h1>
+                    <div fxLayout="column">
+                        <!-- For editing account email and password -->
+                        <mat-toolbar>
+                            <mat-toolbar-row class="mat-toolbar-background">
+                                <span>Account Details</span>
+                                <span class="float-right-spacer"></span>
+                                <button mat-flat-button class="edit-button" (click)="editAccountClicked()">
+                                    <span *ngIf="!this.editAccount">Edit</span>
+                                    <span *ngIf="this.editAccount">Cancel</span>
+                                </button>
+                            </mat-toolbar-row>
+                        </mat-toolbar>
+                        <!-- For showing account details -->
+                        <mat-card class="edit-canvas" *ngIf="!this.editAccount">
+                            <h4>Email: {{ this.email }}</h4>
+                            <h4>Password: ********</h4>
+                            <h4>User Type: Teacher</h4>
+                        </mat-card>
+                        <!-- For editing account details -->
+                        <mat-card class="edit-canvas" *ngIf="this.editAccount">
+                            <form>
+                                <mat-form-field>
+                                    <mat-label>Email</mat-label>
+                                    <input type="email" matInput placeholder="Your Email">
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>Password</mat-label>
+                                    <input type="password" matInput placeholder="Password should be at least 8 characters long.">
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>Confirm Password</mat-label>
+                                    <input type="password" matInput placeholder="Passwords should match.">
+                                </mat-form-field>
+                                <button mat-flat-button class="float-right margin-right-bottom-10 submit">Submit</button>
+                                <button mat-flat-button class="float-right margin-right-bottom-10 reset">Reset</button>
+                            </form>
+                        </mat-card>
+
+                        <!-- For profile details -->
+                        <mat-toolbar>
+                            <mat-toolbar-row class="mat-toolbar-background">
+                                <span>Profile Details</span>
+                                <span class="float-right-spacer"></span>
+                                <button mat-flat-button class="edit-button" (click)="editProfileClicked()">
+                                    <span *ngIf="!this.editProfile">Edit</span>
+                                    <span *ngIf="this.editProfile">Cancel</span>
+                                </button>
+                            </mat-toolbar-row>
+                        </mat-toolbar>
+                        <!-- For showing profile details -->
+                        <mat-card class="edit-canvas" *ngIf="!this.editProfile">
+                            <h4>Username: {{ this.username }}</h4>
+                            <h4>Name: {{ this.firstName }} {{ this.lastName }}</h4>
+                            <h4>Mobile No: <span *ngIf="this.phone">{{ this.phone }}</span></h4>
+                            <h4>Gender: <span *ngIf="this.gender">{{ this.gender }}</span></h4>
+                            <h4>Country: {{ this.country }}</h4>
+                            <h4>Birthday: <span *ngIf="this.dateOfBirth">{{ this.dateOfBirth }}</span></h4>
+                            <h4>Primary Language: {{ this.primaryLanguage }}</h4>
+                            <h4>Secondary Language: {{ this.secondaryLanguage }}</h4>
+                            <h4>Tertiary Language: {{ this.tertiaryLanguage }}</h4>
+                            <h4>Member since: {{ this.createdDate }}</h4>
+                        </mat-card>
+
+                        <!-- For editing profile details -->
+                        <mat-card class="edit-canvas" *ngIf="this.editProfile">
+                            <form (submit)="profileDetailsSubmit()" [formGroup]="this.editProfileForm">
+                                <mat-form-field>
+                                    <mat-label>Username</mat-label>
+                                    <input matInput formControlName="username" placeholder="Your username">
+                                    <mat-error *ngIf="editProfileForm.controls['username'].errors?.required">
+                                        This field is required.
+                                    </mat-error>
+                                    <mat-error *ngIf="editProfileForm.controls['username'].errors &&
+                                                     !editProfileForm.controls['username'].errors?.required &&
+                                                     !usernameError">
+                                        Username should be 4 to 30 characters.
+                                    </mat-error>
+                                    <mat-error *ngIf="usernameError">
+                                        {{ usernameError }}
+                                    </mat-error>
+                                </mat-form-field>
+
+                                <div formGroupName="teacher_profile">
+                                    <mat-form-field>
+                                        <mat-label>First Name</mat-label>
+                                        <input matInput formControlName="first_name" placeholder="First name">
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Last Name</mat-label>
+                                        <input matInput formControlName="last_name" placeholder="Last username">
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Mobile No:</mat-label>
+                                        <input matInput formControlName="phone" placeholder="Your mobile no">
+                                        <mat-hint *ngIf="!phoneNumberError" class="hint-normal">
+                                            Enter number in the format: +919999999999
+                                        </mat-hint>
+                                        <mat-hint *ngIf="phoneNumberError" class="hint-error">
+                                            Invalid (Enter in format +919999999999)
+                                        </mat-hint>
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Gender</mat-label>
+                                        <select matNativeControl formControlName="gender">
+                                        <option value="" class="options"></option>
+                                        <option value="M" class="options">Male</option>
+                                        <option value="F" class="options">Female</option>
+                                        <option value="O" class="options">Others</option>
+                                      </select>
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Country</mat-label>
+                                        <select matNativeControl formControlName="country" required>
+                                        <option value="IN" class="options">India</option>
+                                        <option value="US" class="options">USA</option>
+                                      </select>
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Birthday</mat-label>
+                                        <input matInput formControlName="date_of_birth" [max]="maxDate" [matDatepicker]="datepicker">
+                                        <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+                                        <mat-datepicker touchUi #datepicker></mat-datepicker>
+                                        <!-- <mat-error *ngIf="this.editProfileForm.teacher_profile.controls['date_of_birth'].errors">Enter date in format YYYY-MM-DD</mat-error> -->
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Primary Language</mat-label>
+                                        <select matNativeControl formControlName="primary_language" required>
+                                        <option value="EN" class="options">English</option>
+                                        <option value="HI" class="options">Hindi</option>
+                                        <option value="BN" class="options">Bengali</option>
+                                      </select>
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Secondary Language</mat-label>
+                                        <select matNativeControl formControlName="secondary_language">
+                                        <option value="" class="options"></option>
+                                        <option value="EN" class="options">English</option>
+                                        <option value="HI" class="options">Hindi</option>
+                                        <option value="BN" class="options">Bengali</option>
+                                      </select>
+                                    </mat-form-field>
+
+                                    <mat-form-field>
+                                        <mat-label>Tertiary Language</mat-label>
+                                        <select matNativeControl formControlName="tertiary_language">
+                                        <option value="" class="options"></option>
+                                        <option value="EN" class="options">English</option>
+                                        <option value="HI" class="options">Hindi</option>
+                                        <option value="BN" class="options">Bengali</option>
+                                      </select>
+                                    </mat-form-field>
                                 </div>
-                                <div class="margin-bottom-15">
-                                    <h4 [ngClass]="{'text-align-center-mobile': mobileQuery.matches}">@hackedlings</h4>
-                                </div>
-                                <div>
-                                    <mat-card class="biodata">
-                                        <h4>Email: pks9862728888@gmail.com</h4>
-                                        <h4>Mobile No: 9862727778</h4>
-                                        <h4>Gender: Male</h4>
-                                        <h4>Country: India</h4>
-                                        <h4>Birthday: 24/12/1997</h4>
-                                        <h4>Member since: 24/12/1997</h4>
-                                        <h4>User Type: Teacher</h4>
-                                    </mat-card>
-                                </div>
-                            </div>
-                        </div>
+
+                                <button mat-flat-button [disabled]="editProfileForm.invalid" class="float-right margin-right-bottom-10 submit">Submit</button>
+                            </form>
+                            <button mat-flat-button class="float-right margin-right-bottom-10 reset" (click)="profileDetailsReset()">Reset</button>
+                        </mat-card>
                     </div>
                 </div>
             </div>

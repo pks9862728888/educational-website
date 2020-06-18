@@ -7,6 +7,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -19,6 +27,14 @@ import { MatGridListModule } from '@angular/material/grid-list';
         MatTabsModule,
         MatCardModule,
         MatGridListModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatBottomSheetModule,
+        MatSnackBarModule,
     ],
     exports: [
         MatSidenavModule,
@@ -29,6 +45,14 @@ import { MatGridListModule } from '@angular/material/grid-list';
         MatTabsModule,
         MatCardModule,
         MatGridListModule,
+        MatButtonModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatRadioModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatBottomSheetModule,
+        MatSnackBarModule,
     ]
 })
 export class TeacherMaterialWorkspaceModule { }
