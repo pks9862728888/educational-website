@@ -68,41 +68,34 @@ class ManageTeacherProfileSerializer(serializers.ModelSerializer):
 
         # Updating profile if profile data is present
         if profile_data:
-            if profile_data.get('first_name', None):
-                profile.first_name = profile_data.get(
-                    'first_name', profile.first_name)
+            profile.first_name = profile_data.get(
+                'first_name', '')
 
-            if profile_data.get('last_name', None):
-                profile.last_name = profile_data.get(
-                    'last_name', profile.last_name)
+            profile.last_name = profile_data.get(
+                'last_name', '')
 
-            if profile_data.get('gender', None):
-                profile.gender = profile_data.get(
-                    'gender', profile.gender)
+            profile.gender = profile_data.get(
+                'gender', '')
 
-            if profile_data.get('phone', None):
-                profile.phone = profile_data.get(
-                    'phone', profile.phone)
+            profile.phone = profile_data.get(
+                'phone', '')
 
             if profile_data.get('country', None):
                 profile.country = profile_data.get(
                     'country', profile.country)
 
-            if profile_data.get('date_of_birth', None):
-                profile.date_of_birth = profile_data.get(
-                    'date_of_birth', profile.date_of_birth)
+            profile.date_of_birth = profile_data.get(
+                'date_of_birth', '')
 
             if profile_data.get('primary_language', None):
                 profile.primary_language = profile_data.get(
                     'primary_language', profile.primary_language)
 
-            if profile_data.get('secondary_language', None):
-                profile.secondary_language = profile_data.get(
-                    'secondary_language', profile.secondary_language)
+            profile.secondary_language = profile_data.get(
+                'secondary_language', '')
 
-            if profile_data.get('tertiary_language', None):
-                profile.tertiary_language = profile_data.get(
-                    'tertiary_language', profile.tertiary_language)
+            profile.tertiary_language = profile_data.get(
+                'tertiary_language', '')
 
             profile.save()
             profile.refresh_from_db()
