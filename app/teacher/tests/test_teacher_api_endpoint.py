@@ -168,7 +168,7 @@ class privateTeacherAPITests(TestCase):
                          payload['teacher_profile']['primary_language'])
         self.assertEqual(res_profile['secondary_language'],
                          payload['teacher_profile']['secondary_language'])
-        self.assertEqual(res_profile['tertiary_language'], None)
+        self.assertEqual(res_profile['tertiary_language'], '')
 
     def test_post_create_retrieve_update_not_allowed(self):
         """Test that post is not allowed on create retrieve update url"""
