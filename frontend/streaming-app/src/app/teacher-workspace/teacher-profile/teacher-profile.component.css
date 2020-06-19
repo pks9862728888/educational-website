@@ -180,12 +180,12 @@ h5 {
 
 ::ng-deep.mat-form-field-label {
     /*change color of label*/
-    color: green !important;
+    color: #fcf835 !important;
 }
 
 ::ng-deep.mat-form-field-underline {
     /*change color of underline*/
-    background-color: green !important;
+    background-color: #7a7a7a !important;
 }
 
 ::ng-deep.mat-form-field-ripple {
@@ -196,7 +196,11 @@ h5 {
 
 .options {
     background-color: #212121;
-    color: green;
+    color: #7a7a7a;
+}
+
+.mat-datepicker-toggle {
+    color: white !important;
 }
 
 .margin-right-bottom-10 {
@@ -214,7 +218,7 @@ h5 {
 }
 
 .hint-normal {
-    color: #008000;
+    color: #7a7a7a;
 }
 
 .hint-error {

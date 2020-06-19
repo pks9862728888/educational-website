@@ -256,53 +256,35 @@ export class TeacherProfileComponent implements OnInit {
 
     this.apiService.patchTeacherProfileDetails(editProfileDetailsData).subscribe(
       (result: TeacherProfileDetails ) => {
-        console.log(result);
-
         this.username = result.username;
         sessionStorage.setItem('username', result.username);
 
-        if (result.teacher_profile.country) {
-          this.country = COUNTRY[result.teacher_profile.country];
-          sessionStorage.setItem('country', this.country);
-        }
+        this.country = COUNTRY[result.teacher_profile.country];
+        sessionStorage.setItem('country', this.country);
 
-        if (result.teacher_profile.date_of_birth) {
-          this.dateOfBirth = result.teacher_profile.date_of_birth;
-          sessionStorage.setItem('date_of_birth', result.teacher_profile.date_of_birth);
-        }
+        this.dateOfBirth = result.teacher_profile.date_of_birth;
+        sessionStorage.setItem('date_of_birth', result.teacher_profile.date_of_birth);
 
-        if (result.teacher_profile.first_name) {
-          this.firstName = result.teacher_profile.first_name;
-          sessionStorage.setItem('first_name', result.teacher_profile.first_name);
-        }
+        this.firstName = result.teacher_profile.first_name;
+        sessionStorage.setItem('first_name', result.teacher_profile.first_name);
 
-        if (result.teacher_profile.last_name) {
-          this.lastName = result.teacher_profile.last_name;
-          sessionStorage.setItem('last_name', result.teacher_profile.last_name);
-        }
+        this.lastName = result.teacher_profile.last_name;
+        sessionStorage.setItem('last_name', result.teacher_profile.last_name);
 
-        if (result.teacher_profile.gender) {
-          this.gender = GENDER[result.teacher_profile.gender];
-          sessionStorage.setItem('gender', this.gender);
-        }
+        this.gender = GENDER[result.teacher_profile.gender];
+        sessionStorage.setItem('gender', this.gender);
 
-        if (result.teacher_profile.phone) {
-          this.phone = result.teacher_profile.phone;
-          sessionStorage.setItem('phone', result.teacher_profile.phone);
-        }
+        this.phone = result.teacher_profile.phone;
+        sessionStorage.setItem('phone', result.teacher_profile.phone);
 
         this.primaryLanguage = LANGUAGE[result.teacher_profile.primary_language];
         sessionStorage.setItem('primary_language', this.primaryLanguage);
 
-        if (result.teacher_profile.secondary_language) {
-          this.secondaryLanguage = LANGUAGE[result.teacher_profile.secondary_language];
-          sessionStorage.setItem('secondary_language', this.secondaryLanguage);
-        }
+        this.secondaryLanguage = LANGUAGE[result.teacher_profile.secondary_language];
+        sessionStorage.setItem('secondary_language', this.secondaryLanguage);
 
-        if (result.teacher_profile.tertiary_language) {
-          this.tertiaryLanguage = LANGUAGE[result.teacher_profile.tertiary_language];
-          sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
-        }
+        this.tertiaryLanguage = LANGUAGE[result.teacher_profile.tertiary_language];
+        sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
 
         // Displaying appropriate message
         this.snackBar.openFromComponent(ProfileDetailsUpdatedComponent, {
@@ -319,7 +301,6 @@ export class TeacherProfileComponent implements OnInit {
         if (errors.error.username) {
           this.usernameError = errors.error.username[0];
         }
-
       }
     );
   }
