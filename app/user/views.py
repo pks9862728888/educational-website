@@ -97,13 +97,15 @@ class UploadProfilePictureView(APIView):
             if public_profile_picture.lower() == 'true':
                 public_pp_images = previous_images.filter(
                     public_profile_picture=True)
-    
+
                 for image in public_pp_images:
                     img = ProfilePictures.objects.get(id=image.id)
                     img.public_profile_picture = False
                     img.save()
 
-            if public_profile_picture == 'false' and class_profile_picture == 'false':
+            ppp = public_profile_picture.lower()
+            cpp = class_profile_picture.lower()
+            if ppp == 'false' and cpp == 'false':
                 return Response({
                     "non_field_errors": [
                         "Select where you want to set profile picture."
@@ -216,31 +218,22 @@ class SetDeleteProfilePictureView(APIView):
         try:
             picture = ProfilePictures.objects.get(id=pk)
         except Exception:
-            return Response({'id': ['Please send a valid id']},
+            return Response({'id': ['Please send a valid id.']},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not picture.user == user:
-            return Response({'id': ['Please send a valid id']},
+            return Response({'id': ['Unauthorised.']},
                             status=status.HTTP_400_BAD_REQUEST)
 
         class_profile_picture_ = picture.class_profile_picture
         public_profile_picture_ = picture.public_profile_picture
-        try:
-            picture.delete()
-            return Response(
-                {
-                    'class_profile_picture_deleted': class_profile_picture_,
-                    'public_profile_picture_deleted': public_profile_picture_,
-                    'deleted': True
+        print('Here')
+        picture.delete()
+        print('deleted')
+        return Response({
+                'class_profile_picture_deleted': class_profile_picture_,
+                'public_profile_picture_deleted': public_profile_picture_,
+                'deleted': True
                 },
-                status=status.HTTP_204_NO_CONTENT
-            )
-        except Exception:
-            return Response(
-                {
-                    'class_profile_picture_deleted': class_profile_picture_,
-                    'public_profile_picture_deleted': public_profile_picture_,
-                    'deleted': False
-                },
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status=status.HTTP_200_OK
             )
