@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { baseUrl } from '../urls';
-import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { HttpHeaders, HttpClient, HttpRequest } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 
 interface TeacherProfileEditDetails {
@@ -26,6 +26,7 @@ export class ApiService {
   // Urls for communicating with backend
   baseUrl = baseUrl;
   teacherProfileUrl = `${baseUrl}teacher/teacher-profile`;
+  uploadProfilePictureUrl = `${baseUrl}user/upload-profile-picture`;
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -54,12 +55,37 @@ export class ApiService {
                                  {headers: this.getAuthHeaders()});
   }
 
+  uploadProfilePicture(data) {
+    // Preparing data for uploading
+    const formData = new FormData();
+    formData.append('image', data.profilePictureToUpload, data.profilePictureToUpload.name);
+    formData.append('class_profile_picture', data.class_profile_picture);
+    formData.append('public_profile_picture', data.public_profile_picture);
+
+    return this.httpClient.post(
+      this.uploadProfilePictureUrl, formData, {
+        headers: this.getMultipartAuthHeaders(),
+        reportProgress: true,
+        observe: 'events'
+      });
+  }
+
+  // Loads token from storage
+  loadToken() {
+    return this.cookieService.get('auth-token-edu-website');
+  }
+
   // This function gets authentication header from stored cookies.
   getAuthHeaders() {
-    const token = this.cookieService.get('auth-token-edu-website');
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      Authorization: `Token ${token}`
+      Authorization: `Token ${this.loadToken()}`
+    });
+  }
+
+  getMultipartAuthHeaders() {
+    return new HttpHeaders({
+      Authorization: `Token ${this.loadToken()}`
     });
   }
 }

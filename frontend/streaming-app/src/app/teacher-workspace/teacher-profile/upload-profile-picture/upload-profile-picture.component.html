@@ -1,0 +1,47 @@
+<div [ngClass]="{'profile-picture-dialogue': !this.mobileQuery.matches }">
+    <h2 mat-dialog-title>Upload Profile Picture</h2>
+    <mat-divider class="top-divider"></mat-divider>
+
+    <mat-dialog-content>
+        <div>
+            <input type="file" #imageFile style="display: none" (change)="onProfilePictureSelected($event)">
+            <button mat-flat-button #chooseImage (click)="imageFile.click()" class="green-button">Choose image</button>
+            <span *ngIf="this.chosenFile"> {{ this.chosenFile }}</span>
+            <span *ngIf="!this.chosenFile"> &nbsp;No file chosen</span>
+        </div>
+        <mat-hint *ngIf="this.imageError" class="error">{{ this.imageError }}<br/>
+            <span *ngIf="this.imageError === 'Invalid image'">Valid formats(.jpeg/.jpg/.png/.webp)</span>
+        </mat-hint>
+
+        <div class="row image-edit">
+            <div class="col-md-8">
+                <image-cropper *ngIf="this.imageChangedEvent" class="profile-picture-cropper" [imageChangedEvent]="imageChangedEvent" format="png" [aspectRatio]="1/1" [onlyScaleDown]="true" [maintainAspectRatio]="true" resizeToWidth="250" resizeToHeight="250" [canvasRotation]="rotation"
+                    [roundCropper]="true" (imageCropped)="imageCropped($event)"></image-cropper>
+            </div>
+            <div class="col-md-4">
+                <img [src]="croppedImage" *ngIf="this.chosenFile && !mobileQuery.matches" class="profile-picture-preview">
+            </div>
+        </div>
+
+        <div *ngIf="this.chosenFile" class="padding-top-5">
+            <div>
+                <mat-checkbox [(ngModel)]="this.classProfilePicture">Set as Class Profile Picture</mat-checkbox>
+            </div>
+            <div>
+                <mat-checkbox [(ngModel)]="this.publicProfilePicture">Set as Public Profile Picture</mat-checkbox>
+            </div>
+            <mat-error class="error">
+                {{ choosePictureTarget }}
+            </mat-error>
+        </div>
+    </mat-dialog-content>
+
+    <mat-progress-bar *ngIf="this.showIndeterminateProgress" mode="indeterminate"></mat-progress-bar>
+    <mat-progress-bar *ngIf="this.uploadProgress" mode="determinate" value="this.uploadProgress"></mat-progress-bar>
+
+    <mat-divider class="bottom-divider"></mat-divider>
+    <div mat-dialog-actions class="padding-bottom-35" align="end">
+        <button mat-flat-button [disabled]="fileNotChosen && (!this.classProfilePicture || !this.publicProfilePicture)" (click)="uploadProfilePicture()" class="green-button">Upload</button>
+        <button id="closeDialogueButton" mat-flat-button [mat-dialog-close]="pictureSuccessfullyUploaded" class="red-button">Close</button>
+    </div>
+</div>

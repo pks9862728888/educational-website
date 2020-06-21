@@ -15,6 +15,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -35,6 +38,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatDatepickerModule,
         MatBottomSheetModule,
         MatSnackBarModule,
+        MatDialogModule,
+        MatProgressBarModule,
+        MatCheckboxModule
     ],
     exports: [
         MatSidenavModule,
@@ -53,6 +59,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatDatepickerModule,
         MatBottomSheetModule,
         MatSnackBarModule,
+        MatDialogModule,
+        MatProgressBarModule,
+        MatCheckboxModule
     ]
 })
 export class TeacherMaterialWorkspaceModule { }

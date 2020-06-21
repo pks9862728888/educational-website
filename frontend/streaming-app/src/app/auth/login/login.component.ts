@@ -68,8 +68,12 @@ export class LoginComponent implements OnInit {
         this.redirectToAppropriateWorkspace();
       },
       error => {
-        this.errorText = error.error.non_field_errors[0];
-        this.signupHint = true;
+        if (error.error.non_field_errors) {
+          this.errorText = error.error.non_field_errors[0];
+          this.signupHint = true;
+        } else {
+          console.log(error);
+        }
       }
     );
   }

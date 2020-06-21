@@ -23,10 +23,14 @@ import { ApiService } from '../api.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
+import { UploadProfilePictureComponent } from './teacher-profile/upload-profile-picture/upload-profile-picture.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 
 @NgModule({
   declarations: [
+    UploadProfilePictureComponent,
     TeacherWorkspaceComponent,
     TeacherProfileComponent,
     TeacherCollegeComponent,
@@ -42,10 +46,13 @@ import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
     TeacherAnnouncementComponent,
     TeacherResultComponent,
     BlockedMembersComponent,
+    UploadProfilePictureComponent,
   ],
   imports: [
     CommonModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
+    ImageCropperModule,
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,

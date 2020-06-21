@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Inject } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ApiService } from '../../api.service';
 import { GENDER, COUNTRY, LANGUAGE, LANGUAGE_REVERSE, GENDER_REVERSE, COUNTRY_REVERSE } from '../../../constants';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { UploadProfilePictureComponent } from './upload-profile-picture/upload-profile-picture.component';
 
 interface TeacherProfileDetails {
   id: number;
@@ -30,10 +32,11 @@ interface TeacherProfileDetails {
   };
 }
 
+// For showing snackbar
 @Component({
   template: `
     <div class="snackbar-text">
-      Profile details updated successfully!
+      {{ this.message }}
     </div>
   `,
   styles: [`
@@ -43,8 +46,9 @@ interface TeacherProfileDetails {
     }
   `]
 })
-export class ProfileDetailsUpdatedComponent {}
-
+export class SnackbarComponent {
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public message: string) { }
+}
 
 @Component({
   selector: 'app-teacher-profile',
@@ -59,8 +63,7 @@ export class TeacherProfileComponent implements OnInit {
   // For controlling edit views
   editProfile = false;
   editAccount = false;
-  editProfilePicture = false;
-  uploadProfilePicture = false;
+  editProfilePicture = true;
 
   // Edit Forms
   editProfileForm: FormGroup;
@@ -91,7 +94,8 @@ export class TeacherProfileComponent implements OnInit {
   constructor( private media: MediaMatcher,
                private apiService: ApiService,
                private formBuilder: FormBuilder,
-               private snackBar: MatSnackBar ) {
+               private snackBar: MatSnackBar,
+               private dialog: MatDialog ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this.maxDate = new Date();         // For selecting max date as today
   }
@@ -117,7 +121,6 @@ export class TeacherProfileComponent implements OnInit {
     } else {                                         // This will only be requested for first run
       this.apiService.getTeacherProfile().subscribe(
         (result: TeacherProfileDetails) => {
-          console.log(result);
           // Setting data in session storage and local variable
           sessionStorage.setItem('user_id', JSON.stringify(result.id));
           this.email = result.email;
@@ -287,7 +290,8 @@ export class TeacherProfileComponent implements OnInit {
         sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
 
         // Displaying appropriate message
-        this.snackBar.openFromComponent(ProfileDetailsUpdatedComponent, {
+        this.snackBar.openFromComponent(SnackbarComponent, {
+          data: 'Profile details updated successfully!',
           duration: 2000
         });
 
@@ -314,7 +318,24 @@ export class TeacherProfileComponent implements OnInit {
   }
 
   openUploadPictureDialog() {
-    this.uploadProfilePicture = true;
+    const dialogRef = this.dialog.open(UploadProfilePictureComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      // status is true if profile picture is successfully uploaded else false
+      if (result.status) {
+        // Show snackbar
+        this.snackBar.openFromComponent(SnackbarComponent, {
+          data: 'Profile picture uploaded successfully!',
+          duration: 2000
+        });
+
+        // Update the appropriate control variables
+        if (result.classProfilePictureChanged) {
+          this.classProfilePicture = sessionStorage.getItem('class_profile_picture');
+          this.classProfilePictureUploadedOn = sessionStorage.getItem('class_profile_picture_uploaded_on');
+        }
+      }
+    });
   }
 
 }
