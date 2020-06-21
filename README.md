@@ -128,6 +128,13 @@ Returns `true` if the profile picture is removed, else it will return `false`.
 }
 ```
 
+**Error:**
+```
+{
+    "detail": "Authentication credentials were not provided."
+}
+```
+
 ## User Remove Public Profile Picture url
 **URL:** https://127.0.0.1:8000/user/remove-public-profile-picture
 
@@ -138,6 +145,13 @@ Returns `true` if the profile picture is removed, else it will return `false`.
 ```
 {
     "removed": true
+}
+```
+
+**Error:**
+```
+{
+    "detail": "Authentication credentials were not provided."
 }
 ```
 
