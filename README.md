@@ -115,6 +115,32 @@ Educational streaming website with django and angular
 }
 ```
 
+## User Remove Class Profile Picture url
+**URL:** https://127.0.0.1:8000/user/remove-class-profile-picture
+
+**Allowed methods** POST
+
+**Response:** 
+Returns `true` if the profile picture is removed, else it will return `false`.
+```
+{
+    "removed": true
+}
+```
+
+## User Remove Public Profile Picture url
+**URL:** https://127.0.0.1:8000/user/remove-public-profile-picture
+
+**Allowed methods** POST
+
+**Response:** 
+Returns `true` if the profile picture is removed, else it will return `false`.
+```
+{
+    "removed": true
+}
+```
+
 ## Teacher Profile url
 **URL:** https://127.0.0.1:8000/teacher/teacher-profile
 
