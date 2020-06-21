@@ -85,7 +85,7 @@ class UploadProfilePictureView(APIView):
             # Setting previous image to inactive
             previous_images = ProfilePictures.objects.filter(user=user)
 
-            if class_profile_picture.lower() == 'true':
+            if class_profile_picture == 'true':
                 class_pp_images = previous_images.filter(
                     class_profile_picture=True)
 
@@ -94,7 +94,7 @@ class UploadProfilePictureView(APIView):
                     img.class_profile_picture = False
                     img.save()
 
-            if public_profile_picture.lower() == 'true':
+            if public_profile_picture == 'true':
                 public_pp_images = previous_images.filter(
                     public_profile_picture=True)
 
@@ -103,8 +103,8 @@ class UploadProfilePictureView(APIView):
                     img.public_profile_picture = False
                     img.save()
 
-            ppp = public_profile_picture.lower()
-            cpp = class_profile_picture.lower()
+            ppp = public_profile_picture
+            cpp = class_profile_picture
             if ppp == 'false' and cpp == 'false':
                 return Response({
                     "non_field_errors": [
@@ -237,3 +237,74 @@ class SetDeleteProfilePictureView(APIView):
                 },
                 status=status.HTTP_200_OK
             )
+
+
+class RemoveClassProfilePictureView(APIView):
+    """View for removing class profile picture"""
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, format=None):
+        """To remove the class profile picture"""
+        user = get_user_model().objects.get(email=request.user)
+        profile_pictures = ProfilePictures.objects.filter(user=user)
+
+        profile_pictures = profile_pictures.filter(
+            class_profile_picture=True)
+
+        if len(profile_pictures):
+            for picture in profile_pictures:
+                img = ProfilePictures.objects.get(id=picture.id)
+                img.class_profile_picture = False
+                img.save()
+
+            return Response({
+                'removed': True
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'removed': False
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RemovePublicProfilePictureView(APIView):
+    """View for removing public profile picture"""
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, format=None):
+        """To remove the public profile picture"""
+        user = get_user_model().objects.get(email=request.user)
+        profile_pictures = ProfilePictures.objects.filter(user=user)
+
+        profile_pictures = profile_pictures.filter(
+            public_profile_picture=True)
+
+        if len(profile_pictures):
+            for picture in profile_pictures:
+                img = ProfilePictures.objects.get(id=picture.id)
+                img.class_profile_picture = False
+                img.save()
+
+            return Response({
+                'removed': True
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'removed': False
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfilePictureCountView(APIView):
+    """View for returning count of class profile picture"""
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, format=None):
+        """Used to get count of profile pictures"""
+        user = get_user_model().objects.get(email=request.user)
+        profile_pictures = ProfilePictures.objects.filter(user=user)
+
+        return Response({
+            'count': len(profile_pictures)
+        }, status=status.HTTP_200_OK)

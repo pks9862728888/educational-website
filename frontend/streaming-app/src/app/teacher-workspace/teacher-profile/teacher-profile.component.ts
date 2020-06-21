@@ -6,6 +6,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { UploadProfilePictureComponent } from './upload-profile-picture/upload-profile-picture.component';
+import { ChooseFromExistingComponent } from './choose-from-existing/choose-from-existing.component';
 
 interface TeacherProfileDetails {
   id: number;
@@ -394,5 +395,10 @@ export class TeacherProfileComponent implements OnInit {
     const id = sessionStorage.getItem('class_profile_picture_id');
 
     // Need to implement this in backend first
+  }
+
+  // To choose from existing profile picture
+  chooseFromExistingClicked() {
+    const dialogRef = this.dialog.open(ChooseFromExistingComponent);
   }
 }

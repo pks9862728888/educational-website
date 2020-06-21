@@ -224,3 +224,10 @@ h5 {
 .hint-error {
     color: #ff0000;
 }
+
+
+/* Styling choose from existing */
+
+.text-color-choose-from-existing {
+    color: #b1b1b1;
+}

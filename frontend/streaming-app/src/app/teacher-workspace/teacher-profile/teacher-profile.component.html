@@ -76,7 +76,7 @@
                             <mat-card class="edit-profile-picture-card">
                                 <mat-list role="list">
                                     <mat-list-item role="listitem" (click)="openUploadPictureDialog()">Upload A Photo</mat-list-item>
-                                    <mat-list-item role="listitem">Choose From Existing</mat-list-item>
+                                    <mat-list-item role="listitem" (click)="chooseFromExistingClicked()">Choose From Existing</mat-list-item>
                                     <mat-list-item role="listitem" *ngIf="classProfilePicture" (click)="deleteCurrentPicture()">Delete Current Picture</mat-list-item>
                                     <mat-list-item role="listitem" *ngIf="classProfilePicture" (click)="removeCurrentPicture()">Remove Current Picture</mat-list-item>
                                     <mat-list-item role="listitem" (click)="openEditProfilePictureDialog()">Cancel</mat-list-item>

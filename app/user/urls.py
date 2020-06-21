@@ -28,5 +28,20 @@ urlpatterns = [
         views.SetDeleteProfilePictureView.as_view(),
         name="delete-profile-picture"
     ),
+    path(
+        'remove-class-profile-picture',
+        views.RemoveClassProfilePictureView.as_view(),
+        name="remove-class-profile-picture"
+    ),
+    path(
+        'remove-public-profile-picture',
+        views.RemovePublicProfilePictureView.as_view(),
+        name="remove-public-profile-picture"
+    ),
+    path(
+        'user-profile-picture-count',
+        views.ProfilePictureCountView.as_view(),
+        name="user-profile-picture-count"
+    ),
     path('get-auth-token', obtain_auth_token, name='get-auth-token')
 ]

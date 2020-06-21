@@ -1,0 +1,13 @@
+<div [ngClass]="{'profile-picture-dialogue': !this.mobileQuery.matches , 'profile-picture-dialogue-mobile': this.mobileQuery.matches}">
+    <h2 mat-dialog-title>Select picture</h2>
+    <mat-divider class="top-divider"></mat-divider>
+
+    <mat-dialog-content>
+
+    </mat-dialog-content>
+
+    <mat-divider class="bottom-divider"></mat-divider>
+    <div mat-dialog-actions class="padding-bottom-35" align="end">
+        <button id="closeDialogueButton" mat-flat-button mat-dialog-close class="red-button">Close</button>
+    </div>
+</div>

@@ -1,0 +1,60 @@
+/* Styling the dialog box */
+
+.profile-picture-dialogue {
+    width: calc(100vw - 400px);
+    height: 100%;
+}
+
+.profile-picture-dialogue-mobile {
+    width: 100%;
+}
+
+::ng-deep .mat-dialog-container {
+    background-color: #e7e7e7;
+}
+
+.error {
+    color: red;
+}
+
+::ng-deep .mat-typography h2 {
+    margin: 0 0 0px !important;
+    color: #2c2c2c !important;
+}
+
+.top-divider {
+    padding-bottom: 15px;
+}
+
+.bottom-divider {
+    margin-top: 5px;
+}
+
+.padding-bottom-35 {
+    padding-bottom: 30px;
+}
+
+.padding-top-5 {
+    padding-top: 5px;
+}
+
+
+/* Styling controls */
+
+.green-button {
+    background-color: #41ad0f;
+    color: #ffffff;
+}
+
+.green-button:hover:not([disabled]) {
+    background-color: #3a9b0d;
+}
+
+.red-button {
+    background-color: #ff0000;
+    color: #ffffff;
+}
+
+.red-button:hover {
+    background-color: #cc0101;
+}
