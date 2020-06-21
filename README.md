@@ -115,6 +115,60 @@ Educational streaming website with django and angular
 }
 ```
 
+## User Remove Class Profile Picture url
+**URL:** https://127.0.0.1:8000/user/remove-class-profile-picture
+
+**Allowed methods** POST
+
+**Response:** 
+Returns `true` if the profile picture is removed, else it will return `false`.
+```
+{
+    "removed": true
+}
+```
+
+**Error:**
+```
+{
+    "detail": "Authentication credentials were not provided."
+}
+```
+
+## User Remove Public Profile Picture url
+**URL:** https://127.0.0.1:8000/user/remove-public-profile-picture
+
+**Allowed methods** POST
+
+**Response:** 
+Returns `true` if the profile picture is removed, else it will return `false`.
+```
+{
+    "removed": true
+}
+```
+
+**Error:**
+```
+{
+    "detail": "Authentication credentials were not provided."
+}
+```
+
+## User Profile Profile Picture Count url
+**URL:** https://127.0.0.1:8000/user/user-profile-picture-count
+
+**Allowed methods** POST
+
+**Response:** 
+Returns the total number of profile picture available.
+```
+{
+    "count": 4
+}
+```
+
+
 ## Teacher Profile url
 **URL:** https://127.0.0.1:8000/teacher/teacher-profile
 
