@@ -32,6 +32,12 @@ interface TeacherProfileDetails {
   };
 }
 
+interface DeletedCurrentPictureResponse {
+  deleted: boolean;
+  class_profile_picture_deleted: boolean;
+  public_profile_picture_deleted: boolean;
+}
+
 // For showing snackbar
 @Component({
   template: `
@@ -338,4 +344,55 @@ export class TeacherProfileComponent implements OnInit {
     });
   }
 
+  // To delete the current active class profile picture
+  deleteCurrentPicture() {
+    const id = sessionStorage.getItem('class_profile_picture_id');
+
+    this.apiService.deleteCurrentProfilePicture(id).subscribe(
+      (response: DeletedCurrentPictureResponse) => {
+
+        // Removing the deleted data from session storage
+        if (response.deleted === true) {
+          if (response.class_profile_picture_deleted === true) {
+            sessionStorage.removeItem('class_profile_picture');
+            sessionStorage.removeItem('class_profile_picture_id');
+            sessionStorage.removeItem('class_profile_picture_uploaded_on');
+            this.classProfilePicture = null;
+          }
+          if (response.class_profile_picture_deleted === true) {
+            sessionStorage.removeItem('public_profile_picture');
+            sessionStorage.removeItem('public_profile_picture_id');
+            sessionStorage.removeItem('public_profile_picture_uploaded_on');
+          }
+        }
+
+        // Show snackbar
+        this.snackBar.openFromComponent(SnackbarComponent, {
+          data: 'Successfully deleted current profile picture.',
+          duration: 2000
+        });
+      },
+      error => {
+        if (error.error.deleted === false) {
+          // Show snackbar
+          this.snackBar.openFromComponent(SnackbarComponent, {
+            data: 'Internal server error. Unable to delete picture.',
+            duration: 2000
+          });
+          console.error(error.message);
+        }
+
+        if (error.error.id) {
+          console.error('Unable to delete picture. ' + error.error.id[0]);
+        }
+      }
+    );
+  }
+
+  // To remove the current active class profile picture
+  removeCurrentPicture() {
+    const id = sessionStorage.getItem('class_profile_picture_id');
+
+    // Need to implement this in backend first
+  }
 }

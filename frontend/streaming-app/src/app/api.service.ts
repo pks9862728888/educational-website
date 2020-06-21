@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { baseUrl } from '../urls';
 import { HttpHeaders, HttpClient, HttpRequest } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+import { strict } from 'assert';
+import { stringify } from 'querystring';
 
 interface TeacherProfileEditDetails {
   username: string;
@@ -27,10 +29,12 @@ export class ApiService {
   baseUrl = baseUrl;
   teacherProfileUrl = `${baseUrl}teacher/teacher-profile`;
   uploadProfilePictureUrl = `${baseUrl}user/upload-profile-picture`;
+  deleteProfilePictureUrl = `${baseUrl}user/delete-profile-picture/`;
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
 
+  // Methods related to teacher profile
   getTeacherProfile() {
     return this.httpClient.get(this.teacherProfileUrl, {headers: this.getAuthHeaders()});
   }
@@ -64,10 +68,17 @@ export class ApiService {
 
     return this.httpClient.post(
       this.uploadProfilePictureUrl, formData, {
-        headers: this.getMultipartAuthHeaders(),
+        headers: this.getTokenAuthHeaders(),
         reportProgress: true,
         observe: 'events'
       });
+  }
+
+  deleteCurrentProfilePicture(id: string) {
+    const completeUrl = this.deleteProfilePictureUrl + id;
+    console.log(completeUrl);
+
+    return this.httpClient.delete(completeUrl, {headers: this.getTokenAuthHeaders()});
   }
 
   // Loads token from storage
@@ -83,7 +94,7 @@ export class ApiService {
     });
   }
 
-  getMultipartAuthHeaders() {
+  getTokenAuthHeaders() {
     return new HttpHeaders({
       Authorization: `Token ${this.loadToken()}`
     });

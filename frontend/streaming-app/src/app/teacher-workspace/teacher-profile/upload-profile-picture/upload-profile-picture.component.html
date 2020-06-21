@@ -1,4 +1,4 @@
-<div [ngClass]="{'profile-picture-dialogue': !this.mobileQuery.matches }">
+<div [ngClass]="{'profile-picture-dialogue': !this.mobileQuery.matches , 'profile-picture-dialogue-mobile': this.mobileQuery.matches}">
     <h2 mat-dialog-title>Upload Profile Picture</h2>
     <mat-divider class="top-divider"></mat-divider>
 
