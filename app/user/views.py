@@ -77,36 +77,38 @@ class UploadProfilePictureView(APIView):
 
         class_profile_picture = request.data.get('class_profile_picture')
         public_profile_picture = request.data.get('public_profile_picture')
+        print(request.data)
+        print(request.headers)
+        print(user)
 
         if serialize.is_valid():
             # Setting previous image to inactive
             previous_images = ProfilePictures.objects.filter(user=user)
 
-            if class_profile_picture:
-                previous_images = previous_images.filter(
+            if class_profile_picture.lower() == 'true':
+                class_pp_images = previous_images.filter(
                     class_profile_picture=True)
 
-            if public_profile_picture:
-                previous_images = previous_images.filter(
-                    public_profile_picture=True)
+                for image in class_pp_images:
+                    img = ProfilePictures.objects.get(id=image.id)
+                    img.class_profile_picture = False
+                    img.save()
 
-            if not (public_profile_picture or class_profile_picture):
+            if public_profile_picture.lower() == 'true':
+                public_pp_images = previous_images.filter(
+                    public_profile_picture=True)
+    
+                for image in public_pp_images:
+                    img = ProfilePictures.objects.get(id=image.id)
+                    img.public_profile_picture = False
+                    img.save()
+
+            if public_profile_picture == 'false' and class_profile_picture == 'false':
                 return Response({
-                    "non-field-errors": [
+                    "non_field_errors": [
                         "Select where you want to set profile picture."
                     ]
                 }, status=status.HTTP_400_BAD_REQUEST)
-
-            # Setting pervious image to inactive if present
-            for image in previous_images:
-                img = ProfilePictures.objects.get(id=image.id)
-                if class_profile_picture:
-                    img.class_profile_picture = False
-
-                if public_profile_picture:
-                    img.public_profile_picture = False
-
-                img.save()
 
             serialize.save(user=user)
             return Response(serialize.data, status=status.HTTP_200_OK)
