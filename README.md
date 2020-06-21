@@ -35,16 +35,18 @@ Educational streaming website with django and angular
 ```
 [
     {
-        "id": 4,
-        "image": "http://127.0.0.1:8000/media/pictures/uploads/user/profile/2020/5/17/15b3b3be-9010-4c99-9882-46f828e15906.png",
-        "uploaded_on": "2020-05-17T17:53:57.612261Z",
-        "active": false
+        "id": 86,
+        "image": "http://192.168.43.26:8000/media/pictures/uploads/user/profile/2020/6/21/c8776d4bca4a.png",
+        "uploaded_on": "2020-06-21T20:48:49.670395Z",
+        "public_profile_picture": false,
+        "class_profile_picture": false
     },
     {
-        "id": 3,
-        "image": "http://127.0.0.1:8000/media/pictures/uploads/user/profile/2020/5/17/d7289061-c09c-4af3-8e4a-99444b59f4e3.png",
-        "uploaded_on": "2020-05-17T17:48:09.871949Z",
-        "active": true
+        "id": 87,
+        "image": "http://192.168.43.26:8000/media/pictures/uploads/user/profile/2020/6/21/20fe89beea8b.png",
+        "uploaded_on": "2020-06-21T20:49:23.115893Z",
+        "public_profile_picture": false,
+        "class_profile_picture": false
     }
 ]
 ```
