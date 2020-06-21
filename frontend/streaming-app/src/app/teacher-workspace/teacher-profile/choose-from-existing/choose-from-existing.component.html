@@ -1,13 +1,38 @@
 <div [ngClass]="{'profile-picture-dialogue': !this.mobileQuery.matches , 'profile-picture-dialogue-mobile': this.mobileQuery.matches}">
-    <h2 mat-dialog-title>Select picture</h2>
-    <mat-divider class="top-divider"></mat-divider>
-
     <mat-dialog-content>
+        <h2 mat-dialog-title *ngIf="!this.selectedImageId">Select picture</h2>
+        <h2 mat-dialog-title *ngIf="this.selectedImageId">Preview picture</h2>
+        <mat-divider class="top-divider"></mat-divider>
 
+        <!-- For showing loading -->
+        <div class="fetch-data" *ngIf="this.showLoading">
+            <div class="inner-div">
+                <mat-spinner></mat-spinner>
+                <h3 class="text-wait">Fetching data. Please Wait.</h3>
+            </div>
+        </div>
+
+        <!-- For showing the profile pictures -->
+        <div class="row" *ngIf="!this.selectedImageId">
+            <div class="col-sm-2 col-4 image-block" *ngFor="let image of this.imageList">
+                <img (click)="this.imageClicked(imageRef.id)" #imageRef [src]="image.image" [alt]="image.id" [id]="image.id" [ngClass]="{'profile-image-showcase': !mobileQuery.matches, 'profile-image-showcase-mobile': mobileQuery.matches}">
+            </div>
+        </div>
+
+        <!-- For showing the selected image -->
+        <div *ngIf="this.selectedImageId">
+            <div class="center-content">
+                <img [src]="this.selectedImageUrl" alt="Selected image" class="selected-image-preview">
+            </div>
+            <div class="text-center padding-bottom-15"><strong>Uploaded on:</strong> {{ this.selectedImageUploadedOn | date}}</div>
+            <mat-checkbox [(ngModel)]="alsoSetAsPrivateProfilePicture">Also set as public profile picture</mat-checkbox>
+        </div>
     </mat-dialog-content>
 
     <mat-divider class="bottom-divider"></mat-divider>
     <div mat-dialog-actions class="padding-bottom-35" align="end">
-        <button id="closeDialogueButton" mat-flat-button mat-dialog-close class="red-button">Close</button>
+        <button id="setDialogueButton" mat-flat-button (click)="backClicked()" *ngIf="this.selectedImageId" class="blue-button">Back</button>
+        <button id="setDialogueButton" mat-flat-button (click)="setProfilePicture()" *ngIf="this.selectedImageId" class="green-button">Set</button>
+        <button id="closeDialogueButton" mat-flat-button [mat-dialog-close]="this.response" class="red-button">Close</button>
     </div>
 </div>

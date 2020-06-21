@@ -11,7 +11,7 @@
                             <img mat-card-image *ngIf="this.classProfilePicture" [src]=this.classProfilePicture alt="Profile picture">
                             <img mat-card-image *ngIf="!this.classProfilePicture" src="../../../assets/imgs/cd6.png" alt="Profile picture">
                             <mat-card-subtitle *ngIf="this.classProfilePictureUploadedOn" class="profile-pic-uploaded-banner">
-                                Uploaded on: {{ this.classProfilePictureUploadedOn }}
+                                Uploaded on: {{ this.classProfilePictureUploadedOn | date }}
                             </mat-card-subtitle>
                         </div>
                         <div class="col-sm-8 name-username" [ngClass]="{'name-username-desktop': mobileQuery.matches === false}">
@@ -33,7 +33,7 @@
                                     <h4>Gender: <span *ngIf="this.gender">{{ this.gender }}</span></h4>
                                     <h4>Country: {{ this.country }}</h4>
                                     <h4>Birthday: <span *ngIf="this.dateOfBirth">{{ this.dateOfBirth }}</span></h4>
-                                    <h4>Member since: {{ this.createdDate }}</h4>
+                                    <h4>Member since: {{ this.createdDate | date }}</h4>
                                     <h4>User Type: Teacher</h4>
                                 </mat-card>
                             </div>
@@ -76,7 +76,7 @@
                             <mat-card class="edit-profile-picture-card">
                                 <mat-list role="list">
                                     <mat-list-item role="listitem" (click)="openUploadPictureDialog()">Upload A Photo</mat-list-item>
-                                    <mat-list-item role="listitem" (click)="chooseFromExistingClicked()">Choose From Existing</mat-list-item>
+                                    <mat-list-item role="listitem" *ngIf="this.profilePictureCount > 1 || (this.profilePictureCount === 1 && !classProfilePicture)" (click)="chooseFromExistingClicked()">Choose From Existing</mat-list-item>
                                     <mat-list-item role="listitem" *ngIf="classProfilePicture" (click)="deleteCurrentPicture()">Delete Current Picture</mat-list-item>
                                     <mat-list-item role="listitem" *ngIf="classProfilePicture" (click)="removeCurrentPicture()">Remove Current Picture</mat-list-item>
                                     <mat-list-item role="listitem" (click)="openEditProfilePictureDialog()">Cancel</mat-list-item>
@@ -137,7 +137,7 @@
                         <!-- For showing profile details -->
                         <mat-card class="edit-canvas" *ngIf="!this.editProfile">
                             <h4>Username: {{ this.username }}</h4>
-                            <h4>Name: {{ this.firstName }} {{ this.lastName }}</h4>
+                            <h4>Name: {{ this.firstName | titlecase }} {{ this.lastName | titlecase }}</h4>
                             <h4>Mobile No: <span *ngIf="this.phone">{{ this.phone }}</span></h4>
                             <h4>Gender: <span *ngIf="this.gender">{{ this.gender }}</span></h4>
                             <h4>Country: {{ this.country }}</h4>
@@ -145,7 +145,7 @@
                             <h4>Primary Language: {{ this.primaryLanguage }}</h4>
                             <h4>Secondary Language: {{ this.secondaryLanguage }}</h4>
                             <h4>Tertiary Language: {{ this.tertiaryLanguage }}</h4>
-                            <h4>Member since: {{ this.createdDate }}</h4>
+                            <h4>Member since: {{ this.createdDate | date }}</h4>
                         </mat-card>
 
                         <!-- For editing profile details -->

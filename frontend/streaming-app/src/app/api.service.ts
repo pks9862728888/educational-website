@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { baseUrl } from '../urls';
 import { HttpHeaders, HttpClient, HttpRequest } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
-import { strict } from 'assert';
-import { stringify } from 'querystring';
 
 interface TeacherProfileEditDetails {
   username: string;
@@ -20,6 +18,12 @@ interface TeacherProfileEditDetails {
   };
 }
 
+interface SetProfilePictureData {
+  id: string;
+  class_profile_picture: boolean;
+  public_profile_picture: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -30,6 +34,10 @@ export class ApiService {
   teacherProfileUrl = `${baseUrl}teacher/teacher-profile`;
   uploadProfilePictureUrl = `${baseUrl}user/upload-profile-picture`;
   deleteProfilePictureUrl = `${baseUrl}user/delete-profile-picture/`;
+  removeClassProfilePictureUrl = `${baseUrl}user/remove-class-profile-picture`;
+  profilePictureCountUrl = `${baseUrl}user/user-profile-picture-count`;
+  listProfilePictureUrl = `${baseUrl}user/list-profile-picture`;
+  setProfilePictureUrl = `${baseUrl}user/set-profile-picture`;
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -76,9 +84,24 @@ export class ApiService {
 
   deleteCurrentProfilePicture(id: string) {
     const completeUrl = this.deleteProfilePictureUrl + id;
-    console.log(completeUrl);
 
     return this.httpClient.delete(completeUrl, {headers: this.getTokenAuthHeaders()});
+  }
+
+  removeCurrentClassProfilePicture() {
+    return this.httpClient.post(this.removeClassProfilePictureUrl, {}, {headers: this.getTokenAuthHeaders()});
+  }
+
+  getProfilePictureCount() {
+    return this.httpClient.get(this.profilePictureCountUrl, {headers: this.getTokenAuthHeaders()});
+  }
+
+  listProfilePicture() {
+    return this.httpClient.get(this.listProfilePictureUrl, {headers: this.getTokenAuthHeaders()});
+  }
+
+  setUserProfilePicture(data: SetProfilePictureData) {
+    return this.httpClient.post(this.setProfilePictureUrl, JSON.stringify(data), {headers: this.getAuthHeaders()});
   }
 
   // Loads token from storage

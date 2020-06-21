@@ -70,7 +70,8 @@ export class TeacherProfileComponent implements OnInit {
   // For controlling edit views
   editProfile = false;
   editAccount = false;
-  editProfilePicture = true;
+  editProfilePicture = false;
+  profilePictureCount: number;
 
   // Edit Forms
   editProfileForm: FormGroup;
@@ -200,6 +201,16 @@ export class TeacherProfileComponent implements OnInit {
         }
       );
     }
+
+    // For getting the total number of profile picture count from server
+    this.apiService.getProfilePictureCount().subscribe(
+      (result: {count: number; }) => {
+        this.profilePictureCount = result.count;
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
   createEditProfileForm() {
@@ -340,6 +351,9 @@ export class TeacherProfileComponent implements OnInit {
         if (result.classProfilePictureChanged) {
           this.classProfilePicture = sessionStorage.getItem('class_profile_picture');
           this.classProfilePictureUploadedOn = sessionStorage.getItem('class_profile_picture_uploaded_on');
+
+          // Updating total profile picture count
+          this.profilePictureCount += 1;
         }
       }
     });
@@ -365,6 +379,10 @@ export class TeacherProfileComponent implements OnInit {
             sessionStorage.removeItem('public_profile_picture_id');
             sessionStorage.removeItem('public_profile_picture_uploaded_on');
           }
+
+          // Updating total profile picture count
+          this.profilePictureCount -= 1;
+          this.editProfilePicture = false;
         }
 
         // Show snackbar
@@ -392,13 +410,44 @@ export class TeacherProfileComponent implements OnInit {
 
   // To remove the current active class profile picture
   removeCurrentPicture() {
-    const id = sessionStorage.getItem('class_profile_picture_id');
-
-    // Need to implement this in backend first
+    this.apiService.removeCurrentClassProfilePicture().subscribe(
+      (response: {removed: boolean; } ) => {
+        if (response.removed === true) {
+          this.classProfilePicture = null;
+          this.classProfilePictureUploadedOn = null;
+          sessionStorage.removeItem('class_profile_picture_id');
+          sessionStorage.removeItem('class_profile_picture');
+          sessionStorage.removeItem('class_profile_picture_uploaded_on');
+        }
+        this.editProfilePicture = false;
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
   // To choose from existing profile picture
   chooseFromExistingClicked() {
     const dialogRef = this.dialog.open(ChooseFromExistingComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      // status is true if profile picture is successfully uploaded else false
+      if (result.status) {
+        // Show snackbar
+        this.snackBar.openFromComponent(SnackbarComponent, {
+          data: 'Profile picture changed successfully!',
+          duration: 2000
+        });
+
+        // Update the appropriate control variables
+        if (result.classProfilePictureChanged) {
+          this.classProfilePicture = sessionStorage.getItem('class_profile_picture');
+          this.classProfilePictureUploadedOn = sessionStorage.getItem('class_profile_picture_uploaded_on');
+        }
+      }
+
+      this.editProfilePicture = false;
+    });
   }
 }
