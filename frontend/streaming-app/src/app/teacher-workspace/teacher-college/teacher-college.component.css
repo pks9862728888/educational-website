@@ -1,0 +1,282 @@
+/* Removing the bootstrap padding */
+
+.col,
+.col-1,
+.col-2,
+.col-3,
+.col-4,
+.col-5,
+.col-6,
+.col-7,
+.col-8,
+.col-9,
+.col-10,
+.col-11,
+.col-12 {
+    padding: 0px;
+    width: 100%;
+}
+
+
+/* Styling search button */
+
+.input-group.padding-search {
+    padding: 0 15px;
+}
+
+.btn {
+    padding: 0.34rem 1rem 0rem 1rem;
+}
+
+.search-color {
+    background-color: #303030;
+    color: #bdbdbd;
+}
+
+
+/* Styling filter button */
+
+.input-group-text {
+    border-color: #6c757c;
+}
+
+.dropdown-toggle-split {
+    border-radius: 0px 5px 5px 0px;
+    background-color: #303030;
+}
+
+.dropdown-menu,
+.dropdown-item {
+    background-color: #1d1d1d;
+    color: #6c757c;
+}
+
+.dropdown-item:hover {
+    background-color: #0784fa;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.dropdown-divider {
+    border-top: 1px dotted #6c757d;
+}
+
+.dropdown-menu {
+    border: 1px solid #000000;
+}
+
+.applied-filter {
+    background-color: #0784fa;
+    color: #ffffff;
+}
+
+.btn:focus {
+    box-shadow: 0 0 0 0 #ffffff !important;
+}
+
+.green-button {
+    color: #ffffff;
+    background-color: #008000;
+    width: 100%;
+}
+
+.create-institute-button {
+    width: 100%;
+}
+
+.create-institute-padding {
+    padding: 0 15px;
+}
+
+.col-12.create-institute-button {
+    padding-top: 0.5rem;
+}
+
+.back {
+    background-color: red;
+}
+
+::ng-deep .mat-typography h4 {
+    margin: 0 0 0.3rem;
+}
+
+
+/* Styling layout for mobile view */
+
+.col-mobile {
+    padding-left: 0px !important;
+}
+
+.mat-divider {
+    background-color: #6c757c;
+    margin-top: 0.5rem;
+    margin-bottom: 0.2rem;
+}
+
+
+/* Styling mat-expansion-panel */
+
+.text-color {
+    color: #bdbdbd;
+}
+
+.college-logo {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    object-fit: fit;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    border: 1px solid #c5c5c5;
+}
+
+.expansion-panel-title {
+    display: flex;
+    justify-content: center;
+    padding-left: 0.8rem;
+    color: #c5c5c5;
+}
+
+.mat-expansion-panel {
+    background-color: #424242;
+    margin-bottom: 0.5rem;
+}
+
+.mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
+    background-color: #383838;
+    color: #c5c5c5;
+}
+
+::ng-deep .mat-expansion-indicator::after {
+    color: #c5c5c5;
+}
+
+.mat-action-row {
+    padding: 16px 16px 16px 24px;
+}
+
+.star-icon {
+    height: 12px;
+    width: 12px;
+    font-size: 12px;
+}
+
+.star-icon-active {
+    color: #fdd02d;
+}
+
+.star-icon-disabled {
+    color: #7e7e7e;
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.rating-text {
+    font-size: 12px;
+}
+
+.college-details {
+    /* padding: 0 24px; */
+    color: #c5c5c5;
+}
+
+.mat-list {
+    margin: 5px 0;
+}
+
+.mat-list-item {
+    color: #c5c5c5;
+}
+
+ul {
+    margin: 5px 0px;
+    padding: 8px 16px;
+}
+
+li {
+    list-style-type: none;
+}
+
+.border-tlr {
+    border: 1px solid #6c757d;
+    border-bottom: 0px;
+    padding: 10px;
+}
+
+.border-btm {
+    border: 1px solid #6c757d;
+}
+
+
+/* styling links */
+
+a,
+a:visited {
+    color: #26f137;
+}
+
+a:hover,
+a:active {
+    font-weight: bold;
+}
+
+
+/* Styling buttons */
+
+.green-button {
+    background-color: #008000;
+    color: #ffffff;
+}
+
+.green-button:hover {
+    background-color: #3a9b0d;
+    color: #ffffff;
+}
+
+.blue-button {
+    background-color: #1c33ff;
+    color: #ffffff;
+}
+
+.blue-button:hover {
+    background-color: #1021b4;
+    color: #ffffff;
+}
+
+.lightblue-button {
+    background-color: #0784fa;
+    color: #ffffff;
+}
+
+.lightblue-button:hover {
+    background-color: #0873d8;
+    color: #ffffff;
+}
+
+
+/* Styling padding and margin */
+
+.margin-right-16 {
+    margin-right: 16px;
+}
+
+.margin-right-10 {
+    margin-right: 10px;
+}
+
+.padding-top-5 {
+    padding-top: 5px;
+}
+
+
+/* Styling search bar for responsive design */
+
+@media screen and (min-width: 600px) and (max-width: 1140px) {
+    .create-institute-padding {
+        padding-top: 0.5rem;
+    }
+}

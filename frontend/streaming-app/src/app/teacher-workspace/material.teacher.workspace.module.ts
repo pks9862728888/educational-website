@@ -19,6 +19,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatExpansionModule, } from '@angular/material/expansion';
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         MatDialogModule,
         MatProgressBarModule,
         MatCheckboxModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatExpansionModule
     ],
     exports: [
         MatSidenavModule,
@@ -64,7 +66,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         MatDialogModule,
         MatProgressBarModule,
         MatCheckboxModule,
-        MatProgressSpinnerModule
-    ]
+        MatProgressSpinnerModule,
+        MatExpansionModule
+    ],
 })
 export class TeacherMaterialWorkspaceModule { }

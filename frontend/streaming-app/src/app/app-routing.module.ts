@@ -39,7 +39,7 @@ const routes: Routes = [
   { path: 'teacher-workspace',
     component: TeacherWorkspaceComponent,
     children: [
-      { path: '', redirectTo: '/teacher-workspace/profile', pathMatch: 'full'},
+      { path: '', redirectTo: '/teacher-workspace/institutes', pathMatch: 'full'},
       { path: 'profile', component: TeacherProfileComponent },
       { path: 'institutes', component: TeacherCollegeComponent },
       { path: 'classes', component: TeacherClassComponent },
