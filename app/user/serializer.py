@@ -67,7 +67,7 @@ class ListProfilePictureSerializer(serializers.ModelSerializer):
         model = ProfilePictures
         fields = ('id', 'image', 'uploaded_on',
                   'public_profile_picture', 'class_profile_picture')
-        read_only_fields = ('id', 'image', 'uploaded_on', 'active'
+        read_only_fields = ('id', 'image', 'uploaded_on',
                             'public_profile_picture', 'class_profile_picture')
 
 
