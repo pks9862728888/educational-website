@@ -15,7 +15,7 @@ Educational streaming website with django and angular
 
 **Fields:** email, password
 
-**Response on successful user login:** token, username, email, is_teacher, is_student, is_staff, is_active
+**Response on successful user login:** token, id, username, email, is_teacher, is_student, is_staff, is_active
 
 **Response on errors:** non_field_errors: ['Unable to authenticate with given credentials.']
 
