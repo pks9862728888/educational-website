@@ -221,3 +221,48 @@ Returns the total number of profile picture available.
     }
 }
 ```
+_______________________________________________________________________________________________________________________________________
+## Teacher Profile url
+**URL:** https://127.0.0.1:8000/institute/institute-min-details-teacher-admin
+
+**Allowed methods** GET
+
+**GET Response JSON format:**
+```
+[
+    {
+        "user": 3,
+        "name": "temp institute teacher 1",
+        "country": "IN",
+        "institute_category": "A",
+        "created_date": "2020-06-25T11:31:21.445568Z",
+        "institute_profile": {
+            "motto": "",
+            "email": "teacher1@gmail.com",
+            "phone": "",
+            "website_url": "",
+            "recognition": "ICSE",
+            "state": ""
+        },
+        "institute_logo": {
+            "image": "http://127.0.0.1:8000/media/pictures/uploads/institute/logo/2020/6/26/ff8c4778-3a85-4405-aee8-a841a3040648.png"
+        }
+    },
+    {
+        "user": 3,
+        "name": "institute 2 teacher1",
+        "country": "IN",
+        "institute_category": "M",
+        "created_date": "2020-06-26T08:18:19.908881Z",
+        "institute_profile": {
+            "motto": "",
+            "email": "",
+            "phone": "",
+            "website_url": "",
+            "recognition": "",
+            "state": ""
+        },
+        "institute_logo": {}
+    }
+]
+```
