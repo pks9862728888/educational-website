@@ -1,3 +1,4 @@
+import { authTokenName } from './../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from './auth.service';
@@ -33,11 +34,11 @@ export class AppComponent implements OnInit, OnDestroy {
   durationInSeconds = 4;
 
   // Status button to show login and signup button controls
-  showLoginSignupButton: boolean;
+  showLoginSignUpButton: boolean;
   showLogoutButton: boolean;
 
   // Subscription to logged status and user type
-  private loggedinStatusSubscription: Subscription;
+  private loggedInStatusSubscription: Subscription;
 
   constructor( private cookieService: CookieService,
                private authService: AuthService,
@@ -46,31 +47,31 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Subscribing to know user logged in status
-    this.loggedinStatusSubscription = this.authService.userLoggedInSignalSource$.subscribe(
+    this.loggedInStatusSubscription = this.authService.userLoggedInSignalSource$.subscribe(
       status => {
         if (status === true ) {
           this.showLogoutButton = true;
-          this.showLoginSignupButton = false;
+          this.showLoginSignUpButton = false;
         } else {
           this.showLogoutButton = false;
-          this.showLoginSignupButton = true;
+          this.showLoginSignUpButton = true;
         }
       }
     );
 
     // Checking whether user is logged in and broadcasting the logged in status
-    if (this.cookieService.get('auth-token-edu-website')) {
-      this.authService.sendLoggedinStatusSignal(true);
+    if (this.cookieService.get(authTokenName)) {
+      this.authService.sendLoggedInStatusSignal(true);
     } else {
-      this.authService.sendLoggedinStatusSignal(false);
+      this.authService.sendLoggedInStatusSignal(false);
     }
   }
 
   // Clears token and saved info from local storage & then emits logged in signal as false
   logout() {
-    this.cookieService.deleteAll();
-    localStorage.clear();
-    this.authService.sendLoggedinStatusSignal(false);
+    this.cookieService.delete(authTokenName);
+    sessionStorage.clear();
+    this.authService.sendLoggedInStatusSignal(false);
     this.snackBar.openFromComponent(SnackbarLoggedOutComponent, {
       duration: this.durationInSeconds * 1000,
     });
@@ -79,11 +80,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   getWorkSpaceRoute() {
     // Rendering appropriate workspace
-    if (localStorage.getItem('is_student') === JSON.stringify(true)) {
+    if (sessionStorage.getItem('is_student') === JSON.stringify(true)) {
       return ['/student-workspace'];
-    } else if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
+    } else if (sessionStorage.getItem('is_teacher') === JSON.stringify(true)) {
       return ['/teacher-workspace'];
-    } else if (localStorage.getItem('is_staff') === JSON.stringify(true)) {
+    } else if (sessionStorage.getItem('is_staff') === JSON.stringify(true)) {
       return ['/staff-workspace'];
     } else {
       // Get the type of user and then again navigate to appropriate workspace
@@ -92,6 +93,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Unsubscribing from the subscriptions
   ngOnDestroy() {
-    this.loggedinStatusSubscription.unsubscribe();
+    this.loggedInStatusSubscription.unsubscribe();
   }
 }

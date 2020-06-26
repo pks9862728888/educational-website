@@ -1,570 +1,582 @@
-<!-- Search and filter bar -->
-<section class="row search">
-    <div class="col-8 col-md-4 col-lg-3 input-group padding-search">
-        <input type="text" class="form-control search-color btn-outline-secondary" placeholder="Search Institutes" aria-label="Search Institutes">
-        <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="button">
+<section *ngIf="!this.createInstituteClicked">
+    <!-- Search and filter bar -->
+    <section class="row search">
+        <div class="col-8 col-md-4 col-lg-3 input-group padding-search">
+            <input type="text" class="form-control search-color btn-outline-secondary" placeholder="Search Institutes" aria-label="Search Institutes">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button">
               <mat-icon>search</mat-icon>
             </button>
+            </div>
         </div>
-    </div>
 
-    <div class="col-4 col-md-4 col-lg-2 input-group filter" [ngClass]="{'col-mobile': this.mobileQuery.matches}">
-        <div class="input-group-prepend">
-            <span class="input-group-text search-color btn-outline-secondary disabled">
+        <div class="col-4 col-md-4 col-lg-2 input-group filter" [ngClass]="{'col-mobile': this.mobileQuery.matches}">
+            <div class="input-group-prepend">
+                <span class="input-group-text search-color btn-outline-secondary disabled">
               Filter
             </span>
-        </div>
-        <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            </div>
+            <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('NONE')}" (click)="applyFilter('NONE')">NONE</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('PUBLISHED')}" (click)="applyFilter('PUBLISHED')">Status: Published</a>
-            <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('UNPUBLISHED')}" (click)="applyFilter('UNPUBLISHED')">Status: Unpublished</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('EDUCATION')}" (click)="applyFilter('EDUCATION')">Type: Education</a>
-            <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('ART')}" (click)="applyFilter('ART')">Type: Art</a>
-            <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('MUSIC')}" (click)="applyFilter('MUSIC')">Type: Music</a>
-            <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('DANCE')}" (click)="applyFilter('DANCE')">Type: Dance</a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('NONE')}" (click)="applyFilter('NONE')">NONE</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('PUBLISHED')}" (click)="applyFilter('PUBLISHED')">Status: Published</a>
+                <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('UNPUBLISHED')}" (click)="applyFilter('UNPUBLISHED')">Status: Unpublished</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('EDUCATION')}" (click)="applyFilter('EDUCATION')">Type: Education</a>
+                <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('ART')}" (click)="applyFilter('ART')">Type: Art</a>
+                <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('MUSIC')}" (click)="applyFilter('MUSIC')">Type: Music</a>
+                <a class="dropdown-item" [ngClass]="{'applied-filter': checkFilter('DANCE')}" (click)="applyFilter('DANCE')">Type: Dance</a>
+            </div>
         </div>
-    </div>
 
-    <div class="col-lg-5"></div>
+        <div class="col-lg-5"></div>
 
-    <div class="col-12 col-lg-2 create-institute-padding" [ngClass]="{'create-institute-button': this.mobileQuery.matches}">
-        <button mat-flat-button class="green-button">
-          Create Institute
-        </button>
-    </div>
-</section>
+        <div class="col-12 col-lg-2 create-institute-padding" [ngClass]="{'create-institute-button': this.mobileQuery.matches}">
+            <button mat-flat-button class="green-button" (click)="this.createInstituteClicked = !this.createInstituteClicked">
+              Create Institute
+            </button>
+        </div>
+    </section>
 
-<mat-divider class="margin-bottom-0"></mat-divider>
+    <mat-divider class="margin-bottom-0"></mat-divider>
 
-<!-- For showing search results -->
-<section>
-    <h4 class="text-color padding-bottom-05">Search Results</h4>
+    <!-- For showing search results -->
+    <section *ngIf="this.searched">
+        <h4 class="text-color padding-bottom-05">Search Results</h4>
 
-    <mat-accordion>
-        <mat-expansion-panel [expanded]="step === 0" (opened)="setStep(0)">
-            <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
-                <mat-panel-title>
-                    <div>
-                        <img src="../../../assets/imgs/cd6.png" class="college-logo">
-                    </div>
-                    <div class="expansion-panel-title flex-container">
-                        KALINGA INSTITUTE OF TECHNOLOGY
-                        <span>
+        <mat-accordion>
+            <mat-expansion-panel [expanded]="searchedInstituteStep === 0" (opened)="setSearchedInstituteStep(0)">
+                <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
+                    <mat-panel-title>
+                        <div>
+                            <img src="../../../assets/imgs/cd6.png" class="college-logo">
+                        </div>
+                        <div class="expansion-panel-title flex-container">
+                            KALINGA INSTITUTE OF TECHNOLOGY
+                            <span>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 0, 'star-icon-disabled': this.rating < 1}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 1, 'star-icon-disabled': this.rating < 2}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 2, 'star-icon-disabled': this.rating < 3}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 3, 'star-icon-disabled': this.rating < 4}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 4, 'star-icon-disabled': this.rating < 5}" >star</mat-icon>
                         <span class="rating-text">&nbsp;( <em>5 ratings</em> )</span>
-                        </span>
+                            </span>
+                        </div>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="row college-details">
+                    <div class="col-12 motto">
+                        <ul class="padding">
+                            <li>
+                                <strong>Motto:</strong>
+                                <br/>
+                                <span class="padding-top-5">To strive and harness the whatever whatever.</span>
+                            </li>
+                        </ul>
                     </div>
-                </mat-panel-title>
-            </mat-expansion-panel-header>
-
-            <div class="row college-details">
-                <div class="col-12 motto">
-                    <ul class="padding">
-                        <li>
-                            <strong>Motto:</strong>
-                            <br/>
-                            <span class="padding-top-5">To strive and harness the whatever whatever.</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-6">
-                    <strong>Contact Information</strong>
-                    <ul>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Mail:
+                    <div class="col-sm-6">
+                        <strong>Contact Information</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Mail:
+                                    </div>
+                                    <div class="col">
+                                        <a href="mailto:xyz@gmail.com" target="_blank">xyz@gmail.com</a>
+                                    </div>
                                 </div>
-                                <div class="col">
-                                    <a href="mailto:xyz@gmail.com" target="_blank">xyz@gmail.com</a>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Phone no:
+                                    </div>
+                                    <div class="col">
+                                        +919898989898
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Phone no:
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Website Url:
+                                    </div>
+                                    <div class="col">
+                                        <a href="http://www.google.com" target="_blank">www.google.com</a>
+                                    </div>
                                 </div>
-                                <div class="col">
-                                    +919898989898
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        State:
+                                    </div>
+                                    <div class="col">
+                                        Tripura
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Website Url:
+                                <div class="row border-btm border-tlr">
+                                    <div class="col">
+                                        Address:
+                                    </div>
+                                    <div class="col">
+                                        Agartala, India
+                                    </div>
                                 </div>
-                                <div class="col">
-                                    <a href="http://www.google.com" target="_blank">www.google.com</a>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    State:
-                                </div>
-                                <div class="col">
-                                    Tripura
-                                </div>
-                            </div>
-                            <div class="row border-btm border-tlr">
-                                <div class="col">
-                                    Address:
-                                </div>
-                                <div class="col">
-                                    Agartala, India
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-6">
-                    <strong>Additional Details</strong>
-                    <ul>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Created On:
-                                </div>
-                                <div class="col">
-                                    12 Jan, 1998
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Recognition:
-                                </div>
-                                <div class="col">
-                                    ICSE
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Published:
-                                </div>
-                                <div class="col">
-                                    True
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Recruiting Status:
-                                </div>
-                                <div class="col">
-                                    Recruiting
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-btm border-tlr">
-                                <div class="col">
-                                    Type:
-                                </div>
-                                <div class="col">
-                                    Education
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <mat-action-row>
-                <div class="margin-right-16">
-                    <button mat-flat-button class="green-button">Apply</button>
-                </div>
-            </mat-action-row>
-        </mat-expansion-panel>
-    </mat-accordion>
-</section>
-
-<!-- For showing my institutes -->
-<section>
-    <h4 class="text-color padding-bottom-05">My Institutes</h4>
-
-    <mat-accordion>
-        <mat-expansion-panel [expanded]="step === 0" (opened)="setStep(0)">
-            <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
-                <mat-panel-title>
-                    <div>
-                        <img src="../../../assets/imgs/cd6.png" class="college-logo">
+                            </li>
+                        </ul>
                     </div>
-                    <div class="expansion-panel-title flex-container">
-                        NATIONAL INSTITUTE OF TECHNOLOGY, AGARTALA
-                        <span>
+                    <div class="col-sm-6">
+                        <strong>Additional Details</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Created On:
+                                    </div>
+                                    <div class="col">
+                                        12 Jan, 1998
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Recognition:
+                                    </div>
+                                    <div class="col">
+                                        ICSE
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Published:
+                                    </div>
+                                    <div class="col">
+                                        True
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Recruiting Status:
+                                    </div>
+                                    <div class="col">
+                                        Recruiting
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col">
+                                        Type:
+                                    </div>
+                                    <div class="col">
+                                        Education
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <mat-action-row>
+                    <div class="margin-right-16">
+                        <button mat-flat-button class="green-button">Apply</button>
+                    </div>
+                </mat-action-row>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </section>
+
+    <!-- For showing my institutes -->
+    <section *ngIf="!isMyInstituteEmpty()">
+        <h4 class="text-color padding-bottom-05">My Institutes</h4>
+
+        <mat-accordion>
+            <mat-expansion-panel *ngFor="let institute of teacherAdminInstitutesMinList" [expanded]="adminInstituteStep === institute.id" (opened)="setAdminInstituteStep(institute.id)">
+                <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
+                    <mat-panel-title>
+                        <div>
+                            <img *ngIf="!institute.institute_logo.image" src="../../../assets/imgs/cd6.png" class="college-logo">
+                            <img *ngIf="institute.institute_logo.image" src="{{ institute.institute_logo.image }}" class="college-logo">
+                        </div>
+                        <div class="expansion-panel-title flex-container">
+                            {{ institute.name | uppercase }}
+                            <span>
                           <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 0, 'star-icon-disabled': this.rating < 1}" >star</mat-icon>
                           <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 1, 'star-icon-disabled': this.rating < 2}" >star</mat-icon>
                           <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 2, 'star-icon-disabled': this.rating < 3}" >star</mat-icon>
                           <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 3, 'star-icon-disabled': this.rating < 4}" >star</mat-icon>
                           <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 4, 'star-icon-disabled': this.rating < 5}" >star</mat-icon>
                           <span class="rating-text">&nbsp;( <em>5 ratings</em> )</span>
-                        </span>
+                            </span>
+                        </div>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="row college-details">
+                    <div class="col-12 motto">
+                        <ul class="padding">
+                            <li>
+                                <strong>Motto:</strong>
+                                <br/>
+                                <span class="padding-top-5">{{ institute.institute_profile.motto }}</span>
+                            </li>
+                        </ul>
                     </div>
-                </mat-panel-title>
-            </mat-expansion-panel-header>
+                    <div class="col-sm-4">
+                        <strong>Contact Information</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Mail:
+                                    </div>
+                                    <div class="col">
+                                        <a *ngIf="institute.institute_profile.email" href="mailto:{{ institute.institute_profile.email }}" target="_blank">{{ institute.institute_profile.email }}</a>
+                                        <span *ngIf="!institute.institute_profile.email">N/A</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Phone no:
+                                    </div>
+                                    <div class="col">
+                                        {{ institute.institute_profile.phone }}
+                                        <span *ngIf="!institute.institute_profile.phone">N/A</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Website Url:
+                                    </div>
+                                    <div class="col">
+                                        <a *ngIf="!institute.institute_profile.website_url" href="{{ institute.institute_profile.website_url }}" target="_blank">{{ institute.institute_profile.website_url }}</a>
+                                        <span *ngIf="!institute.institute_profile.website_url">N/A</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col">
+                                        Address:
+                                    </div>
+                                    <div class="col">
+                                        <span *ngIf="institute.institute_profile.state">{{ decodeState(institute.institute_profile.state) | titlecase }},</span> {{ decodeCountry(institute.country) }}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <strong>Additional Details</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Created On:
+                                    </div>
+                                    <div class="col">
+                                        {{ institute.created_date | date }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Recognition:
+                                    </div>
+                                    <div class="col">
+                                        {{ institute.institute_profile.recognition }}
+                                        <span *ngIf="!institute.institute_profile.recognition">N/A</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Published:
+                                    </div>
+                                    <div class="col">
+                                        NYD
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col">
+                                        Category:
+                                    </div>
+                                    <div class="col">
+                                        {{ decodeCategory(institute.institute_category) }}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <strong>Statistical Information</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of students:
+                                    </div>
+                                    <div class="col-4">
+                                        {{ institute.institute_statistics.no_of_students }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of faculties:
+                                    </div>
+                                    <div class="col-4">
+                                        {{ institute.institute_statistics.no_of_faculties }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of staff:
+                                    </div>
+                                    <div class="col-4">
+                                        {{ institute.institute_statistics.no_of_staff }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col-8">
+                                        Role:
+                                    </div>
+                                    <div class="col-4">
+                                        Admin
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
-            <div class="row college-details">
-                <div class="col-12 motto">
-                    <ul class="padding">
-                        <li>
-                            <strong>Motto:</strong>
-                            <br/>
-                            <span class="padding-top-5">To strive and harness the whatever whatever.</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-4">
-                    <strong>Contact Information</strong>
-                    <ul>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Mail:
-                                </div>
-                                <div class="col">
-                                    <a href="mailto:xyz@gmail.com" target="_blank">xyz@gmail.com</a>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Phone no:
-                                </div>
-                                <div class="col">
-                                    +919898989898
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Website Url:
-                                </div>
-                                <div class="col">
-                                    <a href="http://www.google.com" target="_blank">www.google.com</a>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-btm border-tlr">
-                                <div class="col">
-                                    Address:
-                                </div>
-                                <div class="col">
-                                    Agartala, India
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-4">
-                    <strong>Additional Details</strong>
-                    <ul>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Created On:
-                                </div>
-                                <div class="col">
-                                    12 Jan, 1998
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Recognition:
-                                </div>
-                                <div class="col">
-                                    ICSE
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Published:
-                                </div>
-                                <div class="col">
-                                    True
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-btm border-tlr">
-                                <div class="col">
-                                    Type:
-                                </div>
-                                <div class="col">
-                                    Education
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-4">
-                    <strong>Statistical Information</strong>
-                    <ul>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col-8">
-                                    Number of students:
-                                </div>
-                                <div class="col-4">
-                                    234
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col-8">
-                                    Number of faculties:
-                                </div>
-                                <div class="col-4">
-                                    7
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col-8">
-                                    Number of staff:
-                                </div>
-                                <div class="col-4">
-                                    2
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-btm border-tlr">
-                                <div class="col-8">
-                                    Role:
-                                </div>
-                                <div class="col-4">
-                                    Admin
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <mat-action-row>
-                <div class="margin-right-10">
-                    <button mat-flat-button class="green-button">Publish</button>
-                </div>
-                <div>
-                    <button mat-flat-button class="blue-button">Edit</button>
-                </div>
-                <div class="margin-right-10">
-                    <button mat-flat-button class="lightblue-button">Open</button>
-                </div>
-            </mat-action-row>
-        </mat-expansion-panel>
-    </mat-accordion>
-</section>
-
-<!-- For showing other institutes -->
-<section>
-    <h4 class="text-color padding-bottom-05">Joined Institutes</h4>
-
-    <mat-accordion>
-        <mat-expansion-panel [expanded]="stepJoined === 0" (opened)="setStepJoined(0)">
-            <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
-                <mat-panel-title>
+                <mat-action-row>
+                    <div class="margin-right-10">
+                        <button mat-flat-button class="green-button">Publish</button>
+                    </div>
                     <div>
-                        <img src="../../../assets/imgs/cd6.png" class="college-logo">
+                        <button mat-flat-button class="blue-button">Edit</button>
                     </div>
-                    <div class="expansion-panel-title flex-container">
-                        TRIPURA INSTITUTE OF TECHNOLOGY
-                        <span>
+                    <div class="margin-right-10">
+                        <button mat-flat-button class="lightblue-button">Open</button>
+                    </div>
+                </mat-action-row>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </section>
+
+    <!-- For showing other institutes -->
+    <section>
+        <h4 class="text-color padding-bottom-05">Joined Institutes</h4>
+
+        <mat-accordion>
+            <mat-expansion-panel [expanded]="joinedInstituteStep === 0" (opened)="setSearchedInstituteStep(0)">
+                <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
+                    <mat-panel-title>
+                        <div>
+                            <img src="../../../assets/imgs/cd6.png" class="college-logo">
+                        </div>
+                        <div class="expansion-panel-title flex-container">
+                            TRIPURA INSTITUTE OF TECHNOLOGY
+                            <span>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 0, 'star-icon-disabled': this.rating < 1}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 1, 'star-icon-disabled': this.rating < 2}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 2, 'star-icon-disabled': this.rating < 3}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 3, 'star-icon-disabled': this.rating < 4}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 4, 'star-icon-disabled': this.rating < 5}" >star</mat-icon>
                         <span class="rating-text">&nbsp;( <em>5 ratings</em> )</span>
-                        </span>
+                            </span>
+                        </div>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="row college-details">
+                    <div class="col-12 motto">
+                        <ul class="padding">
+                            <li>
+                                <strong>Motto:</strong>
+                                <br/>
+                                <span class="padding-top-5">To strive and harness the whatever whatever.</span>
+                            </li>
+                        </ul>
                     </div>
-                </mat-panel-title>
-            </mat-expansion-panel-header>
+                    <div class="col-sm-4">
+                        <strong>Contact Information</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Mail:
+                                    </div>
+                                    <div class="col">
+                                        <a href="mailto:xyz@gmail.com" target="_blank">xyz@gmail.com</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Phone no:
+                                    </div>
+                                    <div class="col">
+                                        +919898989898
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Website Url:
+                                    </div>
+                                    <div class="col">
+                                        <a href="http://www.google.com" target="_blank">www.google.com</a>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col">
+                                        Address:
+                                    </div>
+                                    <div class="col">
+                                        Agartala, India
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <strong>Additional Details</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Created On:
+                                    </div>
+                                    <div class="col">
+                                        12 Jan, 1998
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Recognition:
+                                    </div>
+                                    <div class="col">
+                                        ICSE
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Type:
+                                    </div>
+                                    <div class="col">
+                                        Education
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col">
+                                        Role:
+                                    </div>
+                                    <div class="col">
+                                        Faculty
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <strong>Statistical Information</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of students:
+                                    </div>
+                                    <div class="col-4">
+                                        234
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of faculties:
+                                    </div>
+                                    <div class="col-4">
+                                        7
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of staffs:
+                                    </div>
+                                    <div class="col-4">
+                                        2
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col-8">
+                                        Published:
+                                    </div>
+                                    <div class="col-4">
+                                        True
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
-            <div class="row college-details">
-                <div class="col-12 motto">
-                    <ul class="padding">
-                        <li>
-                            <strong>Motto:</strong>
-                            <br/>
-                            <span class="padding-top-5">To strive and harness the whatever whatever.</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-4">
-                    <strong>Contact Information</strong>
-                    <ul>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Mail:
-                                </div>
-                                <div class="col">
-                                    <a href="mailto:xyz@gmail.com" target="_blank">xyz@gmail.com</a>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Phone no:
-                                </div>
-                                <div class="col">
-                                    +919898989898
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Website Url:
-                                </div>
-                                <div class="col">
-                                    <a href="http://www.google.com" target="_blank">www.google.com</a>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-btm border-tlr">
-                                <div class="col">
-                                    Address:
-                                </div>
-                                <div class="col">
-                                    Agartala, India
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-4">
-                    <strong>Additional Details</strong>
-                    <ul>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Created On:
-                                </div>
-                                <div class="col">
-                                    12 Jan, 1998
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Recognition:
-                                </div>
-                                <div class="col">
-                                    ICSE
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col">
-                                    Type:
-                                </div>
-                                <div class="col">
-                                    Education
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-btm border-tlr">
-                                <div class="col">
-                                    Role:
-                                </div>
-                                <div class="col">
-                                    Faculty
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-sm-4">
-                    <strong>Statistical Information</strong>
-                    <ul>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col-8">
-                                    Number of students:
-                                </div>
-                                <div class="col-4">
-                                    234
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col-8">
-                                    Number of faculties:
-                                </div>
-                                <div class="col-4">
-                                    7
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-tlr">
-                                <div class="col-8">
-                                    Number of staffs:
-                                </div>
-                                <div class="col-4">
-                                    2
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row border-btm border-tlr">
-                                <div class="col-8">
-                                    Published:
-                                </div>
-                                <div class="col-4">
-                                    True
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+                <mat-action-row>
+                    <div class="margin-right-10">
+                        <button mat-flat-button class="green-button">Publish</button>
+                    </div>
+                    <div>
+                        <button mat-flat-button class="blue-button">Edit</button>
+                    </div>
+                    <div class="margin-right-10">
+                        <button mat-flat-button class="lightblue-button">Open</button>
+                    </div>
+                </mat-action-row>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </section>
+</section>
 
-            <mat-action-row>
-                <div class="margin-right-10">
-                    <button mat-flat-button class="green-button">Publish</button>
-                </div>
-                <div>
-                    <button mat-flat-button class="blue-button">Edit</button>
-                </div>
-                <div class="margin-right-10">
-                    <button mat-flat-button class="lightblue-button">Open</button>
-                </div>
-            </mat-action-row>
-        </mat-expansion-panel>
-    </mat-accordion>
+<!-- For creating institute -->
+<section *ngIf="this.createInstituteClicked">
+    <app-create-college></app-create-college>
 </section>

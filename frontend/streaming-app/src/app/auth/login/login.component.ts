@@ -1,3 +1,4 @@
+import { authTokenName } from './../../../constants';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../auth.service';
@@ -7,12 +8,13 @@ import { Router } from '@angular/router';
 // Format of response from backend server
 interface ServerResponse {
   token: string;
+  id: string;
   email: string;
   username: string;
-  is_active: boolean;
-  is_staff: boolean;
-  is_student: boolean;
-  is_teacher: boolean;
+  is_active: string;
+  is_staff: string;
+  is_student: string;
+  is_teacher: string;
 }
 
 @Component({
@@ -28,7 +30,7 @@ export class LoginComponent implements OnInit {
   errorText: string;
 
   // For showing register hint
-  signupHint = false;
+  signUpHint = false;
 
   constructor( private formBuilder: FormBuilder,
                private authService: AuthService,
@@ -36,7 +38,7 @@ export class LoginComponent implements OnInit {
                private router: Router ) {
 
     // If auth token is already saved then skipping login step
-    if (this.cookieService.get('auth-token-edu-website')) {
+    if (this.cookieService.get(authTokenName)) {
       this.redirectToAppropriateWorkspace();
     }
   }
@@ -52,25 +54,25 @@ export class LoginComponent implements OnInit {
   login() {
     this.authService.login(this.loginForm.value).subscribe(
       (result: ServerResponse) => {
-
         // Saving the data and navigating to workspace
-        this.cookieService.set('auth-token-edu-website', result.token);
-        localStorage.setItem('username', result.username);
-        localStorage.setItem('email', result.email);
-        localStorage.setItem('is_teacher', JSON.stringify(result.is_teacher));
-        localStorage.setItem('is_student', JSON.stringify(result.is_student));
-        localStorage.setItem('is_staff', JSON.stringify(result.is_staff));
-        localStorage.setItem('is_active', JSON.stringify(result.is_active));
+        this.cookieService.set(authTokenName, result.token);
+        sessionStorage.setItem('user_id', result.id);
+        sessionStorage.setItem('username', result.username);
+        sessionStorage.setItem('email', result.email);
+        sessionStorage.setItem('is_teacher', result.is_teacher);
+        sessionStorage.setItem('is_student', result.is_student);
+        sessionStorage.setItem('is_staff', result.is_staff);
+        sessionStorage.setItem('is_active', result.is_active);
 
         // Sending logged in status as broadcast
-        this.authService.sendLoggedinStatusSignal(true);
+        this.authService.sendLoggedInStatusSignal(true);
 
         this.redirectToAppropriateWorkspace();
       },
       error => {
         if (error.error.non_field_errors) {
           this.errorText = error.error.non_field_errors[0];
-          this.signupHint = true;
+          this.signUpHint = true;
         } else {
           console.log(error);
         }
@@ -80,17 +82,17 @@ export class LoginComponent implements OnInit {
 
   // To close the hint message to create a new account.
   closeMessage() {
-    this.signupHint = false;
+    this.signUpHint = false;
   }
 
   // To redirect to appropriate workspace
   redirectToAppropriateWorkspace() {
     // Rendering appropriate workspace
-    if (localStorage.getItem('is_student') === JSON.stringify(true)) {
+    if (sessionStorage.getItem('is_student') === JSON.stringify(true)) {
       this.router.navigate(['/student-workspace']);
-    } else if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
+    } else if (sessionStorage.getItem('is_teacher') === JSON.stringify(true)) {
       this.router.navigate(['/teacher-workspace']);
-    } else if (localStorage.getItem('is_staff') === JSON.stringify(true)) {
+    } else if (sessionStorage.getItem('is_staff') === JSON.stringify(true)) {
       this.router.navigate(['/staff-workspace']);
     } else {
       // Get the type of user and then again navigate to appropriate workspace

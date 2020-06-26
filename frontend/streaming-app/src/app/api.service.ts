@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { baseUrl } from '../urls';
 import { HttpHeaders, HttpClient, HttpRequest } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+import { authTokenName } from 'src/constants';
 
 interface TeacherProfileEditDetails {
   username: string;
@@ -104,9 +105,9 @@ export class ApiService {
     return this.httpClient.post(this.setProfilePictureUrl, JSON.stringify(data), {headers: this.getAuthHeaders()});
   }
 
-  // Loads token from storage
+  // To load token from storage
   loadToken() {
-    return this.cookieService.get('auth-token-edu-website');
+    return this.cookieService.get(authTokenName);
   }
 
   // This function gets authentication header from stored cookies.

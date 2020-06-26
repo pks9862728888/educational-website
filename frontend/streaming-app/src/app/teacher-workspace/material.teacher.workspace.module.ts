@@ -20,6 +20,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule, } from '@angular/material/expansion';
+import { TextFieldModule } from '@angular/cdk/text-field';
 
 
 @NgModule({
@@ -44,7 +45,8 @@ import { MatExpansionModule, } from '@angular/material/expansion';
         MatProgressBarModule,
         MatCheckboxModule,
         MatProgressSpinnerModule,
-        MatExpansionModule
+        MatExpansionModule,
+        TextFieldModule
     ],
     exports: [
         MatSidenavModule,
@@ -67,7 +69,8 @@ import { MatExpansionModule, } from '@angular/material/expansion';
         MatProgressBarModule,
         MatCheckboxModule,
         MatProgressSpinnerModule,
-        MatExpansionModule
+        MatExpansionModule,
+        TextFieldModule
     ],
 })
 export class TeacherMaterialWorkspaceModule { }

@@ -27,6 +27,7 @@ import { UploadProfilePictureComponent } from './teacher-profile/upload-profile-
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { ChooseFromExistingComponent } from './teacher-profile/choose-from-existing/choose-from-existing.component';
+import { CreateCollegeComponent } from './teacher-college/create-college/create-college.component';
 
 
 @NgModule({
@@ -49,6 +50,7 @@ import { ChooseFromExistingComponent } from './teacher-profile/choose-from-exist
     BlockedMembersComponent,
     UploadProfilePictureComponent,
     ChooseFromExistingComponent,
+    CreateCollegeComponent,
   ],
   imports: [
     CommonModule,

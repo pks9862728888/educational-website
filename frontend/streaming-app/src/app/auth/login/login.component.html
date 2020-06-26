@@ -1,6 +1,5 @@
-<div *ngIf="signupHint" class="error-message">
-    Login falied. Check your username, password and try again.
-    If you don't have an account then <strong id="new-account-hint"><a routerLink="/signup">create a new account</a></strong>
+<div *ngIf="signUpHint" class="error-message">
+    Login failed. Check your username, password and try again. If you don't have an account then <strong id="new-account-hint"><a routerLink="/signUp">create a new account</a></strong>
     <span class="material-icons" aria-hidden="false" aria-label="Close message" (click)="closeMessage()">
         cancel
     </span>
@@ -41,7 +40,7 @@
                     <strong><a routerLink="/forgot-password">Forgot password</a></strong>
                 </p>
                 <p class="mat-caption">
-                    Don't have an account? <strong><a routerLink="/signup">Click here to register.</a></strong>
+                    Don't have an account? <strong><a routerLink="/signUp">Click here to register.</a></strong>
                 </p>
             </section>
         </ng-container>

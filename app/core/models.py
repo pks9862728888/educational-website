@@ -76,7 +76,7 @@ class StatesAndUnionTerritories:
     LAKSHADWEEP = 'LD'
     MADHYA_PRADESH = 'MP'
     MAHARASHTRA = 'MH'
-    MANIPUR = 'MP'
+    MANIPUR = 'MR'
     MEGHALAYA = 'ML'
     MIZORAM = 'MZ'
     NAGALAND = 'NL'

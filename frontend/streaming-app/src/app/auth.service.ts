@@ -56,16 +56,8 @@ export class AuthService {
   }
 
   // This method sends login status signal as true
-  sendLoggedinStatusSignal(status: boolean) {
+  sendLoggedInStatusSignal(status: boolean) {
     this.userLoggedInSignalSource.next(status);
   }
 
-  // This function gets authentication header from stored cookies.
-  // getAuthHeaders() {
-  //   const token = this.cookieService.get('auth-token-edu-website');
-  //   return new HttpHeaders({
-  //     'Content-Type': 'application/json',
-  //     Authorization: `Token ${token}`
-  //   });
-  // }
 }

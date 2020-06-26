@@ -1,6 +1,5 @@
 <div *ngIf="loginHint" class="error-message">
-    This email is already registered in our website.
-    You can use another email or <strong id="login-text"><a routerLink="/login">login</a></strong> to your existing account.
+    This email is already registered in our website. You can use another email or <strong id="login-text"><a routerLink="/login">login</a></strong> to your existing account.
     <span class="material-icons" aria-hidden="false" aria-label="Close message" (click)="closeMessage()">
         cancel
     </span>
@@ -15,10 +14,7 @@
             <section id="form-body" fxLayout="column" fxLayoutAlign="center center">
                 <mat-form-field>
                     <mat-label>Your email</mat-label>
-                    <input type="email"
-                        matInput
-                        formControlName="email"
-                        placeholder="Your email">
+                    <input type="email" matInput formControlName="email" placeholder="Your email">
 
                     <mat-error *ngIf="signupForm.controls['email'].errors?.required">
                         Email is required.
@@ -32,10 +28,7 @@
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Your username</mat-label>
-                    <input type="text"
-                        matInput
-                        formControlName="username"
-                        placeholder="Username should be at least 4 characters long.">
+                    <input type="text" matInput formControlName="username" placeholder="Username should be at least 4 characters long.">
 
                     <mat-error *ngIf="signupForm.controls['username'].errors?.required">
                         Username is required.
@@ -44,14 +37,11 @@
                                     !signupForm.controls['username'].errors?.required">
                         Username should be at least 4 characters long.
                     </mat-error>
-                    <mat-hint  class="error-text-red">{{ this.serverResponseErrors.usernameError | titlecase }}</mat-hint>
+                    <mat-hint class="error-text-red">{{ this.serverResponseErrors.usernameError | titlecase }}</mat-hint>
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Your password</mat-label>
-                    <input type="password"
-                        matInput
-                        formControlName="password"
-                        placeholder="Password should be at least 8 characters long.">
+                    <input type="password" matInput formControlName="password" placeholder="Password should be at least 8 characters long.">
 
                     <mat-error *ngIf="signupForm.controls.password.errors &&
                                      !signupForm.controls.password.errors?.required">
@@ -69,17 +59,13 @@
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Confirm password</mat-label>
-                    <input type="password"
-                        matInput
-                        formControlName="confirmPassword"
-                        placeholder="Passwords should match.">
+                    <input type="password" matInput formControlName="confirmPassword" placeholder="Passwords should match.">
 
                     <mat-error *ngIf="signupForm.controls.confirmPassword.errors?.required">
                         This field is required.
                     </mat-error>
                     <mat-hint *ngIf="signupForm.errors?.mismatch &&
-                                !signupForm.controls.confirmPassword.errors?.required"
-                        class="error-text-red">
+                                !signupForm.controls.confirmPassword.errors?.required" class="error-text-red">
                         Passwords does not match.
                     </mat-hint>
                 </mat-form-field>

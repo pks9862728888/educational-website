@@ -19,11 +19,11 @@ export class SignupComponent implements OnInit {
     // If auth token is already saved then skipping signup step
     if (this.cookieService.get('auth-token-edu-website')) {
       // Rendering appropriate workspace
-      if (localStorage.getItem('is_student') === JSON.stringify(true)) {
+      if (sessionStorage.getItem('is_student') === JSON.stringify(true)) {
         this.router.navigate(['/student-workspace']);
-      } else if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
+      } else if (sessionStorage.getItem('is_teacher') === JSON.stringify(true)) {
         this.router.navigate(['/teacher-workspace']);
-      } else if (localStorage.getItem('is_staff') === JSON.stringify(true)) {
+      } else if (sessionStorage.getItem('is_staff') === JSON.stringify(true)) {
         this.router.navigate(['/staff-workspace']);
       } else {
         // Get the type of user and then again navigate to appropriate workspace

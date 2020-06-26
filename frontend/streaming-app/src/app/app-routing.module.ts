@@ -34,7 +34,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'signup', component: SignupComponent },
+  { path: 'signUp', component: SignupComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent},
   { path: 'teacher-workspace',
     component: TeacherWorkspaceComponent,

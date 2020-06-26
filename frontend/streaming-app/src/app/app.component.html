@@ -4,8 +4,7 @@
         <a class="navbar-brand d-inline-block" [routerLink]="['/home']">
             <span id="brand-name"><strong>EduWeb</strong></span>
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarId"
-            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarId" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -16,19 +15,15 @@
                 <a class="nav-link active" [routerLink]="['/pricing']" routerLinkActive="is-active"> Pricing </a>
                 <a class="nav-link active" [routerLink]="['/about']" routerLinkActive="is-active">About</a>
                 <a class="nav-link active" [routerLink]="['/help']" routerLinkActive="is-active">Help</a>
-                <a class="nav-link"
-                   [ngClass]="{'active': !showLoginSignupButton, 'disabled': showLoginSignupButton}"
-                   [routerLink]="getWorkSpaceRoute()" routerLinkActive="is-active">
+                <a class="nav-link" [ngClass]="{'active': !showLoginSignUpButton, 'disabled': showLoginSignUpButton}" [routerLink]="getWorkSpaceRoute()" routerLinkActive="is-active">
                    Workspace</a>
             </ul>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active mr-3">
-                    <a [routerLink]="['/signup']" routerLinkActive="is-active" *ngIf="showLoginSignupButton"
-                       class="nav-link"><i class="fas fa-user-plus"></i>Sign up</a>
+                    <a [routerLink]="['/signUp']" routerLinkActive="is-active" *ngIf="showLoginSignUpButton" class="nav-link"><i class="fas fa-user-plus"></i>Sign up</a>
                 </li>
                 <li class="nav-item active mr-3">
-                    <a [routerLink]="['/login']" routerLinkActive="is-active" *ngIf="showLoginSignupButton"
-                       class="nav-link"><i class="fas fa-sign-in-alt"></i>Login</a>
+                    <a [routerLink]="['/login']" routerLinkActive="is-active" *ngIf="showLoginSignUpButton" class="nav-link"><i class="fas fa-sign-in-alt"></i>Login</a>
                 </li>
                 <li class="nav-item active mr-3">
                     <a (click)="logout()" *ngIf="showLogoutButton" class="nav-link">
