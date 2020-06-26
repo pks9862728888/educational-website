@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { baseUrl } from './../urls';
 import { CookieService } from 'ngx-cookie-service';
 import { Injectable } from '@angular/core';
-import { authTokenName } from 'src/constants';
+import { authTokenName } from '../constants';
 
 @Injectable({
   providedIn: 'root'
