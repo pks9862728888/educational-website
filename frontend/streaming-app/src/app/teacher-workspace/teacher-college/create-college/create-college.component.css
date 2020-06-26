@@ -1,5 +1,10 @@
 .text-color {
-    color: #bdbdbd;
+    color: #dadada;
+}
+
+.mat-icon {
+    margin-right: 5px;
+    color: #dadada;
 }
 
 h3 {
@@ -7,8 +12,8 @@ h3 {
 }
 
 .card-background {
-    background-color: #3a3a3a;
-    color: #c1c1c1;
+    background-color: #383838;
+    color: #ffffff;
 }
 
 hr {
@@ -30,4 +35,63 @@ hr {
 }
 
 
-/* Margin and padding  */
+/* Styling form fields */
+
+::ng-deep.mat-form-field-label {
+    /*change color of label*/
+    color: #dadada !important;
+}
+
+::ng-deep .mat-input-element::placeholder {
+    color: #838383;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+    color: #4e5458;
+}
+
+
+/* Styling button*/
+
+.green-button,
+.red-button,
+.blue-button {
+    color: #ffffff;
+}
+
+.green-button {
+    background-color: #008000;
+}
+
+.red-button {
+    background-color: #ff0000;
+}
+
+.blue-button {
+    background-color: #1c33ff;
+}
+
+.red-button:hover {
+    background-color: #cc0101;
+}
+
+.blue-button:hover {
+    background-color: #1021b4;
+}
+
+.green-button:hover {
+    background-color: #3a9b0d;
+}
+
+
+/* Adding padding and margins */
+
+.margin-right-06 {
+    margin-right: 0.6rem;
+    margin-top: 0.6rem;
+    margin-bottom: 0.6rem;
+}
+
+.flex-display {
+    display: flex;
+}

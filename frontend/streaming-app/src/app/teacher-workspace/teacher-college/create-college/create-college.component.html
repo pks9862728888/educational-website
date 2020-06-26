@@ -1,6 +1,9 @@
 <section>
-    <mat-card class="card-background">
-        <h3 class="text-color">Create Institute</h3>
+    <mat-card class="card-background text-color">
+        <div class="flex-display">
+            <mat-icon class="school-icon">school</mat-icon>
+            <h3 class="text-color"><strong>CREATE INSTITUTE</strong></h3>
+        </div>
         <hr>
 
         <form>
@@ -14,10 +17,7 @@
                     <mat-form-field class="full-width" appearance="outline">
                         <mat-label>Institute Category</mat-label>
                         <select matNativeControl>
-                          <option value="E" class="options">Education</option>
-                          <option value="A" class="options">Art</option>
-                          <option value="D" class="options">Dance</option>
-                          <option value="M" class="options">Music</option>
+                          <option *ngFor="let category of instituteCategories" [value]="category.value" class="options">{{ category.viewValue }}</option>
                         </select>
                     </mat-form-field>
                 </div>
@@ -26,8 +26,7 @@
                     <mat-form-field class="full-width" appearance="outline">
                         <mat-label>Country</mat-label>
                         <select matNativeControl>
-                          <option value="IN" class="options">India</option>
-                          <option value="US" class="options">USA</option>
+                          <option *ngFor="let country of countries" [value]="country.value" class="options">{{ country.viewValue }}</option>
                         </select>
                     </mat-form-field>
                 </div>
@@ -38,78 +37,87 @@
                 <input matInput maxlength="256" placeholder="Registered board name">
             </mat-form-field>
 
-            <p>Contact Details</p>
-            <hr>
-            <div class="row">
-                <div class="col-sm-6">
-                    <mat-form-field class="full-width" appearance="outline">
-                        <mat-label>Email</mat-label>
-                        <input type="email" matInput placeholder="Institute Email">
-                    </mat-form-field>
+            <fieldset>
+                <label class="text-color">Contact Details:</label>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <mat-form-field class="full-width" appearance="outline">
+                            <mat-label>Email</mat-label>
+                            <input type="email" matInput placeholder="Institute Email">
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <mat-form-field class="full-width" appearance="outline">
+                            <mat-label>Phone number</mat-label>
+                            <input matInput placeholder="Institute phone number">
+                        </mat-form-field>
+                    </div>
                 </div>
 
-                <div class="col-sm-6">
-                    <mat-form-field class="full-width" appearance="outline">
-                        <mat-label>Phone number</mat-label>
-                        <input matInput placeholder="Institute phone number">
-                    </mat-form-field>
-                </div>
-            </div>
+                <mat-form-field class="full-width" appearance="outline">
+                    <mat-label>Website Url</mat-label>
+                    <input matInput placeholder="Website Url">
+                </mat-form-field>
+            </fieldset>
 
-            <mat-form-field class="full-width" appearance="outline">
-                <mat-label>Website Url</mat-label>
-                <input matInput placeholder="Website Url">
-            </mat-form-field>
-
-            <p>Location Details</p>
-            <hr>
-            <div class="row">
-                <div class="col-sm-6">
-                    <mat-form-field class="full-width" appearance="outline">
-                        <mat-label>State</mat-label>
-                        <select matNativeControl>
-                          <option value="" selected></option>
-                          <option *ngIf="let state of states" [value]="state.value" class="state.value">{{state.viewValue}}</option>
+            <fieldset>
+                <label class="text-color">Location Details:</label>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <mat-form-field class="full-width" appearance="outline">
+                            <mat-label>State</mat-label>
+                            <select matNativeControl>
+                          <option *ngFor="let state of states" [value]="state.value" class="options">{{state.viewValue}}</option>
                         </select>
-                    </mat-form-field>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-sm-6">
+                        <mat-form-field class="full-width" appearance="outline">
+                            <mat-label>Pin Code</mat-label>
+                            <input matInput placeholder="Pin code">
+                        </mat-form-field>
+                    </div>
                 </div>
-            </div>
+                <mat-form-field class="full-width" appearance="outline">
+                    <mat-label>Address</mat-label>
+                    <input matInput placeholder="Full Address">
+                </mat-form-field>
+            </fieldset>
 
-            <p>Additional Details</p>
-            <hr>
-            <mat-form-field class="full-width" appearance="outline">
-                <mat-label>Motto</mat-label>
-                <textarea matInput maxlength="256" placeholder="Motto of institute"></textarea>
-            </mat-form-field>
+            <fieldset>
+                <label class="text-color">Additional Details:</label>
+                <mat-form-field class="full-width" appearance="outline">
+                    <mat-label>Motto</mat-label>
+                    <textarea matInput maxlength="256" placeholder="Motto of institute"></textarea>
+                </mat-form-field>
 
-            <mat-form-field class="full-width" appearance="outline">
-                <mat-label>Primary Language</mat-label>
-                <select matNativeControl>
-                  <option value="EN" class="options">English</option>
-                  <option value="HI" class="options">Hindi</option>
-                  <option value="BN" class="options">Bengali</option>
+                <mat-form-field class="full-width" appearance="outline">
+                    <mat-label>Primary Language</mat-label>
+                    <select matNativeControl>
+                  <option *ngFor="let language of languages" [value]="language.value" class="options">{{ language.viewValue }}</option>
                 </select>
-            </mat-form-field>
+                </mat-form-field>
 
-            <mat-form-field class="full-width" appearance="outline">
-                <mat-label>Secondary Language</mat-label>
-                <select matNativeControl>
-                  <option value="" class="options"></option>
-                  <option value="EN" class="options">English</option>
-                  <option value="HI" class="options">Hindi</option>
-                  <option value="BN" class="options">Bengali</option>
+                <mat-form-field class="full-width" appearance="outline">
+                    <mat-label>Secondary Language</mat-label>
+                    <select matNativeControl>
+                  <option *ngFor="let language of languages" [value]="language.value" class="options">{{ language.viewValue }}</option>
                 </select>
-            </mat-form-field>
-            <mat-form-field class="full-width" appearance="outline">
-                <mat-label>Tertiary Language</mat-label>
-                <select matNativeControl>
-                  <option value="--" class="options"></option>
-                  <option value="EN" class="options">English</option>
-                  <option value="HI" class="options">Hindi</option>
-                  <option value="BN" class="options">Bengali</option>
+                </mat-form-field>
+                <mat-form-field class="full-width" appearance="outline">
+                    <mat-label>Tertiary Language</mat-label>
+                    <select matNativeControl>
+                  <option *ngFor="let language of languages" [value]="language.value" class="options">{{ language.viewValue }}</option>
                 </select>
-            </mat-form-field>
-
+                </mat-form-field>
+            </fieldset>
         </form>
+        <mat-divider></mat-divider>
+        <mat-card-actions align="end">
+            <button mat-flat-button class="float-right-end margin-right-06 blue-button">Reset</button>
+            <button mat-flat-button class="float-right-end margin-right-06 green-button">Create</button>
+            <button mat-flat-button class="float-right-end margin-right-06 red-button" (click)="cancelClicked()">Cancel</button>
+        </mat-card-actions>
     </mat-card>
 </section>

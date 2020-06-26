@@ -1,14 +1,16 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { InterModuleDataTransferService } from './../inter-module-data-transfer.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-teacher-workspace',
   templateUrl: './teacher-workspace.component.html',
   styleUrls: ['./teacher-workspace.component.css']
 })
-export class TeacherWorkspaceComponent implements OnInit {
+export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
 
   // For showing sidenav toolbar
   mobileQuery: MediaQueryList;
@@ -16,10 +18,13 @@ export class TeacherWorkspaceComponent implements OnInit {
 
   // For breadcrumb
   activeLink: string;
+  secondaryActiveLink: string;
+  instituteActiveLinkSubscription: Subscription;
 
   constructor( private cookieService: CookieService,
                private router: Router,
-               private media: MediaMatcher ) {
+               private media: MediaMatcher,
+               private interModuleDataTransferService: InterModuleDataTransferService ) {
 
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
 
@@ -39,7 +44,7 @@ export class TeacherWorkspaceComponent implements OnInit {
     }
 
     // Setting active link
-    this.activeLink = 'PROFILE';
+    this.activeLink = 'INSTITUTES';
   }
 
   ngOnInit(): void {
@@ -49,6 +54,12 @@ export class TeacherWorkspaceComponent implements OnInit {
     } else {
       this.opened = true;
     }
+
+    this.instituteActiveLinkSubscription = this.interModuleDataTransferService.activeBreadcrumbLinkData$.subscribe(
+      (data: string) => {
+        this.secondaryActiveLink = data;
+      }
+    );
   }
 
   // For breadcrumb
@@ -63,12 +74,23 @@ export class TeacherWorkspaceComponent implements OnInit {
   }
 
   // For navbar
-  hideNavbarInMobile(link) {
+  hideNavbarInMobile(link: string) {
     if (this.mobileQuery.matches === true) {
       this.opened = false;
     }
 
     this.navigateClicked(link);
+  }
+
+  emitEvent(navigate: string) {
+    if (navigate === 'INSTITUTES') {
+      this.interModuleDataTransferService.showInstituteListView(true);
+      this.secondaryActiveLink = '';
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.instituteActiveLinkSubscription.unsubscribe();
   }
 
 }

@@ -39,20 +39,20 @@ export class AuthService {
                private httpClient: HttpClient ) {}
 
   // Method to signup a new user
-  signup(formdata: SignupFormFormat) {
+  signup(formData: SignupFormFormat) {
     const body = {
-      email: formdata.email,
-      username: formdata.username,
-      password: formdata.password,
-      is_teacher: JSON.stringify(formdata.userIsStudent) === JSON.stringify('false') ? true : false,
-      is_student: JSON.stringify(formdata.userIsStudent) === JSON.stringify('true') ? true : false
+      email: formData.email,
+      username: formData.username,
+      password: formData.password,
+      is_teacher: JSON.stringify(formData.userIsStudent) === JSON.stringify('false') ? true : false,
+      is_student: JSON.stringify(formData.userIsStudent) === JSON.stringify('true') ? true : false
     };
     return this.httpClient.post(this.signupUrl, JSON.stringify(body), {headers: this.headers});
   }
 
   // This method logs in new user
-  login(formdata: LoginFormFormat) {
-    return this.httpClient.post(this.loginUrl, JSON.stringify(formdata), {headers: this.headers});
+  login(formData: LoginFormFormat) {
+    return this.httpClient.post(this.loginUrl, JSON.stringify(formData), {headers: this.headers});
   }
 
   // This method sends login status signal as true

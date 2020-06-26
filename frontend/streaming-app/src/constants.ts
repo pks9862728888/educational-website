@@ -10,6 +10,12 @@ export const COUNTRY_REVERSE = {
   USA: 'US'
 };
 
+export const COUNTRY_FORM_FIELD_OPTIONS = [
+  {value: '', viewValue: ''},
+  {value: 'IN', viewValue: 'India'},
+  {value: 'US', viewValue: 'USA'},
+];
+
 export const GENDER = {
     O: 'Others',
     M: 'Male',
@@ -22,6 +28,13 @@ export const GENDER_REVERSE = {
   Female: 'F'
 };
 
+export const GENDER_FORM_FIELD_OPTIONS = [
+  {value: '', viewValue: ''},
+  {value: 'M', viewValue: 'Male'},
+  {value: 'F', viewValue: 'Female'},
+  {value: 'O', viewValue: 'Others'},
+];
+
 export const LANGUAGE = {
     EN: 'English',
     HI: 'Hindi',
@@ -33,6 +46,13 @@ export const LANGUAGE_REVERSE = {
   Hindi: 'HI',
   Bengali: 'BN'
 };
+
+export const LANGUAGE_FORM_FIELD_OPTIONS = [
+  {value: '', viewValue: ''},
+  {value: 'EN', viewValue: 'English'},
+  {value: 'HI', viewValue: 'Hindi'},
+  {value: 'BN', viewValue: 'Bengali'},
+];
 
 export const STATE = {
     AN: 'ANDAMAN AND NICOBAR ISLANDS',
@@ -73,6 +93,45 @@ export const STATE = {
     WB: 'WEST BENGAL'
 };
 
+export const STATE_FORM_FIELD_OPTIONS = [
+  {value: '', viewValue: ''},
+  {value: 'AN', viewValue: 'ANDAMAN AND NICOBAR ISLANDS'},
+  {value: 'AP', viewValue: 'ANDHRA PRADESH'},
+  {value: 'AR', viewValue: 'ARUNACHAL PRADESH'},
+  {value: 'AS', viewValue: 'ASSAM'},
+  {value: 'BR', viewValue: 'BIHAR'},
+  {value: 'CH', viewValue: 'CHANDIGARH'},
+  {value: 'CT', viewValue: 'CHHATTISGARH'},
+  {value: 'DN', viewValue: 'DADRA AND NAGAR HAVELI'},
+  {value: 'DD', viewValue: 'DAMAN AND DIU'},
+  {value: 'DL', viewValue: 'DELHI'},
+  {value: 'GA', viewValue: 'GOA'},
+  {value: 'GJ', viewValue: 'GUJARAT'},
+  {value: 'HR', viewValue: 'HARYANA'},
+  {value: 'HP', viewValue: 'HIMACHAL PRADESH'},
+  {value: 'JK', viewValue: 'JAMMU AND KASHMIR'},
+  {value: 'JH', viewValue: 'JHARKHAND'},
+  {value: 'KA', viewValue: 'KARNATAKA'},
+  {value: 'KL', viewValue: 'KERALA'},
+  {value: 'LD', viewValue: 'LAKSHADWEEP'},
+  {value: 'MP', viewValue: 'MADHYA PRADESH'},
+  {value: 'MH', viewValue: 'MAHARASHTRA'},
+  {value: 'MR', viewValue: 'MANIPUR'},
+  {value: 'ML', viewValue: 'MEGHALAYA'},
+  {value: 'MZ', viewValue: 'MIZORAM'},
+  {value: 'NL', viewValue: 'NAGALAND'},
+  {value: 'OR', viewValue: 'ODISHA'},
+  {value: 'PD', viewValue: 'PONDICHERRY'},
+  {value: 'PB', viewValue: 'PUNJAB'},
+  {value: 'SK', viewValue: 'SIKKIM'},
+  {value: 'TN', viewValue: 'TAMIL NADU'},
+  {value: 'TG', viewValue: 'TELANGANA'},
+  {value: 'TR', viewValue: 'TRIPURA'},
+  {value: 'UP', viewValue: 'UTTAR PRADESH'},
+  {value: 'UK', viewValue: 'UTTARAKHAND'},
+  {value: 'WB', viewValue: 'WEST BENGAL'},
+];
+
 export const INSTITUTE_CATEGORY = {
   E: 'Education',
   A: 'Art',
@@ -86,3 +145,11 @@ export const INSTITUTE_CATEGORY_REVERSE = {
   Music: 'M',
   Dance: 'D'
 };
+
+export const INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS = [
+  {value: '', viewValue: ''},
+  {value: 'E', viewValue: 'Education'},
+  {value: 'A', viewValue: 'Art'},
+  {value: 'M', viewValue: 'Music'},
+  {value: 'D', viewValue: 'Dance'}
+];

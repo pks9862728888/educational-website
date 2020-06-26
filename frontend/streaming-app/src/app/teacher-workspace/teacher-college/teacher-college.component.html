@@ -34,7 +34,7 @@
         <div class="col-lg-5"></div>
 
         <div class="col-12 col-lg-2 create-institute-padding" [ngClass]="{'create-institute-button': this.mobileQuery.matches}">
-            <button mat-flat-button class="green-button" (click)="this.createInstituteClicked = !this.createInstituteClicked">
+            <button mat-flat-button class="green-button" (click)="createInstitute()">
               Create Institute
             </button>
         </div>
@@ -578,5 +578,5 @@
 
 <!-- For creating institute -->
 <section *ngIf="this.createInstituteClicked">
-    <app-create-college></app-create-college>
+    <app-create-college (instituteCreated)="instituteCreated($event)"></app-create-college>
 </section>

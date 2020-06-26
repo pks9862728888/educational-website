@@ -1,7 +1,9 @@
+import { Subscription } from 'rxjs';
+import { InterModuleDataTransferService } from './../../inter-module-data-transfer.service';
 import { COUNTRY, STATE, INSTITUTE_CATEGORY } from './../../../constants';
 import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 interface TeacherAdminInstitutesMin {
   id: number;
@@ -32,7 +34,7 @@ interface TeacherAdminInstitutesMin {
   templateUrl: './teacher-college.component.html',
   styleUrls: ['./teacher-college.component.css']
 })
-export class TeacherCollegeComponent implements OnInit {
+export class TeacherCollegeComponent implements OnInit, OnDestroy {
 
   mobileQuery: MediaQueryList;
 
@@ -56,8 +58,12 @@ export class TeacherCollegeComponent implements OnInit {
   // For storing admin institutes
   teacherAdminInstitutesMinList: TeacherAdminInstitutesMin[] = [];
 
+  // For handling views based on input from breadcrumb
+  showInstituteListViewSubscription: Subscription;
+
   constructor(private media: MediaMatcher,
-              private instituteApiService: InstituteApiService ) {
+              private instituteApiService: InstituteApiService,
+              private interModuleDataTransferService: InterModuleDataTransferService ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
@@ -70,6 +76,13 @@ export class TeacherCollegeComponent implements OnInit {
       },
       error => {
         console.error(error);
+      }
+    );
+
+    // Subscribing to show the list view on input from breadcrumb
+    this.showInstituteListViewSubscription = this.interModuleDataTransferService.setInstituteViewActive$.subscribe(
+      (status: boolean) => {
+        this.createInstituteClicked = false;
       }
     );
   }
@@ -116,5 +129,24 @@ export class TeacherCollegeComponent implements OnInit {
 
   decodeCategory(key: string) {
     return INSTITUTE_CATEGORY[key];
+  }
+
+  createInstitute() {
+    this.createInstituteClicked = true;
+    this.interModuleDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
+  }
+
+  // Taking action based on whether institute is created or not
+  instituteCreated(event: boolean){
+    if (event === true) {
+      // If institute is created
+    } else {
+      this.createInstituteClicked = false;
+      this.interModuleDataTransferService.sendActiveBreadcrumbLinkData('');
+    }
+  }
+
+  ngOnDestroy() {
+    this.showInstituteListViewSubscription.unsubscribe();
   }
 }
