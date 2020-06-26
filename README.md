@@ -227,6 +227,8 @@ ________________________________________________________________________________
 
 **Allowed methods** GET
 
+**Scope** Teacher only
+
 **GET Response JSON format:**
 ```
 [
