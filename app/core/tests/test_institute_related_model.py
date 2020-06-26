@@ -168,7 +168,7 @@ class InstituteProfileModelTests(TestCase):
             'institute_profile': {
                 'motto': 'This is custom moto.',
                 'email': 'xyz@gmail.com',
-                'phone_no': '+918787878787',
+                'phone': '+918787878787',
                 'website_url': 'https://www.google.com',
                 'state': 'TR',
                 'address': 'xyz road',
@@ -185,7 +185,7 @@ class InstituteProfileModelTests(TestCase):
 
         res.institute_profile.motto = institute_profile['motto']
         res.institute_profile.email = institute_profile['email']
-        res.institute_profile.phone_no = institute_profile['phone_no']
+        res.institute_profile.phone = institute_profile['phone']
         res.institute_profile.website_url = institute_profile['website_url']
         res.institute_profile.state = institute_profile['state']
         res.institute_profile.address = institute_profile['address']
@@ -199,7 +199,7 @@ class InstituteProfileModelTests(TestCase):
             name=payload['name'].lower()).exists())
         self.assertEqual(res1.motto, institute_profile['motto'])
         self.assertEqual(res1.email, institute_profile['email'])
-        self.assertEqual(res1.phone_no, institute_profile['phone_no'])
+        self.assertEqual(res1.phone, institute_profile['phone'])
         self.assertEqual(res1.website_url, institute_profile['website_url'])
         self.assertEqual(res1.state, institute_profile['state'])
         self.assertEqual(res1.address, institute_profile['address'])

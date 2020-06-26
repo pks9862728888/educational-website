@@ -373,7 +373,10 @@ class Institute(models.Model):
     institute_category = models.CharField(
         _('Institute Category'), max_length=1,
         choices=InstituteCategory.CATEGORY_IN_INSTITUTE_CATEGORIES,
-        blank=True)
+        blank=False, null=False)
+    created_date = models.DateTimeField(
+        _('Created Date'), default=timezone.now, editable=False
+    )
     institute_slug = models.SlugField(
         _('Institute Slug'),
         max_length=40,
@@ -419,9 +422,9 @@ class InstituteProfile(models.Model):
     )
     motto = models.TextField(
         _('Motto'), max_length=256, blank=True)
-    email = models.EmailField(_('Email'), blank=True, null=True)
-    phone_no = PhoneNumberField(_('Phone'), null=True, blank=True)
-    website_url = models.URLField(_('Website Url'), blank=True, null=True)
+    email = models.EmailField(_('Email'), blank=True)
+    phone = PhoneNumberField(_('Phone'), blank=True)
+    website_url = models.URLField(_('Website Url'), blank=True)
     state = models.CharField(
         _('State'),
         max_length=2,
@@ -431,22 +434,6 @@ class InstituteProfile(models.Model):
     address = models.TextField(_('Address'), max_length=50, blank=True)
     recognition = models.CharField(
         _('Recognition'), max_length=30, blank=True)
-    logo = models.ImageField(
-        _('Logo'),
-        upload_to=institute_logo_upload_file_path,
-        null=True,
-        blank=True,
-        max_length=1024,
-        validators=(validate_image_file_extension,)
-    )
-    banner = models.ImageField(
-        _('Banner'),
-        upload_to=institute_banner_upload_file_path,
-        null=True,
-        blank=True,
-        max_length=1024,
-        validators=(validate_image_file_extension,)
-    )
     primary_language = models.CharField(
         _('Primary Language'), max_length=3,
         choices=Languages.LANGUAGE_IN_LANGUAGE_CHOICES, default='EN')
@@ -471,6 +458,52 @@ def institute_is_created(sender, instance, created, **kwargs):
             instance.institute_profile.save()
         except ObjectDoesNotExist:
             InstituteProfile.objects.create(institute=instance)
+
+
+class InstituteLogo(models.Model):
+    """Creates logo model to store institute logos"""
+    institute = models.ForeignKey(
+        'Institute', related_name='institute_logo', on_delete=models.CASCADE)
+    image = models.ImageField(
+        _('Logo'),
+        upload_to=institute_logo_upload_file_path,
+        null=True,
+        blank=True,
+        max_length=1024,
+        validators=(validate_image_file_extension,)
+    )
+    uploaded_on = models.DateTimeField(_('Uploaded on'),
+                                       default=timezone.now, editable=False)
+    active = models.BooleanField(_("Active"), default=False)
+
+    class Meta:
+        verbose_name_plural = 'Institute Logos'
+
+    def __str__(self):
+        return str(self.image)
+
+
+class InstituteBanner(models.Model):
+    """Creates banner model to store institute banners"""
+    institute = models.ForeignKey(
+        'Institute', related_name='institute_banner', on_delete=models.CASCADE)
+    image = models.ImageField(
+        _('Banner'),
+        upload_to=institute_banner_upload_file_path,
+        null=True,
+        blank=True,
+        max_length=1024,
+        validators=(validate_image_file_extension,)
+    )
+    uploaded_on = models.DateTimeField(_('Uploaded on'),
+                                       default=timezone.now, editable=False)
+    active = models.BooleanField(_("Active"), default=False)
+
+    class Meta:
+        verbose_name_plural = 'Institute Banners'
+
+    def __str__(self):
+        return str(self.image)
 
 
 class Classroom(models.Model):

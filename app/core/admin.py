@@ -141,10 +141,60 @@ class CustomSubjectAdmin(admin.ModelAdmin):
     get_classroom.short_description = 'Classroom name'  # Renames column head
 
 
+class CustomInstituteProfile(admin.ModelAdmin):
+    """Customizing the user profile admin page"""
+    list_display = ['institute_name', 'admin_email', 'phone', 'state',
+                    'recognition', 'primary_language',
+                    'secondary_language', 'tertiary_language']
+    search_fields = ['institute_name', 'first_name',
+                     'last_name', 'country',
+                     'primary_language', 'secondary_language',
+                     'tertiary_language']
+    list_filter = ('state', 'recognition', 'primary_language')
+
+    @staticmethod
+    def admin_email(obj):
+        return obj.institute.user
+
+    @staticmethod
+    def institute_name(obj):
+        return obj.institute.name
+
+
+class CustomInstituteLogo(admin.ModelAdmin):
+    model = models.InstituteLogo
+    list_display = ['institute_name', 'admin_name', 'image']
+    list_filter = ['institute__name', ]
+
+    @staticmethod
+    def institute_name(obj):
+        return obj.institute.name
+
+    @staticmethod
+    def admin_name(obj):
+        return obj.institute.user
+
+
+class CustomInstituteBanner(admin.ModelAdmin):
+    model = models.InstituteBanner
+    list_display = ['institute_name', 'admin_name', 'image']
+    list_filter = ['institute__name', ]
+
+    @staticmethod
+    def institute_name(obj):
+        return obj.institute.name
+
+    @staticmethod
+    def admin_name(obj):
+        return obj.institute.user
+
+
 admin.site.register(models.User, CustomUserAdmin)
 admin.site.register(models.TeacherProfile, CustomTeacherUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)
 admin.site.register(models.Classroom, CustomClassroomAdmin)
 admin.site.register(models.Subject, CustomSubjectAdmin)
 admin.site.register(models.Institute)
-admin.site.register(models.InstituteProfile)
+admin.site.register(models.InstituteProfile, CustomInstituteProfile)
+admin.site.register(models.InstituteLogo, CustomInstituteLogo)
+admin.site.register(models.InstituteBanner, CustomInstituteBanner)
