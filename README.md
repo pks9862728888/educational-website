@@ -229,14 +229,13 @@ ________________________________________________________________________________
 
 **Scope** Teacher only
 
-**POST Response JSON format:**
+**POST JSON format:**
 ```
 {
     "user": 2,
     "name": "temp institute 3",
     "country": "AF",
     "institute_category": "E",
-    "institute_slug": "temp-institute-3",
     "institute_profile": {
         "institute": 7,
         "motto": "",
@@ -251,6 +250,14 @@ ________________________________________________________________________________
         "secondary_language": "",
         "tertiary_language": ""
     }
+}
+```
+
+**JSON Response on successful creation**
+```
+{
+    "created": "true",
+    "url": "http://127.0.0.1:8000/institute/temp-institute-4"
 }
 ```
 
