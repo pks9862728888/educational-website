@@ -64,7 +64,7 @@ class CreateInstituteView(CreateAPIView):
         headers = self.get_success_headers(serializer_.data)
         return Response({
             'created': 'true',
-            'institute_slug': serializer_.data['institute_slug']
+            'url': serializer_.data['url']
         }, status=status.HTTP_201_CREATED, headers=headers)
 
 

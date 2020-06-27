@@ -94,11 +94,12 @@ class CreateInstituteSerializer(CountryFieldMixin,
     """Serializer class for creating institute by teacher"""
     institute_profile = InstituteProfileSerializer(required=True)
     country = CountryField(default='IN')
+    url = serializers.SerializerMethodField()
 
     class Meta:
         model = Institute
         fields = ('name', 'country', 'institute_category',
-                  'institute_slug', 'institute_profile')
+                  'institute_slug', 'institute_profile', 'url')
         read_only_fields = ('institute_slug', )
 
     def create(self, validated_data):
@@ -128,6 +129,11 @@ class CreateInstituteSerializer(CountryFieldMixin,
             setattr(institute, 'institute_profile', profile)
 
         return institute
+
+    def get_url(self, instance):
+        """Generates and returns the url of the created profile"""
+        return self.context['request'].build_absolute_uri(
+            instance.get_absolute_url())
 
 
 class FullInstituteProfileSerializer(serializers.ModelSerializer):

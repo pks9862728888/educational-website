@@ -10,7 +10,7 @@ from core import models
 # Urls for checking
 institute_min_url = "institute:institute-min-details-teacher-admin"
 INSTITUTE_MIN_DETAILS_TEACHER_URL = reverse(institute_min_url)
-INSTITUTE_CREATE_BY_TEACHER_URL = reverse("institute:create-institute")
+INSTITUTE_CREATE_BY_TEACHER_URL = reverse("institute:create")
 
 
 def get_full_details_institute_url(slug_text):
@@ -200,7 +200,6 @@ class AuthenticatedTeacherUserAPITests(TestCase):
     def test_create_institute_success_by_teacher(self):
         """Test that creating an institute with valid details is success"""
         payload = {
-            # 'user': self.user,
             'name': 'Name of institute',
             'institute_category': models.InstituteCategory.EDUCATION,
             'country': 'IN',
@@ -223,12 +222,12 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data['created'], 'true')
-        self.assertIn('institute_slug', res.data)
+        self.assertIn('url', res.data)
         self.assertTrue(models.Institute.objects.filter(
             name=payload['name'].lower()).exists())
 
         institute = models.Institute.objects.get(
-            institute_slug=res.data['institute_slug'])
+            name=payload['name'].lower())
         institute_profile = models.InstituteProfile.objects.get(
             institute=institute)
         self.assertEqual(institute.name, payload['name'].lower())
@@ -286,12 +285,12 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data['created'], 'true')
-        self.assertIn('institute_slug', res.data)
+        self.assertIn('url', res.data)
         self.assertTrue(models.Institute.objects.filter(
             name=payload['name'].lower()).exists())
 
         institute = models.Institute.objects.get(
-            institute_slug=res.data['institute_slug'])
+            name=payload['name'].lower())
         institute_profile = models.InstituteProfile.objects.get(
             institute=institute)
 

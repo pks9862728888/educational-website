@@ -10,6 +10,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
 from django.core.validators import EmailValidator, MinLengthValidator, \
     ProhibitNullCharactersValidator, validate_image_file_extension
 from django.core.exceptions import PermissionDenied
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.dispatch import receiver
@@ -403,6 +404,11 @@ class Institute(models.Model):
     def __str__(self):
         """String representation"""
         return self.name.lower()
+
+    def get_absolute_url(self):
+        """Returns absolute url of the institute"""
+        return reverse("institute:detail",
+                       kwargs={'institute_slug': self.institute_slug})
 
 
 @receiver(pre_save, sender=Institute)
