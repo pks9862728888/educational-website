@@ -366,7 +366,7 @@ class Institute(models.Model):
     user = models.ForeignKey(
         'User', related_name='institutes', on_delete=models.CASCADE)
     name = models.CharField(
-        _('Institute Name'), max_length=30, blank=False, null=False,
+        _('Institute Name'), max_length=40, blank=False, null=False,
         validators=(MinLengthValidator(4), ProhibitNullCharactersValidator))
     country = CountryField(
         _('Country'), countries=OperationalCountries, default='IN')

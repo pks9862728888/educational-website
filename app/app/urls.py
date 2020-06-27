@@ -21,8 +21,8 @@ from django.contrib import admin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('user/', include('user.urls')),
-    path('teacher/', include('teacher.urls')),
-    path('student/', include('student.urls')),
-    path('institute/', include('institute.urls'))
+    path('user/', include('user.urls', namespace='user')),
+    path('teacher/', include('teacher.urls', namespace='teacher')),
+    path('student/', include('student.urls', namespace='student')),
+    path('institute/', include('institute.urls', namespace='institute'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

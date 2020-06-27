@@ -163,7 +163,7 @@ class CustomInstituteProfile(admin.ModelAdmin):
 
 class CustomInstituteLogo(admin.ModelAdmin):
     model = models.InstituteLogo
-    list_display = ['institute_name', 'admin_name', 'image']
+    list_display = ['institute_name', 'admin_name', 'image', 'active']
     list_filter = ['institute__name', ]
 
     @staticmethod
@@ -177,7 +177,7 @@ class CustomInstituteLogo(admin.ModelAdmin):
 
 class CustomInstituteBanner(admin.ModelAdmin):
     model = models.InstituteBanner
-    list_display = ['institute_name', 'admin_name', 'image']
+    list_display = ['institute_name', 'admin_name', 'image', 'active']
     list_filter = ['institute__name', ]
 
     @staticmethod
