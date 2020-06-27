@@ -222,7 +222,39 @@ Returns the total number of profile picture available.
 }
 ```
 _______________________________________________________________________________________________________________________________________
-## Teacher Profile url
+## Institute create url
+**URL:** https://127.0.0.1:8000/institute/create
+
+**Allowed methods** POST
+
+**Scope** Teacher only
+
+**POST Response JSON format:**
+```
+{
+    "user": 2,
+    "name": "temp institute 3",
+    "country": "AF",
+    "institute_category": "E",
+    "institute_slug": "temp-institute-3",
+    "institute_profile": {
+        "institute": 7,
+        "motto": "",
+        "email": "",
+        "phone": "",
+        "website_url": "",
+        "state": "",
+        "pin": "",
+        "address": "",
+        "recognition": "",
+        "primary_language": "EN",
+        "secondary_language": "",
+        "tertiary_language": ""
+    }
+}
+```
+
+## Institute Profile list with min details url
 **URL:** https://127.0.0.1:8000/institute/institute-min-details-teacher-admin
 
 **Allowed methods** GET
@@ -267,4 +299,42 @@ ________________________________________________________________________________
         "institute_logo": {}
     }
 ]
+```
+
+## Institute Profile details url
+**URL:** https://127.0.0.1:8000/institute/temp-institute-3
+
+**Allowed methods** GET
+
+**Scope** Teacher only
+
+**GET Response JSON format:**
+```
+{
+    "user": 2,
+    "name": "temp institute 3",
+    "country": "AF",
+    "institute_category": "E",
+    "institute_slug": "temp-institute-3",
+    "institute_profile": {
+        "institute": 7,
+        "motto": "",
+        "email": "",
+        "phone": "",
+        "website_url": "",
+        "state": "",
+        "pin": "",
+        "address": "",
+        "recognition": "",
+        "primary_language": "EN",
+        "secondary_language": "",
+        "tertiary_language": ""
+    },
+    "institute_logo": {
+        "image": "http://127.0.0.1:8000/media/pictures/uploads/institute/logo/2020/6/27/eec547eb-83da-4c3d-9bce-9958d12cb74b.png"
+    },
+    "institute_banner": {
+        "image": "http://127.0.0.1:8000/media/pictures/uploads/institute/banner/2020/6/27/f1d042dc-8787-4056-90aa-a33a1a12e6b1.png"
+    }
+}
 ```
