@@ -33,14 +33,16 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
     institute_logo = serializers.SerializerMethodField()
     institute_profile = InstituteProfileMinDetailsSerializer()
     country = CountryField()
+    institute_statistics = serializers.SerializerMethodField()
 
     class Meta:
         model = Institute
-        fields = ('user', 'name', 'country', 'institute_category',
-                  'created_date', 'institute_profile', 'institute_logo')
+        fields = ('id', 'user', 'name', 'country', 'institute_category',
+                  'created_date', 'institute_profile', 'institute_logo',
+                  'institute_statistics')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
                             'created_date', 'institute_profile',
-                            'institute_logo')
+                            'institute_logo', 'institute_statistics')
 
     def get_institute_logo(self, instance):
         """Returns the active logo of the institute"""
@@ -55,3 +57,11 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
             }
         except Exception:
             return {}
+
+    def get_institute_statistics(self, instance):
+        """Finds and returns institute statistics"""
+        return {
+            'no_of_students': 0,
+            'no_of_faculties': 0,
+            'no_of_staff': 0
+        }

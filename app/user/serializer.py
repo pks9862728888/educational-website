@@ -36,9 +36,9 @@ class LoginUserSerializer(serializers.Serializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'password', 'username', 'is_active',
+        fields = ('id', 'email', 'password', 'username', 'is_active',
                   'is_staff', 'is_student', 'is_teacher')
-        read_only_fields = ('username', 'is_active', 'is_staff',
+        read_only_fields = ('id', 'username', 'is_active', 'is_staff',
                             'is_student', 'is_teacher')
 
     def validate(self, attrs):

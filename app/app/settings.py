@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:4200",
-    "http://192.168.43.25:4300",
+    "http://192.168.43.25:4200",
     "http://192.168.43.26:4200"
 ]
 
