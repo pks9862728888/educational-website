@@ -3,22 +3,35 @@
     width: 100%;
 }
 
+
 /* Styling sidenav toggle icon */
-.toggle-icon {
-    top: 0;
+
+.toggle-icon-mobile,
+.toggle-icon-desktop {
     left: 0;
-    position: absolute;
     z-index: 100;
     background-color: #000000;
     padding: 6px 0px 2px 0px;
     cursor: pointer;
 }
 
+.toggle-icon-mobile {
+    top: 56px;
+    position: fixed;
+}
+
+.toggle-icon-desktop {
+    top: 0px;
+    position: absolute;
+}
+
 .icon {
     color: #ffffff;
 }
 
+
 /* Styling sidenav */
+
 .sidenav-container-20 {
     height: 100%;
     width: 20%;
@@ -36,16 +49,20 @@
     color: #FBFBFB;
 }
 
-.sidenav-padding-top {
-    padding-top: 58px;
-}
-
 .is-mobile {
     position: absolute;
     z-index: 200;
 }
 
+
 /* Styling sidenav contents */
+
+.website-name {
+    margin: 0px;
+    padding: 7px 45px 7px 19px;
+    color: #fbd000;
+}
+
 .sidenav-background-color {
     background-color: #262626;
     color: #ffffff;
@@ -74,8 +91,11 @@
     background-color: #424242;
 }
 
+
 /* Styling breadbrumb */
-.padding-main-content {       /*Includes main content styling too*/
+
+.padding-main-content {
+    /*Includes main content styling too*/
     padding: 15px;
 }
 

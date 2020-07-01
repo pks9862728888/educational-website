@@ -13,6 +13,8 @@ live_streaming_test.py
 
 # Distribution / packaging
 .Python
+database_env_variables.env
+app_env_variables.env
 venv/
 build/
 develop-eggs/

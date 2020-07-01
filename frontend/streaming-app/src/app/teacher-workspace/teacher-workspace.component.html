@@ -5,7 +5,8 @@
                                        'sidenav-container-75': mobileQuery.matches}" fixedTopGap="46px" [(opened)]="opened" autoFocus="false" class="sidenav-background-color">
 
             <!-- Sidenav contents -->
-            <mat-nav-list [ngClass]="{'sidenav-padding-top': mobileQuery.matches === true}">
+            <mat-nav-list>
+                <h1 *ngIf="mobileQuery.matches" class="website-name">EduWeb</h1>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                  'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/profile']" routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile('PROFILE')">My Profile</div>
                 <mat-divider></mat-divider>
@@ -43,7 +44,7 @@
                                  'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/announcements']" routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile('ANNOUNCEMENTS')">Announcements</div>
                 <mat-divider></mat-divider>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                 'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/results']" routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile('RESULTS')">Results</div>
+                                 'sidenav-content-more-padding': !mobileQuery.matches}" [routerLink]="['/teacher-workspace/results']" routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile('RESULTS')">Results</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                                  'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/disciplinary-queue']" routerLinkActive="selected-nav-option" (click)="hideNavbarInMobile('DISCIPLINARY-QUEUE')">
                     Disciplinary Queue</div>
@@ -51,7 +52,7 @@
         </mat-sidenav>
 
         <mat-sidenav-content>
-            <section class="toggle-icon" (click)="snav.toggle()">
+            <section [ngClass]="{'toggle-icon-mobile': mobileQuery.matches, 'toggle-icon-desktop': !mobileQuery.matches}" (click)="snav.toggle()">
                 <mat-icon *ngIf="opened === false" class="icon" aria-hidden="false" aria-label="Show navigaion pane icon">keyboard_arrow_right</mat-icon>
                 <mat-icon *ngIf="opened" class="icon" aria-hidden="false" aria-label="Hide navigaion Pane icon">
                     keyboard_arrow_left</mat-icon>

@@ -1,9 +1,77 @@
 <!-- Menu bar -->
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="nav-background">
+<section>
+    <mat-toolbar color="primary">
+        <button *ngIf="mobileQuery.matches" data-toggle="collapse" aria-expanded="false" data-target="#showNavigationControlsMobile" mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span class="link website-name" [routerLink]="['/home']">EduWeb</span>
+
+        <span *ngIf="!mobileQuery.matches" class="desktop-view-navbar-contents">
+          <ul class="navbar-nav">
+            <li><a class="nav-link active" [routerLink]="['/home']" routerLinkActive="is-active"> Home </a></li>
+            <li><a class="nav-link active" [routerLink]="['/features']" routerLinkActive="is-active"> Features </a></li>
+            <li><a class="nav-link active" [routerLink]="['/pricing']" routerLinkActive="is-active"> Pricing </a></li>
+            <li><a class="nav-link active" [routerLink]="['/about']" routerLinkActive="is-active">About</a></li>
+            <li><a class="nav-link active" [routerLink]="['/help']" routerLinkActive="is-active">Help</a></li>
+            <li><a class="nav-link" [ngClass]="{'active': !showLoginSignUpButton, 'disabled': showLoginSignUpButton}" [routerLink]="getWorkSpaceRoute()" routerLinkActive="is-active">
+               Workspace</a></li>
+          </ul>
+        </span>
+
+        <span class="spacer"></span>
+
+        <span class="padding-right-05">
+              <button mat-flat-button [routerLink]="['/signUp']" routerLinkActive="is-active" *ngIf="showLoginSignUpButton" class="link green-button">Sign up</button>
+        </span>
+        <span>
+                <button mat-flat-button [routerLink]="['/login']" routerLinkActive="is-active" *ngIf="showLoginSignUpButton" class="link blue-button">Login</button>
+        </span>
+
+        <span>
+            <button mat-icon-button *ngIf="!showLoginSignUpButton" class="example-icon nav-link" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <mat-icon [matBadge]="this.newNotificationCount" matBadgePosition="after" matBadgeSize="small" matBadgeColor="warn" [matBadgeHidden]="this.newNotificationCount === 0">notifications</mat-icon>
+            </button>
+            <div *ngIf="!showLoginSignUpButton" class="dropdown-menu" [ngClass]="{'mobile-dropdown-menu': mobileQuery.matches}"  aria-labelledby="dropdownMenuLink">
+                <div [ngClass]="{'arrow-up-desktop': !mobileQuery.matches, 'arrow-up-mobile': mobileQuery.matches}" ></div>
+                <div class="notifications-header">
+                    <strong>Notifications</strong>
+                </div>
+                <mat-divider></mat-divider>
+                <a class="dropdown-item" href="#">Action</a>
+                <a class="dropdown-item" href="#">Another action</a>
+                <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+        </span>
+
+        <span *ngIf="showLogoutButton" class="dp-avatar">
+            <img class="dp" role="button" id="logout-dp" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" src="../assets/imgs/cd6.png">
+            <div class="dropdown-menu" [ngClass]="{'mobile-logout-dropdown-menu': mobileQuery.matches, 'desktop-logout-dropdown-menu': !mobileQuery.matches}" aria-labelledby="logout-dp">
+              <div [ngClass]="{'arrow-up-logout-desktop': !mobileQuery.matches, 'arrow-up-logout-mobile': mobileQuery.matches}"></div>
+              <a class="dropdown-item" (click)="logout()">Log Out</a>
+            </div>
+        </span>
+    </mat-toolbar>
+
+    <div class="collapse mobile-view-navbar-contents" id="showNavigationControlsMobile">
+        <ul>
+            <li><a class="nav-link active" [routerLink]="['/home']" routerLinkActive="is-active"> Home </a></li>
+            <li><a class="nav-link active" [routerLink]="['/features']" routerLinkActive="is-active"> Features </a></li>
+            <li><a class="nav-link active" [routerLink]="['/pricing']" routerLinkActive="is-active"> Pricing </a></li>
+            <li><a class="nav-link active" [routerLink]="['/about']" routerLinkActive="is-active">About</a></li>
+            <li><a class="nav-link active" [routerLink]="['/help']" routerLinkActive="is-active">Help</a></li>
+            <li><a class="nav-link" [ngClass]="{'active': !showLoginSignUpButton, 'disabled': showLoginSignUpButton}" [routerLink]="getWorkSpaceRoute()" routerLinkActive="is-active">
+           Workspace</a></li>
+        </ul>
+    </div>
+
+</section>
+
+<!-- <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="nav-background">
     <div class="container-fluid">
         <a class="navbar-brand d-inline-block" [routerLink]="['/home']">
             <span id="brand-name"><strong>EduWeb</strong></span>
         </a>
+
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarId" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -20,19 +88,37 @@
             </ul>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active mr-3">
-                    <a [routerLink]="['/signUp']" routerLinkActive="is-active" *ngIf="showLoginSignUpButton" class="nav-link"><i class="fas fa-user-plus"></i>Sign up</a>
+                    <a [routerLink]="['/signUp']" routerLinkActive="is-active" *ngIf="showLoginSignUpButton" class="nav-link">Sign up</a>
                 </li>
                 <li class="nav-item active mr-3">
-                    <a [routerLink]="['/login']" routerLinkActive="is-active" *ngIf="showLoginSignUpButton" class="nav-link"><i class="fas fa-sign-in-alt"></i>Login</a>
+                    <a [routerLink]="['/login']" routerLinkActive="is-active" *ngIf="showLoginSignUpButton" class="nav-link">Login</a>
                 </li>
+                <div class="dropdown show">
+                    <li class="nav-item active mr-3">
+                        <a *ngIf="!(mobileQuery.matches === true) && !showLoginSignUpButton" class="nav-link" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <mat-icon [matBadge]="this.newNotificationCount" matBadgePosition="after" matBadgeSize="small" matBadgeColor="warn" [matBadgeHidden]="this.newNotificationCount === 0">notifications</mat-icon>
+                        </a>
+                        <div *ngIf="!(mobileQuery.matches === true) && !showLoginSignUpButton" class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <div class="arrow-up"></div>
+                            <div>
+                                <h4 class="notifications-header">Notifications</h4>
+                            </div>
+                            <mat-divider></mat-divider>
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                        </div>
+                    </li>
+                </div>
+
                 <li class="nav-item active mr-3">
                     <a (click)="logout()" *ngIf="showLogoutButton" class="nav-link">
-                        <i class="fas fa-sign-in-alt"></i>Logout
+                        Logout
                     </a>
                 </li>
             </ul>
         </div>
     </div>
-</nav>
+</nav> -->
 
 <router-outlet></router-outlet>

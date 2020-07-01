@@ -1,3 +1,4 @@
+import { MediaMatcher } from '@angular/cdk/layout';
 import { authTokenName } from './../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
@@ -30,6 +31,9 @@ export class SnackbarLoggedOutComponent { }
 export class AppComponent implements OnInit, OnDestroy {
   title = 'streaming-app';
 
+  // For tracking whether device is mobile
+  mobileQuery: MediaQueryList;
+
   // Duration for showing snackbar
   durationInSeconds = 4;
 
@@ -37,13 +41,19 @@ export class AppComponent implements OnInit, OnDestroy {
   showLoginSignUpButton: boolean;
   showLogoutButton: boolean;
 
+  // Counts number of notifications
+  newNotificationCount = 12;
+
   // Subscription to logged status and user type
   private loggedInStatusSubscription: Subscription;
 
-  constructor( private cookieService: CookieService,
+  constructor( private media: MediaMatcher,
+               private cookieService: CookieService,
                private authService: AuthService,
                private router: Router,
-               private snackBar: MatSnackBar ) {}
+               private snackBar: MatSnackBar ) {
+                this.mobileQuery = media.matchMedia('(max-width: 600px)');
+  }
 
   ngOnInit() {
     // Subscribing to know user logged in status

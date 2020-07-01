@@ -1,4 +1,7 @@
 /* Styling navbar */
+
+
+/*
 #nav-background {
     background-color: #9C27B0;
 }
@@ -7,18 +10,210 @@
     color: rgb(255, 255, 255);
 }
 
-.nav-link {
-    color: rgb(255, 255, 255);
-    cursor: pointer;
-}
 
-.is-active {
-    color: rgb(255, 255, 255);
-    font-weight: bold;
-}
 
 .navbar {
     -webkit-box-shadow: 0 8px 6px -6px #999;
     -moz-box-shadow: 0 8px 6px -6px #999;
     box-shadow: 0px 8px 6px -6px #999;
+} */
+
+
+/* .mat-icon {
+    height: 14px;
+    width: 14px;
+    margin-right: 8px;
+} */
+
+
+/* ::ng-deep .mat-badge-content {
+    width: auto;
+    left: 0.9rem;
+}
+*/
+
+
+/* Styling mat menu */
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+
+/* Styling for notification */
+
+.notifications-header {
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    color: #424242;
+}
+
+.arrow-up-desktop,
+.arrow-up-mobile {
+    width: 0px;
+    height: 0px;
+    border-left: 0.8rem solid transparent;
+    border-right: 0.8rem solid transparent;
+    border-bottom: 0.8rem solid #ffffff;
+    float: right;
+}
+
+.arrow-up-mobile {
+    transform: translate(-4.55rem, -0.8rem);
+}
+
+.arrow-up-desktop {
+    transform: translate(-4.55rem, -1rem);
+}
+
+.dropdown-menu {
+    min-width: 20rem;
+    padding: .5rem 0;
+    margin: 0.75rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    background-color: #fff;
+}
+
+.mobile-dropdown-menu {
+    min-width: 20rem;
+    padding: .5rem 0;
+    margin: 0.45rem 0 0;
+}
+
+
+/* Styling for logout */
+
+.dp {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    margin-bottom: 0.2rem;
+    object-fit: scale-down;
+    overflow: hidden;
+}
+
+.arrow-up-logout-desktop,
+.arrow-up-logout-mobile {
+    width: 0px;
+    height: 0px;
+    border-left: 0.8rem solid transparent;
+    border-right: 0.8rem solid transparent;
+    border-bottom: 0.8rem solid #ffffff;
+    float: right;
+}
+
+.arrow-up-logout-mobile {
+    transform: translate(-1.7rem, -0.8rem);
+}
+
+.arrow-up-logout-desktop {
+    transform: translate(-1.7rem, -1rem);
+}
+
+.desktop-logout-dropdown-menu {
+    min-width: 5rem;
+    padding: .5rem 0;
+    margin: 0.8rem 0 0 !important;
+    color: #212529;
+    background-color: #fff;
+}
+
+.mobile-logout-dropdown-menu {
+    min-width: 10rem;
+    padding: .5rem 0;
+    margin: 0.45rem 0 0;
+}
+
+.dropdown-item:hover {
+    cursor: pointer;
+}
+
+
+/* Styling for login and signup */
+
+.nav-link,
+.link {
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+}
+
+.padding-right-05 {
+    padding-right: 0.5rem;
+}
+
+.dp-avatar {
+    padding-left: 0.9rem;
+    padding-right: 0.5rem;
+}
+
+.green-button {
+    background-color: #008000;
+}
+
+.blue-button {
+    background-color: #1c33ff;
+}
+
+
+/* Styling for menu bar contents in desktop view */
+
+.website-name {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    color: #ffd000;
+}
+
+.desktop-view-navbar-contents ul,
+.desktop-view-navbar-contents li {
+    display: inline-block;
+    list-style-type: none;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.is-active {
+    font-weight: bold;
+    color: rgba(255, 255, 255);
+}
+
+.disabled {
+    display: none;
+}
+
+
+/* Styling menu bar contents in mobile view */
+
+.mobile-view-navbar-contents .is-active {
+    font-weight: bold;
+    background-color: #5d35a3;
+    opacity: 0.8;
+    color: rgba(255, 255, 255);
+}
+
+.collapse {
+    background-color: #673ab7;
+}
+
+.mobile-view-navbar-contents ul,
+.mobile-view-navbar-contents li {
+    padding: 0px;
+    margin: 0px;
+    list-style-type: none;
+}
+
+.mobile-view-navbar-contents li {
+    border-top: 1px solid #4d2b88;
+    border-bottom: none;
+}
+
+.mobile-view-navbar-contents ul {
+    background-color: #673ab7;
+}
+
+.mobile-view-navbar-contents a {
+    padding-left: 0.65rem;
 }

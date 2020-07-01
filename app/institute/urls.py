@@ -13,5 +13,5 @@ urlpatterns = [
          name="create"),
     path('<slug:institute_slug>',
          views.InstituteFullDetailsView.as_view(),
-         name="detail")
+         name="detail"),
 ]

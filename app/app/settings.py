@@ -29,7 +29,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '192.168.43.25',
     '192.168.43.26',
-    '192.168.29.37'
+    '192.168.29.37',
+    '0.0.0.0'
 ]
 
 
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'channels',
     'core',
     'teacher',
     'student',
@@ -82,6 +84,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'app.wsgi.application'
+ASGI_APPLICATION = "app.routing.application"
 
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:4200",
@@ -149,3 +152,18 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'vol/web/static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'vol/web/media')
 
 AUTH_USER_MODEL = 'core.User'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.environ.get('EDUCATIONAL_WEBSITE_GMAIL')
+EMAIL_HOST_PASSWORD = os.environ.get('EDUCATIONAL_WEBSITE_GMAIL_PASSWORD')
+EMAIL_USE_TLS = True
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}

@@ -6,6 +6,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @NgModule({
     imports: [
@@ -15,7 +17,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatCheckboxModule,
         MatIconModule,
         MatDividerModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatBadgeModule,
+        MatToolbarModule
     ],
     exports: [
         MatInputModule,
@@ -24,7 +28,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         MatCheckboxModule,
         MatIconModule,
         MatDividerModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        MatBadgeModule,
+        MatToolbarModule
     ]
 })
 export class MaterialModule {}
