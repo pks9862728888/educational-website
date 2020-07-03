@@ -24,6 +24,8 @@ from django_countries.fields import CountryField
 
 from rest_framework.authtoken.models import Token
 
+from .tasks import create_welcome_message_after_user_creation
+
 
 class OperationalCountries(Countries):
     """Overriding countries to include only operational countries."""
@@ -321,12 +323,37 @@ class TeacherProfile(models.Model, Languages):
         return str(self.user)
 
 
+class SystemMessage(models.Model):
+    """Model for storing system messages"""
+    sender = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE
+    )
+    receiver = models.ForeignKey(
+        'User',
+        related_name='system_messages',
+        on_delete=models.CASCADE
+    )
+    title = models.CharField(_('Title'), max_length=30)
+    message = models.TextField(_('Message'), max_length=60)
+    seen = models.BooleanField(_('Seen'), default=False)
+    created_date = models.DateTimeField(
+        _('Created Date'), default=timezone.now, editable=False)
+
+    def __str__(self):
+        return str(receiver)
+
+
 @receiver(post_save, sender=User)
 def user_is_created(sender, instance, created, **kwargs):
     if created:
         # Creating teacher profile
         if instance.is_teacher:
             TeacherProfile.objects.create(user=instance)
+
+        # Creates welcome message using task queue
+        if instance.username != os.environ.get('SYSTEM_USER_USERNAME'):
+            create_welcome_message_after_user_creation.delay(instance.pk)
     else:
         # Saving teacher profile and creating if not existing
         if instance.is_teacher:

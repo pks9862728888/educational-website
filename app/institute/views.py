@@ -1,11 +1,9 @@
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions, status
 from rest_framework.generics import ListAPIView, CreateAPIView,\
     RetrieveAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from . import serializer
 

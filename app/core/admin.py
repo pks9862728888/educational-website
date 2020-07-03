@@ -115,6 +115,20 @@ class CustomProfilePictures(admin.ModelAdmin):
     get_user.short_description = 'Email of user'  # Renames column head
 
 
+class CustomSystemMessages(admin.ModelAdmin):
+    model = models.SystemMessage
+    list_display = ['receiver_email', 'sender_email', 'seen', 'created_date']
+    list_filter = ['receiver__username', ]
+
+    @staticmethod
+    def receiver_email(obj):
+        return obj.receiver.email
+
+    @staticmethod
+    def sender_email(obj):
+        return obj.sender.email
+
+
 class CustomClassroomAdmin(admin.ModelAdmin):
     model = models.Classroom
     list_display = ['name', 'get_user', ]
@@ -190,6 +204,7 @@ class CustomInstituteBanner(admin.ModelAdmin):
 
 
 admin.site.register(models.User, CustomUserAdmin)
+admin.site.register(models.SystemMessage, CustomSystemMessages)
 admin.site.register(models.TeacherProfile, CustomTeacherUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)
 admin.site.register(models.Classroom, CustomClassroomAdmin)

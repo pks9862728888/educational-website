@@ -6,7 +6,8 @@ services:
       ports:
         - "6379:6379"
 
-    app:
+    app: &app
+      restart: always
       build:
         context: .
         dockerfile: Dockerfile
@@ -23,11 +24,23 @@ services:
       depends_on:
         - db
         - redis
+        - rabbitmq
 
     db:
       image: postgres:12-alpine
       env_file:
         - database_env_variables.env
+
+    rabbitmq: # Rabbit message queue
+      image: rabbitmq:3.8.5-alpine
+
+    celery_worker: #Clery worker service
+      <<: *app
+      command: celery -A app worker --loglevel=info
+      ports: []
+      depends_on:
+        - db
+        - rabbitmq
 
     channels:
       build: .
