@@ -1,3 +1,4 @@
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { COUNTRY_FORM_FIELD_OPTIONS, LANGUAGE_FORM_FIELD_OPTIONS, INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS } from './../../../../constants';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { STATE_FORM_FIELD_OPTIONS } from 'src/constants';
@@ -18,9 +19,16 @@ export class CreateCollegeComponent implements OnInit {
   // To control whether create institute is created or not
   @Output() instituteCreated = new EventEmitter();
 
-  constructor() { }
+  // Form
+  instituteForm: FormGroup;
+
+  constructor( private formBuilder: FormBuilder ) { }
 
   ngOnInit(): void {
+    this.instituteForm = this.formBuilder.group({
+      name: [null, [Validators.required, ]],
+      country: ['IN', [Validators.required, ]],
+    });
   }
 
   // If create institute is cancelled

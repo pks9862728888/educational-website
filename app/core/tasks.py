@@ -1,8 +1,8 @@
 from __future__ import absolute_import, unicode_literals
 
-import os
-
 from celery import shared_task
+
+import os
 from django.contrib.auth import get_user_model
 
 from core import models
@@ -24,7 +24,7 @@ def create_welcome_message_after_user_creation(receiver_pk):
 
     receiver = get_user_model().objects.get(pk=receiver_pk)
 
-    models.SystemMessage.objects.create(
+    message = models.SystemMessage.objects.create(
         sender=system_user,
         receiver=receiver,
         title='Welcome message',
@@ -34,3 +34,4 @@ def create_welcome_message_after_user_creation(receiver_pk):
                 ' institutes, classrooms, or courses' +
                 ' as per your requirements.'
     )
+    return message.id

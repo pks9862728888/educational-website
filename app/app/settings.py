@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'channels',
+    'django_celery_results',
     'core',
     'teacher',
     'student',
@@ -153,12 +154,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'vol/web/media')
 
 AUTH_USER_MODEL = 'core.User'
 
+# For sending email
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get('EDUCATIONAL_WEBSITE_GMAIL')
 EMAIL_HOST_PASSWORD = os.environ.get('EDUCATIONAL_WEBSITE_GMAIL_PASSWORD')
 EMAIL_USE_TLS = True
 
+# For django channels
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -168,6 +171,7 @@ CHANNEL_LAYERS = {
     },
 }
 
+# For django celery
 CELERY_BROKER_URL = 'amqp://rabbitmq'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
