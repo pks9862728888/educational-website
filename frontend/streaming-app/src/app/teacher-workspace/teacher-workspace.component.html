@@ -66,8 +66,9 @@
                             <a (click)="navigateClicked('HOME')">Home</a></li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'PROFILE'" [ngClass]="{'active': activeLink === 'PROFILE', 'clickable-link': activeLink !== 'PROFILE'}">
                             <a (click)="navigateClicked('PROFILE')">Profile</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink !== 'CREATE', 'clickable-link': activeLink === 'INSTITUTES' && secondaryActiveLink === 'CREATE'}">
-                            <a *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink !== 'CREATE'" (click)="navigateClicked('INSTITUTES')">Institutes</a>
+                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink !== 'CREATE' && secondaryActiveLink !== 'PREVIEW', 'clickable-link': activeLink === 'INSTITUTES' && (secondaryActiveLink === 'CREATE' || secondaryActiveLink === 'PREVIEW')}">
+                            <a *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink !== 'CREATE' && secondaryActiveLink !== 'PREVIEW'" (click)="navigateClicked('INSTITUTES')">Institutes</a>
+                            <a *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'PREVIEW'" (click)="navigateClicked('INSTITUTES')">Institutes</a>
                             <a *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'CREATE'" (click)="emitEvent('INSTITUTES')">Institutes</a>
                         </li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'CLASSES'" [ngClass]="{'active': activeLink === 'CLASSES', 'clickable-link': activeLink !== 'CLASSES'}">
@@ -95,6 +96,7 @@
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'DISCIPLINARY-QUEUE'" [ngClass]="{'active': activeLink === 'DISCIPLINARY-QUEUE', 'clickable-link': activeLink !== 'DISCIPLINARY-QUEUE'}">
                             <a (click)="navigateClicked('DISCIPLINARY-QUEUE')">Disciplinary Queue</a></li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'CREATE'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink === 'CREATE', 'clickable-link': secondaryActiveLink !== 'CREATE'}">Create</li>
+                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'PREVIEW'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink === 'PREVIEW', 'clickable-link': secondaryActiveLink !== 'PREVIEW'}">Preview</li>
                     </ol>
                 </nav>
 

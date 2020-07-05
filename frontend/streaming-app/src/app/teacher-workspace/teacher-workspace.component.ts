@@ -1,3 +1,4 @@
+import { authTokenName } from './../../constants';
 import { InterModuleDataTransferService } from './../inter-module-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
@@ -29,7 +30,7 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
 
     // If auth token is already saved then redirecting to appropriate workspace
-    if (this.cookieService.get('auth-token-edu-website')) {
+    if (this.cookieService.get(authTokenName)) {
       // Rendering appropriate workspace
       if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
         this.router.navigate(['/teacher-workspace']);
@@ -63,12 +64,17 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   // For breadcrumb
-  navigateClicked(link) {
+  navigateClicked(link: string) {
     if (link !== this.activeLink) {
       this.activeLink = link;
 
       if (this.activeLink === 'HOME') {
         this.router.navigate(['\home']);
+      }
+    } else {
+      if (this.secondaryActiveLink === 'PREVIEW') {
+        this.secondaryActiveLink = '';
+        this.router.navigate(['teacher-workspace/institutes']);
       }
     }
   }
