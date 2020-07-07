@@ -25,6 +25,12 @@ interface InstituteDetails {
     secondary_language: string;
     tertiary_language: string;
   };
+  institute_statistics: {
+    no_of_admin: number;
+    no_of_students: number;
+    no_of_faculties: number;
+    no_of_staff: number;
+  };
   institute_logo: {
     image: string;
   };
