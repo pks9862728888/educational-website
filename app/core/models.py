@@ -276,10 +276,10 @@ class TeacherProfile(models.Model, Languages):
         on_delete=models.CASCADE
     )
     first_name = models.CharField(
-        _('First Name'), max_length=255, blank=True,
+        _('First Name'), max_length=70, blank=True,
         validators=(ProhibitNullCharactersValidator, ))
     last_name = models.CharField(
-        _('Last Name'), max_length=255, blank=True,
+        _('Last Name'), max_length=70, blank=True,
         validators=(ProhibitNullCharactersValidator, ))
     gender = models.CharField(
         _('Gender'),
@@ -394,8 +394,8 @@ class Institute(models.Model):
     user = models.ForeignKey(
         'User', related_name='institutes', on_delete=models.CASCADE)
     name = models.CharField(
-        _('Institute Name'), max_length=40, blank=False, null=False,
-        validators=(MinLengthValidator(4), ProhibitNullCharactersValidator))
+        _('Institute Name'), max_length=150, blank=False, null=False,
+        validators=(MinLengthValidator(5), ProhibitNullCharactersValidator))
     country = CountryField(
         _('Country'), countries=OperationalCountries, default='IN')
     institute_category = models.CharField(
@@ -407,7 +407,7 @@ class Institute(models.Model):
     )
     institute_slug = models.SlugField(
         _('Institute Slug'),
-        max_length=40,
+        max_length=180,
         null=True,
         blank=True
     )

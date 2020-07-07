@@ -49,10 +49,10 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
     class Meta:
         model = Institute
         fields = ('id', 'user', 'name', 'country', 'institute_category',
-                  'created_date', 'institute_profile', 'institute_logo',
-                  'institute_statistics')
+                  'created_date', 'institute_slug', 'institute_profile',
+                  'institute_logo', 'institute_statistics')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'created_date', 'institute_profile',
+                            'created_date', 'institute_slug', 'institute_profile',
                             'institute_logo', 'institute_statistics')
 
     def get_institute_logo(self, instance):
@@ -141,11 +141,11 @@ class FullInstituteProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InstituteProfile
-        fields = ('institute', 'motto', 'email', 'phone', 'website_url',
+        fields = ('motto', 'email', 'phone', 'website_url',
                   'state', 'pin', 'address', 'recognition',
                   'primary_language', 'secondary_language',
                   'tertiary_language')
-        read_only_fields = ('institute', 'motto', 'email', 'phone',
+        read_only_fields = ('motto', 'email', 'phone',
                             'website_url', 'state', 'pin', 'address',
                             'recognition', 'primary_language',
                             'secondary_language', 'tertiary_language')
@@ -161,10 +161,10 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Institute
         fields = ('user', 'name', 'country', 'institute_category',
-                  'institute_slug', 'institute_profile',
+                  'institute_slug', 'created_date', 'institute_profile',
                   'institute_logo', 'institute_banner')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'institute_slug', 'institute_profile',
+                            'institute_slug', 'created_date', 'institute_profile',
                             'institute_logo', 'institute_banner')
 
     def get_institute_logo(self, instance):

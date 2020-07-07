@@ -60,12 +60,18 @@ class CreateInstituteView(CreateAPIView):
         """
         serializer_ = self.get_serializer(data=request.data)
         serializer_.is_valid(raise_exception=True)
-        self.perform_create(serializer_)
-        headers = self.get_success_headers(serializer_.data)
-        return Response({
-            'created': 'true',
-            'url': serializer_.data['url']
-        }, status=status.HTTP_201_CREATED, headers=headers)
+        try:
+            self.perform_create(serializer_)
+            headers = self.get_success_headers(serializer_.data)
+            return Response({
+                'created': 'true',
+                'url': serializer_.data['url']
+            }, status=status.HTTP_201_CREATED, headers=headers)
+        except:
+            return Response({
+                'created': 'false',
+                'message': 'You have already created an institute with this name.'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InstituteFullDetailsView(RetrieveAPIView):
