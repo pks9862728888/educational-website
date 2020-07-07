@@ -337,6 +337,12 @@ ________________________________________________________________________________
         "secondary_language": "",
         "tertiary_language": ""
     },
+    "institute_statistics": {
+        "no_of_admin": 0,
+        "no_of_students": 0,
+        "no_of_faculties": 0,
+        "no_of_staff": 0
+    },
     "institute_logo": {
         "image": "http://127.0.0.1:8000/media/pictures/uploads/institute/logo/2020/6/27/eec547eb-83da-4c3d-9bce-9958d12cb74b.png"
     },
