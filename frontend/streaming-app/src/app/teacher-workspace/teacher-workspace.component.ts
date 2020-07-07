@@ -1,4 +1,5 @@
-import { InterModuleDataTransferService } from './../inter-module-data-transfer.service';
+import { authTokenName } from './../../constants';
+import { InAppDataTransferService } from '../in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
@@ -15,6 +16,8 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   // For showing sidenav toolbar
   mobileQuery: MediaQueryList;
   opened: boolean;
+  showInstituteViewSidenav = false;
+  instituteSidenavViewSubscription: Subscription;
 
   // For breadcrumb
   activeLink: string;
@@ -24,12 +27,12 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   constructor( private cookieService: CookieService,
                private router: Router,
                private media: MediaMatcher,
-               private interModuleDataTransferService: InterModuleDataTransferService ) {
+               private inAppDataTransferService: InAppDataTransferService ) {
 
-    this.mobileQuery = media.matchMedia('(max-width: 600px)');
+    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
 
     // If auth token is already saved then redirecting to appropriate workspace
-    if (this.cookieService.get('auth-token-edu-website')) {
+    if (this.cookieService.get(authTokenName)) {
       // Rendering appropriate workspace
       if (localStorage.getItem('is_teacher') === JSON.stringify(true)) {
         this.router.navigate(['/teacher-workspace']);
@@ -55,20 +58,31 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
       this.opened = true;
     }
 
-    this.instituteActiveLinkSubscription = this.interModuleDataTransferService.activeBreadcrumbLinkData$.subscribe(
+    this.instituteActiveLinkSubscription = this.inAppDataTransferService.activeBreadcrumbLinkData$.subscribe(
       (data: string) => {
         this.secondaryActiveLink = data;
       }
     );
+
+    this.instituteSidenavViewSubscription = this.inAppDataTransferService.setInstituteSidenavView$.subscribe(
+      (status: boolean) => {
+        this.showInstituteViewSidenav = status;
+      }
+    )
   }
 
   // For breadcrumb
-  navigateClicked(link) {
+  navigateClicked(link: string) {
     if (link !== this.activeLink) {
       this.activeLink = link;
 
       if (this.activeLink === 'HOME') {
         this.router.navigate(['\home']);
+      }
+    } else {
+      if (this.secondaryActiveLink === 'PREVIEW') {
+        this.secondaryActiveLink = '';
+        this.router.navigate(['teacher-workspace/institutes']);
       }
     }
   }
@@ -80,17 +94,20 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
     }
 
     this.navigateClicked(link);
+    // Hide institute Navbar view
+    this.inAppDataTransferService.showInstituteSidenavView(false);
   }
 
   emitEvent(navigate: string) {
     if (navigate === 'INSTITUTES') {
-      this.interModuleDataTransferService.showInstituteListView(true);
+      this.inAppDataTransferService.showInstituteListView(true);
       this.secondaryActiveLink = '';
     }
   }
 
   ngOnDestroy(): void {
     this.instituteActiveLinkSubscription.unsubscribe();
+    this.instituteSidenavViewSubscription.unsubscribe();
   }
 
 }

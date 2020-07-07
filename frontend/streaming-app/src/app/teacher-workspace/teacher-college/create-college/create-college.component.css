@@ -83,6 +83,18 @@ hr {
     background-color: #3a9b0d;
 }
 
+.yellow {
+    color: #f3f717;
+}
+
+.text-color {
+    color: #dbdbdb;
+}
+
+.required {
+    color: #f3f717;
+}
+
 
 /* Adding padding and margins */
 
@@ -94,4 +106,23 @@ hr {
 
 .flex-display {
     display: flex;
+}
+
+.padding-left-star {
+    padding-left: 1.9rem;
+}
+
+
+/* Styling error response */
+
+.error-response {
+    display: flex;
+    color: #ffffff;
+    border: 1px solid #ff0000;
+    background-color: rgb(207, 102, 121, 1);
+    border-radius: 5px;
+    z-index: 0.12;
+    text-align: center;
+    justify-content: center;
+    padding: 10px;
 }

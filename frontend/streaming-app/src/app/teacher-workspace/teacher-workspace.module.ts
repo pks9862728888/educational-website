@@ -28,6 +28,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { ChooseFromExistingComponent } from './teacher-profile/choose-from-existing/choose-from-existing.component';
 import { CreateCollegeComponent } from './teacher-college/create-college/create-college.component';
+import { CollegePreviewComponent } from './college/college-preview/college-preview.component';
+import { RouterModule } from '@angular/router';
+import { PermissionsComponent } from './college/permissions/permissions.component';
 
 
 @NgModule({
@@ -51,8 +54,11 @@ import { CreateCollegeComponent } from './teacher-college/create-college/create-
     UploadProfilePictureComponent,
     ChooseFromExistingComponent,
     CreateCollegeComponent,
+    CollegePreviewComponent,
+    PermissionsComponent,
   ],
   imports: [
+    RouterModule,
     CommonModule,
     AppRoutingModule,
     BrowserAnimationsModule,

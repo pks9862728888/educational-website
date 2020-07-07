@@ -1,9 +1,11 @@
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { InterModuleDataTransferService } from './../../inter-module-data-transfer.service';
+import { InAppDataTransferService } from '../../in-app-data-transfer.service';
 import { COUNTRY, STATE, INSTITUTE_CATEGORY } from './../../../constants';
 import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { MAT_SNACK_BAR_DATA, MatSnackBar } from '@angular/material/snack-bar';
 
 interface TeacherAdminInstitutesMin {
   id: number;
@@ -12,12 +14,14 @@ interface TeacherAdminInstitutesMin {
   country: string;
   institute_category: string;
   created_date: string;
+  institute_slug: string;
   institute_profile: {
     motto: string;
     email: string;
     phone: string;
     website_url: string;
     state: string;
+    recognition: string;
   };
   institute_logo: {
     image: string;
@@ -28,6 +32,32 @@ interface TeacherAdminInstitutesMin {
     no_of_staff: number;
   };
 }
+
+
+interface InstituteCreatedEvent {
+  status: boolean;
+  url: string;
+}
+
+
+// For showing snackbar
+@Component({
+  template: `
+    <div class="snackbar-text">
+      {{ this.message }}
+    </div>
+  `,
+  styles: [`
+    .snackbar-text {
+      color: yellow;
+      text-align: center;
+    }
+  `]
+})
+export class SnackbarComponent {
+  constructor(@Inject(MAT_SNACK_BAR_DATA) public message: string) { }
+}
+
 
 @Component({
   selector: 'app-teacher-college',
@@ -61,13 +91,19 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
   // For handling views based on input from breadcrumb
   showInstituteListViewSubscription: Subscription;
 
+  // For handling institute preview view
+  currentSelectedInstituteUrl: string;
+
   constructor(private media: MediaMatcher,
               private instituteApiService: InstituteApiService,
-              private interModuleDataTransferService: InterModuleDataTransferService ) {
+              private inAppDataTransferService: InAppDataTransferService,
+              private snackBar: MatSnackBar,
+              private router: Router ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {
+    // this.router.navigate(['teacher-workspace/institutes/preview', 'tempView']);
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
       (result: TeacherAdminInstitutesMin[]) => {
         for (const institute of result) {
@@ -80,7 +116,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
     );
 
     // Subscribing to show the list view on input from breadcrumb
-    this.showInstituteListViewSubscription = this.interModuleDataTransferService.setInstituteViewActive$.subscribe(
+    this.showInstituteListViewSubscription = this.inAppDataTransferService.setInstituteViewActive$.subscribe(
       (status: boolean) => {
         this.createInstituteClicked = false;
       }
@@ -133,16 +169,36 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
 
   createInstitute() {
     this.createInstituteClicked = true;
-    this.interModuleDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
+    this.inAppDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
+  }
+
+  previewClicked(instituteSlug: string) {
+    // Showing appropriate navigation in breadcrumb
+    this.inAppDataTransferService.sendActiveBreadcrumbLinkData('PREVIEW');
+    this.router.navigate(['teacher-workspace/institutes/preview/', instituteSlug]);
   }
 
   // Taking action based on whether institute is created or not
-  instituteCreated(event: boolean){
-    if (event === true) {
-      // If institute is created
+  instituteCreated(event: InstituteCreatedEvent){
+    if (event.status === true) {
+      // Saving the url and showing appropriate message
+      this.currentSelectedInstituteUrl = event.url;
+
+      // Show snackbar
+      this.snackBar.openFromComponent(SnackbarComponent, {
+        data: 'Institute created successfully!',
+        duration: 2000
+      });
+
+      // Showing appropriate navigation in breadcrumb
+      this.inAppDataTransferService.sendActiveBreadcrumbLinkData('PREVIEW');
+
+      // Routing to institute preview
+      const instituteSlug = event.url.substring(event.url.lastIndexOf('/') + 1, event.url.length);
+      this.router.navigate(['teacher-workspace/institutes/preview', instituteSlug]);
     } else {
       this.createInstituteClicked = false;
-      this.interModuleDataTransferService.sendActiveBreadcrumbLinkData('');
+      this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     }
   }
 
