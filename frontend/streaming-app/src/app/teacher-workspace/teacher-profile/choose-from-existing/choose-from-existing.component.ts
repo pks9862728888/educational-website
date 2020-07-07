@@ -47,7 +47,7 @@ export class ChooseFromExistingComponent implements OnInit {
 
   constructor(private media: MediaMatcher,
               private apiService: ApiService) {
-      this.mobileQuery = media.matchMedia('(max-width: 600px)');
+      this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {

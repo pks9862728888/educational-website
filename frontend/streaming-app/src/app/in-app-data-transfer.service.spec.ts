@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { InterModuleDataTransferService } from './inter-module-data-transfer.service';
+import { InAppDataTransferService } from './in-app-data-transfer.service';
 
 describe('InterModuleDataTransferService', () => {
-  let service: InterModuleDataTransferService;
+  let service: InAppDataTransferService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(InterModuleDataTransferService);
+    service = TestBed.inject(InAppDataTransferService);
   });
 
   it('should be created', () => {

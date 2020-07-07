@@ -104,7 +104,7 @@ export class TeacherProfileComponent implements OnInit {
                private formBuilder: FormBuilder,
                private snackBar: MatSnackBar,
                private dialog: MatDialog ) {
-    this.mobileQuery = media.matchMedia('(max-width: 600px)');
+    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
     this.maxDate = new Date();         // For selecting max date as today
   }
 

@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { InterModuleDataTransferService } from './../../inter-module-data-transfer.service';
+import { InAppDataTransferService } from '../../in-app-data-transfer.service';
 import { COUNTRY, STATE, INSTITUTE_CATEGORY } from './../../../constants';
 import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -14,12 +14,14 @@ interface TeacherAdminInstitutesMin {
   country: string;
   institute_category: string;
   created_date: string;
+  institute_slug: string;
   institute_profile: {
     motto: string;
     email: string;
     phone: string;
     website_url: string;
     state: string;
+    recognition: string;
   };
   institute_logo: {
     image: string;
@@ -94,13 +96,14 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
 
   constructor(private media: MediaMatcher,
               private instituteApiService: InstituteApiService,
-              private interModuleDataTransferService: InterModuleDataTransferService,
+              private inAppDataTransferService: InAppDataTransferService,
               private snackBar: MatSnackBar,
               private router: Router ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {
+    // this.router.navigate(['teacher-workspace/institutes/preview', 'tempView']);
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
       (result: TeacherAdminInstitutesMin[]) => {
         for (const institute of result) {
@@ -113,7 +116,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
     );
 
     // Subscribing to show the list view on input from breadcrumb
-    this.showInstituteListViewSubscription = this.interModuleDataTransferService.setInstituteViewActive$.subscribe(
+    this.showInstituteListViewSubscription = this.inAppDataTransferService.setInstituteViewActive$.subscribe(
       (status: boolean) => {
         this.createInstituteClicked = false;
       }
@@ -166,12 +169,12 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
 
   createInstitute() {
     this.createInstituteClicked = true;
-    this.interModuleDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
+    this.inAppDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
   }
 
   previewClicked(instituteSlug: string) {
     // Showing appropriate navigation in breadcrumb
-    this.interModuleDataTransferService.sendActiveBreadcrumbLinkData('PREVIEW');
+    this.inAppDataTransferService.sendActiveBreadcrumbLinkData('PREVIEW');
     this.router.navigate(['teacher-workspace/institutes/preview/', instituteSlug]);
   }
 
@@ -188,14 +191,14 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
       });
 
       // Showing appropriate navigation in breadcrumb
-      this.interModuleDataTransferService.sendActiveBreadcrumbLinkData('PREVIEW');
+      this.inAppDataTransferService.sendActiveBreadcrumbLinkData('PREVIEW');
 
       // Routing to institute preview
       const instituteSlug = event.url.substring(event.url.lastIndexOf('/') + 1, event.url.length);
       this.router.navigate(['teacher-workspace/institutes/preview', instituteSlug]);
     } else {
       this.createInstituteClicked = false;
-      this.interModuleDataTransferService.sendActiveBreadcrumbLinkData('');
+      this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     }
   }
 

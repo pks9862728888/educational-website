@@ -29,6 +29,7 @@ import { TeacherSubjectComponent } from './teacher-workspace/teacher-subject/tea
 import { TeacherAssignmentComponent } from './teacher-workspace/teacher-assignment/teacher-assignment.component';
 import { BlockedMembersComponent } from './teacher-workspace/blocked-members/blocked-members.component';
 import { CollegePreviewComponent } from './teacher-workspace/college/college-preview/college-preview.component';
+import { PermissionsComponent } from './teacher-workspace/college/permissions/permissions.component';
 
 
 const routes: Routes = [
@@ -55,7 +56,8 @@ const routes: Routes = [
       { path: 'announcements', component: TeacherAnnouncementComponent },
       { path: 'results', component: TeacherResultComponent },
       { path: 'disciplinary-queue', component: BlockedMembersComponent },
-      { path: 'institutes/preview/:name', component: CollegePreviewComponent }
+      { path: 'institutes/preview/:name', component: CollegePreviewComponent },
+      { path: 'institutes/:name/permissions', component: PermissionsComponent }
     ]
   },
   {

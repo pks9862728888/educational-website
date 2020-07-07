@@ -33,6 +33,7 @@ export class InstituteApiService {
   baseUrl = baseUrl;
   instituteMinDetailsAdminUrl = `${baseUrl}institute/institute-min-details-teacher-admin`;
   instituteCreateUrl = `${baseUrl}institute/create`;
+  instituteDetailUrl = `${baseUrl}institute/detail/`;
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -45,6 +46,11 @@ export class InstituteApiService {
   // Create an institute
   createInstitute(fromData: FormDataInterface) {
     return this.httpClient.post(this.instituteCreateUrl, JSON.stringify(fromData), {headers: this.getAuthHeader()});
+  }
+
+  // Get institute details
+  getInstituteDetails(instituteSlug: string) {
+    return this.httpClient.get(this.instituteDetailUrl + instituteSlug, {headers: this.getAuthHeader()});
   }
 
   // To load token from storage

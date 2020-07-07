@@ -11,7 +11,7 @@ urlpatterns = [
     path('create',
          views.CreateInstituteView.as_view(),
          name="create"),
-    path('<slug:institute_slug>',
+    path('detail/<slug:institute_slug>',
          views.InstituteFullDetailsView.as_view(),
          name="detail"),
 ]
