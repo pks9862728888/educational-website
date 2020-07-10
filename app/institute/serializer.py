@@ -4,7 +4,8 @@ from django_countries.serializer_fields import CountryField
 from django_countries.serializers import CountryFieldMixin
 
 from core.models import Institute, InstituteProfile, InstituteLogo,\
-                        InstituteBanner
+                        InstituteBanner, InstituteAdmin, InstituteStaff,\
+                        InstituteFaculty
 
 
 class InstituteLogoPictureOnlySerializer(serializers.ModelSerializer):
@@ -204,3 +205,19 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
             'no_of_faculties': 0,
             'no_of_staff': 0
         }
+
+
+class InstituteAdminAddSerializer(serializers.ModelSerializer):
+    """Serializer for adding admin for institute"""
+
+    class Meta:
+        model = InstituteAdmin
+        fields = ('institute', 'inviter', 'invitee')
+
+
+class InstituteStaffAddSerializer(serializers.ModelSerializer):
+    """Serializer for adding admin for institute"""
+
+    class Meta:
+        model = InstituteStaff
+        fields = ('institute', 'inviter', 'invitee')
