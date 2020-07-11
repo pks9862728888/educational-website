@@ -351,3 +351,75 @@ ________________________________________________________________________________
     }
 }
 ```
+
+## Institute Permission add url
+**URL:** https://127.0.0.1:8000/institute/temp-institute-3/provide-permission
+
+**Allowed methods** POST
+
+**Scope** Teacher only
+
+**Allowed permissions** ADMIN or "A", STAFF or "S", FACULTY or "F". ***Admin** can invite everyone. **Staff** can invite staff and faculty.*
+
+
+**POST Request** 
+```
+{
+    "role": "S",
+    "invitee": "xyz@gmail.com"
+}
+```
+
+**Response**
+```
+    "status": "INVITED"
+```
+
+**Error**
+```
+    "error": "Permission denied."
+```
+
+
+## Institute Permission accept delete url
+**URL:** https://127.0.0.1:8000/institute/temp-institute-3/accept-delete-permission
+
+**Allowed methods** POST
+
+**Scope** Teacher only
+
+**POST request**
+
+For accepting invitation by invitee:
+```
+    "operation": "ACCEPT"
+```
+
+
+For deleting invitation by invitee:
+```
+    "operation": "DELETE"
+```
+
+
+For accepting invitation by inviter:
+```
+    "operation": "DELETE",
+    "invitee": "abc@gmail.com"
+```
+Admin can delete any inactive admin, staff, faculty invite request using this url.
+
+Admin can not delete active admin permission.
+
+Staff and faculty can not delete any invites.
+
+
+**Response**
+```
+    "status": "ACCEPTED" or "DELETED
+```
+
+**Error**
+```
+    "error": "Permission denied."
+```
