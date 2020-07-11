@@ -372,12 +372,12 @@ ________________________________________________________________________________
 
 **Response**
 ```
-    "status": "INVITED"
+{ "status": "INVITED" }
 ```
 
 **Error**
 ```
-    "error": "Permission denied."
+{ "error": "Permission denied." }
 ```
 
 
@@ -392,20 +392,22 @@ ________________________________________________________________________________
 
 For accepting invitation by invitee:
 ```
-    "operation": "ACCEPT"
+{ "operation": "ACCEPT" }
 ```
 
 
 For deleting invitation by invitee:
 ```
-    "operation": "DELETE"
+{ "operation": "DELETE" }
 ```
 
 
 For accepting invitation by inviter:
 ```
+{
     "operation": "DELETE",
     "invitee": "abc@gmail.com"
+}
 ```
 Admin can delete any inactive admin, staff, faculty invite request using this url.
 
@@ -416,10 +418,10 @@ Staff and faculty can not delete any invites.
 
 **Response**
 ```
-    "status": "ACCEPTED" or "DELETED
+{ "status": "ACCEPTED" or "DELETED }
 ```
 
 **Error**
 ```
-    "error": "Permission denied."
+{ "error": "Permission denied." }
 ```
