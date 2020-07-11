@@ -4,8 +4,7 @@ from django_countries.serializer_fields import CountryField
 from django_countries.serializers import CountryFieldMixin
 
 from core.models import Institute, InstituteProfile, InstituteLogo,\
-                        InstituteBanner, InstituteAdmin, InstituteStaff,\
-                        InstituteFaculty
+                        InstituteBanner, InstitutePermission
 
 
 class InstituteLogoPictureOnlySerializer(serializers.ModelSerializer):
@@ -53,8 +52,9 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
                   'created_date', 'institute_slug', 'institute_profile',
                   'institute_logo', 'institute_statistics')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'created_date', 'institute_slug', 'institute_profile',
-                            'institute_logo', 'institute_statistics')
+                            'created_date', 'institute_slug',
+                            'institute_profile', 'institute_logo',
+                            'institute_statistics')
 
     def get_institute_logo(self, instance):
         """Returns the active logo of the institute"""
@@ -166,8 +166,9 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
                   'institute_slug', 'created_date', 'institute_profile',
                   'institute_statistics', 'institute_logo', 'institute_banner')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'institute_slug', 'created_date', 'institute_profile',
-                            'institute_statistics', 'institute_logo', 'institute_banner')
+                            'institute_slug', 'created_date',
+                            'institute_profile', 'institute_statistics',
+                            'institute_logo', 'institute_banner')
 
     def get_institute_logo(self, instance):
         """Returns the active logo of the institute"""
@@ -207,17 +208,10 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
         }
 
 
-class InstituteAdminAddSerializer(serializers.ModelSerializer):
-    """Serializer for adding admin for institute"""
+class InstituteProvidePermissionSerializer(serializers.ModelSerializer):
+    """Serializer class for providing permission of institute to user"""
 
     class Meta:
-        model = InstituteAdmin
-        fields = ('institute', 'inviter', 'invitee')
-
-
-class InstituteStaffAddSerializer(serializers.ModelSerializer):
-    """Serializer for adding admin for institute"""
-
-    class Meta:
-        model = InstituteStaff
-        fields = ('institute', 'inviter', 'invitee')
+        model = InstitutePermission
+        fields = ('institute', 'inviter', 'invitee', 'active', 'role',
+                  'request_accepted_on')

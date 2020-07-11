@@ -148,6 +148,18 @@ class InstituteCategory:
     ]
 
 
+class InstituteRole:
+    ADMIN = 'A'
+    STAFF = 'S'
+    FACULTY = 'F'
+
+    ROLE_IN_INSTITUTE_ROLES = [
+        (ADMIN, _(u'ADMIN')),
+        (STAFF, _(u'STAFF')),
+        (FACULTY, _(u'FACULTY')),
+    ]
+
+
 def user_profile_picture_upload_file_path(instance, filename):
     """Generates file path for uploading images in user profile"""
     extension = filename.split('.')[-1]
@@ -528,17 +540,24 @@ class InstituteBanner(models.Model):
         return str(self.image)
 
 
-class InstituteAdmin(models.Model):
-    """Creates Institute admin permissions model"""
+class InstitutePermission(models.Model):
+    """Creates Institute permissions model"""
     institute = models.ForeignKey(
-        'Institute', related_name='admins', on_delete=models.CASCADE
+        'Institute', related_name='permissions', on_delete=models.CASCADE
     )
     inviter = models.ForeignKey(
-        'User', related_name='invited_admins', on_delete=models.SET_NULL,
+        'User', related_name='invites', on_delete=models.SET_NULL,
         null=True
     )
     invitee = models.ForeignKey(
-        'User', related_name='admin_permission', on_delete=models.CASCADE
+        'User', related_name='requests', on_delete=models.CASCADE
+    )
+    role = models.CharField(
+        _('Permission'),
+        choices=InstituteRole.ROLE_IN_INSTITUTE_ROLES,
+        max_length=1,
+        null=False,
+        blank=False
     )
     active = models.BooleanField(_('Active'), default=False)
     request_date = models.DateTimeField(
@@ -548,32 +567,45 @@ class InstituteAdmin(models.Model):
 
     def save(self, *args, **kwargs):
         """Overriding save method to check permissions"""
-        # Owner of institute can invite himself
-        # Only admin can appoint admin
-        admin_exists = InstituteAdmin.objects.filter(
-            inviter=self.inviter,
-            active=True
-        ).exists()
-
-        if (not admin_exists) and self.inviter != self.institute.user and self.inviter == self.invitee:
-            raise PermissionDenied()
-
-        # Inviter can not pre activate joining of other invitees
-        # Only invitee can activate his joining
-        entry_exists = InstituteAdmin.objects.filter(
-            invitee=self.invitee,
-            inviter=self.inviter,
-            institute=self.institute
-        ).exists()
-
-        if self.active and self.invitee != self.institute.user and not entry_exists:
-            raise PermissionDenied()
-
-        # Only teacher user can be appointed as staff
+        # Only teacher user can be provided special permissions
         if not self.invitee.is_teacher:
             raise PermissionDenied()
 
-        super(InstituteAdmin, self).save(*args, **kwargs)
+        # Pre-activation of role is not allowed
+        role_exists = InstitutePermission.objects.filter(
+            institute=self.institute,
+            invitee=self.invitee
+        ).first()
+        if self.active and not role_exists:
+            raise PermissionDenied()
+
+        # Ensuring each user has only one permission
+        if not self.active and role_exists:
+            raise PermissionDenied()
+
+        # Duplicate addition of role is not allowed
+        if self.active and not role_exists:
+            raise PermissionDenied()
+
+        inviter_role = InstitutePermission.objects.filter(
+            institute=self.institute,
+            invitee=self.inviter,
+            active=True
+        ).first()
+
+        # For addition of admin role by self
+        if not inviter_role and self.inviter == self.institute.user:
+            pass
+        # Only active admin can add admin and staff
+        elif (self.role == InstituteRole.ADMIN or self.role == InstituteRole.STAFF) and\
+                (not inviter_role or inviter_role.role != InstituteRole.ADMIN):
+            raise PermissionDenied()
+        # Only active admin and staff can add faculty
+        elif self.role == InstituteRole.FACULTY and\
+                ((not inviter_role) or inviter_role.role == InstituteRole.FACULTY):
+            raise PermissionDenied()
+
+        super(InstitutePermission, self).save(*args, **kwargs)
 
     class Meta:
         unique_together = ('institute', 'invitee')
@@ -586,134 +618,20 @@ class InstituteAdmin(models.Model):
 def institute_is_created(sender, instance, created, **kwargs):
     if created:
         InstituteProfile.objects.create(institute=instance)
-        InstituteAdmin.objects.create(
+        admin_role = InstitutePermission.objects.create(
             institute=instance,
             inviter=instance.user,
             invitee=instance.user,
-            active=True
+            role=InstituteRole.ADMIN,
+            request_accepted_on=timezone.now(),
         )
+        admin_role.active = True
+        admin_role.save()
     else:
         try:
             instance.institute_profile.save()
         except ObjectDoesNotExist:
             InstituteProfile.objects.create(institute=instance)
-
-
-class InstituteStaff(models.Model):
-    """Creates Institute staff permissions model"""
-    institute = models.ForeignKey(
-        'Institute', related_name='staffs', on_delete=models.CASCADE
-    )
-    inviter = models.ForeignKey(
-        'User', related_name='invited_staffs', on_delete=models.SET_NULL,
-        null=True
-    )
-    invitee = models.ForeignKey(
-        'User', related_name='staff_permission', on_delete=models.CASCADE
-    )
-    active = models.BooleanField(_('Active'), default=False)
-    request_date = models.DateTimeField(
-        _('Request Date'), default=timezone.now, editable=False)
-    request_accepted_on = models.DateTimeField(
-        _('Request Accept Date'), null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        """Overriding save method to check permissions"""
-        # Can not invite self as staff
-        if self.inviter == self.invitee:
-            raise PermissionDenied()
-
-        # Only active admin can appoint staff
-        # Only invitee can activate his joining
-        is_active_admin = InstituteAdmin.objects.filter(
-            invitee=self.inviter,
-            institute=self.institute,
-            active=True
-        ).exists()
-
-        if not is_active_admin:
-            raise PermissionDenied()
-
-        # Inviter can not pre activate joining but invitee can accept
-        entry_exists = InstituteStaff.objects.filter(
-            invitee=self.invitee,
-            institute=self.institute
-        ).exists()
-        if self.active and (not entry_exists):
-            raise PermissionDenied()
-
-        # Only teacher user can be appointed as staff
-        if not self.invitee.is_teacher:
-            raise PermissionDenied()
-
-        super(InstituteStaff, self).save(*args, **kwargs)
-
-    class Meta:
-        unique_together = ('institute', 'invitee')
-
-    def __str__(self):
-        return str(self.invitee)
-
-
-class InstituteFaculty(models.Model):
-    """Creates Institute faculty permissions model"""
-    institute = models.ForeignKey(
-        'Institute', related_name='faculties', on_delete=models.CASCADE
-    )
-    inviter = models.ForeignKey(
-        'User', related_name='invited_faculties', on_delete=models.SET_NULL,
-        null=True
-    )
-    invitee = models.ForeignKey(
-        'User', related_name='faculty_permission', on_delete=models.CASCADE
-    )
-    active = models.BooleanField(_('Active'), default=False)
-    request_date = models.DateTimeField(
-        _('Request Date'), default=timezone.now, editable=False)
-    request_accepted_on = models.DateTimeField(
-        _('Request Accept Date'), null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        """Overriding save method to check permissions"""
-        # Can not invite self as faculty
-        if self.inviter == self.invitee:
-            raise PermissionDenied()
-
-        # Only active admin or active staff can appoint faculty
-        # Only invitee can activate joining
-        is_active_admin = InstituteAdmin.objects.filter(
-            invitee=self.inviter,
-            institute=self.institute,
-            active=True
-        ).exists()
-        is_active_staff = InstituteStaff.objects.filter(
-            invitee=self.inviter,
-            institute=self.institute,
-            active=True
-        ).exists()
-
-        if not is_active_admin and not is_active_staff:
-            raise PermissionDenied()
-
-        # Inviter can not pre activate joining but invitee can accept
-        entry_exists = InstituteFaculty.objects.filter(
-            invitee=self.invitee,
-            institute=self.institute
-        ).exists()
-        if self.active and (not entry_exists):
-            raise PermissionDenied()
-
-        # Only teacher user can be appointed as staff
-        if not self.invitee.is_teacher:
-            raise PermissionDenied()
-
-        super(InstituteFaculty, self).save(*args, **kwargs)
-
-    class Meta:
-        unique_together = ('institute', 'invitee')
-
-    def __str__(self):
-        return str(self.invitee)
 
 
 class Classroom(models.Model):

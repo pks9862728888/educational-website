@@ -11,8 +11,7 @@ from django.utils.translation import ugettext as _
 
 from . import serializer
 
-from core.models import Institute, InstituteAdmin, InstituteStaff,\
-    InstituteFaculty
+from core.models import Institute, InstituteRole, InstitutePermission
 
 
 class IsTeacher(permissions.BasePermission):
@@ -72,7 +71,7 @@ class CreateInstituteView(CreateAPIView):
                 'created': 'true',
                 'url': serializer_.data['url']
             }, status=status.HTTP_201_CREATED, headers=headers)
-        except:
+        except Exception:
             return Response({
                 'created': 'false',
                 'message': _('You have already created an institute with this name.')
@@ -88,546 +87,306 @@ class InstituteFullDetailsView(RetrieveAPIView):
     lookup_field = 'institute_slug'
 
 
-class InstituteAdminAddView(APIView):
-    """View for adding admin permission"""
+class InstituteProvidePermissionView(APIView):
+    """View for providing permission to institute"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
-    serializer_class = serializer.InstituteAdminAddSerializer
+    serializer_class = serializer.InstituteProvidePermissionSerializer
 
     def post(self, request, *args, **kwargs):
-        """
-        Only active admin can appoint admin.
-        Admin has to be a teacher and can not have other permissions.
-        """
-        # Ensuring only teacher user can be invited as admin
-        invitee = get_user_model().objects.filter(
-            email=request.data.get('invitee').strip().lower()).first()
-
-        if not invitee or not invitee.is_teacher:
-            return Response({
-                'error': _('No teacher user with this email found.')
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Checking whether the institute is valid
+        """Method to provide permission on post request"""
         institute = Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')).first()
 
         if not institute:
-            return Response({
-                'error': _('Institute not found.')
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': _('Invalid institute.')},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        # Checking whether the inviter is admin
-        inviter_admin = InstituteAdmin.objects.filter(
-            invitee=self.request.user,
+        errors = {}
+        role = request.data.get('role')
+        invitee_email = request.data.get('invitee')
+        invitee = None
+
+        if not role:
+            errors['role'] = _('This field is required.')
+        elif role not in [InstituteRole.STAFF, InstituteRole.FACULTY, InstituteRole.ADMIN]:
+            errors['role'] = _('Invalid role.')
+
+        if not invitee_email:
+            errors['invitee'] = _('This field is required.')
+        else:
+            invitee = get_user_model().objects.filter(
+                email=invitee_email).first()
+            if not invitee:
+                errors['invitee'] = _('This user does not exist.')
+            elif not invitee.is_teacher:
+                msg = _('Only teacher user can be assigned special roles.')
+                errors['invitee'] = msg
+
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+        inviter = self.request.user
+        inviter_perm = InstitutePermission.objects.filter(
             institute=institute,
+            invitee=inviter,
             active=True
         ).first()
 
-        if not inviter_admin:
-            return Response({
-                'error': _('Only active institute admin can add other admin.')
-            }, status=status.HTTP_403_FORBIDDEN)
+        # For assigning admin or staff role
+        if role == InstituteRole.ADMIN or role == InstituteRole.STAFF:
+            if not inviter_perm or \
+                    inviter_perm.role != InstituteRole.ADMIN:
+                return Response({'error': _('Insufficient permission.')},
+                                status=status.HTTP_400_BAD_REQUEST)
 
-        # Ensuring user can be invited only once
-        already_invited = InstituteAdmin.objects.filter(
-            invitee=invitee,
-            institute=institute
-        ).first()
+            existing_invite = InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=invitee
+            ).first()
 
-        if already_invited:
-            return Response({
-                'error': _('Invitation already sent.')
-            }, status=status.HTTP_400_BAD_REQUEST)
+            if existing_invite and role == InstituteRole.ADMIN:
+                if existing_invite.role == InstituteRole.ADMIN and not existing_invite.active:
+                    return Response({'invitee': _('User already invited.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                if existing_invite.role == InstituteRole.ADMIN and existing_invite.active:
+                    msg = _('User already has admin permission.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.STAFF:
+                    msg = _('Remove staff permission and try again.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.FACULTY:
+                    msg = _('Remove faculty permission and try again.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            elif existing_invite and role == InstituteRole.STAFF:
+                if existing_invite.role == InstituteRole.STAFF and not existing_invite.active:
+                    msg = _('User already invited.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.STAFF and existing_invite.active:
+                    msg = _('User already has staff permission.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.ADMIN and existing_invite.active:
+                    msg = _('Unauthorised. User is admin.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.ADMIN and not existing_invite.active:
+                    msg = _('Unauthorised. User was requested to be admin.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.FACULTY:
+                    msg = _('Remove faculty permission and try again.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
-        staff_permissions = InstituteStaff.objects.filter(
-            institute=institute,
-            invitee=invitee
-        ).first()
+            ser = self.serializer_class(data={
+                'inviter': inviter.pk,
+                'invitee': invitee.pk,
+                'institute': institute.pk,
+                'role': role,
+                'request_accepted_on': timezone.now()
+            })
 
-        if staff_permissions:
-            if staff_permissions.active:
-                return Response({
-                    'error': _('Revoke staff permission and try again.')
-                }, status=status.HTTP_400_BAD_REQUEST)
+            if ser.is_valid():
+                try:
+                    ser.save()
+                    return Response({'status': 'INVITED'},
+                                    status=status.HTTP_200_OK)
+                except Exception:
+                    msg = _('Internal server error. Please contact Eduweb')
+                    return Response({'error': msg},
+                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
-                return Response({
-                    'error': _('Delete staff invitation and try again.')
-                }, status=status.HTTP_400_BAD_REQUEST)
+                return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        faculty_permissions = InstituteFaculty.objects.filter(
-            institute=institute,
-            invitee=invitee
-        ).first()
+        # For assigning faculty role
+        elif role == InstituteRole.FACULTY:
+            if not inviter_perm or \
+                    inviter_perm.role == InstituteRole.FACULTY:
+                return Response({'error': _('Insufficient permission.')},
+                                status=status.HTTP_400_BAD_REQUEST)
 
-        if faculty_permissions:
-            if faculty_permissions.active:
-                return Response({
-                    'error': _('Revoke faculty permission and try again.')
-                }, status=status.HTTP_400_BAD_REQUEST)
+            existing_invite = InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=invitee
+            ).first()
+
+            if existing_invite:
+                if existing_invite.role == InstituteRole.FACULTY and not existing_invite.active:
+                    return Response({'invitee': _('User already invited.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.FACULTY and existing_invite.active:
+                    return Response({'invitee': _('User is already a faculty.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.ADMIN and not existing_invite.active:
+                    msg = _('Unauthorized. User is already requested for admin role.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.ADMIN and existing_invite.active:
+                    msg = _('Unauthorized. User has admin permissions.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.STAFF and not existing_invite.active:
+                    msg = _('Unauthorized. User is already requested for staff role.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                elif existing_invite.role == InstituteRole.STAFF and existing_invite.active:
+                    msg = _('Unauthorized. User has staff permissions.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+            ser = self.serializer_class(data={
+                'inviter': inviter.pk,
+                'invitee': invitee.pk,
+                'institute': institute.pk,
+                'role': role,
+                'request_accepted_on': timezone.now()
+            })
+
+            if ser.is_valid():
+                try:
+                    ser.save()
+                    return Response({'status': 'INVITED'},
+                                    status=status.HTTP_200_OK)
+                except Exception:
+                    msg = _('Internal server error. Please contact Eduweb')
+                    return Response({'error': msg},
+                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
-                return Response({
-                    'error': _('Delete faculty invitation and try again.')
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-        ser = self.serializer_class(data={
-            'inviter': self.request.user.pk,
-            'invitee': invitee.pk,
-            'institute': institute.pk
-        })
-        if ser.is_valid():
-            try:
-                ser.save()
-                return Response({'requested': 'True'}, status=status.HTTP_200_OK)
-            except:
-                return Response(
-                    {'message': _('Internal server error. Please report it to Eduweb.')},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(ser.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+                return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class InstituteStaffAddView(APIView):
-    """View for adding staff"""
+class InstitutePermissionAcceptDeleteView(APIView):
+    """View for accepting or deleting permission"""
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher,)
-    serializer_class = serializer.InstituteStaffAddSerializer
+    permission_classes = (IsAuthenticated, IsTeacher)
 
     def post(self, request, *args, **kwargs):
-        """
-        Only active admin can appoint staff.
-        Staff has to be a teacher and can not have other permissions.
-        """
+        """Method to accept or delete permission on post request"""
         institute = Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
 
         if not institute:
-            return Response({'error': 'Invalid institute'},
+            return Response({'error': _('Invalid institute.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        invitee = get_user_model().objects.filter(
-            email=request.data.get('invitee').strip().lower()
-        ).first()
+        errors = {}
+        operation = request.data.get('operation')
 
-        if not invitee:
-            return Response({'error': 'This user does not exist. Correct the email and try again.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+        if not operation:
+            errors['operation'] = _('This field is required.')
+        elif operation != 'ACCEPT' and operation != 'DELETE':
+            errors['operation'] = _('Invalid operation.')
 
-        admin_permissions = InstituteAdmin.objects.filter(
-                institute=institute, invitee=invitee).first()
+        if errors:
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if admin_permissions:
-            if admin_permissions.active:
-                return Response({'error': 'User already has admin permissions.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-            if not admin_permissions.active:
-                return Response({'error': 'Revoke user admin invitation and try again.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-        faculty_permissions = InstituteFaculty.objects.filter(
-            institute=institute, invitee=invitee).first()
-
-        if faculty_permissions:
-            if faculty_permissions.active:
-                return Response({'error': 'Remove faculty permission and try again.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'error': 'Remove faculty invitation and try again.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-        inviter_is_active_admin = InstituteAdmin.objects.filter(
-            institute=institute,
-            invitee=self.request.user,
-            active=True
-        ).exists()
-
-        if not inviter_is_active_admin:
-            return Response({'error': 'Insufficient permission.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        staff_permission = InstituteStaff.objects.filter(
-            institute=institute,
-            invitee=invitee
-        ).first()
-
-        if staff_permission:
-            if staff_permission.active:
-                return Response({'error': 'User is already a staff.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'error': 'User is already invited.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-        ser = self.serializer_class(data={
-            'institute': institute.pk,
-            'inviter': self.request.user.pk,
-            'invitee': invitee.pk
-        })
-
-        if ser.is_valid():
-            try:
-                ser.save()
-                return Response(
-                    {'status': 'INVITED'}, status=status.HTTP_200_OK)
-            except:
-                return Response(
-                    {'error': 'Internal error occurred. Kindly contact EduWeb.'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-        else:
-            return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class InstituteAdminAcceptDeclineView(APIView):
-    """View for accepting or declining admin request"""
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAuthenticated, IsTeacher, )
-
-    def post(self, request, *args, **kwargs):
-        """For performing operations"""
-        operation_type = request.data.get('operation')
-        delete_request_by_inviter = request.data.get('invitee')
-        institute = Institute.objects.filter(
-            institute_slug=kwargs['institute_slug']
-        ).first()
-
-        if not institute:
-            return Response(
-                {'error': _('Institute not found.')},
-                status=status.HTTP_400_BAD_REQUEST)
-
-        if operation_type == 'ACCEPT':
+        if operation == 'ACCEPT':
             invitee = self.request.user
-            invitation = InstituteAdmin.objects.filter(
+            invitation = InstitutePermission.objects.filter(
                 institute=institute,
                 invitee=invitee
             ).first()
 
             if not invitation:
-                return Response(
-                    {'error': _('Invitation may have been deleted' +
-                                ' or you are unauthorized to' +
-                                ' perform this action.')},
-                    status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': _('Invitation not found.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            elif invitation.active:
+                msg = _('Join request already accepted.')
+                return Response({'error': msg},
+                                status=status.HTTP_400_BAD_REQUEST)
 
-            if invitation.active:
-                return Response(
-                    {'error': _('Invitation already accepted.')},
-                    status=status.HTTP_400_BAD_REQUEST)
-
+            invitation.active = True
+            invitation.request_accepted_on = timezone.now()
             try:
-                invitation.active = True
-                invitation.request_accepted_on = timezone.now()
                 invitation.save()
-                return Response(
-                    {'status': _('ACCEPTED')},
-                    status=status.HTTP_200_OK)
-            except:
-                return Response(
-                    {'error': _('Internal server error. Please contact Eduweb.')},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response({'status': 'ACCEPTED'},
+                                status=status.HTTP_200_OK)
+            except Exception:
+                msg = _('Internal server error. Please contact EduWeb.')
+                return Response({'error': msg},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        elif operation_type == 'DELETE':
-            # Invitee is trying to decline the admin request
-            if not delete_request_by_inviter:
-                invitee = self.request.user
-                invitation = InstituteAdmin.objects.filter(
-                    institute=institute,
-                    invitee=invitee
-                )
+        elif operation == 'DELETE':
+            invitee_email = request.data.get('invitee')
 
-                if not invitation:
-                    return Response(
-                        {'error': _('Invitation may have been deleted already.')},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-                if invitee == institute.user:
-                    return Response(
-                        {'error': _('Owner can\'t remove self admin role' +
-                                    ' without appointing another owner.')},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-                # Deleting the request
-                invitation.delete()
-                return Response(
-                    {'status': _('DELETED')},
-                    status=status.HTTP_200_OK)
-
-            # Admin is trying to decline the request
-            elif delete_request_by_inviter:
-                invitee_email = request.data.get('invitee')
-                invitee = get_user_model().objects.filter(
-                    email=invitee_email)
-
-                if not invitee:
-                    return Response(
-                        {'error': _('This user does not exist.')},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-                inviter = InstituteAdmin.objects.filter(
-                    inviter=self.request.user,
-                    active=True,
-                    institute=institute
-                )
-
-                if not inviter.exists():
-                    return Response(
-                        {'error': _('You don\'t have permission to delete the request.')},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-                invitation = InstituteAdmin.objects.filter(
-                    institute=institute,
-                    invitee=invitee.first()
-                )
-
-                if not invitation:
-                    return Response(
-                        {'error': _('Invitation may have been deleted already.')},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-                invitation.delete()
-                return Response(
-                    {'status': _('DELETED')},
-                    status=status.HTTP_200_OK)
-        else:
-            return Response(
-                {'error': 'Invalid operation'},
-                status=status.HTTP_400_BAD_REQUEST)
-
-
-class InstituteStaffAcceptDeclineView(APIView):
-    """View for accepting and deleting staff permission"""
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAuthenticated, IsTeacher, )
-
-    def post(self, request, *args, **kwargs):
-        """For handling post request"""
-        institute = Institute.objects.filter(
-            institute_slug=kwargs.get('institute_slug')).first()
-
-        if not institute:
-            return Response(
-                {'error': 'Institute not found.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if request.data.get('operation') == 'ACCEPT':
-            invitation = InstituteStaff.objects.filter(
-                institute=institute,
-                invitee=self.request.user
-            ).first()
-
-            if not invitation:
-                return Response(
-                    {'error': 'Invitation deleted or unauthorized.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if invitation.active:
-                return Response(
-                    {'error': 'Staff role request already accepted.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            try:
-                invitation.active = True
-                invitation.request_accepted_on = timezone.now()
-                invitation.save()
-                return Response(
-                    {'status': _('ACCEPTED')},
-                    status=status.HTTP_200_OK)
-            except:
-                return Response(
-                    {'error': _('Internal server error. Please contact Eduweb.')},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        elif request.data.get('operation') == 'DELETE':
-            if request.data.get('invitee'):
-                requester = self.request.user
-                requester_is_admin = InstituteAdmin.objects.filter(
-                    institute=institute,
-                    invitee=requester,
-                    active=True
-                ).exists()
-
-                if not requester_is_admin:
-                    return Response(
-                        {'error': _('Insufficient permission.')},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-                invitee_email = request.data.get('invitee')
+            # Inviter or admin is trying to delete join request
+            if invitee_email:
                 invitee = get_user_model().objects.filter(
                     email=invitee_email
                 ).first()
 
                 if not invitee:
-                    return Response(
-                        {'error': _('This user does not exist.')},
-                        status=status.HTTP_400_BAD_REQUEST)
+                    msg = _('This user does not exist.')
+                    return Response({'invitee': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
-                invitation = InstituteStaff.objects.filter(
+                invitation = InstitutePermission.objects.filter(
                     institute=institute,
                     invitee=invitee
                 ).first()
 
                 if not invitation:
-                    return Response(
-                        {'error': _('Invitation may have been deleted.')},
-                        status=status.HTTP_400_BAD_REQUEST)
+                    msg = _('Invitation not found or already deleted.')
+                    return Response({'error': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
-                try:
-                    invitation.delete()
-                    return Response(
-                        {'status': 'DELETED'},
-                        status=status.HTTP_200_OK
-                    )
-                except:
-                    return Response(
-                        {'error': _('Internal server error. Please contact Eduweb.')},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            else:
-                invitee = self.request.user
-
-                invitation = InstituteStaff.objects.filter(
+                inviter = InstitutePermission.objects.filter(
                     institute=institute,
-                    invitee=invitee
-                ).first()
-
-                if not invitation:
-                    return Response(
-                        {'error': _('Invitation deleted or not authorized.')},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-                try:
-                    invitation.delete()
-                    return Response(
-                        {'status': _('DELETED')},
-                        status=status.HTTP_200_OK)
-                except:
-                    return Response(
-                        {'error': _('Internal server error. Please contact Eduweb.')},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(
-                {'error': 'Invalid operation'},
-                status=status.HTTP_400_BAD_REQUEST)
-
-
-class InstituteFacultyAcceptDeclineView(APIView):
-    """View for accepting or deleting faculty request"""
-    authentication_classes = (TokenAuthentication, )
-    permission_classes = (IsAuthenticated, IsTeacher, )
-
-    def post(self, request, *args, **kwargs):
-        """For handling post request"""
-        institute = Institute.objects.filter(
-            institute_slug=kwargs.get('institute_slug')).first()
-
-        if not institute:
-            return Response(
-                {'error': 'Institute not found.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if request.data.get('operation') == 'ACCEPT':
-            invitation = InstituteFaculty.objects.filter(
-                institute=institute,
-                invitee=self.request.user
-            ).first()
-
-            if not invitation:
-                return Response(
-                    {'error': 'Invitation deleted or insufficient permission to accept.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            if invitation.active:
-                return Response(
-                    {'error': 'Faculty role request already accepted.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            try:
-                invitation.active = True
-                invitation.request_accepted_on = timezone.now()
-                invitation.save()
-                return Response(
-                    {'status': _('ACCEPTED')},
-                    status=status.HTTP_200_OK)
-            except:
-                return Response(
-                    {'error': _('Internal server error. Please contact Eduweb.')},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        elif request.data.get('operation') == 'DELETE':
-            if request.data.get('invitee'):
-                requester = self.request.user
-                requester_is_admin = InstituteAdmin.objects.filter(
-                    institute=institute,
-                    invitee=requester,
+                    invitee=self.request.user,
                     active=True
-                ).exists()
-
-                if not requester_is_admin:
-                    return Response(
-                        {'error': _('Insufficient permission.')},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-                invitee_email = request.data.get('invitee')
-                invitee = get_user_model().objects.filter(
-                    email=invitee_email
                 ).first()
 
-                if not invitee:
-                    return Response(
-                        {'error': _('This user does not exist.')},
-                        status=status.HTTP_400_BAD_REQUEST)
+                if not inviter:
+                    return Response({'error': 'Permission denied.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                # Active user can not be deleted using this url.
+                elif invitation.active and invitation.role != inviter.role:
+                    msg = _('Internal server error. Please contact EduWeb.')
+                    return Response({'error': msg},
+                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                invitation = InstituteFaculty.objects.filter(
-                    institute=institute,
-                    invitee=invitee
-                ).first()
-
-                if not invitation:
-                    return Response(
-                        {'error': _('Invitation may have been deleted.')},
-                        status=status.HTTP_400_BAD_REQUEST)
+                # Same role can not delete same role permission
+                # Admin can delete staff and faculty permission
+                # Staff can only add faculty but not delete
+                # Faculty can neither add nor delete
+                if inviter.role != InstituteRole.ADMIN or\
+                        invitation.active and inviter.role == invitation.role:
+                    return Response({'error': _('Permission denied.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
                 try:
                     invitation.delete()
-                    return Response(
-                        {'status': 'DELETED'},
-                        status=status.HTTP_200_OK
-                    )
-                except:
-                    return Response(
-                        {'error': _('Internal server error. Please contact Eduweb.')},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    return Response({'status': 'DELETED'},
+                                    status=status.HTTP_200_OK)
+                except Exception:
+                    msg = _('Internal Server Error. Please contact EduWeb.')
+                    return Response({'status': msg},
+                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Invitee is trying to delete join request
             else:
-                invitee = self.request.user
-
-                invitation = InstituteFaculty.objects.filter(
+                invitation = InstitutePermission.objects.filter(
                     institute=institute,
-                    invitee=invitee
+                    invitee=self.request.user
                 ).first()
 
                 if not invitation:
-                    return Response(
-                        {'error': _('Invitation deleted or not authorized.')},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    msg = _('Invitation not found or already deleted.')
+                    return Response({'error': msg},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
+                # Deleting invitation
                 try:
                     invitation.delete()
-                    return Response(
-                        {'status': _('DELETED')},
-                        status=status.HTTP_200_OK)
-                except:
-                    return Response(
-                        {'error': _('Internal server error. Please contact Eduweb.')},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
-            return Response(
-                {'error': 'Invalid operation'},
-                status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'status': 'DELETED'},
+                                    status=status.HTTP_200_OK)
+                except Exception:
+                    msg = _('Internal server error occurred. Please contact EduWeb')
+                    return Response({'error': msg},
+                                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)

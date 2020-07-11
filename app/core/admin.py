@@ -203,34 +203,19 @@ class CustomInstituteBanner(admin.ModelAdmin):
         return obj.institute.user
 
 
-class CustomInstituteAdmin(admin.ModelAdmin):
-    model = models.InstituteAdmin
-    list_display = ['institute_name', 'invitee', 'active']
-    list_filter = ['active', 'institute__name']
+class CustomInstitutePermission(admin.ModelAdmin):
+    model = models.InstitutePermission
+    list_display = ['institute_name', 'invitee_email', 'role',
+                    'active', 'request_accepted_on']
+    list_filter = ['active', 'role', 'institute__name', ]
 
     @staticmethod
     def institute_name(obj):
         return obj.institute.name
 
-
-class CustomInstituteStaff(admin.ModelAdmin):
-    model = models.InstituteStaff
-    list_display = ['institute_name', 'invitee', 'active']
-    list_filter = ['active', 'institute__name']
-
     @staticmethod
-    def institute_name(obj):
-        return obj.institute.name
-
-
-class CustomInstituteFaculty(admin.ModelAdmin):
-    model = models.InstituteFaculty
-    list_display = ['institute_name', 'invitee', 'active']
-    list_filter = ['active', 'institute__name']
-
-    @staticmethod
-    def institute_name(obj):
-        return obj.institute.name
+    def invitee_email(obj):
+        return obj.invitee.email
 
 
 admin.site.register(models.User, CustomUserAdmin)
@@ -243,6 +228,4 @@ admin.site.register(models.Institute)
 admin.site.register(models.InstituteProfile, CustomInstituteProfile)
 admin.site.register(models.InstituteLogo, CustomInstituteLogo)
 admin.site.register(models.InstituteBanner, CustomInstituteBanner)
-admin.site.register(models.InstituteAdmin, CustomInstituteAdmin)
-admin.site.register(models.InstituteStaff, CustomInstituteStaff)
-admin.site.register(models.InstituteFaculty, CustomInstituteFaculty)
+admin.site.register(models.InstitutePermission, CustomInstitutePermission)
