@@ -80,22 +80,40 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
         this.router.navigate(['\home']);
       }
     } else {
-      if (this.secondaryActiveLink === 'PREVIEW') {
+      if (this.secondaryActiveLink) {
         this.secondaryActiveLink = '';
+        this.inAppDataTransferService.showInstituteSidenavView(false);
         this.router.navigate(['teacher-workspace/institutes']);
       }
     }
   }
 
   // For navbar
-  hideNavbarInMobile(link: string) {
+  performAction(link: string) {
+    // Hiding navbar if it is mobile
     if (this.mobileQuery.matches === true) {
       this.opened = false;
     }
 
-    this.navigateClicked(link);
-    // Hide institute Navbar view
-    this.inAppDataTransferService.showInstituteSidenavView(false);
+    if (link !== 'INSTITUTE_PROFILE' && link !== 'INSTITUTE_PERMISSIONS') {
+      this.navigateClicked(link);
+    }
+
+    if (link == 'INSTITUTES') {
+      // Hide institute Navbar view
+      this.inAppDataTransferService.showInstituteSidenavView(false);
+    }
+
+    // Route to appropriate component
+    if (link == 'INSTITUTE_PROFILE') {
+      this.secondaryActiveLink = 'INSTITUTE_PROFILE';
+      const instituteSlug = localStorage.getItem('currentInstituteSlug');
+      this.router.navigate(['/teacher-workspace/institutes/preview/' + instituteSlug]);
+    } else if (link == 'INSTITUTE_PERMISSIONS') {
+      this.secondaryActiveLink = 'INSTITUTE_PERMISSIONS'
+      const instituteSlug = localStorage.getItem('currentInstituteSlug');
+      this.router.navigate(['/teacher-workspace/institutes/' + instituteSlug + '/permissions']);
+    }
   }
 
   emitEvent(navigate: string) {

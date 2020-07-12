@@ -3,7 +3,8 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { InAppDataTransferService } from 'src/app/in-app-data-transfer.service';
 import { InstituteApiService } from 'src/app/institute-api.service';
-import { INSTITUTE_CATEGORY, COUNTRY, STATE, LANGUAGE } from 'src/constants';
+import { INSTITUTE_CATEGORY, COUNTRY, STATE, LANGUAGE, authTokenName } from 'src/constants';
+import { CookieService } from 'ngx-cookie-service';
 
 interface InstituteDetails {
   user: string;
@@ -57,20 +58,15 @@ export class CollegePreviewComponent implements OnInit {
   bannerPresent = false;
 
   constructor( private router: Router,
-               private route: ActivatedRoute,
                private media: MediaMatcher,
                private inAppDataTransferService: InAppDataTransferService,
                private instituteApiService: InstituteApiService ) {
-                this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
-                this.inAppDataTransferService.showInstituteSidenavView(true);
-               }
+    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this.inAppDataTransferService.showInstituteSidenavView(true);
+  }
 
   ngOnInit(): void {
-    this.route.paramMap
-      .subscribe((params: ParamMap) => {
-        this.currentInstituteSlug = params.get('name');
-      });
-
+    this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
     this.instituteApiService.getInstituteDetails(this.currentInstituteSlug).subscribe(
       (result: InstituteDetails) => {
         this.currentInstituteDetails = result;
@@ -82,7 +78,8 @@ export class CollegePreviewComponent implements OnInit {
   backClicked() {
     this.inAppDataTransferService.showInstituteSidenavView(false);
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
-    this.router.navigate(['teacher-workspace/institutes']);
+    localStorage.removeItem('currentInstituteSlug');
+    this.router.navigate(['/teacher-workspace/institutes']);
   }
 
   // To get the name from the key

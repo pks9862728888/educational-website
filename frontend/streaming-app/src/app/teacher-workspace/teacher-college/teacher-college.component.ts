@@ -174,7 +174,8 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
 
   previewClicked(instituteSlug: string) {
     // Showing appropriate navigation in breadcrumb
-    this.inAppDataTransferService.sendActiveBreadcrumbLinkData('PREVIEW');
+    this.inAppDataTransferService.sendActiveBreadcrumbLinkData('INSTITUTE_PROFILE');
+    localStorage.setItem('currentInstituteSlug', instituteSlug);
     this.router.navigate(['teacher-workspace/institutes/preview/', instituteSlug]);
   }
 
@@ -195,6 +196,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
 
       // Routing to institute preview
       const instituteSlug = event.url.substring(event.url.lastIndexOf('/') + 1, event.url.length);
+      localStorage.setItem('currentInstituteSlug', instituteSlug);
       this.router.navigate(['teacher-workspace/institutes/preview', instituteSlug]);
     } else {
       this.createInstituteClicked = false;
