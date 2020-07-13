@@ -61,14 +61,17 @@ hr {
 
 .green-button {
     background-color: #008000;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .red-button {
     background-color: #ff0000;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .blue-button {
     background-color: #1c33ff;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .red-button:hover {

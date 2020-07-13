@@ -1,1 +1,250 @@
-<p>permissions works!</p>
+<mat-card>
+    <mat-tab-group mat-stretch-tabs (selectedTabChange)="clickedTab($event)">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span class="tab-header">Admin</span>
+            </ng-template>
+            <ng-template matTabContent>
+                <div class="tab-content">
+                    <div class="row padding-bottom-07">
+                        <div class="col-12 text-center error-text" *ngIf="this.inviteError">
+                            <h3>{{ this.inviteError }}</h3>
+                        </div>
+                        <div class="col-12 text-center success-text" *ngIf="this.invitedSuccessfully">
+                            <h3>{{ this.invitedSuccessfully }}</h3>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 input-group">
+                            <input type="text" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary no-box-shadow" type="button">Invite</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="top-separator" />
+                    <section class="padding-top-07 padding-bottom-05">
+                        <h3>Admin:</h3>
+                        <div>
+                            <div class="row people-list-row">
+                                <div class="pp-width">
+                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                </div>
+                                <div class="col-3 col-lg-3">
+                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">admin</h3>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">active</h3>
+                                </div>
+                                <div class="col">
+                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
+                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                    </div>
+                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                        <mat-icon class="margin-right-1 line-height-center">email</mat-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="padding-top-05 padding-bottom-07">
+                        <h3>Pending Admin Invites:</h3>
+                        <div>
+                            <div class="row people-list-row">
+                                <div class="pp-width">
+                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                </div>
+                                <div class="col-3 col-lg-3">
+                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">admin</h3>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">inactive</h3>
+                                </div>
+                                <div class="col">
+                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
+                                        <button mat-button class="green-button margin-right-1">Message</button>
+                                        <button mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                                    </div>
+                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                        <mat-icon class="line-height-center red-color margin-right-1">close</mat-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </ng-template>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span class="tab-header">Staff</span>
+            </ng-template>
+            <ng-template matTabContent>
+                <div class="tab-content">
+                    <div class="row padding-bottom-07">
+                        <div class="col-12 text-center error-text" *ngIf="this.inviteError">
+                            <h3>{{ this.inviteError }}</h3>
+                        </div>
+                        <div class="col-12 text-center success-text" *ngIf="this.invitedSuccessfully">
+                            <h3>{{ this.invitedSuccessfully }}</h3>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 input-group">
+                            <input type="text" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary no-box-shadow" type="button">Invite</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="top-separator" />
+                    <section class="padding-top-07 padding-bottom-05">
+                        <h3>Staffs:</h3>
+                        <div>
+                            <div class="row people-list-row">
+                                <div class="pp-width">
+                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                </div>
+                                <div class="col-3 col-lg-3">
+                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">staff</h3>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">active</h3>
+                                </div>
+                                <div class="col">
+                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
+                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                    </div>
+                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                        <mat-icon class="margin-right-1 line-height-center">email</mat-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="padding-top-05 padding-bottom-07">
+                        <h3>Pending Staff Invites:</h3>
+                        <div>
+                            <div class="row people-list-row">
+                                <div class="pp-width">
+                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                </div>
+                                <div class="col-3 col-lg-3">
+                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">staff</h3>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">inactive</h3>
+                                </div>
+                                <div class="col">
+                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
+                                        <button mat-button class="green-button margin-right-1">Message</button>
+                                        <button mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                                    </div>
+                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                        <mat-icon class="line-height-center red-color margin-right-1">close</mat-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </ng-template>
+        </mat-tab>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span class="tab-header">Faculty</span>
+            </ng-template>
+            <ng-template matTabContent>
+                <div class="tab-content">
+                    <div class="row padding-bottom-07">
+                        <div class="col-12 text-center error-text" *ngIf="this.inviteError">
+                            <h3>{{ this.inviteError }}</h3>
+                        </div>
+                        <div class="col-12 text-center success-text" *ngIf="this.invitedSuccessfully">
+                            <h3>{{ this.invitedSuccessfully }}</h3>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4 input-group">
+                            <input type="text" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary no-box-shadow" type="button">Invite</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="top-separator" />
+                    <section class="padding-top-07 padding-bottom-05">
+                        <h3>Faculties:</h3>
+                        <div>
+                            <div class="row people-list-row">
+                                <div class="pp-width">
+                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                </div>
+                                <div class="col-3 col-lg-3">
+                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">faculty</h3>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">active</h3>
+                                </div>
+                                <div class="col">
+                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
+                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                    </div>
+                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                        <mat-icon class="margin-right-1 line-height-center">email</mat-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="padding-top-05 padding-bottom-07">
+                        <h3>Pending Faculty Invites:</h3>
+                        <div>
+                            <div class="row people-list-row">
+                                <div class="pp-width">
+                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                </div>
+                                <div class="col-3 col-lg-3">
+                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">faculty</h3>
+                                </div>
+                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                    <h3 class="line-height-center">inactive</h3>
+                                </div>
+                                <div class="col">
+                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
+                                        <button mat-button class="green-button margin-right-1">Message</button>
+                                        <button mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                                    </div>
+                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                        <mat-icon class="line-height-center red-color margin-right-1">close</mat-icon>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </ng-template>
+        </mat-tab>
+    </mat-tab-group>
+</mat-card>

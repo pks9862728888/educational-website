@@ -128,7 +128,7 @@
     object-fit: fit;
     margin-top: 24px;
     margin-bottom: 24px;
-    border: 1px solid #c5c5c5;
+    border: 2px solid #c5c5c5;
 }
 
 .expansion-panel-title {
@@ -230,31 +230,31 @@ a:active {
 .green-button {
     background-color: #008000;
     color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .green-button:hover {
     background-color: #3a9b0d;
-    color: #ffffff;
 }
 
 .blue-button {
     background-color: #1c33ff;
     color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .blue-button:hover {
     background-color: #1021b4;
-    color: #ffffff;
 }
 
 .lightblue-button {
     background-color: #0784fa;
     color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .lightblue-button:hover {
     background-color: #0873d8;
-    color: #ffffff;
 }
 
 

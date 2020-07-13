@@ -1,0 +1,169 @@
+.row,
+.col,
+.col-2,
+.col-3,
+.col-8,
+.col-12,
+.col-sm-6,
+.col-md-4,
+.col-lg-2,
+.col-lg-3,
+h3,
+hr,
+p {
+    padding: 0px;
+    margin: 0px;
+}
+
+.mat-card {
+    padding: 0px 16px 0px;
+    background-color: #3B3B3B;
+    color: #bdbdbd;
+}
+
+.tab-header {
+    color: #ffffff;
+}
+
+.tab-content {
+    padding-top: 0.7rem;
+}
+
+.search-color {
+    background-color: #303030;
+    color: #bdbdbd;
+    border-color: #6c757d;
+    box-shadow: none;
+    border-right: 0px;
+}
+
+.no-box-shadow {
+    box-shadow: none;
+}
+
+.error-text {
+    border: 1px solid rgba(187, 134, 252);
+    background-color: rgba(187, 134, 252, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 0.25rem;
+    margin-bottom: 0.7rem;
+}
+
+.success-text {
+    border: 1px solid rgb(148, 252, 134);
+    background-color: rgba(148, 252, 134, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 0.25rem;
+    margin-bottom: 0.7rem;
+}
+
+.top-separator {
+    background-color: #6c757d;
+}
+
+
+/* For displaying people list */
+
+.people-list-row {
+    padding: 1.1rem 0rem 1rem 1rem;
+    background-color: #303030;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    box-shadow: 0px 1px 1px #4b4b4b;
+    cursor: pointer;
+}
+
+.people-list-row:hover {
+    background-color: #292929;
+}
+
+.pp-width {
+    width: 60px;
+    overflow: hidden;
+    object-fit: cover;
+}
+
+.profile-pic {
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.line-height-center {
+    line-height: 40px;
+}
+
+.mat-button-toggle-button:focus {
+    outline: none;
+}
+
+@media screen and (max-width: 600px) {
+    .pp-width {
+        width: 45px;
+    }
+    .profile-pic {
+        border: 1px solid #ffffff;
+        width: 30px;
+        height: 30px;
+    }
+    .line-height-center {
+        line-height: 30px;
+    }
+}
+
+.green-button {
+    color: #ffffff;
+    background-color: #008000;
+}
+
+.blue-button {
+    color: #ffffff;
+    background-color: #0784fa;
+}
+
+.red-button {
+    color: #ffffff;
+    background-color: #ff0000;
+}
+
+.red-button:hover {
+    background-color: #c40000;
+}
+
+.green-button:hover {
+    background-color: #1f6100;
+}
+
+.blue-button:hover {
+    background-color: #0674db;
+}
+
+.red-color {
+    color: #ff0000;
+}
+
+.green-color {
+    color: #00ff00;
+}
+
+
+/* Margins and padding */
+
+.padding-bottom-07 {
+    padding-bottom: 0.7rem;
+}
+
+.padding-top-07 {
+    padding-top: 0.7rem;
+}
+
+.padding-bottom-05 {
+    padding-bottom: 0.5rem;
+}
+
+.margin-right-1 {
+    margin-right: 1rem;
+}

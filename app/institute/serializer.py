@@ -4,7 +4,8 @@ from django_countries.serializer_fields import CountryField
 from django_countries.serializers import CountryFieldMixin
 
 from core.models import Institute, InstituteProfile, InstituteLogo,\
-                        InstituteBanner, InstitutePermission
+                        InstituteBanner, InstitutePermission,\
+                        InstituteRole
 
 
 class InstituteLogoPictureOnlySerializer(serializers.ModelSerializer):
@@ -72,10 +73,18 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
 
     def get_institute_statistics(self, instance):
         """Finds and returns institute statistics"""
+        institute_permissions = InstitutePermission.objects.filter(
+            institute=instance.id,
+            active=True
+        )
         return {
             'no_of_students': 0,
-            'no_of_faculties': 0,
-            'no_of_staff': 0
+            'no_of_faculties': institute_permissions.filter(
+                role=InstituteRole.FACULTY).count(),
+            'no_of_staff': institute_permissions.filter(
+                role=InstituteRole.STAFF).count(),
+            'no_of_admin': institute_permissions.filter(
+                role=InstituteRole.ADMIN).count()
         }
 
 

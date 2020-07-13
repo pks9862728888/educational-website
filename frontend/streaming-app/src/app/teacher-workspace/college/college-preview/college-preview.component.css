@@ -155,6 +155,7 @@ li {
 .green-button {
     background-color: #008000;
     color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .green-button:hover {
@@ -164,6 +165,7 @@ li {
 .blue-button {
     background-color: #1c33ff;
     color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .blue-button:hover {
@@ -173,6 +175,7 @@ li {
 .red-button {
     background-color: #ff0000;
     color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .red-button:hover {
@@ -209,4 +212,9 @@ li {
 
 .margin-left-05 {
     margin-left: 0.5rem;
+}
+
+.back-button {
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
 }

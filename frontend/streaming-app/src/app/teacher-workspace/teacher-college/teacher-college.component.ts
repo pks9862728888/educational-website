@@ -103,7 +103,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // this.router.navigate(['teacher-workspace/institutes/preview', 'tempView']);
+    // this.router.navigate(['teacher-workspace/institutes/' + 'tempView' + '/permissions']);
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
       (result: TeacherAdminInstitutesMin[]) => {
         for (const institute of result) {
