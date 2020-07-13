@@ -39,6 +39,70 @@ class InstituteMinDetailsTeacherView(ListAPIView):
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
 
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        serializer_class = self.get_serializer_class()
+        context = self.get_serializer_context()
+        context['user'] = self.request.user
+        kwargs['context'] = context
+        return serializer_class(*args, **kwargs)
+
+
+class InstituteJoinedMinDetailsTeacherView(ListAPIView):
+    """
+    View for getting the min details of joined institutes"""
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, IsTeacher)
+    serializer_class = serializer.InstitutesJoinedMinDetailsTeacher
+    queryset = Institute.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            permissions__invitee=self.request.user.pk,
+            permissions__active=True).exclude(
+            permissions__inviter=self.request.user.pk
+        )
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        serializer_class = self.get_serializer_class()
+        context = self.get_serializer_context()
+        context['user'] = self.request.user
+        kwargs['context'] = context
+        return serializer_class(*args, **kwargs)
+
+
+class InstitutePendingInviteMinDetailsTeacherView(ListAPIView):
+    """View for getting the min details of active invites by institutes"""
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, IsTeacher)
+    serializer_class = serializer.InstitutePendingInviteMinDetailsSerializer
+    queryset = Institute.objects.all()
+
+    def get_queryset(self):
+        return self.queryset.filter(
+            permissions__invitee=self.request.user.pk,
+            permissions__active=False).exclude(
+            permissions__inviter=self.request.user.pk
+        )
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        serializer_class = self.get_serializer_class()
+        context = self.get_serializer_context()
+        context['user'] = self.request.user
+        kwargs['context'] = context
+        return serializer_class(*args, **kwargs)
+
 
 class CreateInstituteView(CreateAPIView):
     """View for creating institute by teacher"""
@@ -402,7 +466,8 @@ class InstitutePermittedUserListView(APIView):
         list_user_data = []
         for invite in user_invites:
             user_data = dict()
-            user_data['pk'] = invite.invitee.pk
+            user_data['invitation_id'] = invite.pk
+            user_data['user_id'] = invite.invitee.pk
             user_data['email'] = str(invite.invitee)
             user_data['image'] = None
             list_user_data.append(user_data)
