@@ -20,4 +20,7 @@ urlpatterns = [
     path('<slug:institute_slug>/accept-delete-permission',
          views.InstitutePermissionAcceptDeleteView.as_view(),
          name="accept_delete_permission"),
+    path('<slug:institute_slug>/<slug:role>/get-user-list',
+         views.InstitutePermittedUserListView.as_view(),
+         name="get_permission_list"),
 ]

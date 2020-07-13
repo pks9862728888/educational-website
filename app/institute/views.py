@@ -390,3 +390,78 @@ class InstitutePermissionAcceptDeleteView(APIView):
                     msg = _('Internal server error occurred. Please contact EduWeb')
                     return Response({'error': msg},
                                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstitutePermittedUserListView(APIView):
+    """View to get permitted user list"""
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, IsTeacher, )
+
+    def _format_data(self, user_invites):
+        """Return list of user details in list"""
+        list_user_data = []
+        for invite in user_invites:
+            user_data = dict()
+            user_data['pk'] = invite.invitee.pk
+            user_data['email'] = str(invite.invitee)
+            user_data['image'] = None
+            list_user_data.append(user_data)
+        return list_user_data
+
+    def get(self, *args, **kwargs):
+        """Post request to get permitted user of institute"""
+        errors = {}
+        institute = Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+        if not institute:
+            errors['institute_slug'] = 'Invalid'
+
+        role = kwargs.get('role').upper()
+        if role != 'ADMIN' and role != 'STAFF' and role != 'FACULTY':
+            errors['role'] = 'Invalid'
+
+        if errors:
+            return Response({'error': _('Invalid credentials.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        has_perm = InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=self.request.user,
+            active=True
+        ).exists()
+
+        if not has_perm:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if role == 'ADMIN':
+            permitted_user_invitations = InstitutePermission.objects.filter(
+                institute=institute,
+                role=InstituteRole.ADMIN
+            )
+            response_data = {
+                'active_admin_list': self._format_data(permitted_user_invitations.filter(active=True)),
+                'pending_admin_invites': self._format_data(permitted_user_invitations.filter(active=False))
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        elif role == 'STAFF':
+            permitted_user_invitations = InstitutePermission.objects.filter(
+                institute=institute,
+                role=InstituteRole.STAFF
+            )
+            response_data = {
+                'active_staff_list': self._format_data(permitted_user_invitations.filter(active=True)),
+                'pending_staff_invites': self._format_data(permitted_user_invitations.filter(active=False))
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        elif role == 'FACULTY':
+            permitted_user_invitations = InstitutePermission.objects.filter(
+                institute=institute,
+                role=InstituteRole.FACULTY
+            )
+            response_data = {
+                'active_faculty_list': self._format_data(permitted_user_invitations.filter(active=True)),
+                'pending_faculty_invites': self._format_data(permitted_user_invitations.filter(active=False))
+            }
+            return Response(response_data, status=status.HTTP_200_OK)

@@ -31,6 +31,13 @@ def get_invite_accept_delete_url(slug_text):
                    kwargs={'institute_slug': slug_text})
 
 
+def get_invite_preview_url(institute_slug, role_name):
+    """Creates and returns institute permission list url"""
+    return reverse("institute:get_permission_list",
+                   kwargs={'institute_slug': institute_slug,
+                           'role': role_name})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -103,19 +110,19 @@ def role_exists(institute, inviter, invitee, role, active=True):
     ).exists()
 
 
-# class PublicInstituteApiTests(TestCase):
-#     """Tests the institute api for unauthenticated user"""
-#
-#     def setUp(self):
-#         """Setup code for all test cases"""
-#         self.user = get_user_model().objects.create_user(
-#             email='test@gmail.com',
-#             username='testusername',
-#             password='testpassword',
-#             is_teacher=True
-#         )
-#         self.client = APIClient()
-#
+class PublicInstituteApiTests(TestCase):
+    """Tests the institute api for unauthenticated user"""
+
+    def setUp(self):
+        """Setup code for all test cases"""
+        self.user = get_user_model().objects.create_user(
+            email='test@gmail.com',
+            username='testusername',
+            password='testpassword',
+            is_teacher=True
+        )
+        self.client = APIClient()
+
 #     def test_get_not_allowed_on_institute_min_details_teacher_url(self):
 #         """Test that get request is not allowed for unauthenticated user"""
 #         res = self.client.get(INSTITUTE_MIN_DETAILS_TEACHER_URL)
@@ -165,6 +172,25 @@ def role_exists(institute, inviter, invitee, role, active=True):
 #
 #         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_unauthenticated_user_get_failure_on_get_permission_list_url(self):
+        """
+        Test that unauthenticated user can not get details
+        """
+        owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+        institute = create_institute(owner)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertNotIn('active_staff_list', res.data)
+        self.assertNotIn('pending_staff_invites', res.data)
+
 
 class AuthenticatedTeacherUserAPITests(TestCase):
     """Tests for authenticated teacher user"""
@@ -195,6 +221,12 @@ class AuthenticatedTeacherUserAPITests(TestCase):
     #             'state': models.StatesAndUnionTerritories.ASSAM
     #         }
     #     }
+    #     models.Institute.objects.create(
+    #         user=self.user,
+    #         name='sdfsdfsfsfs',
+    #         country=payload['country'],
+    #         institute_category=payload['institute_category']
+    #     )
     #     institute = models.Institute.objects.create(
     #         user=self.user,
     #         name=payload['name'],
@@ -239,7 +271,7 @@ class AuthenticatedTeacherUserAPITests(TestCase):
     #     self.assertEqual(res.data[0]['institute_statistics']['no_of_faculties'], 0)
     #     self.assertEqual(res.data[0]['institute_statistics']['no_of_staff'], 0)
     #     self.assertEqual(res.data[0]['institute_statistics']['no_of_admin'], 1)
-    #
+
     # def test_get_statistics_on_institute_min_endpoint_teacher_success(self):
     #     """Test that get request is success for teacher"""
     #     institute = create_institute(self.user)
@@ -1843,21 +1875,290 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 #         self.assertTrue(
 #             role_exists(institute, self.user, staff,
 #                         models.InstituteRole.STAFF, True))
-#
-#
-# class AuthenticatedStudentUserAPITests(TestCase):
-#     """Tests for authenticated student user"""
-#
-#     def setUp(self):
-#         """Setup code for all test cases"""
-#         self.user = get_user_model().objects.create_user(
-#             email='test@gmail.com',
-#             username='testusername',
-#             password='testpassword',
-#             is_student=True
-#         )
-#         self.client = APIClient()
-#         self.client.force_authenticate(user=self.user)
+
+    def test_get_success_on_get_admin_permission_list_url(self):
+        """
+        Test that teacher can get admin permissions successfully.
+        """
+        institute = create_institute(self.user)
+        active_admin = create_teacher()
+        inactive_admin = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, self.user, active_admin, models.InstituteRole.ADMIN)
+        create_invite(institute, self.user, inactive_admin, models.InstituteRole.ADMIN)
+        accept_invite(institute, active_admin, models.InstituteRole.ADMIN)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'ADMIN')
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertIn('active_admin_list', res.data)
+        self.assertIn('pending_admin_invites', res.data)
+        self.assertEqual(len(res.data['pending_admin_invites']), 1)
+        self.assertEqual(len(res.data['active_admin_list']), 2)
+        self.assertEqual(res.data['pending_admin_invites'][0]['email'], str(inactive_admin))
+        self.assertEqual(res.data['pending_admin_invites'][0]['pk'], inactive_admin.pk)
+        self.assertEqual(res.data['pending_admin_invites'][0]['image'], None)
+
+    def test_get_success_on_get_admin_permission_list_with_no_inactive_admin(self):
+        """
+        Test that teacher can get admin permissions successfully.
+        """
+        institute = create_institute(self.user)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'ADMIN')
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+        self.assertIn('active_admin_list', res.data)
+        self.assertIn('pending_admin_invites', res.data)
+        self.assertEqual(len(res.data['pending_admin_invites']), 0)
+        self.assertEqual(len(res.data['active_admin_list']), 1)
+        self.assertEqual(res.data['active_admin_list'][0]['email'], str(self.user))
+        self.assertEqual(res.data['active_admin_list'][0]['pk'], self.user.pk)
+        self.assertEqual(res.data['active_admin_list'][0]['image'], None)
+
+    def test_get_success_on_get_staff_permission_list_url(self):
+        """
+        Test that teacher can get staff permissions successfully.
+        """
+        institute = create_institute(self.user)
+        active_staff = create_teacher()
+        inactive_staff = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, self.user, active_staff, models.InstituteRole.STAFF)
+        create_invite(institute, self.user, inactive_staff, models.InstituteRole.STAFF)
+        accept_invite(institute, active_staff, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'STAFF')
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('active_staff_list', res.data)
+        self.assertIn('pending_staff_invites', res.data)
+        self.assertEqual(len(res.data['pending_staff_invites']), 1)
+        self.assertEqual(len(res.data['active_staff_list']), 1)
+        self.assertEqual(res.data['pending_staff_invites'][0]['email'], str(inactive_staff))
+        self.assertEqual(res.data['pending_staff_invites'][0]['pk'], inactive_staff.pk)
+        self.assertEqual(res.data['pending_staff_invites'][0]['image'], None)
+
+    def test_get_success_on_get_faculty_permission_list_url_by_owner_admin(self):
+        """
+        Test that teacher can get faculty permissions successfully.
+        """
+        institute = create_institute(self.user)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, self.user, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, self.user, inactive_faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('active_faculty_list', res.data)
+        self.assertIn('pending_faculty_invites', res.data)
+        self.assertEqual(len(res.data['pending_faculty_invites']), 1)
+        self.assertEqual(len(res.data['active_faculty_list']), 1)
+        self.assertEqual(res.data['pending_faculty_invites'][0]['email'], str(inactive_faculty))
+        self.assertEqual(res.data['pending_faculty_invites'][0]['pk'], inactive_faculty.pk)
+        self.assertEqual(res.data['pending_faculty_invites'][0]['image'], None)
+
+    def test_get_success_on_get_faculty_permission_list_url_by_active_admin(self):
+        """
+        Test that teacher can get faculty permissions successfully.
+        """
+        owner = create_teacher('ownerwqweq@gmail.com', 'ownerdf')
+        institute = create_institute(owner)
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        active_faculty = create_teacher()
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, self.user, models.InstituteRole.ADMIN)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, self.user, models.InstituteRole.ADMIN)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('active_faculty_list', res.data)
+        self.assertIn('pending_faculty_invites', res.data)
+        self.assertEqual(len(res.data['pending_faculty_invites']), 1)
+        self.assertEqual(len(res.data['active_faculty_list']), 1)
+        self.assertEqual(res.data['pending_faculty_invites'][0]["email"], str(inactive_faculty))
+        self.assertEqual(res.data['pending_faculty_invites'][0]["pk"], inactive_faculty.pk)
+        self.assertEqual(res.data['pending_faculty_invites'][0]["image"], None)
+
+    def test_get_success_on_get_admin_permission_list_url_by_active_staff(self):
+        """
+        Test that teacher staff can get admin permissions successfully.
+        """
+        owner = create_teacher('ownerdfdsf@gmail.com', 'sdfdsowner')
+        institute = create_institute(owner)
+        active_admin = create_teacher()
+        inactive_admin = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_admin, models.InstituteRole.ADMIN)
+        create_invite(institute, owner, inactive_admin, models.InstituteRole.ADMIN)
+        create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, active_admin, models.InstituteRole.ADMIN)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'ADMIN')
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('active_admin_list', res.data)
+        self.assertIn('pending_admin_invites', res.data)
+        self.assertEqual(len(res.data['pending_admin_invites']), 1)
+        self.assertEqual(len(res.data['active_admin_list']), 2)
+        self.assertEqual(res.data['pending_admin_invites'][0]['email'], str(inactive_admin))
+        self.assertEqual(res.data['pending_admin_invites'][0]['pk'], inactive_admin.pk)
+        self.assertEqual(res.data['pending_admin_invites'][0]['image'], None)
+
+    def test_get_success_on_get_admin_permission_list_url_by_active_faculty(self):
+        """
+        Test that teacher faculty can get admin permissions successfully.
+        """
+        owner = create_teacher('ownerdfdsf@gmail.com', 'sdfdsowner')
+        institute = create_institute(owner)
+        active_admin = create_teacher()
+        inactive_admin = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_admin, models.InstituteRole.ADMIN)
+        create_invite(institute, owner, inactive_admin, models.InstituteRole.ADMIN)
+        create_invite(institute, owner, self.user, models.InstituteRole.FACULTY)
+        accept_invite(institute, active_admin, models.InstituteRole.ADMIN)
+        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'ADMIN')
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('active_admin_list', res.data)
+        self.assertIn('pending_admin_invites', res.data)
+        self.assertEqual(len(res.data['pending_admin_invites']), 1)
+        self.assertEqual(len(res.data['active_admin_list']), 2)
+        self.assertEqual(res.data['pending_admin_invites'][0]['email'], str(inactive_admin))
+        self.assertEqual(res.data['pending_admin_invites'][0]['pk'], inactive_admin.pk)
+        self.assertEqual(res.data['pending_admin_invites'][0]['image'], None)
+
+    def test_non_permitted_user_get_failure_on_get_permission_list_url(self):
+        """
+        Test that non permitted user can not get details
+        """
+        owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+        institute = create_institute(owner)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertNotIn('active_staff_list', res.data)
+        self.assertNotIn('pending_staff_invites', res.data)
+
+    def test_inactive_staff_get_failure_on_get_permission_list_url(self):
+        """
+        Test that inactive staff can not get details
+        """
+        owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+        institute = create_institute(owner)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertNotIn('active_staff', res.data)
+        self.assertNotIn('pending_staff_invites', res.data)
+
+    def test_inactive_faculty_get_failure_on_get_permission_list_url(self):
+        """
+        Test that inactive faculty can not get details
+        """
+        owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+        institute = create_institute(owner)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, self.user, models.InstituteRole.FACULTY)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertNotIn('active_staff_list', res.data)
+        self.assertNotIn('pending_staff_invites', res.data)
+
+    def test_inactive_admin_get_failure_on_get_permission_list_url(self):
+        """
+        Test that inactive admin can not get details
+        """
+        owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+        institute = create_institute(owner)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, self.user, models.InstituteRole.ADMIN)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertNotIn('active_staff', res.data)
+        self.assertNotIn('pending_staff_invites', res.data)
+
+    def test_institute_slug_role_invalid_details_wrong_invalid_request(self):
+        """
+        Test that inactive admin can not get details
+        """
+        owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+        institute = create_institute(owner)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, self.user, models.InstituteRole.ADMIN)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url('abc', 'DFG')
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Invalid credentials.')
+
+
+class AuthenticatedStudentUserAPITests(TestCase):
+    """Tests for authenticated student user"""
+
+    def setUp(self):
+        """Setup code for all test cases"""
+        self.user = get_user_model().objects.create_user(
+            email='test@gmail.com',
+            username='testusername',
+            password='testpassword',
+            is_student=True
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
 #
 #     def test_get_not_allowed_on_institute_min_details_teacher_url(self):
 #         """Test that get request is not allowed for unauthenticated user"""
@@ -1938,21 +2239,40 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 #                 'institute_slug': institute_slug
 #             })
 #         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
-#
-#
-# class AuthenticatedUserAPITests(TestCase):
-#     """Tests for authenticated user"""
-#
-#     def setUp(self):
-#         """Setup code for all test cases"""
-#         self.user = get_user_model().objects.create_user(
-#             email='test@gmail.com',
-#             username='testusername',
-#             password='testpassword',
-#         )
-#         self.client = APIClient()
-#         self.client.force_authenticate(user=self.user)
-#
+
+    def test_student_get_failure_on_get_permission_list_url(self):
+        """
+        Test that student can not get details.
+        """
+        owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+        institute = create_institute(owner)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertNotIn('active_staff_list', res.data)
+        self.assertNotIn('pending_staff_invites', res.data)
+
+
+class AuthenticatedUserAPITests(TestCase):
+    """Tests for authenticated user"""
+
+    def setUp(self):
+        """Setup code for all test cases"""
+        self.user = get_user_model().objects.create_user(
+            email='test@gmail.com',
+            username='testusername',
+            password='testpassword',
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
 #     def test_get_not_allowed_on_institute_min_details_teacher_url(self):
 #         """Test that get request is not allowed for unauthenticated user"""
 #         res = self.client.get(INSTITUTE_MIN_DETAILS_TEACHER_URL)
@@ -2028,3 +2348,22 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 #                 'role': models.InstituteRole.ADMIN
 #             })
 #         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+#
+    def test_non_teacher_user_get_failure_on_get_permission_list_url(self):
+        """
+        Test that non permitted user can not get details
+        """
+        owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+        institute = create_institute(owner)
+        active_faculty = create_teacher()
+        inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+        create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_invite_preview_url(institute.institute_slug, 'FACULTY')
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertNotIn('active_staff_list', res.data)
+        self.assertNotIn('pending_staff_invites', res.data)

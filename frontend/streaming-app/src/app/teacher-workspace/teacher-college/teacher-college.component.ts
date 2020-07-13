@@ -106,6 +106,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
     // this.router.navigate(['teacher-workspace/institutes/' + 'tempView' + '/permissions']);
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
       (result: TeacherAdminInstitutesMin[]) => {
+        console.log(result);
         for (const institute of result) {
           this.teacherAdminInstitutesMinList.push(institute);
         }
