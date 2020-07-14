@@ -6,6 +6,7 @@ interface UserInviteMinDetails {
   email: string;
   image: string;
   invitation_id: number;
+  institute_id: number;
   user_id: number;
 }
 

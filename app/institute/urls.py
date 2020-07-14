@@ -29,7 +29,10 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:role>/get-user-list',
          views.InstitutePermittedUserListView.as_view(),
          name="get_permission_list"),
-    path('get-invitation-min-details/<int:invitation_id>/<int:institute_id>',
-         views.InstituteInvitationMinDetailsView.as_view(),
-         name="get-invitation-min-details"),
+    path('get-active-invitation-min-details/<int:invitation_id>/<int:institute_id>',
+         views.InstituteActiveInvitationMinDetailsView.as_view(),
+         name="get-active-invitation-min-details"),
+    path('get-pending-invitation-min-details/<int:invitation_id>/<int:institute_id>',
+         views.InstitutePendingInvitationMinDetailsView.as_view(),
+         name="get-pending-invitation-min-details"),
 ]

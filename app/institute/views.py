@@ -104,8 +104,8 @@ class InstitutePendingInviteMinDetailsTeacherView(ListAPIView):
         return serializer_class(*args, **kwargs)
 
 
-class InstituteInvitationMinDetailsView(APIView):
-    """View for getting min details of the invitation"""
+class InstituteActiveInvitationMinDetailsView(APIView):
+    """View for getting min details of the active invitation"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
@@ -121,13 +121,45 @@ class InstituteInvitationMinDetailsView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         invitation = InstitutePermission.objects.filter(
-            id=kwargs.get('invitation_id')
+            id=kwargs.get('invitation_id'),
+            active=True
         ).first()
 
         if invitation:
             return Response({
                 'inviter': str(invitation.inviter),
                 'request_accepted_on': str(invitation.request_accepted_on)
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': _('Invitation not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstitutePendingInvitationMinDetailsView(APIView):
+    """View for getting min details of the pending invitation"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """For managing get request"""
+        permitted_get_request = InstitutePermission.objects.filter(
+            invitee=self.request.user,
+            institute=kwargs.get('institute_id'),
+            active=True
+        ).first()
+        if not permitted_get_request:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        invitation = InstitutePermission.objects.filter(
+            id=kwargs.get('invitation_id'),
+            active=False
+        ).first()
+
+        if invitation:
+            return Response({
+                'inviter': str(invitation.inviter),
+                'invited_on': str(invitation.request_date)
             }, status=status.HTTP_200_OK)
         else:
             return Response({'error': _('Invitation not found.')},

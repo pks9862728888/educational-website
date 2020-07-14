@@ -35,6 +35,7 @@ export class InstituteApiService {
   instituteCreateUrl = `${baseUrl}institute/create`;
   instituteDetailUrl = `${baseUrl}institute/detail/`;
   instituteUserListUrl = `${baseUrl}institute/`
+  instituteInvitationMinDetailUrl = `${baseUrl}institute/get-invitation-min-details/`
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -56,8 +57,16 @@ export class InstituteApiService {
 
   // Get list of admins
   getUserList(instituteSlug: string, role:string) {
-    return this.httpClient.get(this.instituteUserListUrl + instituteSlug + '/' + role + '/get-user-list',
+    return this.httpClient.get(
+      this.instituteUserListUrl + instituteSlug + '/' + role + '/get-user-list',
     { headers: this.getAuthHeader() })
+  }
+
+  // Get minimum invitation details
+  getMinInvitationDetails(invitation_id: number, institute_id: number) {
+    return this.httpClient.get(
+      this.instituteInvitationMinDetailUrl + invitation_id + '/' + institute_id,
+      { headers: this.getAuthHeader() })
   }
 
   // To load token from storage
