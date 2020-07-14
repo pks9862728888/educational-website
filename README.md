@@ -483,6 +483,7 @@ Staff and faculty can not delete any invites.
     "active_admin_list": [
         {
             "invitation_id": 2,
+            "institute_id": 1,
             "user_id": 1,
             "email": "teacher@gmail.com",
             "image": ""
@@ -491,6 +492,24 @@ Staff and faculty can not delete any invites.
     "pending_admin_invites" : []
 }
 ```
+
+## Institute Invitation min details
+**URL:** https://127.0.0.1:8000/institute/temp-institute-name/1/2
+
+**Allowed methods** GET
+
+**Scope** Teacher only
+
+**Integer fields in url** 'get-invitation-min-details/<int:invitation_id>/<int:institute_id>'
+
+**GET Response JSON format:**
+```
+{
+    "inviter": "abc@gmail.com",
+    "request_accepted_on": "2020-07-14T16:44:49.594346Z"
+}
+```
+
 
 ## Institute pending invite list
 **URL:** https://127.0.0.1:8000/institute/pending-institute-invites-teacher
