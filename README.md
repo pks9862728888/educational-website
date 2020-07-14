@@ -236,6 +236,7 @@ ________________________________________________________________________________
     "name": "temp institute 3",
     "country": "AF",
     "institute_category": "E",
+    "role": "A",
     "institute_profile": {
         "institute": 7,
         "motto": "",
@@ -277,6 +278,7 @@ ________________________________________________________________________________
         "country": "IN",
         "institute_category": "A",
         "created_date": "2020-06-25T11:31:21.445568Z",
+        "role": "A",
         "institute_profile": {
             "motto": "",
             "email": "teacher1@gmail.com",
@@ -295,6 +297,7 @@ ________________________________________________________________________________
         "country": "IN",
         "institute_category": "M",
         "created_date": "2020-06-26T08:18:19.908881Z",
+        "role": "S",
         "institute_profile": {
             "motto": "",
             "email": "",
@@ -323,6 +326,7 @@ ________________________________________________________________________________
     "country": "AF",
     "institute_category": "E",
     "institute_slug": "temp-institute-3",
+    "role": "A",
     "institute_profile": {
         "institute": 7,
         "motto": "",
