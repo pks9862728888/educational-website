@@ -493,20 +493,37 @@ Staff and faculty can not delete any invites.
 }
 ```
 
-## Institute Invitation min details
-**URL:** https://127.0.0.1:8000/institute/temp-institute-name/1/2
+## Institute Active Invitation min details
+**URL:** https://127.0.0.1:8000/institute/get-active-invitation-min-details/1/2
 
 **Allowed methods** GET
 
 **Scope** Teacher only
 
-**Integer fields in url** 'get-invitation-min-details/<int:invitation_id>/<int:institute_id>'
+**Integer fields in url** 'get-active-invitation-min-details/<int:invitation_id>/<int:institute_id>'
 
 **GET Response JSON format:**
 ```
 {
     "inviter": "abc@gmail.com",
     "request_accepted_on": "2020-07-14T16:44:49.594346Z"
+}
+```
+
+## Institute Pending Invitation min details
+**URL:** https://127.0.0.1:8000/institute/get-pending-invitation-min-details/1/2
+
+**Allowed methods** GET
+
+**Scope** Teacher only
+
+**Integer fields in url** 'get-pending-invitation-min-details/<int:invitation_id>/<int:institute_id>'
+
+**GET Response JSON format:**
+```
+{
+    "inviter": "abc@gmail.com",
+    "invited_on": "2020-07-14T16:44:49.594346Z"
 }
 ```
 
