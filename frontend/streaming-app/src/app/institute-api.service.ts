@@ -34,6 +34,7 @@ export class InstituteApiService {
   instituteMinDetailsAdminUrl = `${baseUrl}institute/institute-min-details-teacher-admin`;
   instituteCreateUrl = `${baseUrl}institute/create`;
   instituteDetailUrl = `${baseUrl}institute/detail/`;
+  instituteUserListUrl = `${baseUrl}institute/`
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -51,6 +52,12 @@ export class InstituteApiService {
   // Get institute details
   getInstituteDetails(instituteSlug: string) {
     return this.httpClient.get(this.instituteDetailUrl + instituteSlug, {headers: this.getAuthHeader()});
+  }
+
+  // Get list of admins
+  getUserList(instituteSlug: string, role:string) {
+    return this.httpClient.get(this.instituteUserListUrl + instituteSlug + '/' + role + '/get-user-list',
+    { headers: this.getAuthHeader() })
   }
 
   // To load token from storage

@@ -40,6 +40,13 @@ def get_invite_preview_url(institute_slug, role_name):
                            'role': role_name})
 
 
+def get_institute_invitation_min_details_url(invitation_id, institute_id):
+    """Creates and returns institute invitation min details url"""
+    return reverse("institute:get-invitation-min-details",
+                   kwargs={'invitation_id': invitation_id,
+                           'institute_id': institute_id})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -192,6 +199,18 @@ class PublicInstituteApiTests(TestCase):
 #         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 #         self.assertNotIn('active_staff_list', res.data)
 #         self.assertNotIn('pending_staff_invites', res.data)
+
+    def test_get_institute_invitation_min_details_fails_by_unauthenticated_user(self):
+        """Test that unauthorised user can not get institute invitation min details"""
+        owner = create_teacher('owner@dfs.com', 'sdfsfsfsg')
+        institute = create_institute(owner)
+        staff = create_teacher()
+        invitation = create_invite(institute, owner, staff, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_institute_invitation_min_details_url(invitation.id, institute.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class AuthenticatedTeacherUserAPITests(TestCase):
@@ -2148,46 +2167,126 @@ class AuthenticatedTeacherUserAPITests(TestCase):
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Invalid credentials.')
 
-    def test_get_joined_institute_list_success_by_teacher(self):
-        """Test that teacher can get his joined institute details successfully"""
-        owner1 = create_teacher()
-        owner2 = create_teacher('wonerfd@gmail.com', 'owerfdjf')
-        owner3 = create_teacher('wdfonerfd@gmail.com', 'owdferfdjf')
-        institute1 = create_institute(owner1, 'Institute One')
-        institute2 = create_institute(owner2, 'Institute Two')
-        institute3 = create_institute(owner3, 'Institute Three')
-        create_institute(self.user, 'Self institute')
+    # def test_get_joined_institute_list_success_by_teacher(self):
+    #     """Test that teacher can get his joined institute details successfully"""
+    #     owner1 = create_teacher()
+    #     owner2 = create_teacher('wonerfd@gmail.com', 'owerfdjf')
+    #     owner3 = create_teacher('wdfonerfd@gmail.com', 'owdferfdjf')
+    #     institute1 = create_institute(owner1, 'Institute One')
+    #     institute2 = create_institute(owner2, 'Institute Two')
+    #     institute3 = create_institute(owner3, 'Institute Three')
+    #     create_institute(self.user, 'Self institute')
+    #
+    #     create_invite(institute1, owner1, self.user, models.InstituteRole.ADMIN)
+    #     create_invite(institute2, owner2, self.user, models.InstituteRole.STAFF)
+    #     create_invite(institute3, owner3, self.user, models.InstituteRole.FACULTY)
+    #     accept_invite(institute1, self.user, models.InstituteRole.ADMIN)
+    #     accept_invite(institute2, self.user, models.InstituteRole.STAFF)
+    #     accept_invite(institute3, self.user, models.InstituteRole.FACULTY)
+    #
+    #     res = self.client.get(INSTITUTE_JOINED_MIN_DETAILS_URL)
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 3)
+    #
+    # def test_get_pending_institute_list_success_by_teacher(self):
+    #     """Test that teacher can get his pending institute details successfully"""
+    #     owner1 = create_teacher()
+    #     owner2 = create_teacher('wonerfd@gmail.com', 'owerfdjf')
+    #     owner3 = create_teacher('wdfonerfd@gmail.com', 'owdferfdjf')
+    #     institute1 = create_institute(owner1, 'Institute One')
+    #     institute2 = create_institute(owner2, 'Institute Two')
+    #     institute3 = create_institute(owner3, 'Institute Three')
+    #     create_institute(self.user, 'Self institute')
+    #
+    #     create_invite(institute1, owner1, self.user, models.InstituteRole.ADMIN)
+    #     create_invite(institute2, owner2, self.user, models.InstituteRole.STAFF)
+    #     create_invite(institute3, owner3, self.user, models.InstituteRole.FACULTY)
+    #
+    #     res = self.client.get(INSTITUTE_PENDING_INVITES_MIN_DETAILS_URL)
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 3)
 
-        create_invite(institute1, owner1, self.user, models.InstituteRole.ADMIN)
-        create_invite(institute2, owner2, self.user, models.InstituteRole.STAFF)
-        create_invite(institute3, owner3, self.user, models.InstituteRole.FACULTY)
-        accept_invite(institute1, self.user, models.InstituteRole.ADMIN)
-        accept_invite(institute2, self.user, models.InstituteRole.STAFF)
-        accept_invite(institute3, self.user, models.InstituteRole.FACULTY)
+    def test_get_institute_invitation_min_details_success_by_owner(self):
+        """Test that teacher can get institute invitation min details"""
+        institute = create_institute(self.user)
+        staff = create_teacher()
+        invitation = create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
 
-        res = self.client.get(INSTITUTE_JOINED_MIN_DETAILS_URL)
-
+        res = self.client.get(
+            get_institute_invitation_min_details_url(invitation.id, institute.id)
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 3)
+        self.assertEqual(res.data['inviter'], str(self.user))
+        self.assertIn('request_accepted_on', res.data)
 
-    def test_get_pending_institute_list_success_by_teacher(self):
-        """Test that teacher can get his pending institute details successfully"""
-        owner1 = create_teacher()
-        owner2 = create_teacher('wonerfd@gmail.com', 'owerfdjf')
-        owner3 = create_teacher('wdfonerfd@gmail.com', 'owdferfdjf')
-        institute1 = create_institute(owner1, 'Institute One')
-        institute2 = create_institute(owner2, 'Institute Two')
-        institute3 = create_institute(owner3, 'Institute Three')
-        create_institute(self.user, 'Self institute')
+    def test_get_institute_invitation_min_details_success_by_other_admin(self):
+        """Test that active admin can get institute invitation min details"""
+        owner = create_teacher('owner@dfs.com', 'sdfsfsfsg')
+        institute = create_institute(owner)
+        staff = create_teacher()
+        invitation = create_invite(institute, owner, staff, models.InstituteRole.STAFF)
+        create_invite(institute, owner, self.user, models.InstituteRole.ADMIN)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.ADMIN)
 
-        create_invite(institute1, owner1, self.user, models.InstituteRole.ADMIN)
-        create_invite(institute2, owner2, self.user, models.InstituteRole.STAFF)
-        create_invite(institute3, owner3, self.user, models.InstituteRole.FACULTY)
-
-        res = self.client.get(INSTITUTE_PENDING_INVITES_MIN_DETAILS_URL)
-
+        res = self.client.get(
+            get_institute_invitation_min_details_url(invitation.id, institute.id)
+        )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 3)
+        self.assertEqual(res.data['inviter'], str(owner))
+        self.assertIn('request_accepted_on', res.data)
+
+    def test_get_institute_invitation_min_details_success_by_staff(self):
+        """Test that staff can get institute invitation min details"""
+        owner = create_teacher('owner@dfs.com', 'sdfsfsfsg')
+        institute = create_institute(owner)
+        staff = create_teacher()
+        invitation = create_invite(institute, owner, staff, models.InstituteRole.STAFF)
+        create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_institute_invitation_min_details_url(invitation.id, institute.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['inviter'], str(owner))
+        self.assertIn('request_accepted_on', res.data)
+
+    def test_get_institute_invitation_min_details_success_by_faculty(self):
+        """Test that faculty can get institute invitation min details"""
+        owner = create_teacher('owner@dfs.com', 'sdfsfsfsg')
+        institute = create_institute(owner)
+        staff = create_teacher()
+        invitation = create_invite(institute, owner, staff, models.InstituteRole.STAFF)
+        create_invite(institute, owner, self.user, models.InstituteRole.FACULTY)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+
+        res = self.client.get(
+            get_institute_invitation_min_details_url(invitation.id, institute.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['inviter'], str(owner))
+        self.assertIn('request_accepted_on', res.data)
+
+    def test_get_institute_invitation_min_details_fails_by_inactive_admin(self):
+        """Test that inactive admin can not get institute invitation min details"""
+        owner = create_teacher('owner@dfs.com', 'sdfsfsfsg')
+        institute = create_institute(owner)
+        staff = create_teacher()
+        invitation = create_invite(institute, owner, staff, models.InstituteRole.STAFF)
+        create_invite(institute, owner, self.user, models.InstituteRole.ADMIN)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_institute_invitation_min_details_url(invitation.id, institute.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
 
 
 class AuthenticatedStudentUserAPITests(TestCase):
@@ -2303,6 +2402,18 @@ class AuthenticatedStudentUserAPITests(TestCase):
     #     self.assertNotIn('active_staff_list', res.data)
     #     self.assertNotIn('pending_staff_invites', res.data)
 
+    def test_get_institute_invitation_min_details_fails_by_student(self):
+        """Test that student can not get institute invitation min details"""
+        owner = create_teacher('owner@dfs.com', 'sdfsfsfsg')
+        institute = create_institute(owner)
+        staff = create_teacher()
+        invitation = create_invite(institute, owner, staff, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_institute_invitation_min_details_url(invitation.id, institute.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
 
 class AuthenticatedUserAPITests(TestCase):
     """Tests for authenticated user"""
@@ -2411,3 +2522,15 @@ class AuthenticatedUserAPITests(TestCase):
     #     self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
     #     self.assertNotIn('active_staff_list', res.data)
     #     self.assertNotIn('pending_staff_invites', res.data)
+
+    def test_get_institute_invitation_min_details_fails_by_authenticated_user(self):
+        """Test that non invitee can not get institute invitation min details"""
+        owner = create_teacher('owner@dfs.com', 'sdfsfsfsg')
+        institute = create_institute(owner)
+        staff = create_teacher()
+        invitation = create_invite(institute, owner, staff, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_institute_invitation_min_details_url(invitation.id, institute.id)
+        )
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)

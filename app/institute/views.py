@@ -104,6 +104,36 @@ class InstitutePendingInviteMinDetailsTeacherView(ListAPIView):
         return serializer_class(*args, **kwargs)
 
 
+class InstituteInvitationMinDetailsView(APIView):
+    """View for getting min details of the invitation"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """For managing get request"""
+        permitted_get_request = InstitutePermission.objects.filter(
+            invitee=self.request.user,
+            institute=kwargs.get('institute_id'),
+            active=True
+        ).first()
+        if not permitted_get_request:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        invitation = InstitutePermission.objects.filter(
+            id=kwargs.get('invitation_id')
+        ).first()
+
+        if invitation:
+            return Response({
+                'inviter': str(invitation.inviter),
+                'request_accepted_on': str(invitation.request_accepted_on)
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': _('Invitation not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
 class CreateInstituteView(CreateAPIView):
     """View for creating institute by teacher"""
     authentication_classes = (TokenAuthentication,)
@@ -467,6 +497,7 @@ class InstitutePermittedUserListView(APIView):
         for invite in user_invites:
             user_data = dict()
             user_data['invitation_id'] = invite.pk
+            user_data['institute_id'] = invite.institute.pk
             user_data['user_id'] = invite.invitee.pk
             user_data['email'] = str(invite.invitee)
             user_data['image'] = None

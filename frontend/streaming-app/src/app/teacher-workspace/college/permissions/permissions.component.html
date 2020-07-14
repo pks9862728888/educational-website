@@ -23,16 +23,17 @@
                     <hr class="top-separator" />
                     <section class="padding-top-07">
                         <h3>Admin:</h3>
-                        <mat-accordion>
-                            <mat-expansion-panel [expanded]="this.activeAdminStep === 0" (opened)="setActiveAdminPanelStep(0)">
+                        <mat-accordion *ngIf="!this.isActiveAdminListEmpty()">
+                            <mat-expansion-panel *ngFor="let admin of this.activeAdminList" [expanded]="this.activeAdminStep === admin.invitation_id" (opened)="setActiveAdminPanelStep(admin.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
-                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="!admin.image" src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ admin.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ admin.email }}</p>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
                                             <h3 class="line-height-center">admin</h3>
@@ -115,16 +116,17 @@
 
                     <section class="padding-bottom-07">
                         <h3>Pending Admin Invitations:</h3>
-                        <mat-accordion>
-                            <mat-expansion-panel [expanded]="this.pendingAdminStep === 0" (opened)="setPendingAdminPanelStep(0)">
+                        <mat-accordion *ngIf="!isInactiveAdminListEmpty()">
+                            <mat-expansion-panel *ngFor="let admin of this.inactiveAdminList" [expanded]="this.pendingAdminStep === admin.invitation_id" (opened)="setPendingAdminPanelStep(admin.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
-                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="admin.image" src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="!admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ admin.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ admin.email }}</p>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
                                             <h3 class="line-height-center">admin</h3>
@@ -232,16 +234,17 @@
                     <hr class="top-separator" />
                     <section class="padding-top-07">
                         <h3>Staffs:</h3>
-                        <mat-accordion>
-                            <mat-expansion-panel [expanded]="this.activeStaffStep === 0" (opened)="setActiveStaffPanelStep(0)">
+                        <mat-accordion *ngIf="!isActiveStaffListEmpty()">
+                            <mat-expansion-panel *ngFor="let staff of this.activeStaffList" [expanded]="this.activeStaffStep === staff.invitation_id" (opened)="setActiveStaffPanelStep(staff.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
-                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="!staff.image" src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of active staff">
+                                            <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of active staff">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ staff.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ staff.email }}</p>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
                                             <h3 class="line-height-center">staff</h3>
@@ -264,7 +267,7 @@
                                         </div>
                                         <div class="row invite-details ">
                                             <div class="col ">
-                                                <p>Active Admin:</p>
+                                                <p>Active Staff:</p>
                                             </div>
                                             <div class="col ">
                                                 <p>True</p>
@@ -324,19 +327,20 @@
 
                     <section class="padding-bottom-07">
                         <h3>Pending Staff Invitations:</h3>
-                        <mat-accordion>
-                            <mat-expansion-panel [expanded]="this.pendingStaffStep === 0" (opened)="setPendingStaffPanelStep(0)">
+                        <mat-accordion *ngIf="!isInactiveStaffListEmpty()">
+                            <mat-expansion-panel *ngFor="let staff of this.inactiveStaffList" [expanded]="this.pendingStaffStep === staff.invitation_id" (opened)="setPendingStaffPanelStep(staff.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
-                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="!staff.image" src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of inactive staff">
+                                            <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of inactive staff">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ staff.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ staff.email }}</p>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                            <h3 class="line-height-center">admin</h3>
+                                            <h3 class="line-height-center">staff</h3>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
                                             <h3 class="line-height-center">inactive</h3>
@@ -441,19 +445,20 @@
                     <hr class="top-separator" />
                     <section class="padding-top-07">
                         <h3>Faculties:</h3>
-                        <mat-accordion>
-                            <mat-expansion-panel [expanded]="this.activeFacultyStep === 0" (opened)="setActiveFacultyPanelStep(0)">
+                        <mat-accordion *ngIf="!isActiveFacultyListEmpty()">
+                            <mat-expansion-panel *ngFor="let faculty of this.activeFacultyList" [expanded]="this.activeFacultyStep === faculty.invitation_id" (opened)="setActiveFacultyPanelStep(faculty.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
-                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="!faculty.image" src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of active faculty">
+                                            <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of active faculty">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ faculty.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ faculty.email }}</p>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                            <h3 class="line-height-center">admin</h3>
+                                            <h3 class="line-height-center">faculty</h3>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
                                             <h3 class="line-height-center">active</h3>
@@ -533,19 +538,20 @@
 
                     <section class="padding-bottom-07">
                         <h3>Pending Faculty Invitations:</h3>
-                        <mat-accordion>
-                            <mat-expansion-panel [expanded]="this.pendingFacultyStep === 0" (opened)="setPendingFacultyPanelStep(0)">
+                        <mat-accordion *ngIf="!isInactiveFacultyListEmpty()">
+                            <mat-expansion-panel *ngFor="let faculty of this.inactiveFacultyList" [expanded]="this.pendingFacultyStep === faculty.invitation_id" (opened)="setPendingFacultyPanelStep(faculty.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
-                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="!faculty.image" src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of inactive faculty">
+                                            <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of inactive faculty">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ faculty.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ faculty.email }}</p>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                            <h3 class="line-height-center">admin</h3>
+                                            <h3 class="line-height-center">faculty</h3>
                                         </div>
                                         <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
                                             <h3 class="line-height-center">inactive</h3>

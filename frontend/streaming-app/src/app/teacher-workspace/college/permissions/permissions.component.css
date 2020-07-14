@@ -162,8 +162,6 @@ p {
     }
     .invitee-name-mb {
         line-height: 35px;
-        display: flex;
-        justify-content: center;
     }
 }
 
