@@ -311,6 +311,43 @@ ________________________________________________________________________________
 ]
 ```
 
+## Institute joined list
+**URL:** https://127.0.0.1:8000/institute/joined-institutes-teacher
+
+**Allowed methods** GET
+
+**Scope** Teacher only
+
+**GET Response JSON format:**
+```
+[
+    {
+        "id": 3,
+        "name": "second institute",
+        "country": "IN",
+        "role": "S",
+        "institute_category": "E",
+        "created_date": "2020-07-14T16:44:49.594346Z",
+        "institute_slug": "second-institute",
+        "institute_profile": {
+            "motto": "",
+            "email": "",
+            "phone": "",
+            "website_url": "",
+            "recognition": "",
+            "state": ""
+        },
+        "institute_logo": {},
+        "institute_statistics": {
+            "no_of_students": 0,
+            "no_of_faculties": 0,
+            "no_of_staff": 1,
+            "no_of_admin": 1
+        }
+    }
+]
+```
+
 ## Institute Profile details url
 **URL:** https://127.0.0.1:8000/institute/temp-institute-3
 
@@ -453,4 +490,42 @@ Staff and faculty can not delete any invites.
     ],
     "pending_admin_invites" : []
 }
+```
+
+## Institute pending invite list
+**URL:** https://127.0.0.1:8000/institute/pending-institute-invites-teacher
+
+**Allowed methods** GET
+
+**Scope** Teacher only
+
+**GET Response JSON format:**
+```
+[
+    {
+        "id": 3,
+        "name": "second institute",
+        "country": "IN",
+        "role": "S",
+        "invited_by": "teacher1@gmail.com",
+        "institute_category": "E",
+        "created_date": "2020-07-14T16:44:49.594346Z",
+        "institute_slug": "second-institute",
+        "institute_profile": {
+            "motto": "",
+            "email": "",
+            "phone": "",
+            "website_url": "",
+            "recognition": "",
+            "state": ""
+        },
+        "institute_logo": {},
+        "institute_statistics": {
+            "no_of_students": 0,
+            "no_of_faculties": 0,
+            "no_of_staff": 0,
+            "no_of_admin": 1
+        }
+    }
+]
 ```
