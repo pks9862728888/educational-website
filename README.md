@@ -425,3 +425,28 @@ Staff and faculty can not delete any invites.
 ```
 { "error": "Permission denied." }
 ```
+
+
+## Institute User list with permissions min details url
+**URL:** https://127.0.0.1:8000/institute/temp-institute-name/admin/get-user-list
+
+**Allowed methods** GET
+
+**Scope** Teacher only
+
+**Roles** admin, staff, faculty
+
+**GET Response JSON format:**
+```
+{
+    "active_admin_list": [
+        {
+            "invitation_id": 2,
+            "user_id": 1,
+            "email": "teacher@gmail.com",
+            "image": ""
+        }
+    ],
+    "pending_admin_invites" : []
+}
+```
