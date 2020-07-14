@@ -223,12 +223,19 @@
                 </mat-expansion-panel-header>
 
                 <div class="row college-details">
-                    <div class="col-12 motto">
-                        <ul class="padding">
+                    <div class="col-12">
+                        <ul class="role">
+                            <li>
+                                <strong>Role:</strong> &nbsp;{{ getRole(institute.role) }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12">
+                        <ul>
                             <li>
                                 <strong>Motto:</strong>
                                 <br/>
-                                <span class="padding-top-5">{{ institute.institute_profile.motto }}</span>
+                                <div class="padding-top-05" *ngIf="institute.institute_profile.motto">{{ institute.institute_profile.motto }}</div>
                             </li>
                         </ul>
                     </div>
@@ -362,10 +369,10 @@
                             <li>
                                 <div class="row border-btm border-tlr">
                                     <div class="col-8">
-                                        Role:
+                                        Number of admin:
                                     </div>
                                     <div class="col-4">
-                                        Admin
+                                        {{ institute.institute_statistics.no_of_admin }}
                                     </div>
                                 </div>
                             </li>
@@ -415,11 +422,18 @@
 
                 <div class="row college-details">
                     <div class="col-12 motto">
-                        <ul class="padding">
+                        <div class="col-12">
+                            <ul class="role">
+                                <li>
+                                    <strong>Role:</strong> &nbsp;Admin
+                                </li>
+                            </ul>
+                        </div>
+                        <ul>
                             <li>
                                 <strong>Motto:</strong>
                                 <br/>
-                                <span class="padding-top-5">To strive and harness the whatever whatever.</span>
+                                <div class="padding-top-05">To strive and harness the whatever whatever.</div>
                             </li>
                         </ul>
                     </div>

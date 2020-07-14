@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../../in-app-data-transfer.service';
-import { COUNTRY, STATE, INSTITUTE_CATEGORY } from './../../../constants';
+import { COUNTRY, STATE, INSTITUTE_CATEGORY, INSTITUTE_ROLE } from './../../../constants';
 import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
@@ -15,6 +15,7 @@ interface TeacherAdminInstitutesMin {
   institute_category: string;
   created_date: string;
   institute_slug: string;
+  role: string;
   institute_profile: {
     motto: string;
     email: string;
@@ -30,6 +31,7 @@ interface TeacherAdminInstitutesMin {
     no_of_students: number;
     no_of_faculties: number;
     no_of_staff: number;
+    no_of_admin: number;
   };
 }
 
@@ -203,6 +205,10 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
       this.createInstituteClicked = false;
       this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     }
+  }
+
+  getRole(key: string) {
+    return INSTITUTE_ROLE[key];
   }
 
   ngOnDestroy() {

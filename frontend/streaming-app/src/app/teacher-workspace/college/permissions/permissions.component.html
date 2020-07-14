@@ -21,63 +21,190 @@
                         </div>
                     </div>
                     <hr class="top-separator" />
-                    <section class="padding-top-07 padding-bottom-05">
+                    <section class="padding-top-07">
                         <h3>Admin:</h3>
-                        <div>
-                            <div class="row people-list-row">
-                                <div class="pp-width">
-                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                        <mat-accordion>
+                            <mat-expansion-panel [expanded]="this.activeAdminStep === 0" (opened)="setActiveAdminPanelStep(0)">
+                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                    <mat-panel-title>
+                                        <div>
+                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                        </div>
+                                        <div class="col-sm-8 col-md-6 col-lg-4">
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">admin</h3>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">active</h3>
+                                        </div>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <hr class="invite-top-separator" />
+                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Role:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>Admin</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Active Admin:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>True</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Invited By:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>pks8383838383@gmail.com</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Member since:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>24th Jan, 2020</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-3 col-lg-3">
-                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+
+                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Invited By:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>pks8383838383@gmail.com</h3>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Member since:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>24th Jan, 2020</h3>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">admin</h3>
-                                </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">active</h3>
-                                </div>
+                                <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
-                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                        <button mat-button class="green-button">Send Message</button>
                                     </div>
                                     <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="margin-right-1 line-height-center">email</mat-icon>
+                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
                     </section>
 
-                    <section class="padding-top-05 padding-bottom-07">
-                        <h3>Pending Admin Invites:</h3>
-                        <div>
-                            <div class="row people-list-row">
-                                <div class="pp-width">
-                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                    <section class="padding-bottom-07">
+                        <h3>Pending Admin Invitations:</h3>
+                        <mat-accordion>
+                            <mat-expansion-panel [expanded]="this.pendingAdminStep === 0" (opened)="setPendingAdminPanelStep(0)">
+                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                    <mat-panel-title>
+                                        <div>
+                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                        </div>
+                                        <div class="col-sm-8 col-md-6 col-lg-4">
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">admin</h3>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">inactive</h3>
+                                        </div>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <hr class="invite-top-separator" />
+                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Role:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>Admin</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Active Admin:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>False</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Invited By:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>pks8383838383@gmail.com</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Member since:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>24th Jan, 2020</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-3 col-lg-3">
-                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+
+                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Invited By:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>pks8383838383@gmail.com</h3>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Member since:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>24th Jan, 2020</h3>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">admin</h3>
-                                </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">inactive</h3>
-                                </div>
+                                <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
-                                        <button mat-button class="green-button margin-right-1">Message</button>
-                                        <button mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                        <button mat-button class="red-button">Cancel Invitation</button>
                                     </div>
                                     <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="line-height-center red-color margin-right-1">close</mat-icon>
+                                        <mat-icon class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
+                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
                     </section>
                 </div>
             </ng-template>
@@ -103,63 +230,190 @@
                         </div>
                     </div>
                     <hr class="top-separator" />
-                    <section class="padding-top-07 padding-bottom-05">
+                    <section class="padding-top-07">
                         <h3>Staffs:</h3>
-                        <div>
-                            <div class="row people-list-row">
-                                <div class="pp-width">
-                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                        <mat-accordion>
+                            <mat-expansion-panel [expanded]="this.activeStaffStep === 0" (opened)="setActiveStaffPanelStep(0)">
+                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                    <mat-panel-title>
+                                        <div>
+                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                        </div>
+                                        <div class="col-sm-8 col-md-6 col-lg-4">
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">staff</h3>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">active</h3>
+                                        </div>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <hr class="invite-top-separator" />
+                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Role:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>Staff</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Active Admin:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>True</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Invited By:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>pks8383838383@gmail.com</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Member since:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>24th Jan, 2020</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-3 col-lg-3">
-                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+
+                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Invited By:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>pks8383838383@gmail.com</h3>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Member since:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>24th Jan, 2020</h3>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">staff</h3>
-                                </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">active</h3>
-                                </div>
+                                <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
-                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                        <button mat-button class="green-button">Send Message</button>
                                     </div>
                                     <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="margin-right-1 line-height-center">email</mat-icon>
+                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
                     </section>
 
-                    <section class="padding-top-05 padding-bottom-07">
-                        <h3>Pending Staff Invites:</h3>
-                        <div>
-                            <div class="row people-list-row">
-                                <div class="pp-width">
-                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                    <section class="padding-bottom-07">
+                        <h3>Pending Staff Invitations:</h3>
+                        <mat-accordion>
+                            <mat-expansion-panel [expanded]="this.pendingStaffStep === 0" (opened)="setPendingStaffPanelStep(0)">
+                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                    <mat-panel-title>
+                                        <div>
+                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                        </div>
+                                        <div class="col-sm-8 col-md-6 col-lg-4">
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">admin</h3>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">inactive</h3>
+                                        </div>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <hr class="invite-top-separator" />
+                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Role:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>Staff</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Active Staff:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>False</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Invited By:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>pks8383838383@gmail.com</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Member since:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>24th Jan, 2020</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-3 col-lg-3">
-                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+
+                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Invited By:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>pks8383838383@gmail.com</h3>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Member since:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>24th Jan, 2020</h3>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">staff</h3>
-                                </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">inactive</h3>
-                                </div>
+                                <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
-                                        <button mat-button class="green-button margin-right-1">Message</button>
-                                        <button mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                        <button mat-button class="red-button">Cancel Invitation</button>
                                     </div>
                                     <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="line-height-center red-color margin-right-1">close</mat-icon>
+                                        <mat-icon class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
+                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
                     </section>
                 </div>
             </ng-template>
@@ -185,63 +439,190 @@
                         </div>
                     </div>
                     <hr class="top-separator" />
-                    <section class="padding-top-07 padding-bottom-05">
+                    <section class="padding-top-07">
                         <h3>Faculties:</h3>
-                        <div>
-                            <div class="row people-list-row">
-                                <div class="pp-width">
-                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                        <mat-accordion>
+                            <mat-expansion-panel [expanded]="this.activeFacultyStep === 0" (opened)="setActiveFacultyPanelStep(0)">
+                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                    <mat-panel-title>
+                                        <div>
+                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                        </div>
+                                        <div class="col-sm-8 col-md-6 col-lg-4">
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">admin</h3>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">active</h3>
+                                        </div>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <hr class="invite-top-separator" />
+                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Role:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>Faculty</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Active Faculty:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>True</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Invited By:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>pks8383838383@gmail.com</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Member since:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>24th Jan, 2020</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-3 col-lg-3">
-                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+
+                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Invited By:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>pks8383838383@gmail.com</h3>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Member since:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>24th Jan, 2020</h3>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">faculty</h3>
-                                </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">active</h3>
-                                </div>
+                                <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
-                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                        <button mat-button class="green-button">Send Message</button>
                                     </div>
                                     <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="margin-right-1 line-height-center">email</mat-icon>
+                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
                     </section>
 
-                    <section class="padding-top-05 padding-bottom-07">
-                        <h3>Pending Faculty Invites:</h3>
-                        <div>
-                            <div class="row people-list-row">
-                                <div class="pp-width">
-                                    <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                    <section class="padding-bottom-07">
+                        <h3>Pending Faculty Invitations:</h3>
+                        <mat-accordion>
+                            <mat-expansion-panel [expanded]="this.pendingFacultyStep === 0" (opened)="setPendingFacultyPanelStep(0)">
+                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                    <mat-panel-title>
+                                        <div>
+                                            <img src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                        </div>
+                                        <div class="col-sm-8 col-md-6 col-lg-4">
+                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">admin</h3>
+                                        </div>
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                            <h3 class="line-height-center">inactive</h3>
+                                        </div>
+                                    </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <hr class="invite-top-separator" />
+                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Role:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>Faculty</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Active Faculty:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>False</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Invited By:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>pks8383838383@gmail.com</p>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <p>Member since:</p>
+                                            </div>
+                                            <div class="col ">
+                                                <p>24th Jan, 2020</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-3 col-lg-3">
-                                    <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">pks9862728343@gmail.com</h3>
-                                    <p class="line-height-center" *ngIf="this.mobileQuery.matches">pks9862728343@gmail.com</p>
+
+                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                    <div class="col-12 ">
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Invited By:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>pks8383838383@gmail.com</h3>
+                                            </div>
+                                        </div>
+                                        <div class="row invite-details ">
+                                            <div class="col ">
+                                                <h3>Member since:</h3>
+                                            </div>
+                                            <div class="col ">
+                                                <h3>24th Jan, 2020</h3>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">faculty</h3>
-                                </div>
-                                <div class="col-lg-2 d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="line-height-center">inactive</h3>
-                                </div>
+                                <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="d-flex justify-content-end line-height-center">
-                                        <button mat-button class="green-button margin-right-1">Message</button>
-                                        <button mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                        <button mat-button class="green-button margin-right-1">Send Message</button>
+                                        <button mat-button class="red-button">Cancel Invitation</button>
                                     </div>
                                     <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="line-height-center red-color margin-right-1">close</mat-icon>
+                                        <mat-icon class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
+                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </mat-expansion-panel>
+                        </mat-accordion>
                     </section>
                 </div>
             </ng-template>

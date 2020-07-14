@@ -201,6 +201,11 @@ li {
     list-style-type: none;
 }
 
+.role {
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+}
+
 .border-tlr {
     border: 1px solid #6c757d;
     border-bottom: 0px;
@@ -270,6 +275,10 @@ a:active {
 
 .padding-top-5 {
     padding-top: 5px;
+}
+
+.padding-top-05 {
+    padding-top: 0.5rem;
 }
 
 

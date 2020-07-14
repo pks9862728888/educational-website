@@ -153,3 +153,15 @@ export const INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS = [
   {value: 'M', viewValue: 'Music'},
   {value: 'D', viewValue: 'Dance'}
 ];
+
+export const INSTITUTE_ROLE = {
+  A: 'Admin',
+  S: 'Staff',
+  F: 'Faculty'
+};
+
+export const INSTITUTE_ROLE_REVERSE = {
+  Admin: 'A',
+  Staff: 'S',
+  Faculty: 'F'
+};

@@ -110,7 +110,7 @@ class InstitutePendingInviteMinDetailsSerializer(CountryFieldMixin,
 
     class Meta:
         model = Institute
-        fields = ('id', 'user', 'name', 'country', 'role',
+        fields = ('id', 'name', 'country', 'role',
                   'invited_by', 'institute_category', 'created_date',
                   'institute_slug', 'institute_profile',
                   'institute_logo', 'institute_statistics')
@@ -177,7 +177,7 @@ class InstitutesJoinedMinDetailsTeacher(CountryFieldMixin,
 
     class Meta:
         model = Institute
-        fields = ('id', 'user', 'name', 'country', 'role',
+        fields = ('id', 'name', 'country', 'role',
                   'institute_category', 'created_date',
                   'institute_slug', 'institute_profile',
                   'institute_logo', 'institute_statistics')
