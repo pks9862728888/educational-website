@@ -150,6 +150,17 @@ class InstituteFullDetailsView(RetrieveAPIView):
     queryset = Institute.objects.all()
     lookup_field = 'institute_slug'
 
+    def get_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        serializer_class = self.get_serializer_class()
+        context = self.get_serializer_context()
+        context['user'] = self.request.user
+        kwargs['context'] = context
+        return serializer_class(*args, **kwargs)
+
 
 class InstituteProvidePermissionView(APIView):
     """View for providing permission to institute"""

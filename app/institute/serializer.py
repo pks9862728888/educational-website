@@ -305,6 +305,7 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
     institute_banner = serializers.SerializerMethodField()
     institute_statistics = serializers.SerializerMethodField()
     country = CountryField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = Institute
@@ -352,6 +353,14 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
             'no_of_faculties': 0,
             'no_of_staff': 0
         }
+
+    def get_role(self, instance):
+        """Returns role of the teacher"""
+        return InstitutePermission.objects.filter(
+            institute=instance,
+            invitee=self.context['user'],
+            active=True
+        ).first().role
 
 
 class InstituteProvidePermissionSerializer(serializers.ModelSerializer):
