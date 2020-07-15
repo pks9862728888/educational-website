@@ -38,6 +38,7 @@ export class InstituteApiService {
   baseUrl = baseUrl;
   instituteBaseUrl = `${baseUrl}institute/`;
   instituteMinDetailsAdminUrl = `${this.instituteBaseUrl}institute-min-details-teacher-admin`;
+  instituteJoinedDetailUrl = `${this.instituteBaseUrl}joined-institutes-teacher`;
   instituteCreateUrl = `${this.instituteBaseUrl}create`;
 
   getInstituteDetailUrl(instituteSlug: string) {
@@ -59,6 +60,10 @@ export class InstituteApiService {
   // Get minimum details of institute for admin teacher of institute
   getTeacherAdminInstituteMinDetails() {
     return this.httpClient.get(this.instituteMinDetailsAdminUrl, {headers: this.getAuthHeader()});
+  }
+
+  getJoinedInstituteMinDetails() {
+    return this.httpClient.get(this.instituteJoinedDetailUrl, {headers: this.getAuthHeader()});
   }
 
   // Create an institute

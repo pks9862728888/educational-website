@@ -3,7 +3,7 @@
         <div class="institute-banner">
             <img *ngIf="this.currentInstituteDetails.institute_banner.image" mat-card-image [src]="this.currentInstituteDetails.institute_banner.image" alt="institute-banner">
             <div *ngIf="!this.currentInstituteDetails.institute_banner.image" class="mat-card-image banner-background"></div>
-            <mat-icon class="edit-icon-banner">camera_enhance</mat-icon>
+            <mat-icon class="edit-icon-banner" *ngIf="this.currentInstituteRole === 'A'">camera_enhance</mat-icon>
         </div>
         <div class="logo-container">
             <div class="logo">
@@ -11,9 +11,9 @@
                 <img mat-card-image *ngIf="!this.currentInstituteDetails.institute_logo.image" src="../../assets/imgs/cd6.png" alt="institute-logo">
             </div>
         </div>
-        <mat-icon class="edit-icon-logo">camera_enhance</mat-icon>
+        <mat-icon class="edit-icon-logo" *ngIf="this.currentInstituteRole === 'A'">camera_enhance</mat-icon>
         <mat-card-content>
-            <div class="institute-title">
+            <div [ngClass]="{'institute-title': this.currentInstituteRole === 'A', 'padding-top-non-admin': this.currentInstituteRole !== 'A'}">
                 <div class="row">
                     <div class="col-sm-6">
                         <h2>{{ this.currentInstituteDetails.name | titlecase }}</h2>
@@ -22,7 +22,7 @@
                         <h3><span *ngIf="this.currentInstituteDetails.institute_profile.state">{{ this.getState(this.currentInstituteDetails.institute_profile.state) }},</span> {{ this.getInstituteCountry(this.currentInstituteDetails.country ) }}</h3>
                     </div>
                     <div class="col-sm-6" *ngIf="!this.mobileQuery.matches">
-                        <div class="d-flex justify-content-end margin-left-05">
+                        <div class="d-flex justify-content-end margin-left-05" *ngIf="this.currentInstituteRole === 'A'">
                             <div class="col margin-right-1">
                                 <button mat-raised-button class="green-button margin-publish-button full-width">Publish</button>
                             </div>
@@ -36,8 +36,8 @@
                     </div>
                 </div>
             </div>
-            <hr class="btn-outline-secondary" />
-            <div class="row" *ngIf="this.mobileQuery.matches">
+            <hr class="btn-outline-secondary" *ngIf="this.currentInstituteRole === 'A' || !this.mobileQuery.matches" />
+            <div class="row" *ngIf="this.mobileQuery.matches && this.currentInstituteRole === 'A'">
                 <div class="col margin-right-05">
                     <button mat-raised-button class="green-button full-width margin-bottom-1">Publish</button>
                 </div>

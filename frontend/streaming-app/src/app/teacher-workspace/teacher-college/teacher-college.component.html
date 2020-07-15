@@ -400,14 +400,15 @@
         <h4 class="text-color padding-bottom-05">Joined Institutes</h4>
 
         <mat-accordion>
-            <mat-expansion-panel [expanded]="joinedInstituteStep === 0" (opened)="setSearchedInstituteStep(0)">
+            <mat-expansion-panel *ngFor="let institute of teacherJoinedInstituteMinList" [expanded]="adminInstituteStep === institute.id" (opened)="setJoinedInstituteStep(institute.id)">
                 <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
                     <mat-panel-title>
                         <div>
-                            <img src="../../../assets/imgs/cd6.png" class="college-logo">
+                            <img *ngIf="!institute.institute_logo.image" src="../../../assets/imgs/cd6.png" class="college-logo">
+                            <img *ngIf="institute.institute_logo.image" src="{{ institute.institute_logo.image }}" class="college-logo">
                         </div>
                         <div class="expansion-panel-title flex-container">
-                            TRIPURA INSTITUTE OF TECHNOLOGY
+                            {{ institute.name | uppercase }}
                             <span>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 0, 'star-icon-disabled': this.rating < 1}" >star</mat-icon>
                         <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 1, 'star-icon-disabled': this.rating < 2}" >star</mat-icon>
@@ -421,19 +422,19 @@
                 </mat-expansion-panel-header>
 
                 <div class="row college-details">
-                    <div class="col-12 motto">
-                        <div class="col-12">
-                            <ul class="role">
-                                <li>
-                                    <strong>Role:</strong> &nbsp;Admin
-                                </li>
-                            </ul>
-                        </div>
+                    <div class="col-12">
+                        <ul class="role">
+                            <li>
+                                <strong>Role:</strong> &nbsp;{{ getRole(institute.role) }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12">
                         <ul>
                             <li>
                                 <strong>Motto:</strong>
                                 <br/>
-                                <div class="padding-top-05">To strive and harness the whatever whatever.</div>
+                                <div class="padding-top-05" *ngIf="institute.institute_profile.motto">{{ institute.institute_profile.motto }}</div>
                             </li>
                         </ul>
                     </div>
@@ -446,7 +447,8 @@
                                         Mail:
                                     </div>
                                     <div class="col">
-                                        <a href="mailto:xyz@gmail.com" target="_blank">xyz@gmail.com</a>
+                                        <a *ngIf="institute.institute_profile.email" href="mailto:{{ institute.institute_profile.email }}" target="_blank">{{ institute.institute_profile.email }}</a>
+                                        <span *ngIf="!institute.institute_profile.email">N/A</span>
                                     </div>
                                 </div>
                             </li>
@@ -456,7 +458,8 @@
                                         Phone no:
                                     </div>
                                     <div class="col">
-                                        +919898989898
+                                        {{ institute.institute_profile.phone }}
+                                        <span *ngIf="!institute.institute_profile.phone">N/A</span>
                                     </div>
                                 </div>
                             </li>
@@ -466,7 +469,8 @@
                                         Website Url:
                                     </div>
                                     <div class="col">
-                                        <a href="http://www.google.com" target="_blank">www.google.com</a>
+                                        <a *ngIf="!institute.institute_profile.website_url" href="{{ institute.institute_profile.website_url }}" target="_blank">{{ institute.institute_profile.website_url }}</a>
+                                        <span *ngIf="!institute.institute_profile.website_url">N/A</span>
                                     </div>
                                 </div>
                             </li>
@@ -476,7 +480,7 @@
                                         Address:
                                     </div>
                                     <div class="col">
-                                        Agartala, India
+                                        <span *ngIf="institute.institute_profile.state">{{ decodeState(institute.institute_profile.state) | titlecase }},</span> {{ decodeCountry(institute.country) }}
                                     </div>
                                 </div>
                             </li>
@@ -491,7 +495,7 @@
                                         Created On:
                                     </div>
                                     <div class="col">
-                                        12 Jan, 1998
+                                        {{ institute.created_date | date }}
                                     </div>
                                 </div>
                             </li>
@@ -501,27 +505,28 @@
                                         Recognition:
                                     </div>
                                     <div class="col">
-                                        ICSE
+                                        {{ institute.institute_profile.recognition }}
+                                        <span *ngIf="!institute.institute_profile.recognition">N/A</span>
                                     </div>
                                 </div>
                             </li>
                             <li>
                                 <div class="row border-tlr">
                                     <div class="col">
-                                        Type:
+                                        Published:
                                     </div>
                                     <div class="col">
-                                        Education
+                                        NYD
                                     </div>
                                 </div>
                             </li>
                             <li>
                                 <div class="row border-btm border-tlr">
                                     <div class="col">
-                                        Role:
+                                        Category:
                                     </div>
                                     <div class="col">
-                                        Faculty
+                                        {{ decodeCategory(institute.institute_category) }}
                                     </div>
                                 </div>
                             </li>
@@ -536,7 +541,7 @@
                                         Number of students:
                                     </div>
                                     <div class="col-4">
-                                        234
+                                        {{ institute.institute_statistics.no_of_students }}
                                     </div>
                                 </div>
                             </li>
@@ -546,27 +551,27 @@
                                         Number of faculties:
                                     </div>
                                     <div class="col-4">
-                                        7
+                                        {{ institute.institute_statistics.no_of_faculties }}
                                     </div>
                                 </div>
                             </li>
                             <li>
                                 <div class="row border-tlr">
                                     <div class="col-8">
-                                        Number of staffs:
+                                        Number of staff:
                                     </div>
                                     <div class="col-4">
-                                        2
+                                        {{ institute.institute_statistics.no_of_staff }}
                                     </div>
                                 </div>
                             </li>
                             <li>
                                 <div class="row border-btm border-tlr">
                                     <div class="col-8">
-                                        Published:
+                                        Number of admin:
                                     </div>
                                     <div class="col-4">
-                                        True
+                                        {{ institute.institute_statistics.no_of_admin }}
                                     </div>
                                 </div>
                             </li>
@@ -575,14 +580,14 @@
                 </div>
 
                 <mat-action-row>
-                    <div class="margin-right-10">
+                    <div class="margin-right-10" *ngIf="institute.role === 'A'">
                         <button mat-flat-button class="green-button">Publish</button>
                     </div>
-                    <div>
+                    <div *ngIf="institute.role === 'A'">
                         <button mat-flat-button class="blue-button">Edit</button>
                     </div>
                     <div class="margin-right-10">
-                        <button mat-flat-button class="lightblue-button">Open</button>
+                        <button mat-flat-button class="lightblue-button" (click)="previewClicked(institute.institute_slug, institute.role)">Open</button>
                     </div>
                 </mat-action-row>
             </mat-expansion-panel>

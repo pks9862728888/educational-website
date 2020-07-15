@@ -7,7 +7,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MAT_SNACK_BAR_DATA, MatSnackBar } from '@angular/material/snack-bar';
 
-interface TeacherAdminInstitutesMin {
+interface TeacherInstitutesMinDetailInterface {
   id: number;
   user: number;
   name: string;
@@ -88,7 +88,8 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
   rating = 4;
 
   // For storing admin institutes
-  teacherAdminInstitutesMinList: TeacherAdminInstitutesMin[] = [];
+  teacherAdminInstitutesMinList: TeacherInstitutesMinDetailInterface[] = [];
+  teacherJoinedInstituteMinList:TeacherInstitutesMinDetailInterface[] = [];
 
   // For handling views based on input from breadcrumb
   showInstituteListViewSubscription: Subscription;
@@ -107,15 +108,23 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // this.router.navigate(['teacher-workspace/institutes/' + 'tempView' + '/permissions']);
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
-      (result: TeacherAdminInstitutesMin[]) => {
+      (result: TeacherInstitutesMinDetailInterface[]) => {
         for (const institute of result) {
           this.teacherAdminInstitutesMinList.push(institute);
         }
       },
-      error => {
-        console.error(error);
-      }
+      error => {}
     );
+
+    this.instituteApiService.getJoinedInstituteMinDetails().subscribe(
+      (result: TeacherInstitutesMinDetailInterface[]) => {
+        for (const institute of result) {
+          this.teacherJoinedInstituteMinList.push(institute);
+        }
+      },
+      error => {}
+    );
+    console.log(this.teacherJoinedInstituteMinList);
 
     // Subscribing to show the list view on input from breadcrumb
     this.showInstituteListViewSubscription = this.inAppDataTransferService.setInstituteViewActive$.subscribe(

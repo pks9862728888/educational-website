@@ -52,6 +52,7 @@ export class CollegePreviewComponent implements OnInit {
 
   // To store current institute details
   currentInstituteSlug: string;
+  currentInstituteRole: string;
   currentInstituteDetails: InstituteDetails;
 
   // Delete it
@@ -67,6 +68,7 @@ export class CollegePreviewComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
+    this.currentInstituteRole = localStorage.getItem('currentInstituteRole');
     this.instituteApiService.getInstituteDetails(this.currentInstituteSlug).subscribe(
       (result: InstituteDetails) => {
         this.currentInstituteDetails = result;
