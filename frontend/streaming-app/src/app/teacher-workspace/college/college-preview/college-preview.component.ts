@@ -79,6 +79,7 @@ export class CollegePreviewComponent implements OnInit {
     this.inAppDataTransferService.showInstituteSidenavView(false);
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     localStorage.removeItem('currentInstituteSlug');
+    localStorage.removeItem('currentInstituteRole');
     this.router.navigate(['/teacher-workspace/institutes']);
   }
 
