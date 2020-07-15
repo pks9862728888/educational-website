@@ -413,7 +413,14 @@ ________________________________________________________________________________
 
 **Response**
 ```
-{ "status": "INVITED" }
+{
+    "invitation_id": 2,
+    "invitee_id": 1,
+    "email": "teacher@gmail.com",
+    "requested_on": "2020-07-14T16:44:49.594346Z",
+    "inviter": "abc@gmail.com",
+    "image": ""
+}
 ```
 
 **Error**
@@ -483,8 +490,7 @@ Staff and faculty can not delete any invites.
     "active_admin_list": [
         {
             "invitation_id": 2,
-            "institute_id": 1,
-            "user_id": 1,
+            "invitee_id": 1,
             "email": "teacher@gmail.com",
             "inviter": "abc@gmail.com",
             "requested_accepted_on": "2020-07-14T16:44:49.594346Z",
@@ -494,8 +500,7 @@ Staff and faculty can not delete any invites.
     "pending_admin_invites" : [
         {
             "invitation_id": 2,
-            "institute_id": 1,
-            "user_id": 1,
+            "invitee_id": 1,
             "email": "teacher@gmail.com",
             "requested_on": "2020-07-14T16:44:49.594346Z",
             "inviter": "abc@gmail.com",
