@@ -349,7 +349,7 @@ ________________________________________________________________________________
 ```
 
 ## Institute Profile details url
-**URL:** https://127.0.0.1:8000/institute/temp-institute-3
+**URL:** https://127.0.0.1:8000/institute/detail/temp-institute-3
 
 **Allowed methods** GET
 
