@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { InAppDataTransferService } from 'src/app/in-app-data-transfer.service';
 import { InstituteApiService } from 'src/app/institute-api.service';
-import { INSTITUTE_CATEGORY, COUNTRY, STATE, LANGUAGE, authTokenName } from 'src/constants';
-import { CookieService } from 'ngx-cookie-service';
+import { INSTITUTE_CATEGORY, COUNTRY, STATE, LANGUAGE, INSTITUTE_ROLE } from 'src/constants';
 
 interface InstituteDetails {
   user: string;
@@ -13,6 +12,7 @@ interface InstituteDetails {
   institute_category: string;
   institute_slug: string;
   created_date: string;
+  role: string;
   institute_profile: {
     motto: string;
     email: string;
@@ -104,10 +104,7 @@ export class CollegePreviewComponent implements OnInit {
   }
 
   getRole() {
-    const userId = sessionStorage.getItem('user_id')
-    if (this.currentInstituteDetails.user.toString() === userId) {
-      return 'Admin';
-    }
+    return INSTITUTE_ROLE[this.currentInstituteDetails.role]
   }
 
 }

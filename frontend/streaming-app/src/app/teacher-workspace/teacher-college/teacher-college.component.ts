@@ -174,10 +174,10 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
   }
 
-  previewClicked(instituteSlug: string) {
-    // Showing appropriate navigation in breadcrumb
+  previewClicked(instituteSlug: string, role:string) {
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('INSTITUTE_PROFILE');
     localStorage.setItem('currentInstituteSlug', instituteSlug);
+    localStorage.setItem('currentInstituteRole', role);
     this.router.navigate(['teacher-workspace/institutes/preview/', instituteSlug]);
   }
 

@@ -35,10 +35,6 @@ interface InstituteFacultyListResponse {
   pending_faculty_invites: UserPendingInviteMinDetails[];
 }
 
-interface InvitationResult {
-  status:string;
-}
-
 @Component({
   selector: 'app-permissions',
   templateUrl: './permissions.component.html',
@@ -57,7 +53,8 @@ export class PermissionsComponent implements OnInit {
   pendingFacultyStep: number;
 
   // For fetching appropriate data
-  instituteSlug: string;
+  currentInstituteSlug: string;
+  currentInstituteRole: string;
   selectedTab = 'ADMIN';
   inviteError: string;
   invitedSuccessfully: string;
@@ -78,7 +75,7 @@ export class PermissionsComponent implements OnInit {
   }
 
   getAdminUserList() {
-    this.instituteApiService.getUserList(this.instituteSlug, 'admin').subscribe(
+    this.instituteApiService.getUserList(this.currentInstituteSlug, 'admin').subscribe(
       (result: InstituteAdminListResponse) => {
         if (result.active_admin_list){
           for(const activeAdmin of result.active_admin_list) {
@@ -100,7 +97,7 @@ export class PermissionsComponent implements OnInit {
   }
 
   getStaffUserList() {
-    this.instituteApiService.getUserList(this.instituteSlug, 'staff').subscribe(
+    this.instituteApiService.getUserList(this.currentInstituteSlug, 'staff').subscribe(
       (result: InstituteStaffListResponse) => {
         if (result.active_staff_list){
           for(const activeStaff of result.active_staff_list) {
@@ -118,7 +115,7 @@ export class PermissionsComponent implements OnInit {
   }
 
   getFacultyUserList() {
-    this.instituteApiService.getUserList(this.instituteSlug, 'faculty').subscribe(
+    this.instituteApiService.getUserList(this.currentInstituteSlug, 'faculty').subscribe(
       (result: InstituteFacultyListResponse) => {
         if (result.active_faculty_list){
           for(const activeFaculty of result.active_faculty_list) {
@@ -136,7 +133,8 @@ export class PermissionsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.instituteSlug = localStorage.getItem('currentInstituteSlug');
+    this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
+    this.currentInstituteRole = localStorage.getItem('currentInstituteRole');
     this.getAdminUserList();
   }
 
@@ -167,15 +165,6 @@ export class PermissionsComponent implements OnInit {
     }
   }
 
-  addToPendingInvitationQueue() {
-    if (this.selectedTab == 'STAFF') {
-
-    } else if (this.selectedTab == 'FACULTY') {
-
-    } else {
-
-    }
-  }
 
   inviteUser() {
     this.inviteError = null;
@@ -191,12 +180,16 @@ export class PermissionsComponent implements OnInit {
     } else {
       payload["role"] = INSTITUTE_ROLE_REVERSE['Admin'];
     }
-    this.instituteApiService.inviteUser(this.instituteSlug, payload).subscribe(
-      (result: InvitationResult) => {
-        if (result.status === 'INVITED') {
-          this.invitedSuccessfully = 'User has been invited successfully.'
-          this.addToPendingInvitationQueue();
-          this.newInviteForm.reset();
+    this.instituteApiService.inviteUser(this.currentInstituteSlug, payload).subscribe(
+      (result: UserPendingInviteMinDetails) => {
+        this.invitedSuccessfully = 'User has been invited successfully.'
+        this.newInviteForm.reset();
+        if (this.selectedTab === 'STAFF') {
+          this.inactiveStaffList.push(result);
+        } else if (this.selectedTab === 'FACULTY') {
+          this.inactiveFacultyList.push(result);
+        } else {
+          this.inactiveAdminList.push(result);
         }
       },
       error => {

@@ -308,11 +308,11 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Institute
-        fields = ('user', 'name', 'country', 'institute_category',
+        fields = ('user', 'name', 'country', 'institute_category', 'role',
                   'institute_slug', 'created_date', 'institute_profile',
                   'institute_statistics', 'institute_logo', 'institute_banner')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'institute_slug', 'created_date',
+                            'institute_slug', 'created_date', 'role',
                             'institute_profile', 'institute_statistics',
                             'institute_logo', 'institute_banner')
 
