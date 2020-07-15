@@ -180,7 +180,7 @@ class InstituteProvidePermissionView(APIView):
             errors['invitee'] = _('This field is required.')
         else:
             invitee = get_user_model().objects.filter(
-                email=invitee_email).first()
+                email=invitee_email.lower().strip()).first()
             if not invitee:
                 errors['invitee'] = _('This user does not exist.')
             elif not invitee.is_teacher:
@@ -252,7 +252,6 @@ class InstituteProvidePermissionView(APIView):
                 'invitee': invitee.pk,
                 'institute': institute.pk,
                 'role': role,
-                'request_accepted_on': timezone.now()
             })
 
             if ser.is_valid():
