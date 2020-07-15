@@ -1,30 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { InstituteApiService } from 'src/app/institute-api.service';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { INSTITUTE_ROLE_REVERSE } from 'src/constants';
 
-interface UserInviteMinDetails {
+interface BaseInvitation {
   email: string;
   image: string;
   invitation_id: number;
-  institute_id: number;
-  user_id: number;
+  invitee_id: number;
+  inviter: string;
+}
+
+interface UserActiveInviteMinDetails extends BaseInvitation {
+  request_accepted_on: string;
+}
+
+interface UserPendingInviteMinDetails extends BaseInvitation{
+  requested_on: string;
 }
 
 interface InstituteAdminListResponse {
-  active_admin_list: UserInviteMinDetails[];
-  pending_admin_invites: UserInviteMinDetails[];
+  active_admin_list: UserActiveInviteMinDetails[];
+  pending_admin_invites: UserPendingInviteMinDetails[];
 }
 
 interface InstituteStaffListResponse {
-  active_staff_list: UserInviteMinDetails[];
-  pending_staff_invites: UserInviteMinDetails[];
+  active_staff_list: UserActiveInviteMinDetails[];
+  pending_staff_invites: UserPendingInviteMinDetails[];
 }
 
 interface InstituteFacultyListResponse {
-  active_faculty_list: UserInviteMinDetails[];
-  pending_faculty_invites: UserInviteMinDetails[];
+  active_faculty_list: UserActiveInviteMinDetails[];
+  pending_faculty_invites: UserPendingInviteMinDetails[];
 }
 
+interface InvitationResult {
+  status:string;
+}
 
 @Component({
   selector: 'app-permissions',
@@ -48,17 +61,19 @@ export class PermissionsComponent implements OnInit {
   selectedTab = 'ADMIN';
   inviteError: string;
   invitedSuccessfully: string;
+  newInviteForm: FormGroup;
 
   // For storing data of permitted user
-  activeAdminList: UserInviteMinDetails[] = []
-  inactiveAdminList: UserInviteMinDetails[] = []
-  activeStaffList: UserInviteMinDetails[] = []
-  inactiveStaffList: UserInviteMinDetails[] = []
-  activeFacultyList: UserInviteMinDetails[] = []
-  inactiveFacultyList: UserInviteMinDetails[] = []
+  activeAdminList: UserActiveInviteMinDetails[] = []
+  inactiveAdminList: UserPendingInviteMinDetails[] = []
+  activeStaffList: UserActiveInviteMinDetails[] = []
+  inactiveStaffList: UserPendingInviteMinDetails[] = []
+  activeFacultyList: UserActiveInviteMinDetails[] = []
+  inactiveFacultyList: UserPendingInviteMinDetails[] = []
 
   constructor( private media: MediaMatcher,
-               private instituteApiService: InstituteApiService) {
+               private instituteApiService: InstituteApiService,
+               private formBuilder: FormBuilder ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
@@ -77,7 +92,11 @@ export class PermissionsComponent implements OnInit {
         }
       },
       errors => {}
-    )
+    );
+
+    this.newInviteForm = this.formBuilder.group({
+      invitee: [null, [Validators.required, Validators.email]]
+    })
   }
 
   getStaffUserList() {
@@ -132,6 +151,9 @@ export class PermissionsComponent implements OnInit {
       this.activeFacultyList = [];
       this.inactiveFacultyList = [];
     }
+    this.newInviteForm.reset();
+    this.inviteError = null;
+    this.invitedSuccessfully = null;
 
     if (event.index === 0) {
       this.selectedTab = 'ADMIN';
@@ -145,29 +167,73 @@ export class PermissionsComponent implements OnInit {
     }
   }
 
+  addToPendingInvitationQueue() {
+    if (this.selectedTab == 'STAFF') {
+
+    } else if (this.selectedTab == 'FACULTY') {
+
+    } else {
+
+    }
+  }
+
+  inviteUser() {
+    this.inviteError = null;
+    this.invitedSuccessfully = null;
+    let payload = {
+      "invitee": this.newInviteForm.value.invitee,
+      "role": ""
+    }
+    if (this.selectedTab === 'STAFF') {
+      payload["role"] = INSTITUTE_ROLE_REVERSE['Staff'];
+    } else if (this.selectedTab === 'FACULTY') {
+      payload["role"] = INSTITUTE_ROLE_REVERSE['Faculty'];
+    } else {
+      payload["role"] = INSTITUTE_ROLE_REVERSE['Admin'];
+    }
+    this.instituteApiService.inviteUser(this.instituteSlug, payload).subscribe(
+      (result: InvitationResult) => {
+        if (result.status === 'INVITED') {
+          this.invitedSuccessfully = 'User has been invited successfully.'
+          this.addToPendingInvitationQueue();
+          this.newInviteForm.reset();
+        }
+      },
+      error => {
+        if (error.error.invitee) {
+          this.inviteError = error.error.invitee;
+        } else if (error.error.error) {
+          this.inviteError = error.error.get('error');
+        } else {
+          this.inviteError = 'Invitation failed. Check internet connectivity.'
+        }
+      }
+    )
+  }
+
   // For handling mat expansion panel
-  setActiveAdminPanelStep(invitation_id: number, institute_id:number) {
-    this.activeAdminStep = invitation_id;
+  setActiveAdminPanelStep(step: number) {
+    this.activeAdminStep = step;
   }
 
-  setPendingAdminPanelStep(invitation_id: number, institute_id:number) {
-    this.pendingAdminStep = invitation_id;
+  setPendingAdminPanelStep(step: number) {
+    this.pendingAdminStep = step;
   }
 
-  setActiveStaffPanelStep(invitation_id: number, institute_id:number) {
-    this.activeStaffStep = invitation_id;
+  setActiveStaffPanelStep(step: number) {
+    this.activeStaffStep = step;
   }
 
-  setPendingStaffPanelStep(invitation_id: number, institute_id:number) {
-    this.pendingStaffStep = invitation_id;
+  setPendingStaffPanelStep(step: number) {
+    this.pendingStaffStep = step;
   }
 
-  setActiveFacultyPanelStep(invitation_id: number, institute_id:number) {
-    this.activeFacultyStep = invitation_id;
+  setActiveFacultyPanelStep(step: number) {
+    this.activeFacultyStep = step;
   }
 
-  setPendingFacultyPanelStep(invitation_id: number, institute_id:number) {
-    this.pendingFacultyStep = invitation_id;
+  setPendingFacultyPanelStep(step: number) {
+    this.pendingFacultyStep = step;
   }
 
   isActiveAdminListEmpty() {

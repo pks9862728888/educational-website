@@ -23,6 +23,11 @@ interface FormDataInterface {
   };
 }
 
+interface InviterUserInterface {
+  role: string;
+  invitee: string;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -31,12 +36,22 @@ export class InstituteApiService {
 
   // Urls for communicating with backend
   baseUrl = baseUrl;
-  instituteMinDetailsAdminUrl = `${baseUrl}institute/institute-min-details-teacher-admin`;
-  instituteCreateUrl = `${baseUrl}institute/create`;
-  instituteDetailUrl = `${baseUrl}institute/detail/`;
-  instituteUserListUrl = `${baseUrl}institute/`
-  instituteActiveInvitationMinDetailUrl = `${baseUrl}institute/get-active-invitation-min-details/`
-  institutePendingInvitationMinDetailUrl = `${baseUrl}institute/get-pending-invitation-min-details/`
+  instituteBaseUrl = `${baseUrl}institute/`;
+  instituteMinDetailsAdminUrl = `${this.instituteBaseUrl}institute-min-details-teacher-admin`;
+  instituteCreateUrl = `${this.instituteBaseUrl}create`;
+
+  getInstituteDetailUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}detail/${instituteSlug}`;
+  }
+
+  getUserListUrl(instituteSlug: string, role: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${role}/get-user-list`;
+  }
+
+  getUserInviteUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/provide-permission`;
+  }
+
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -53,27 +68,22 @@ export class InstituteApiService {
 
   // Get institute details
   getInstituteDetails(instituteSlug: string) {
-    return this.httpClient.get(this.instituteDetailUrl + instituteSlug, {headers: this.getAuthHeader()});
+    return this.httpClient.get(this.getInstituteDetailUrl(instituteSlug), {headers: this.getAuthHeader()});
   }
 
   // Get list of admins
   getUserList(instituteSlug: string, role:string) {
     return this.httpClient.get(
-      this.instituteUserListUrl + instituteSlug + '/' + role + '/get-user-list',
-    { headers: this.getAuthHeader() })
-  }
-
-  // Get minimum invitation details
-  getMinActiveInvitationDetails(invitation_id: number, institute_id: number) {
-    return this.httpClient.get(
-      this.instituteActiveInvitationMinDetailUrl + invitation_id + '/' + institute_id,
+      this.getUserListUrl(instituteSlug, role),
       { headers: this.getAuthHeader() })
   }
 
-  getMinPendingInvitationDetails(invitation_id: number, institute_id: number) {
-    return this.httpClient.get(
-      this.institutePendingInvitationMinDetailUrl + invitation_id + '/' + institute_id,
-      { headers: this.getAuthHeader() })
+  // Invite new user
+  inviteUser(instituteSlug: string, payload: InviterUserInterface) {
+    return this.httpClient.post(
+      this.getUserInviteUrl(instituteSlug), payload,
+      { headers: this.getAuthHeader() }
+    );
   }
 
   // To load token from storage

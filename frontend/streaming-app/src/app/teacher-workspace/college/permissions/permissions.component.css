@@ -38,6 +38,21 @@ p {
     border-right: 0px;
 }
 
+.invite-button-active:not(.disabled) {
+    color: #fff;
+    border-color: #6c757d;
+    background-color: #6c757e;
+    box-shadow: none;
+}
+
+.invite-button-disabled {
+    border-color: #6c757d;
+    color: #fff;
+    background-color: #6c757e;
+    box-shadow: none;
+    opacity: 0.2;
+}
+
 .no-box-shadow {
     box-shadow: none;
 }

@@ -256,9 +256,16 @@ class InstituteProvidePermissionView(APIView):
 
             if ser.is_valid():
                 try:
-                    ser.save()
-                    return Response({'status': 'INVITED'},
-                                    status=status.HTTP_200_OK)
+                    saved_data = ser.save()
+                    response = {
+                        'email': str(saved_data.invitee),
+                        'image': None,
+                        'invitation_id': saved_data.pk,
+                        'invitee_id': saved_data.invitee.pk,
+                        'inviter': str(self.request.user),
+                        'requested_on': saved_data.request_date
+                    }
+                    return Response(response, status=status.HTTP_200_OK)
                 except Exception:
                     msg = _('Internal server error. Please contact Eduweb')
                     return Response({'error': msg},
@@ -312,9 +319,16 @@ class InstituteProvidePermissionView(APIView):
 
             if ser.is_valid():
                 try:
-                    ser.save()
-                    return Response({'status': 'INVITED'},
-                                    status=status.HTTP_200_OK)
+                    saved_data = ser.save()
+                    response = {
+                        'email': str(saved_data.invitee),
+                        'image': None,
+                        'invitation_id': saved_data.pk,
+                        'invitee_id': saved_data.invitee.pk,
+                        'inviter': str(self.request.user),
+                        'requested_on': saved_data.request_date
+                    }
+                    return Response(response, status=status.HTTP_200_OK)
                 except Exception:
                     msg = _('Internal server error. Please contact Eduweb')
                     return Response({'error': msg},
@@ -466,7 +480,7 @@ class InstitutePermittedUserListView(APIView):
         for invite in user_invites:
             user_data = dict()
             user_data['invitation_id'] = invite.pk
-            user_data['user_id'] = invite.invitee.pk
+            user_data['invitee_id'] = invite.invitee.pk
             user_data['email'] = str(invite.invitee)
             user_data['inviter'] = str(invite.inviter)
             user_data['image'] = None

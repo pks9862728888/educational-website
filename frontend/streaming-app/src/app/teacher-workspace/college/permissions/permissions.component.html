@@ -13,18 +13,20 @@
                         <div class="col-12 text-center success-text" *ngIf="this.invitedSuccessfully">
                             <h3>{{ this.invitedSuccessfully }}</h3>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4 input-group">
-                            <input type="text" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary no-box-shadow" type="button">Invite</button>
-                            </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <form [formGroup]="this.newInviteForm" class="input-group">
+                                <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                                <div class="input-group-append">
+                                    <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     <hr class="top-separator" />
                     <section class="padding-top-07">
                         <h3>Admin:</h3>
                         <mat-accordion *ngIf="!this.isActiveAdminListEmpty()">
-                            <mat-expansion-panel *ngFor="let admin of this.activeAdminList" [expanded]="this.activeAdminStep === admin.invitation_id" (opened)="setActiveAdminPanelStep(admin.invitation_id, admin.institute_id)">
+                            <mat-expansion-panel *ngFor="let admin of this.activeAdminList" [expanded]="this.activeAdminStep === admin.invitation_id" (opened)="setActiveAdminPanelStep(admin.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -67,7 +69,8 @@
                                                 <p>Invited By:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>pks8383838383@gmail.com</p>
+                                                <p *ngIf="admin.inviter === admin.email">Self</p>
+                                                <p *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</p>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
@@ -75,7 +78,7 @@
                                                 <p>Member since:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>24th Jan, 2020</p>
+                                                <p>{{ admin.request_accepted_on | date }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -88,7 +91,8 @@
                                                 <h3>Invited By:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>pks8383838383@gmail.com</h3>
+                                                <h3 *ngIf="admin.inviter === admin.email">Self</h3>
+                                                <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
@@ -96,7 +100,7 @@
                                                 <h3>Member since:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>24th Jan, 2020</h3>
+                                                <h3>{{ admin.request_accepted_on | date}}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -117,12 +121,12 @@
                     <section class="padding-bottom-07">
                         <h3>Pending Admin Invitations:</h3>
                         <mat-accordion *ngIf="!isInactiveAdminListEmpty()">
-                            <mat-expansion-panel *ngFor="let admin of this.inactiveAdminList" [expanded]="this.pendingAdminStep === admin.invitation_id" (opened)="setPendingAdminPanelStep(admin.invitation_id, admin.institute_id)">
+                            <mat-expansion-panel *ngFor="let admin of this.inactiveAdminList" [expanded]="this.pendingAdminStep === admin.invitation_id" (opened)="setPendingAdminPanelStep(admin.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
-                                            <img *ngIf="admin.image" src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
-                                            <img *ngIf="!admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="!admin.image" src="../../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                            <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
                                             <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ admin.email }}</h3>
@@ -160,15 +164,16 @@
                                                 <p>Invited By:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>pks8383838383@gmail.com</p>
+                                                <p *ngIf="admin.inviter === admin.email">Self</p>
+                                                <p *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</p>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
                                             <div class="col ">
-                                                <p>Member since:</p>
+                                                <p>Invited on:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>24th Jan, 2020</p>
+                                                <p>{{ admin.requested_on | date }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -178,18 +183,19 @@
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
-                                                <h3>Invited By:</h3>
+                                                <h3>Invited by:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>pks8383838383@gmail.com</h3>
+                                                <h3 *ngIf="admin.inviter === admin.email">Self</h3>
+                                                <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
                                             <div class="col ">
-                                                <h3>Member since:</h3>
+                                                <h3>Invited on:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>24th Jan, 2020</h3>
+                                                <h3>{{ admin.requested_on | date }}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -225,17 +231,19 @@
                             <h3>{{ this.invitedSuccessfully }}</h3>
                         </div>
                         <div class="col-12 col-sm-6 col-md-4 input-group">
-                            <input type="text" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary no-box-shadow" type="button">Invite</button>
-                            </div>
+                            <form [formGroup]="this.newInviteForm" class="input-group">
+                                <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                                <div class="input-group-append">
+                                    <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     <hr class="top-separator" />
                     <section class="padding-top-07">
                         <h3>Staffs:</h3>
                         <mat-accordion *ngIf="!isActiveStaffListEmpty()">
-                            <mat-expansion-panel *ngFor="let staff of this.activeStaffList" [expanded]="this.activeStaffStep === staff.invitation_id" (opened)="setActiveStaffPanelStep(staff.invitation_id, staff.institute_id)">
+                            <mat-expansion-panel *ngFor="let staff of this.activeStaffList" [expanded]="this.activeStaffStep === staff.invitation_id" (opened)="setActiveStaffPanelStep(staff.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -278,7 +286,7 @@
                                                 <p>Invited By:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>pks8383838383@gmail.com</p>
+                                                <p>{{ staff.inviter }}</p>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
@@ -286,7 +294,7 @@
                                                 <p>Member since:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>24th Jan, 2020</p>
+                                                <p>{{ staff.request_accepted_on | date }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -299,7 +307,7 @@
                                                 <h3>Invited By:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>pks8383838383@gmail.com</h3>
+                                                <h3>{{ staff.inviter }}</h3>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
@@ -307,7 +315,7 @@
                                                 <h3>Member since:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>24th Jan, 2020</h3>
+                                                <h3>{{ staff.request_accepted_on | date}}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -328,7 +336,7 @@
                     <section class="padding-bottom-07">
                         <h3>Pending Staff Invitations:</h3>
                         <mat-accordion *ngIf="!isInactiveStaffListEmpty()">
-                            <mat-expansion-panel *ngFor="let staff of this.inactiveStaffList" [expanded]="this.pendingStaffStep === staff.invitation_id" (opened)="setPendingStaffPanelStep(staff.invitation_id, staff.institute_id)">
+                            <mat-expansion-panel *ngFor="let staff of this.inactiveStaffList" [expanded]="this.pendingStaffStep === staff.invitation_id" (opened)="setPendingStaffPanelStep(staff.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -371,15 +379,15 @@
                                                 <p>Invited By:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>pks8383838383@gmail.com</p>
+                                                <p>{{ staff.inviter }}</p>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
                                             <div class="col ">
-                                                <p>Member since:</p>
+                                                <p>Invited on:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>24th Jan, 2020</p>
+                                                <p>{{ staff.requested_on | date}}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -392,15 +400,15 @@
                                                 <h3>Invited By:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>pks8383838383@gmail.com</h3>
+                                                <h3>{{ staff.inviter }}</h3>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
                                             <div class="col ">
-                                                <h3>Member since:</h3>
+                                                <h3>Invited on:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>24th Jan, 2020</h3>
+                                                <h3>{{ staff.requested_on | date}}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -436,17 +444,19 @@
                             <h3>{{ this.invitedSuccessfully }}</h3>
                         </div>
                         <div class="col-12 col-sm-6 col-md-4 input-group">
-                            <input type="text" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-secondary no-box-shadow" type="button">Invite</button>
-                            </div>
+                            <form [formGroup]="this.newInviteForm" class="input-group">
+                                <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                                <div class="input-group-append">
+                                    <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     <hr class="top-separator" />
                     <section class="padding-top-07">
                         <h3>Faculties:</h3>
                         <mat-accordion *ngIf="!isActiveFacultyListEmpty()">
-                            <mat-expansion-panel *ngFor="let faculty of this.activeFacultyList" [expanded]="this.activeFacultyStep === faculty.invitation_id" (opened)="setActiveFacultyPanelStep(faculty.invitation_id, faculty.institute_id)">
+                            <mat-expansion-panel *ngFor="let faculty of this.activeFacultyList" [expanded]="this.activeFacultyStep === faculty.invitation_id" (opened)="setActiveFacultyPanelStep(faculty.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -489,7 +499,7 @@
                                                 <p>Invited By:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>pks8383838383@gmail.com</p>
+                                                <p>{{ faculty.inviter }}</p>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
@@ -497,7 +507,7 @@
                                                 <p>Member since:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>24th Jan, 2020</p>
+                                                <p>{{ faculty.request_accepted_on | date}}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -510,7 +520,7 @@
                                                 <h3>Invited By:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>pks8383838383@gmail.com</h3>
+                                                <h3>{{ faculty.inviter }}</h3>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
@@ -518,7 +528,7 @@
                                                 <h3>Member since:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>24th Jan, 2020</h3>
+                                                <h3>{{ faculty.request_accepted_on }}</h3>
                                             </div>
                                         </div>
                                     </div>
@@ -539,7 +549,7 @@
                     <section class="padding-bottom-07">
                         <h3>Pending Faculty Invitations:</h3>
                         <mat-accordion *ngIf="!isInactiveFacultyListEmpty()">
-                            <mat-expansion-panel *ngFor="let faculty of this.inactiveFacultyList" [expanded]="this.pendingFacultyStep === faculty.invitation_id" (opened)="setPendingFacultyPanelStep(faculty.invitation_id, faculty.institute_id)">
+                            <mat-expansion-panel *ngFor="let faculty of this.inactiveFacultyList" [expanded]="this.pendingFacultyStep === faculty.invitation_id" (opened)="setPendingFacultyPanelStep(faculty.invitation_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -582,15 +592,15 @@
                                                 <p>Invited By:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>pks8383838383@gmail.com</p>
+                                                <p>{{ faculty.inviter }}</p>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
                                             <div class="col ">
-                                                <p>Member since:</p>
+                                                <p>Requested on:</p>
                                             </div>
                                             <div class="col ">
-                                                <p>24th Jan, 2020</p>
+                                                <p>{{ faculty.requested_on | date}}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -603,15 +613,15 @@
                                                 <h3>Invited By:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>pks8383838383@gmail.com</h3>
+                                                <h3>{{ faculty.inviter }}</h3>
                                             </div>
                                         </div>
                                         <div class="row invite-details ">
                                             <div class="col ">
-                                                <h3>Member since:</h3>
+                                                <h3>Requested on:</h3>
                                             </div>
                                             <div class="col ">
-                                                <h3>24th Jan, 2020</h3>
+                                                <h3>{{ faculty.requested_on | date }}</h3>
                                             </div>
                                         </div>
                                     </div>
