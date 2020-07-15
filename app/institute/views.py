@@ -104,68 +104,6 @@ class InstitutePendingInviteMinDetailsTeacherView(ListAPIView):
         return serializer_class(*args, **kwargs)
 
 
-class InstituteActiveInvitationMinDetailsView(APIView):
-    """View for getting min details of the active invitation"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def get(self, *args, **kwargs):
-        """For managing get request"""
-        permitted_get_request = InstitutePermission.objects.filter(
-            invitee=self.request.user,
-            institute=kwargs.get('institute_id'),
-            active=True
-        ).first()
-        if not permitted_get_request:
-            return Response({'error': _('Permission denied.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        invitation = InstitutePermission.objects.filter(
-            id=kwargs.get('invitation_id'),
-            active=True
-        ).first()
-
-        if invitation:
-            return Response({
-                'inviter': str(invitation.inviter),
-                'request_accepted_on': str(invitation.request_accepted_on)
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': _('Invitation not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-
-class InstitutePendingInvitationMinDetailsView(APIView):
-    """View for getting min details of the pending invitation"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def get(self, *args, **kwargs):
-        """For managing get request"""
-        permitted_get_request = InstitutePermission.objects.filter(
-            invitee=self.request.user,
-            institute=kwargs.get('institute_id'),
-            active=True
-        ).first()
-        if not permitted_get_request:
-            return Response({'error': _('Permission denied.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        invitation = InstitutePermission.objects.filter(
-            id=kwargs.get('invitation_id'),
-            active=False
-        ).first()
-
-        if invitation:
-            return Response({
-                'inviter': str(invitation.inviter),
-                'invited_on': str(invitation.request_date)
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': _('Invitation not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-
 class CreateInstituteView(CreateAPIView):
     """View for creating institute by teacher"""
     authentication_classes = (TokenAuthentication,)
@@ -523,16 +461,20 @@ class InstitutePermittedUserListView(APIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, IsTeacher, )
 
-    def _format_data(self, user_invites):
+    def _format_data(self, user_invites, active=True):
         """Return list of user details in list"""
         list_user_data = []
         for invite in user_invites:
             user_data = dict()
             user_data['invitation_id'] = invite.pk
-            user_data['institute_id'] = invite.institute.pk
             user_data['user_id'] = invite.invitee.pk
             user_data['email'] = str(invite.invitee)
+            user_data['inviter'] = str(invite.inviter)
             user_data['image'] = None
+            if active:
+                user_data['request_accepted_on'] = str(invite.request_accepted_on)
+            else:
+                user_data['requested_on'] = str(invite.request_date)
             list_user_data.append(user_data)
         return list_user_data
 
@@ -569,8 +511,10 @@ class InstitutePermittedUserListView(APIView):
                 role=InstituteRole.ADMIN
             )
             response_data = {
-                'active_admin_list': self._format_data(permitted_user_invitations.filter(active=True)),
-                'pending_admin_invites': self._format_data(permitted_user_invitations.filter(active=False))
+                'active_admin_list': self._format_data(
+                    permitted_user_invitations.filter(active=True)),
+                'pending_admin_invites': self._format_data(
+                    permitted_user_invitations.filter(active=False), False)
             }
             return Response(response_data, status=status.HTTP_200_OK)
         elif role == 'STAFF':
@@ -579,8 +523,10 @@ class InstitutePermittedUserListView(APIView):
                 role=InstituteRole.STAFF
             )
             response_data = {
-                'active_staff_list': self._format_data(permitted_user_invitations.filter(active=True)),
-                'pending_staff_invites': self._format_data(permitted_user_invitations.filter(active=False))
+                'active_staff_list': self._format_data(
+                    permitted_user_invitations.filter(active=True)),
+                'pending_staff_invites': self._format_data(
+                    permitted_user_invitations.filter(active=False), False)
             }
             return Response(response_data, status=status.HTTP_200_OK)
         elif role == 'FACULTY':
@@ -589,7 +535,9 @@ class InstitutePermittedUserListView(APIView):
                 role=InstituteRole.FACULTY
             )
             response_data = {
-                'active_faculty_list': self._format_data(permitted_user_invitations.filter(active=True)),
-                'pending_faculty_invites': self._format_data(permitted_user_invitations.filter(active=False))
+                'active_faculty_list': self._format_data(
+                    permitted_user_invitations.filter(active=True)),
+                'pending_faculty_invites': self._format_data(
+                    permitted_user_invitations.filter(active=False), False)
             }
             return Response(response_data, status=status.HTTP_200_OK)

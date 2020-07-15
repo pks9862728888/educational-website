@@ -24,7 +24,7 @@
                     <section class="padding-top-07">
                         <h3>Admin:</h3>
                         <mat-accordion *ngIf="!this.isActiveAdminListEmpty()">
-                            <mat-expansion-panel *ngFor="let admin of this.activeAdminList" [expanded]="this.activeAdminStep === admin.invitation_id" (opened)="setActiveAdminPanelStep(admin.invitation_id)">
+                            <mat-expansion-panel *ngFor="let admin of this.activeAdminList" [expanded]="this.activeAdminStep === admin.invitation_id" (opened)="setActiveAdminPanelStep(admin.invitation_id, admin.institute_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -117,7 +117,7 @@
                     <section class="padding-bottom-07">
                         <h3>Pending Admin Invitations:</h3>
                         <mat-accordion *ngIf="!isInactiveAdminListEmpty()">
-                            <mat-expansion-panel *ngFor="let admin of this.inactiveAdminList" [expanded]="this.pendingAdminStep === admin.invitation_id" (opened)="setPendingAdminPanelStep(admin.invitation_id)">
+                            <mat-expansion-panel *ngFor="let admin of this.inactiveAdminList" [expanded]="this.pendingAdminStep === admin.invitation_id" (opened)="setPendingAdminPanelStep(admin.invitation_id, admin.institute_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -235,7 +235,7 @@
                     <section class="padding-top-07">
                         <h3>Staffs:</h3>
                         <mat-accordion *ngIf="!isActiveStaffListEmpty()">
-                            <mat-expansion-panel *ngFor="let staff of this.activeStaffList" [expanded]="this.activeStaffStep === staff.invitation_id" (opened)="setActiveStaffPanelStep(staff.invitation_id)">
+                            <mat-expansion-panel *ngFor="let staff of this.activeStaffList" [expanded]="this.activeStaffStep === staff.invitation_id" (opened)="setActiveStaffPanelStep(staff.invitation_id, staff.institute_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -328,7 +328,7 @@
                     <section class="padding-bottom-07">
                         <h3>Pending Staff Invitations:</h3>
                         <mat-accordion *ngIf="!isInactiveStaffListEmpty()">
-                            <mat-expansion-panel *ngFor="let staff of this.inactiveStaffList" [expanded]="this.pendingStaffStep === staff.invitation_id" (opened)="setPendingStaffPanelStep(staff.invitation_id)">
+                            <mat-expansion-panel *ngFor="let staff of this.inactiveStaffList" [expanded]="this.pendingStaffStep === staff.invitation_id" (opened)="setPendingStaffPanelStep(staff.invitation_id, staff.institute_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -446,7 +446,7 @@
                     <section class="padding-top-07">
                         <h3>Faculties:</h3>
                         <mat-accordion *ngIf="!isActiveFacultyListEmpty()">
-                            <mat-expansion-panel *ngFor="let faculty of this.activeFacultyList" [expanded]="this.activeFacultyStep === faculty.invitation_id" (opened)="setActiveFacultyPanelStep(faculty.invitation_id)">
+                            <mat-expansion-panel *ngFor="let faculty of this.activeFacultyList" [expanded]="this.activeFacultyStep === faculty.invitation_id" (opened)="setActiveFacultyPanelStep(faculty.invitation_id, faculty.institute_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>
@@ -539,7 +539,7 @@
                     <section class="padding-bottom-07">
                         <h3>Pending Faculty Invitations:</h3>
                         <mat-accordion *ngIf="!isInactiveFacultyListEmpty()">
-                            <mat-expansion-panel *ngFor="let faculty of this.inactiveFacultyList" [expanded]="this.pendingFacultyStep === faculty.invitation_id" (opened)="setPendingFacultyPanelStep(faculty.invitation_id)">
+                            <mat-expansion-panel *ngFor="let faculty of this.inactiveFacultyList" [expanded]="this.pendingFacultyStep === faculty.invitation_id" (opened)="setPendingFacultyPanelStep(faculty.invitation_id, faculty.institute_id)">
                                 <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
                                     <mat-panel-title>
                                         <div>

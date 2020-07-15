@@ -35,7 +35,8 @@ export class InstituteApiService {
   instituteCreateUrl = `${baseUrl}institute/create`;
   instituteDetailUrl = `${baseUrl}institute/detail/`;
   instituteUserListUrl = `${baseUrl}institute/`
-  instituteInvitationMinDetailUrl = `${baseUrl}institute/get-invitation-min-details/`
+  instituteActiveInvitationMinDetailUrl = `${baseUrl}institute/get-active-invitation-min-details/`
+  institutePendingInvitationMinDetailUrl = `${baseUrl}institute/get-pending-invitation-min-details/`
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -63,9 +64,15 @@ export class InstituteApiService {
   }
 
   // Get minimum invitation details
-  getMinInvitationDetails(invitation_id: number, institute_id: number) {
+  getMinActiveInvitationDetails(invitation_id: number, institute_id: number) {
     return this.httpClient.get(
-      this.instituteInvitationMinDetailUrl + invitation_id + '/' + institute_id,
+      this.instituteActiveInvitationMinDetailUrl + invitation_id + '/' + institute_id,
+      { headers: this.getAuthHeader() })
+  }
+
+  getMinPendingInvitationDetails(invitation_id: number, institute_id: number) {
+    return this.httpClient.get(
+      this.institutePendingInvitationMinDetailUrl + invitation_id + '/' + institute_id,
       { headers: this.getAuthHeader() })
   }
 

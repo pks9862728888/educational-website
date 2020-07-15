@@ -146,28 +146,28 @@ export class PermissionsComponent implements OnInit {
   }
 
   // For handling mat expansion panel
-  setActiveAdminPanelStep(step: number) {
-    this.activeAdminStep = step;
+  setActiveAdminPanelStep(invitation_id: number, institute_id:number) {
+    this.activeAdminStep = invitation_id;
   }
 
-  setPendingAdminPanelStep(step: number) {
-    this.pendingAdminStep = step;
+  setPendingAdminPanelStep(invitation_id: number, institute_id:number) {
+    this.pendingAdminStep = invitation_id;
   }
 
-  setActiveStaffPanelStep(step: number) {
-    this.activeStaffStep = step;
+  setActiveStaffPanelStep(invitation_id: number, institute_id:number) {
+    this.activeStaffStep = invitation_id;
   }
 
-  setPendingStaffPanelStep(step: number) {
-    this.pendingStaffStep = step;
+  setPendingStaffPanelStep(invitation_id: number, institute_id:number) {
+    this.pendingStaffStep = invitation_id;
   }
 
-  setActiveFacultyPanelStep(step: number) {
-    this.activeFacultyStep = step;
+  setActiveFacultyPanelStep(invitation_id: number, institute_id:number) {
+    this.activeFacultyStep = invitation_id;
   }
 
-  setPendingFacultyPanelStep(step: number) {
-    this.pendingFacultyStep = step;
+  setPendingFacultyPanelStep(invitation_id: number, institute_id:number) {
+    this.pendingFacultyStep = invitation_id;
   }
 
   isActiveAdminListEmpty() {
