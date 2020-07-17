@@ -6,6 +6,7 @@ import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MAT_SNACK_BAR_DATA, MatSnackBar } from '@angular/material/snack-bar';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 interface TeacherInstitutesMinDetailInterface {
   id: number;
@@ -39,6 +40,11 @@ interface TeacherInstitutesMinDetailInterface {
 interface InstituteCreatedEvent {
   status: boolean;
   url: string;
+}
+
+
+interface InstituteJoinDeclineResponse {
+  status: string;
 }
 
 
@@ -83,6 +89,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
   searchedInstituteStep: number;
   adminInstituteStep: number;
   joinedInstituteStep: number;
+  pendingInstituteInviteStep: number;
 
   // For handling star rating
   rating = 4;
@@ -90,12 +97,16 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
   // For storing admin institutes
   teacherAdminInstitutesMinList: TeacherInstitutesMinDetailInterface[] = [];
   teacherJoinedInstituteMinList:TeacherInstitutesMinDetailInterface[] = [];
+  pendingInstituteInviteMinList: TeacherInstitutesMinDetailInterface[] = [];
 
   // For handling views based on input from breadcrumb
   showInstituteListViewSubscription: Subscription;
 
   // For handling institute preview view
   currentSelectedInstituteUrl: string;
+
+  // For showing status results
+  instituteJoinDeclineError: string;
 
   constructor(private media: MediaMatcher,
               private instituteApiService: InstituteApiService,
@@ -116,15 +127,14 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
       error => {}
     );
 
-    this.instituteApiService.getJoinedInstituteMinDetails().subscribe(
+    this.instituteApiService.getInvitedInstituteMinDetails().subscribe(
       (result: TeacherInstitutesMinDetailInterface[]) => {
         for (const institute of result) {
-          this.teacherJoinedInstituteMinList.push(institute);
+          this.pendingInstituteInviteMinList.push(institute);
         }
       },
       error => {}
     );
-    console.log(this.teacherJoinedInstituteMinList);
 
     // Subscribing to show the list view on input from breadcrumb
     this.showInstituteListViewSubscription = this.inAppDataTransferService.setInstituteViewActive$.subscribe(
@@ -141,6 +151,10 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
 
   setJoinedInstituteStep(index: number) {
     this.joinedInstituteStep = index;
+  }
+
+  setPendingInstituteInviteStep(index: number) {
+    this.pendingInstituteInviteStep = index;
   }
 
   setSearchedInstituteStep(index: number) {
@@ -213,6 +227,50 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
       this.createInstituteClicked = false;
       this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     }
+  }
+
+  joinInstitute(institute: TeacherInstitutesMinDetailInterface) {
+    this.instituteJoinDeclineError = null;
+    this.instituteApiService.acceptDeleteInstituteJoinInvitation(
+      institute.institute_slug, 'ACCEPT').subscribe(
+      (result: InstituteJoinDeclineResponse) => {
+        if (result.status === 'ACCEPTED') {
+          this.teacherJoinedInstituteMinList.push(institute);
+          this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute));
+        }
+      },
+      error => {
+        if (error.error) {
+          if (error.error.error) {
+            this.instituteJoinDeclineError = error.error.error;
+            console.log(this.instituteJoinDeclineError);
+          }
+        } else {
+          this.instituteJoinDeclineError = 'Unable to process request. Refresh and try again.';
+        }
+      }
+    )
+  }
+
+  declineInvitation(institute: TeacherInstitutesMinDetailInterface) {
+    this.instituteJoinDeclineError = null;
+    this.instituteApiService.acceptDeleteInstituteJoinInvitation(institute.institute_slug, 'DELETE').subscribe(
+      (result: InstituteJoinDeclineResponse) => {
+        if (result.status === 'DELETED') {
+          this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute), 1);
+        }
+      },
+      error => {
+        if (error.error) {
+          if (error.error.error) {
+            this.instituteJoinDeclineError = error.error.error;
+            console.log(this.instituteJoinDeclineError);
+          } else {
+            this.instituteJoinDeclineError = 'Unable to process request. Refresh and try again.';
+          }
+        }
+      }
+    )
   }
 
   getRole(key: string) {

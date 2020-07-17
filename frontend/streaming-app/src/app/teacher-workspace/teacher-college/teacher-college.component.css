@@ -12,7 +12,8 @@
 .col-9,
 .col-10,
 .col-11,
-.col-12 {
+.col-12,
+h3 {
     padding: 0px;
     width: 100%;
 }
@@ -216,6 +217,19 @@ li {
     border: 1px solid #6c757d;
 }
 
+.error-container {
+    padding: 0.2rem 0.95rem 0;
+}
+
+.error-text {
+    border: 1px solid rgba(187, 134, 252);
+    background-color: rgba(187, 134, 252, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 0.5rem;
+    text-align: center;
+}
+
 
 /* styling links */
 
@@ -232,10 +246,16 @@ a:active {
 
 /* Styling buttons */
 
-.green-button {
-    background-color: #008000;
+.green-button,
+.blue-button,
+.lightblue-button,
+.red-button {
     color: #ffffff;
     box-shadow: 1px 1px 2px #1d1d1d;
+}
+
+.green-button {
+    background-color: #008000;
 }
 
 .green-button:hover {
@@ -244,8 +264,6 @@ a:active {
 
 .blue-button {
     background-color: #1c33ff;
-    color: #ffffff;
-    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .blue-button:hover {
@@ -254,12 +272,18 @@ a:active {
 
 .lightblue-button {
     background-color: #0784fa;
-    color: #ffffff;
-    box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .lightblue-button:hover {
     background-color: #0873d8;
+}
+
+.red-button {
+    background-color: #ff0000;
+}
+
+.red-button:hover {
+    background-color: #c40000;
 }
 
 

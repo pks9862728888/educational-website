@@ -400,7 +400,7 @@
         <h4 class="text-color padding-bottom-05">Joined Institutes</h4>
 
         <mat-accordion>
-            <mat-expansion-panel *ngFor="let institute of teacherJoinedInstituteMinList" [expanded]="adminInstituteStep === institute.id" (opened)="setJoinedInstituteStep(institute.id)">
+            <mat-expansion-panel *ngFor="let institute of teacherJoinedInstituteMinList" [expanded]="joinedInstituteStep === institute.id" (opened)="setJoinedInstituteStep(institute.id)">
                 <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
                     <mat-panel-title>
                         <div>
@@ -588,6 +588,205 @@
                     </div>
                     <div class="margin-right-10">
                         <button mat-flat-button class="lightblue-button" (click)="previewClicked(institute.institute_slug, institute.role)">Open</button>
+                    </div>
+                </mat-action-row>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </section>
+
+    <!-- For showing institute invitations -->
+    <section>
+        <h4 class="text-color padding-bottom-05">Pending Invitations</h4>
+
+        <mat-accordion>
+            <mat-expansion-panel *ngFor="let institute of pendingInstituteInviteMinList" [expanded]="pendingInstituteInviteStep === institute.id" (opened)="setPendingInstituteInviteStep(institute.id)">
+                <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">
+                    <mat-panel-title>
+                        <div>
+                            <img *ngIf="!institute.institute_logo.image" src="../../../assets/imgs/cd6.png" class="college-logo">
+                            <img *ngIf="institute.institute_logo.image" src="{{ institute.institute_logo.image }}" class="college-logo">
+                        </div>
+                        <div class="expansion-panel-title flex-container">
+                            {{ institute.name | uppercase }}
+                            <span>
+                      <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 0, 'star-icon-disabled': this.rating < 1}" >star</mat-icon>
+                      <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 1, 'star-icon-disabled': this.rating < 2}" >star</mat-icon>
+                      <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 2, 'star-icon-disabled': this.rating < 3}" >star</mat-icon>
+                      <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 3, 'star-icon-disabled': this.rating < 4}" >star</mat-icon>
+                      <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 4, 'star-icon-disabled': this.rating < 5}" >star</mat-icon>
+                      <span class="rating-text">&nbsp;( <em>5 ratings</em> )</span>
+                            </span>
+                        </div>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="row college-details">
+                    <div class="col-12">
+                        <ul class="role">
+                            <li>
+                                <strong>Role:</strong> &nbsp;{{ getRole(institute.role) }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12">
+                        <ul>
+                            <li>
+                                <strong>Motto:</strong>
+                                <br/>
+                                <div class="padding-top-05" *ngIf="institute.institute_profile.motto">{{ institute.institute_profile.motto }}</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <strong>Contact Information</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Mail:
+                                    </div>
+                                    <div class="col">
+                                        <a *ngIf="institute.institute_profile.email" href="mailto:{{ institute.institute_profile.email }}" target="_blank">{{ institute.institute_profile.email }}</a>
+                                        <span *ngIf="!institute.institute_profile.email">N/A</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Phone no:
+                                    </div>
+                                    <div class="col">
+                                        {{ institute.institute_profile.phone }}
+                                        <span *ngIf="!institute.institute_profile.phone">N/A</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Website Url:
+                                    </div>
+                                    <div class="col">
+                                        <a *ngIf="!institute.institute_profile.website_url" href="{{ institute.institute_profile.website_url }}" target="_blank">{{ institute.institute_profile.website_url }}</a>
+                                        <span *ngIf="!institute.institute_profile.website_url">N/A</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col">
+                                        Address:
+                                    </div>
+                                    <div class="col">
+                                        <span *ngIf="institute.institute_profile.state">{{ decodeState(institute.institute_profile.state) | titlecase }},</span> {{ decodeCountry(institute.country) }}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <strong>Additional Details</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Created On:
+                                    </div>
+                                    <div class="col">
+                                        {{ institute.created_date | date }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Recognition:
+                                    </div>
+                                    <div class="col">
+                                        {{ institute.institute_profile.recognition }}
+                                        <span *ngIf="!institute.institute_profile.recognition">N/A</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col">
+                                        Published:
+                                    </div>
+                                    <div class="col">
+                                        NYD
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col">
+                                        Category:
+                                    </div>
+                                    <div class="col">
+                                        {{ decodeCategory(institute.institute_category) }}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-4">
+                        <strong>Statistical Information</strong>
+                        <ul>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of students:
+                                    </div>
+                                    <div class="col-4">
+                                        {{ institute.institute_statistics.no_of_students }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of faculties:
+                                    </div>
+                                    <div class="col-4">
+                                        {{ institute.institute_statistics.no_of_faculties }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-tlr">
+                                    <div class="col-8">
+                                        Number of staff:
+                                    </div>
+                                    <div class="col-4">
+                                        {{ institute.institute_statistics.no_of_staff }}
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="row border-btm border-tlr">
+                                    <div class="col-8">
+                                        Number of admin:
+                                    </div>
+                                    <div class="col-4">
+                                        {{ institute.institute_statistics.no_of_admin }}
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-12 error-container" *ngIf="this.instituteJoinDeclineError">
+                        <div class="error-text">{{ this.instituteJoinDeclineError }}</div>
+                    </div>
+                </div>
+
+                <mat-action-row>
+                    <div class="margin-right-10">
+                        <button mat-flat-button class="green-button marign-right-1" (click)="joinInstitute(institute)">Join</button>
+                    </div>
+                    <div class="margin-right-10">
+                        <button mat-flat-button class="red-button" (click)="declineInvitation(institute)">Decline</button>
                     </div>
                 </mat-action-row>
             </mat-expansion-panel>

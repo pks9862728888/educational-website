@@ -368,13 +368,13 @@ class InstitutePermissionAcceptDeleteView(APIView):
 
         if not operation:
             errors['operation'] = _('This field is required.')
-        elif operation != 'ACCEPT' and operation != 'DELETE':
+        elif operation.upper() != 'ACCEPT' and operation.upper() != 'DELETE':
             errors['operation'] = _('Invalid operation.')
 
         if errors:
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if operation == 'ACCEPT':
+        if operation.upper() == 'ACCEPT':
             invitee = self.request.user
             invitation = InstitutePermission.objects.filter(
                 institute=institute,
@@ -382,7 +382,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
             ).first()
 
             if not invitation:
-                return Response({'error': _('Invitation not found.')},
+                return Response({'error': _('Invitation not found or already deleted.')},
                                 status=status.HTTP_400_BAD_REQUEST)
             elif invitation.active:
                 msg = _('Join request already accepted.')
@@ -400,7 +400,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
                 return Response({'error': msg},
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        elif operation == 'DELETE':
+        elif operation.upper() == 'DELETE':
             invitee_email = request.data.get('invitee')
 
             # Inviter or admin is trying to delete join request
@@ -454,7 +454,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
                                     status=status.HTTP_200_OK)
                 except Exception:
                     msg = _('Internal Server Error. Please contact EduWeb.')
-                    return Response({'status': msg},
+                    return Response({'error': msg},
                                     status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             # Invitee is trying to delete join request

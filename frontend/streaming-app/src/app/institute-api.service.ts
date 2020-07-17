@@ -39,6 +39,7 @@ export class InstituteApiService {
   instituteBaseUrl = `${baseUrl}institute/`;
   instituteMinDetailsAdminUrl = `${this.instituteBaseUrl}institute-min-details-teacher-admin`;
   instituteJoinedDetailUrl = `${this.instituteBaseUrl}joined-institutes-teacher`;
+  institutePendingInvitesUrl = `${this.instituteBaseUrl}pending-institute-invites-teacher`;
   instituteCreateUrl = `${this.instituteBaseUrl}create`;
 
   getInstituteDetailUrl(instituteSlug: string) {
@@ -53,6 +54,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/provide-permission`;
   }
 
+  getInstituteJoinDeclineUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/accept-delete-permission`;
+  }
+
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -64,6 +69,10 @@ export class InstituteApiService {
 
   getJoinedInstituteMinDetails() {
     return this.httpClient.get(this.instituteJoinedDetailUrl, {headers: this.getAuthHeader()});
+  }
+
+  getInvitedInstituteMinDetails() {
+    return this.httpClient.get(this.institutePendingInvitesUrl, {headers: this.getAuthHeader()});
   }
 
   // Create an institute
@@ -89,6 +98,15 @@ export class InstituteApiService {
       this.getUserInviteUrl(instituteSlug), payload,
       { headers: this.getAuthHeader() }
     );
+  }
+
+  // Decline invitation
+  acceptDeleteInstituteJoinInvitation(instituteSlug: string, operation: string) {
+    return this.httpClient.post(
+      this.getInstituteJoinDeclineUrl(instituteSlug),
+      { 'operation': operation.toUpperCase()},
+      { headers: this.getAuthHeader() }
+    )
   }
 
   // To load token from storage
