@@ -71,13 +71,15 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
     )
   }
 
-  // For breadcrumb
+  // For navigating to teacher-workspace view
   navigateClicked(link: string) {
     if (link !== this.activeLink) {
       this.activeLink = link;
 
       if (this.activeLink === 'HOME') {
-        this.router.navigate(['\home']);
+        this.router.navigate(['/home']);
+      } else {
+        this.router.navigate(['/teacher-workspace/' + link.toLowerCase()]);
       }
     } else {
       if (this.secondaryActiveLink) {
@@ -95,24 +97,28 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
       this.opened = false;
     }
 
-    if (link !== 'INSTITUTE_PROFILE' && link !== 'INSTITUTE_PERMISSIONS') {
-      this.navigateClicked(link);
-    }
-
-    if (link == 'INSTITUTES') {
-      // Hide institute Navbar view
+    if (link === 'INSTITUTES'){
       this.inAppDataTransferService.showInstituteSidenavView(false);
     }
 
-    // Route to appropriate component
-    if (link == 'INSTITUTE_PROFILE') {
-      this.secondaryActiveLink = 'INSTITUTE_PROFILE';
-      const instituteSlug = localStorage.getItem('currentInstituteSlug');
-      this.router.navigate(['/teacher-workspace/institutes/preview/' + instituteSlug]);
-    } else if (link == 'INSTITUTE_PERMISSIONS') {
-      this.secondaryActiveLink = 'INSTITUTE_PERMISSIONS'
-      const instituteSlug = localStorage.getItem('currentInstituteSlug');
-      this.router.navigate(['/teacher-workspace/institutes/' + instituteSlug + '/permissions']);
+    if (link !== 'INSTITUTE_PROFILE' && link !== 'INSTITUTE_PERMISSIONS' && link != 'INSTITUTE_CLASSES') {
+      this.navigateClicked(link);
+    }
+
+    if (link !== this.secondaryActiveLink) {
+      if (link === 'INSTITUTE_PROFILE') {
+        this.secondaryActiveLink = 'INSTITUTE_PROFILE';
+        const instituteSlug = localStorage.getItem('currentInstituteSlug');
+        this.router.navigate(['/teacher-workspace/institutes/preview/' + instituteSlug]);
+      } else if (link === 'INSTITUTE_PERMISSIONS') {
+        this.secondaryActiveLink = 'INSTITUTE_PERMISSIONS'
+        const instituteSlug = localStorage.getItem('currentInstituteSlug');
+        this.router.navigate(['/teacher-workspace/institutes/' + instituteSlug + '/permissions']);
+      } else if (link === 'INSTITUTE_CLASSES') {
+        this.secondaryActiveLink = 'INSTITUTE_CLASSES'
+        const instituteSlug = localStorage.getItem('currentInstituteSlug');
+        this.router.navigate(['/teacher-workspace/institutes/' + instituteSlug + '/classes']);
+      }
     }
   }
 

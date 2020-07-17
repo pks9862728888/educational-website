@@ -8,48 +8,18 @@
             <mat-nav-list>
                 <h1 *ngIf="mobileQuery.matches" class="website-name">EduWeb</h1>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                 'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/profile']" routerLinkActive="selected-nav-option" (click)="performAction('PROFILE')" *ngIf="!this.showInstituteViewSidenav">My Profile</div>
+                                 'sidenav-content-more-padding': mobileQuery.matches === false,
+                                 'selected-nav-option': this.activeLink === 'PROFILE'}" (click)="performAction('PROFILE')" *ngIf="!this.showInstituteViewSidenav">My Profile</div>
                 <mat-divider *ngIf="!this.showInstituteViewSidenav"></mat-divider>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                  'sidenav-content-more-padding': mobileQuery.matches === false,
-                                 'selected-nav-option': !this.secondaryActiveLink}" [routerLink]="['/teacher-workspace/institutes']" (click)="performAction('INSTITUTES')">My Institutes</div>
+                                 'selected-nav-option': !this.secondaryActiveLink && this.activeLink === 'INSTITUTES'}" (click)="performAction('INSTITUTES')">My Institutes</div>
                 <div *ngIf="!this.showInstituteViewSidenav">
                     <mat-divider></mat-divider>
                     <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/classes']" routerLinkActive="selected-nav-option" (click)="performAction('CLASSES')">My Classes</div>
+                                     'sidenav-content-more-padding': mobileQuery.matches === false,
+                                     'selected-nav-option': this.activeLink === 'CHATROOMS'}" (click)="performAction('CHATROOMS')">Chat Rooms</div>
                     <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/subjects']" routerLinkActive="selected-nav-option" (click)="performAction('SUBJECTS')">My subjects</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/tests']" routerLinkActive="selected-nav-option" (click)="performAction('TESTS')">Mock Tests</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/assignments']" routerLinkActive="selected-nav-option" (click)="performAction('ASSIGNMENTS')">Assignments</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/attendance']" routerLinkActive="selected-nav-option" (click)="performAction('ATTENDANCE')">Student Attendance</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/resources']" routerLinkActive="selected-nav-option" (click)="performAction('RESOURCES')">Resources</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/time-table']" routerLinkActive="selected-nav-option" (click)="performAction('TIME-TABLE')">My Time Table</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/chatrooms']" routerLinkActive="selected-nav-option" (click)="performAction('CHATROOMS')">Chat Rooms</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/feedbacks']" routerLinkActive="selected-nav-option" (click)="performAction('FEEDBACKS')">Feedbacks</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/announcements']" routerLinkActive="selected-nav-option" (click)="performAction('ANNOUNCEMENTS')">Announcements</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': !mobileQuery.matches}" [routerLink]="['/teacher-workspace/results']" routerLinkActive="selected-nav-option" (click)="performAction('RESULTS')">Results</div>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': mobileQuery.matches === false}" [routerLink]="['/teacher-workspace/disciplinary-queue']" routerLinkActive="selected-nav-option" (click)="performAction('DISCIPLINARY-QUEUE')">
-                        Disciplinary Queue</div>
                 </div>
                 <div *ngIf="this.showInstituteViewSidenav">
                     <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
@@ -58,6 +28,9 @@
                     <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                    'sidenav-content-more-padding': mobileQuery.matches === false,
                                    'selected-nav-option': this.secondaryActiveLink === 'INSTITUTE_PERMISSIONS'}" (click)="performAction('INSTITUTE_PERMISSIONS')">Institute Permissions</div>
+                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                   'sidenav-content-more-padding': mobileQuery.matches === false,
+                                   'selected-nav-option': this.secondaryActiveLink === 'INSTITUTE_CLASSES'}" (click)="performAction('INSTITUTE_CLASSES')">Institute Classes</div>
                 </div>
             </mat-nav-list>
         </mat-sidenav>
@@ -77,37 +50,16 @@
                             <a (click)="navigateClicked('HOME')">Home</a></li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'PROFILE'" [ngClass]="{'active': activeLink === 'PROFILE', 'clickable-link': activeLink !== 'PROFILE'}">
                             <a (click)="navigateClicked('PROFILE')">Profile</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink !== 'CREATE' && secondaryActiveLink !== 'INSTITUTE_PROFILE' && secondaryActiveLink !== 'INSTITUTE_PERMISSIONS', 'clickable-link': activeLink === 'INSTITUTES' && (secondaryActiveLink === 'CREATE' || secondaryActiveLink === 'INSTITUTE_PROFILE' || secondaryActiveLink === 'INSTITUTE_PERMISSIONS')}">
+                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink !== 'CREATE' && secondaryActiveLink !== 'INSTITUTE_PROFILE' && secondaryActiveLink !== 'INSTITUTE_PERMISSIONS', 'clickable-link': activeLink === 'INSTITUTES' && secondaryActiveLink}">
                             <a *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink !== 'CREATE'" (click)="navigateClicked('INSTITUTES')">Institutes</a>
                             <a *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'CREATE'" (click)="emitEvent('INSTITUTES')">Institutes</a>
                         </li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'CLASSES'" [ngClass]="{'active': activeLink === 'CLASSES', 'clickable-link': activeLink !== 'CLASSES'}">
-                            <a (click)="navigateClicked('CLASSES')">Classes</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'SUBJECTS'" [ngClass]="{'active': activeLink === 'SUBJECTS', 'clickable-link': activeLink !== 'SUBJECTS'}">
-                            <a (click)="navigateClicked('SUBJECTS')">Subjects</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'TESTS'" [ngClass]="{'active': activeLink === 'TESTS', 'clickable-link': activeLink !== 'TESTS'}">
-                            <a (click)="navigateClicked('TESTS')">Mock Tests</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'ASSIGNMENTS'" [ngClass]="{'active': activeLink === 'ASSIGNMENTS', 'clickable-link': activeLink !== 'ASSIGNMENTS'}">
-                            <a (click)="navigateClicked('ASSIGNMENTS')">Assignments</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'ATTENDANCE'" [ngClass]="{'active': activeLink === 'ATTENDANCE', 'clickable-link': activeLink !== 'ATTENDANCE'}">
-                            <a (click)="navigateClicked('ATTENDANCE')">Student Attendance</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'RESOURCES'" [ngClass]="{'active': activeLink === 'RESOURCES', 'clickable-link': activeLink !== 'RESOURCES'}">
-                            <a (click)="navigateClicked('RESOURCES')">Resources</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'TIME-TABLE'" [ngClass]="{'active': activeLink === 'TIME-TABLE', 'clickable-link': activeLink !== 'TIME-TABLE'}">
-                            <a (click)="navigateClicked('TIME-TABLE')">Time Table</a></li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'CHATROOMS'" [ngClass]="{'active': activeLink === 'CHATROOMS', 'clickable-link': activeLink !== 'CHATROOMS'}">
                             <a (click)="navigateClicked('CHATROOMS')">Chat Rooms</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'FEEDBACKS'" [ngClass]="{'active': activeLink === 'FEEDBACKS', 'clickable-link': activeLink !== 'FEEDBACKS'}">
-                            <a (click)="navigateClicked('FEEDBACKS')">Feedbacks</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'ANNOUNCEMENTS'" [ngClass]="{'active': activeLink === 'ANNOUNCEMENTS', 'clickable-link': activeLink !== 'ANNOUNCEMENTS'}">
-                            <a (click)="navigateClicked('ANNOUNCEMENTS')">Announcements</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'RESULTS'" [ngClass]="{'active': activeLink === 'RESULTS', 'clickable-link': activeLink !== 'RESULTS'}">
-                            <a (click)="navigateClicked('RESULTS')">Results</a></li>
-                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'DISCIPLINARY-QUEUE'" [ngClass]="{'active': activeLink === 'DISCIPLINARY-QUEUE', 'clickable-link': activeLink !== 'DISCIPLINARY-QUEUE'}">
-                            <a (click)="navigateClicked('DISCIPLINARY-QUEUE')">Disciplinary Queue</a></li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'CREATE'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink === 'CREATE', 'clickable-link': secondaryActiveLink !== 'CREATE'}">Create</li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'INSTITUTE_PROFILE'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink === 'INSTITUTE_PROFILE', 'clickable-link': secondaryActiveLink !== 'INSTITUTE_PROFILE'}">Preview</li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'INSTITUTE_PERMISSIONS'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink === 'INSTITUTE_PERMISSIONS', 'clickable-link': secondaryActiveLink !== 'INSTITUTE_PERMISSIONS'}">Permissions</li>
+                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES' && secondaryActiveLink === 'INSTITUTE_CLASSES'" [ngClass]="{'active': activeLink === 'INSTITUTES' && secondaryActiveLink === 'INSTITUTE_CLASSES', 'clickable-link': secondaryActiveLink !== 'INSTITUTE_CLASSES'}">Classes</li>
                     </ol>
                 </nav>
 

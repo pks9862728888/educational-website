@@ -127,6 +127,15 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
       error => {}
     );
 
+    this.instituteApiService.getJoinedInstituteMinDetails().subscribe(
+      (result: TeacherInstitutesMinDetailInterface[]) => {
+        for (const institute of result) {
+          this.teacherJoinedInstituteMinList.push(institute);
+        }
+      },
+      error => {}
+    );
+
     this.instituteApiService.getInvitedInstituteMinDetails().subscribe(
       (result: TeacherInstitutesMinDetailInterface[]) => {
         for (const institute of result) {
@@ -174,9 +183,17 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
     this.appliedFilter = filterName;
   }
 
-  // Returns true if my institute list is empty, else false
+  // Returns true if empty, else false
   isMyInstituteEmpty() {
     return this.teacherAdminInstitutesMinList.length === 0;
+  }
+
+  isJoinedInstituteEmpty() {
+    return this.teacherJoinedInstituteMinList.length === 0;
+  }
+
+  isPendingInstituteEmpty() {
+    return this.pendingInstituteInviteMinList.length === 0;
   }
 
   // Decoding the respective keys
@@ -237,13 +254,17 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
         if (result.status === 'ACCEPTED') {
           this.teacherJoinedInstituteMinList.push(institute);
           this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute));
+          // Show snackbar
+          this.snackBar.openFromComponent(SnackbarComponent, {
+            data: 'Institute joined successfully!',
+            duration: 2000
+          });
         }
       },
       error => {
         if (error.error) {
           if (error.error.error) {
             this.instituteJoinDeclineError = error.error.error;
-            console.log(this.instituteJoinDeclineError);
           }
         } else {
           this.instituteJoinDeclineError = 'Unable to process request. Refresh and try again.';
@@ -258,13 +279,17 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
       (result: InstituteJoinDeclineResponse) => {
         if (result.status === 'DELETED') {
           this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute), 1);
+          // Show snackbar
+          this.snackBar.openFromComponent(SnackbarComponent, {
+            data: 'Institute join request declined!',
+            duration: 2000
+          });
         }
       },
       error => {
         if (error.error) {
           if (error.error.error) {
             this.instituteJoinDeclineError = error.error.error;
-            console.log(this.instituteJoinDeclineError);
           } else {
             this.instituteJoinDeclineError = 'Unable to process request. Refresh and try again.';
           }

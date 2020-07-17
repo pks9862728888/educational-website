@@ -198,7 +198,7 @@
 
     <!-- For showing my institutes -->
     <section *ngIf="!isMyInstituteEmpty()">
-        <h4 class="text-color padding-bottom-05">My Institutes</h4>
+        <h4 class="text-color padding-bottom-05">My Institutes: <span *ngIf="isMyInstituteEmpty()">None</span></h4>
 
         <mat-accordion>
             <mat-expansion-panel *ngFor="let institute of teacherAdminInstitutesMinList" [expanded]="adminInstituteStep === institute.id" (opened)="setAdminInstituteStep(institute.id)">
@@ -397,7 +397,7 @@
 
     <!-- For showing other institutes -->
     <section>
-        <h4 class="text-color padding-bottom-05">Joined Institutes</h4>
+        <h4 class="text-color padding-bottom-05">Joined Institutes: <span *ngIf="isJoinedInstituteEmpty()">None</span></h4>
 
         <mat-accordion>
             <mat-expansion-panel *ngFor="let institute of teacherJoinedInstituteMinList" [expanded]="joinedInstituteStep === institute.id" (opened)="setJoinedInstituteStep(institute.id)">
@@ -596,7 +596,7 @@
 
     <!-- For showing institute invitations -->
     <section>
-        <h4 class="text-color padding-bottom-05">Pending Invitations</h4>
+        <h4 class="text-color padding-bottom-05">Pending Invitations: <span *ngIf="isPendingInstituteEmpty()">None</span></h4>
 
         <mat-accordion>
             <mat-expansion-panel *ngFor="let institute of pendingInstituteInviteMinList" [expanded]="pendingInstituteInviteStep === institute.id" (opened)="setPendingInstituteInviteStep(institute.id)">
@@ -782,8 +782,11 @@
                 </div>
 
                 <mat-action-row>
-                    <div class="margin-right-10">
-                        <button mat-flat-button class="green-button marign-right-1" (click)="joinInstitute(institute)">Join</button>
+                    <div class="magin-right-10">
+                        <button mat-flat-button class="lightblue-button">Message</button>
+                    </div>
+                    <div class="margin-right-10 margin-left-0">
+                        <button mat-flat-button class="green-button" (click)="joinInstitute(institute)">Join</button>
                     </div>
                     <div class="margin-right-10">
                         <button mat-flat-button class="red-button" (click)="declineInvitation(institute)">Decline</button>

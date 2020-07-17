@@ -16,20 +16,10 @@ import { HelpComponent } from './help/help.component';
 import { FeaturesComponent } from './features/features.component';
 import { HomeComponent } from './home/home.component';
 import { TeacherCollegeComponent } from './teacher-workspace/teacher-college/teacher-college.component';
-import { TeacherFeedbackComponent } from './teacher-workspace/teacher-feedback/teacher-feedback.component';
-import { TeacherClassComponent } from './teacher-workspace/teacher-class/teacher-class.component';
 import { TeacherChatroomComponent } from './teacher-workspace/teacher-chatroom/teacher-chatroom.component';
-import { TeacherTimeTableComponent } from './teacher-workspace/teacher-time-table/teacher-time-table.component';
-import { TeacherResultComponent } from './teacher-workspace/teacher-result/teacher-result.component';
-import { TeacherAnnouncementComponent } from './teacher-workspace/teacher-announcement/teacher-announcement.component';
-import { TeacherResourcesComponent } from './teacher-workspace/teacher-resources/teacher-resources.component';
-import { TeacherAttendanceComponent } from './teacher-workspace/teacher-attendance/teacher-attendance.component';
-import { TeacherMockTestComponent } from './teacher-workspace/teacher-mock-test/teacher-mock-test.component';
-import { TeacherSubjectComponent } from './teacher-workspace/teacher-subject/teacher-subject.component';
-import { TeacherAssignmentComponent } from './teacher-workspace/teacher-assignment/teacher-assignment.component';
-import { BlockedMembersComponent } from './teacher-workspace/blocked-members/blocked-members.component';
 import { CollegePreviewComponent } from './teacher-workspace/college/college-preview/college-preview.component';
 import { PermissionsComponent } from './teacher-workspace/college/permissions/permissions.component';
+import { ClassesComponent } from './teacher-workspace/college/classes/classes.component';
 
 
 const routes: Routes = [
@@ -44,20 +34,10 @@ const routes: Routes = [
       { path: '', redirectTo: '/teacher-workspace/institutes', pathMatch: 'full'},
       { path: 'profile', component: TeacherProfileComponent },
       { path: 'institutes', component: TeacherCollegeComponent },
-      { path: 'classes', component: TeacherClassComponent },
-      { path: 'subjects', component: TeacherSubjectComponent },
-      { path: 'tests', component: TeacherMockTestComponent },
-      { path: 'assignments', component: TeacherAssignmentComponent },
-      { path: 'attendance', component: TeacherAttendanceComponent },
-      { path: 'resources', component: TeacherResourcesComponent },
-      { path: 'time-table', component: TeacherTimeTableComponent },
       { path: 'chatrooms', component: TeacherChatroomComponent },
-      { path: 'feedbacks', component: TeacherFeedbackComponent },
-      { path: 'announcements', component: TeacherAnnouncementComponent },
-      { path: 'results', component: TeacherResultComponent },
-      { path: 'disciplinary-queue', component: BlockedMembersComponent },
       { path: 'institutes/preview/:name', component: CollegePreviewComponent },
-      { path: 'institutes/:name/permissions', component: PermissionsComponent }
+      { path: 'institutes/:name/permissions', component: PermissionsComponent },
+      { path: 'institutes/:name/classes', component: ClassesComponent }
     ]
   },
   {

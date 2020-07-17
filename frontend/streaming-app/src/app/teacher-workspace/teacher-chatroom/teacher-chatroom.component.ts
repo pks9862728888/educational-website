@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { InAppDataTransferService } from 'src/app/in-app-data-transfer.service';
 
 @Component({
   selector: 'app-teacher-chatroom',
@@ -7,9 +8,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TeacherChatroomComponent implements OnInit {
 
-  constructor() { }
+  constructor( private inAppDataTransferService: InAppDataTransferService ) { }
 
   ngOnInit(): void {
+    this.inAppDataTransferService.showInstituteSidenavView(false);
   }
 
 }

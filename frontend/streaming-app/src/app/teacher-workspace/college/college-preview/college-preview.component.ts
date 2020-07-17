@@ -67,6 +67,7 @@ export class CollegePreviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.inAppDataTransferService.showInstituteSidenavView(true);
     this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = localStorage.getItem('currentInstituteRole');
     this.instituteApiService.getInstituteDetails(this.currentInstituteSlug).subscribe(
@@ -77,7 +78,7 @@ export class CollegePreviewComponent implements OnInit {
   }
 
   // To navigate back to my institutes preview
-  backClicked() {
+  exitClicked() {
     this.inAppDataTransferService.showInstituteSidenavView(false);
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     localStorage.removeItem('currentInstituteSlug');
