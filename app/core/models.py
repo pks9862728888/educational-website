@@ -160,6 +160,28 @@ class InstituteRole:
     ]
 
 
+class Billing:
+    MONTHLY = 'M'
+    ANNUALLY = 'A'
+
+    BILLING_MODES_IN_INSTITUTE_BILLING = [
+        (MONTHLY, _(u'MONTHLY')),
+        (ANNUALLY, _(u'ANNUALLY'))
+    ]
+
+
+class InstituteLicensePlans:
+    BASIC = 'BAS'
+    BUSINESS = 'BUS'
+    ENTERPRISE = 'ENT'
+
+    LICENSE_PLANS_IN_INSTITUTE_LICENSE = [
+        (BASIC, _(u'BASIC')),
+        (BUSINESS, _(u'BUSINESS')),
+        (ENTERPRISE, _(u'ENTERPRISE'))
+    ]
+
+
 def user_profile_picture_upload_file_path(instance, filename):
     """Generates file path for uploading images in user profile"""
     extension = filename.split('.')[-1]
@@ -373,6 +395,43 @@ def user_is_created(sender, instance, created, **kwargs):
                 instance.teacher_profile.save()
             except ObjectDoesNotExist:
                 TeacherProfile.objects.create(user=instance)
+
+
+class InstituteLicense(models.Model):
+    """Creates institute license model to store pricing structure"""
+    user = models.ForeignKey(
+        'User', related_name='institute_licenses', on_delete=models.CASCADE)
+    type = models.CharField(
+        _('Type'), max_length=3, blank=False, null=False,
+        choices=InstituteLicensePlans.LICENSE_PLANS_IN_INSTITUTE_LICENSE)
+    billing = models.CharField(
+        _('Billing'), max_length=1, blank=False, null=False,
+        choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
+    cost = models.BigIntegerField(   # In Rs
+        _('Cost'), blank=False, null=False)
+    discount = models.DecimalField(
+        _('Discount'), default=0.0, max_digits=5, decimal_places=2)
+    storage = models.IntegerField(   # In Gb
+        _('Storage'), blank=False, null=False)
+    no_of_admin = models.PositiveIntegerField(
+        _('no_of_admin'), default=1)
+    no_of_staff = models.PositiveIntegerField(
+        _('no_of_staff'), default=0, blank=False, null=False)
+    no_of_faculty = models.PositiveIntegerField(
+        _('no_of_faculty'), default=0, blank=False, null=False)
+    no_of_student = models.PositiveIntegerField(
+        _('no_of_student'), default=0, blank=False, null=False)
+
+    def save(self, *args, **kwargs):
+        """Overriding save method to allow only superuser
+        to create license"""
+        if not User.objects.get(email=self.user).is_superuser:
+            raise PermissionDenied()
+
+        return super(InstituteLicense, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.type)
 
 
 class ProfilePictures(models.Model):

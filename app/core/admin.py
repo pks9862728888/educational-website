@@ -129,6 +129,12 @@ class CustomSystemMessages(admin.ModelAdmin):
         return obj.sender.email
 
 
+class CustomInstituteLicense(admin.ModelAdmin):
+    model = models.InstituteLicense
+    list_display = ['type', 'billing', 'cost', 'discount']
+    list_filter = ['type', 'billing']
+
+
 class CustomClassroomAdmin(admin.ModelAdmin):
     model = models.Classroom
     list_display = ['name', 'get_user', ]
@@ -219,6 +225,7 @@ class CustomInstitutePermission(admin.ModelAdmin):
 
 
 admin.site.register(models.User, CustomUserAdmin)
+admin.site.register(models.InstituteLicense, CustomInstituteLicense)
 admin.site.register(models.SystemMessage, CustomSystemMessages)
 admin.site.register(models.TeacherProfile, CustomTeacherUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)
