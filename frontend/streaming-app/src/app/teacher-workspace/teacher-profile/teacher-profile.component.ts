@@ -111,6 +111,7 @@ export class TeacherProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    localStorage.setItem('activeRoute', 'PROFILE');
     this.inAppDataTransferService.showInstituteSidenavView(false);
     if (sessionStorage.getItem('country')) {          // Assuming country will be set initially for all teacher
       this.email = sessionStorage.getItem('email');
@@ -207,9 +208,7 @@ export class TeacherProfileComponent implements OnInit {
       (result: {count: number; }) => {
         this.profilePictureCount = result.count;
       },
-      error => {
-        console.log(error);
-      }
+      error => {}
     );
   }
 
@@ -317,11 +316,13 @@ export class TeacherProfileComponent implements OnInit {
         this.editProfile = !this.editProfile;
       },
       errors => {
-        if (errors.error.teacher_profile.phone) {
-          this.phoneNumberError = errors.error.teacher_profile.phone[0];
-        }
-        if (errors.error.username) {
-          this.usernameError = errors.error.username[0];
+        if (errors.error) {
+          if (errors.error.teacher_profile.phone) {
+            this.phoneNumberError = errors.error.teacher_profile.phone[0];
+          }
+          if (errors.error.username) {
+            this.usernameError = errors.error.username[0];
+          }
         }
       }
     );

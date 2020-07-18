@@ -18,6 +18,10 @@ export class InAppDataTransferService {
   private setInstituteSidenavView = new Subject<boolean>();
   setInstituteSidenavView$ = this.setInstituteSidenavView.asObservable();
 
+  // Creating observable for selecting the active link in sidenav
+  private activeSideNavView = new Subject<String>();
+  activeSideNavView$ = this.activeSideNavView.asObservable();
+
   constructor() { }
 
   // Sends active breadcrumb sublink text
@@ -33,5 +37,10 @@ export class InAppDataTransferService {
   // Sends status symbol to show instiute sidenav view
   showInstituteSidenavView(status: boolean) {
     this.setInstituteSidenavView.next(status);
+  }
+
+  // Sends the active link to sidenav
+  setSidenavActiveLink(link: string) {
+    this.activeSideNavView.next(link);
   }
 }

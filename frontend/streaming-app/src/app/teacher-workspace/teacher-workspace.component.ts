@@ -1,6 +1,6 @@
 import { authTokenName } from './../../constants';
 import { InAppDataTransferService } from '../in-app-data-transfer.service';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer2, ElementRef, ViewChild } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -16,20 +16,36 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   // For showing sidenav toolbar
   mobileQuery: MediaQueryList;
   opened: boolean;
-  showInstituteViewSidenav = false;
+  showInstituteViewSidenav: boolean;
   instituteSidenavViewSubscription: Subscription;
-
-  // For breadcrumb
   activeLink: string;
-  secondaryActiveLink: string;
-  instituteActiveLinkSubscription: Subscription;
+  navbarActiveLinkSubscription: Subscription;
+  showTempNamesSubscription: Subscription;
+  tempBreadcrumbLinkName: string;
 
   constructor( private cookieService: CookieService,
                private router: Router,
                private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService ) {
+               private inAppDataTransferService: InAppDataTransferService,
+               private renderer: Renderer2,
+               private element: ElementRef ) {
 
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+
+    // Initializing sidenav active route in case page is reloaded
+    const active_route = localStorage.getItem('activeRoute');
+    if (active_route) {
+      this.activeLink = active_route;
+      if (this.activeLink !== 'PROFILE' && this.activeLink !== 'INSTITUTES' && this.activeLink !== 'CHATROOMS') {
+        this.showInstituteViewSidenav = true;
+      } else {
+        this.showInstituteViewSidenav = false;
+      }
+    } else {
+      localStorage.setItem('activeRoute', 'INSTITUTES');
+      this.inAppDataTransferService.showInstituteSidenavView(false);
+      this.activeLink = 'INSTITUTES';
+    }
 
     // If auth token is already saved then redirecting to appropriate workspace
     if (this.cookieService.get(authTokenName)) {
@@ -45,9 +61,6 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/login']);
     }
-
-    // Setting active link
-    this.activeLink = 'INSTITUTES';
   }
 
   ngOnInit(): void {
@@ -58,34 +71,46 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
       this.opened = true;
     }
 
-    this.instituteActiveLinkSubscription = this.inAppDataTransferService.activeBreadcrumbLinkData$.subscribe(
-      (data: string) => {
-        this.secondaryActiveLink = data;
-      }
-    );
-
     this.instituteSidenavViewSubscription = this.inAppDataTransferService.setInstituteSidenavView$.subscribe(
       (status: boolean) => {
         this.showInstituteViewSidenav = status;
+        const active_link = localStorage.getItem('activeRoute');
+        if (active_link === 'INSTITUTE_PROFILE') {
+          this.activeLink = active_link;
+        } else if (active_link === 'INSTITUTES') {
+          // this.activeLink = active_link;       It wills how expression checked after checked error
+        }
       }
-    )
+    );
+
+    this.showTempNamesSubscription = this.inAppDataTransferService.activeBreadcrumbLinkData$.subscribe(
+      (linkName: string) => {
+        this.tempBreadcrumbLinkName = linkName;
+      }
+    );
   }
 
   // For navigating to teacher-workspace view
-  navigateClicked(link: string) {
+  navigate(link: string) {
     if (link !== this.activeLink) {
       this.activeLink = link;
 
       if (this.activeLink === 'HOME') {
         this.router.navigate(['/home']);
+      } else if (link === 'INSTITUTE_PROFILE') {
+        const instituteSlug = localStorage.getItem('currentInstituteSlug');
+        this.router.navigate(['/teacher-workspace/institutes/preview/' + instituteSlug]);
+      } else if (link === 'INSTITUTE_PERMISSIONS') {
+        const instituteSlug = localStorage.getItem('currentInstituteSlug');
+        this.router.navigate(['/teacher-workspace/institutes/' + instituteSlug + '/permissions']);
+      } else if (link === 'INSTITUTE_CLASSES') {
+        const instituteSlug = localStorage.getItem('currentInstituteSlug');
+        this.router.navigate(['/teacher-workspace/institutes/' + instituteSlug + '/classes']);
       } else {
+        if (this.activeLink === 'INSTITUTES') {
+          this.showInstituteViewSidenav = false;
+        }
         this.router.navigate(['/teacher-workspace/' + link.toLowerCase()]);
-      }
-    } else {
-      if (this.secondaryActiveLink) {
-        this.secondaryActiveLink = '';
-        this.inAppDataTransferService.showInstituteSidenavView(false);
-        this.router.navigate(['teacher-workspace/institutes']);
       }
     }
   }
@@ -96,41 +121,23 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
     if (this.mobileQuery.matches === true) {
       this.opened = false;
     }
-
-    if (link === 'INSTITUTES'){
-      this.inAppDataTransferService.showInstituteSidenavView(false);
-    }
-
-    if (link !== 'INSTITUTE_PROFILE' && link !== 'INSTITUTE_PERMISSIONS' && link != 'INSTITUTE_CLASSES') {
-      this.navigateClicked(link);
-    }
-
-    if (link !== this.secondaryActiveLink) {
-      if (link === 'INSTITUTE_PROFILE') {
-        this.secondaryActiveLink = 'INSTITUTE_PROFILE';
-        const instituteSlug = localStorage.getItem('currentInstituteSlug');
-        this.router.navigate(['/teacher-workspace/institutes/preview/' + instituteSlug]);
-      } else if (link === 'INSTITUTE_PERMISSIONS') {
-        this.secondaryActiveLink = 'INSTITUTE_PERMISSIONS'
-        const instituteSlug = localStorage.getItem('currentInstituteSlug');
-        this.router.navigate(['/teacher-workspace/institutes/' + instituteSlug + '/permissions']);
-      } else if (link === 'INSTITUTE_CLASSES') {
-        this.secondaryActiveLink = 'INSTITUTE_CLASSES'
-        const instituteSlug = localStorage.getItem('currentInstituteSlug');
-        this.router.navigate(['/teacher-workspace/institutes/' + instituteSlug + '/classes']);
-      }
-    }
+    this.navigate(link);
   }
 
-  emitEvent(navigate: string) {
-    if (navigate === 'INSTITUTES') {
-      this.inAppDataTransferService.showInstituteListView(true);
-      this.secondaryActiveLink = '';
+  emitShowInstituteListViewEvent() {
+    this.tempBreadcrumbLinkName = '';
+    this.inAppDataTransferService.showInstituteListView(true);
+  }
+
+  tempBreadCrumbNameExists() {
+    if (this.tempBreadcrumbLinkName) {
+      return true;
+    } else {
+      return false;
     }
   }
 
   ngOnDestroy(): void {
-    this.instituteActiveLinkSubscription.unsubscribe();
     this.instituteSidenavViewSubscription.unsubscribe();
   }
 

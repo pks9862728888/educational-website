@@ -11,6 +11,7 @@ export class TeacherChatroomComponent implements OnInit {
   constructor( private inAppDataTransferService: InAppDataTransferService ) { }
 
   ngOnInit(): void {
+    localStorage.setItem('activeRoute', 'CHATROOMS');
     this.inAppDataTransferService.showInstituteSidenavView(false);
   }
 

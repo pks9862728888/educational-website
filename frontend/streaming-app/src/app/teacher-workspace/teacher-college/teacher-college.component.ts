@@ -83,7 +83,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
   searched = false;
 
   // For handling views
-  createInstituteClicked = false;
+  showInstituteListView = true;
 
   // For handling expansion panel
   searchedInstituteStep: number;
@@ -118,6 +118,8 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // this.router.navigate(['teacher-workspace/institutes/' + 'tempView' + '/permissions']);
+    localStorage.setItem('activeRoute', 'INSTITUTES');
+    this.inAppDataTransferService.showInstituteSidenavView(false);
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
       (result: TeacherInstitutesMinDetailInterface[]) => {
         for (const institute of result) {
@@ -148,7 +150,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
     // Subscribing to show the list view on input from breadcrumb
     this.showInstituteListViewSubscription = this.inAppDataTransferService.setInstituteViewActive$.subscribe(
       (status: boolean) => {
-        this.createInstituteClicked = false;
+        this.showInstituteListView = status;
       }
     );
   }
@@ -210,7 +212,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
   }
 
   createInstitute() {
-    this.createInstituteClicked = true;
+    this.showInstituteListView = false;
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
   }
 
@@ -241,7 +243,7 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
       localStorage.setItem('currentInstituteSlug', instituteSlug);
       this.router.navigate(['teacher-workspace/institutes/preview', instituteSlug]);
     } else {
-      this.createInstituteClicked = false;
+      this.showInstituteListView = true;
       this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     }
   }

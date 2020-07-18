@@ -67,6 +67,7 @@ export class CollegePreviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    localStorage.setItem('activeRoute', 'INSTITUTE_PROFILE');
     this.inAppDataTransferService.showInstituteSidenavView(true);
     this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = localStorage.getItem('currentInstituteRole');

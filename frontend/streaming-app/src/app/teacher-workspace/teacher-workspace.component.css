@@ -119,4 +119,6 @@
 
 .active {
     color: #858585;
+    cursor: default;
+    font-weight: normal;
 }

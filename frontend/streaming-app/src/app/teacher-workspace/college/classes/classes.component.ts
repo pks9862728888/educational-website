@@ -11,6 +11,7 @@ export class ClassesComponent implements OnInit {
   constructor( private inAppDataTransferService: InAppDataTransferService ) { }
 
   ngOnInit(): void {
+    localStorage.setItem('activeRoute', 'INSTITUTE_CLASSES');
     this.inAppDataTransferService.showInstituteSidenavView(true);
   }
 
