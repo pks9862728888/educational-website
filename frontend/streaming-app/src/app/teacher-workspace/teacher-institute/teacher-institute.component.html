@@ -388,7 +388,7 @@
                         <button mat-flat-button class="blue-button">Edit</button>
                     </div>
                     <div class="margin-right-10">
-                        <button mat-flat-button class="lightblue-button" (click)="previewClicked(institute.institute_slug, institute.role)">Open</button>
+                        <button mat-flat-button class="lightblue-button" (click)="previewClicked(institute.institute_slug, institute.role, institute.type)">Open</button>
                     </div>
                 </mat-action-row>
             </mat-expansion-panel>
@@ -587,7 +587,7 @@
                         <button mat-flat-button class="blue-button">Edit</button>
                     </div>
                     <div class="margin-right-10">
-                        <button mat-flat-button class="lightblue-button" (click)="previewClicked(institute.institute_slug, institute.role)">Open</button>
+                        <button mat-flat-button class="lightblue-button" (click)="previewClicked(institute.institute_slug, institute.role, institute.type)">Open</button>
                     </div>
                 </mat-action-row>
             </mat-expansion-panel>
@@ -799,5 +799,5 @@
 
 <!-- For creating institute -->
 <section *ngIf="!this.showInstituteListView">
-    <app-create-college (instituteCreated)="instituteCreated($event)"></app-create-college>
+    <app-create-institute (instituteCreated)="instituteCreated($event)"></app-create-institute>
 </section>

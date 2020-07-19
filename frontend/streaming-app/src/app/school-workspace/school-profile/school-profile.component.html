@@ -63,11 +63,11 @@
                                 <div class="col-6">Phone no:</div>
                                 <div class="col-6">
                                     <span *ngIf="this.currentInstituteDetails.institute_profile.phone">
-                                    {{ this.currentInstituteDetails.institute_profile.phone }}
-                                    </span>
+                                  {{ this.currentInstituteDetails.institute_profile.phone }}
+                                  </span>
                                     <span *ngIf="!this.currentInstituteDetails.institute_profile.phone">
-                                    N/A
-                                    </span>
+                                  N/A
+                                  </span>
                                 </div>
                             </div>
                         </li>
@@ -76,11 +76,11 @@
                                 <div class="col-6">Email:</div>
                                 <div class="col-6">
                                     <span *ngIf="!this.currentInstituteDetails.institute_profile.email">
-                                    N/A
-                                    </span>
+                                  N/A
+                                  </span>
                                     <a *ngIf="this.currentInstituteDetails.institute_profile.email" [href]="getEmailLink(this.currentInstituteDetails.institute_profile.email)" target="_blank">
-                                    {{ this.currentInstituteDetails.institute_profile.email }}
-                                  </a>
+                                  {{ this.currentInstituteDetails.institute_profile.email }}
+                                </a>
                                 </div>
                             </div>
                         </li>
@@ -89,11 +89,11 @@
                                 <div class="col-6">Website url:</div>
                                 <div class="col-6">
                                     <span *ngIf="!this.currentInstituteDetails.institute_profile.website_url">
-                                    N/A
-                                    </span>
+                                  N/A
+                                  </span>
                                     <a *ngIf="this.currentInstituteDetails.institute_profile.website_url" [href]="this.currentInstituteDetails.institute_profile.website_url" target="_blank">
-                                    {{ this.currentInstituteDetails.institute_profile.website_url }}
-                                  </a>
+                                  {{ this.currentInstituteDetails.institute_profile.website_url }}
+                                </a>
                                 </div>
                             </div>
                         </li>
@@ -102,8 +102,8 @@
                                 <div class="col-6">Address:</div>
                                 <div class="col-6">
                                     <span *ngIf="!this.currentInstituteDetails.institute_profile.address">
-                                    N/A
-                                  </span> {{ this.currentInstituteDetails.institute_profile.address }}
+                                  N/A
+                                </span> {{ this.currentInstituteDetails.institute_profile.address }}
                                 </div>
                             </div>
                         </li>
@@ -168,11 +168,11 @@
                                 <div class="col-6">Secondary Language:</div>
                                 <div class="col-6">
                                     <span *ngIf="!this.currentInstituteDetails.institute_profile.secondary_language">
-                                    N/A
-                                  </span>
+                                  N/A
+                                </span>
                                     <span *ngIf="this.currentInstituteDetails.institute_profile.secondary_language">
-                                    {{ this.getLanguage(this.currentInstituteDetails.institute_profile.secondary_language) }}
-                                  </span>
+                                  {{ this.getLanguage(this.currentInstituteDetails.institute_profile.secondary_language) }}
+                                </span>
                                 </div>
                             </div>
                         </li>
@@ -181,11 +181,11 @@
                                 <div class="col-6">Tertiary Language:</div>
                                 <div class="col-6">
                                     <span *ngIf="!this.currentInstituteDetails.institute_profile.tertiary_language">
-                                    N/A
-                                  </span>
+                                  N/A
+                                </span>
                                     <span *ngIf="this.currentInstituteDetails.institute_profile.tertiary_language">
-                                    {{ this.getLanguage(this.currentInstituteDetails.institute_profile.tertiary_language) }}
-                                  </span>
+                                  {{ this.getLanguage(this.currentInstituteDetails.institute_profile.tertiary_language) }}
+                                </span>
                                 </div>
                             </div>
                         </li>
@@ -207,11 +207,11 @@
                                 </div>
                                 <div class="col-6">
                                     <span *ngIf="!this.currentInstituteDetails.institute_profile.recognition">
-                                    N/A
-                                  </span>
+                                  N/A
+                                </span>
                                     <span *ngIf="this.currentInstituteDetails.institute_profile.recognition">
-                                    {{ this.currentInstituteDetails.institute_profile.recognition | uppercase }}
-                                  </span>
+                                  {{ this.currentInstituteDetails.institute_profile.recognition | uppercase }}
+                                </span>
                                 </div>
                             </div>
                         </li>

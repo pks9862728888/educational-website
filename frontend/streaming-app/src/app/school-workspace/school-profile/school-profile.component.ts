@@ -42,11 +42,11 @@ interface InstituteDetails {
 
 
 @Component({
-  selector: 'app-college-preview',
-  templateUrl: './college-preview.component.html',
-  styleUrls: ['./college-preview.component.css']
+  selector: 'app-school-preview',
+  templateUrl: './school-profile.component.html',
+  styleUrls: ['./school-profile.component.css']
 })
-export class CollegePreviewComponent implements OnInit {
+export class SchoolProfileComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
 
@@ -67,7 +67,7 @@ export class CollegePreviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    localStorage.setItem('activeRoute', 'INSTITUTE_PROFILE');
+    localStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
     this.inAppDataTransferService.showInstituteSidenavView(true);
     this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = localStorage.getItem('currentInstituteRole');
@@ -84,6 +84,7 @@ export class CollegePreviewComponent implements OnInit {
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     localStorage.removeItem('currentInstituteSlug');
     localStorage.removeItem('currentInstituteRole');
+    localStorage.setItem('activeRoute', 'INSTITUTES');
     this.router.navigate(['/teacher-workspace/institutes']);
   }
 

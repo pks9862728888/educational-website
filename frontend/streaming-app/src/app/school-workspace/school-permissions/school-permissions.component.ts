@@ -37,11 +37,11 @@ interface InstituteFacultyListResponse {
 }
 
 @Component({
-  selector: 'app-permissions',
-  templateUrl: './permissions.component.html',
-  styleUrls: ['./permissions.component.css']
+  selector: 'app-school-permissions',
+  templateUrl: './school-permissions.component.html',
+  styleUrls: ['./school-permissions.component.css']
 })
-export class PermissionsComponent implements OnInit {
+export class SchoolPermissionsComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
 
@@ -136,7 +136,6 @@ export class PermissionsComponent implements OnInit {
 
   ngOnInit(): void {
     localStorage.setItem('activeRoute', 'INSTITUTE_PERMISSIONS');
-    this.inAppDataTransferService.showInstituteSidenavView(true);
     this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = localStorage.getItem('currentInstituteRole');
     this.getAdminUserList();

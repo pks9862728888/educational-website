@@ -7,16 +7,17 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-teacher-workspace',
-  templateUrl: './teacher-workspace.component.html',
-  styleUrls: ['./teacher-workspace.component.css']
+  selector: 'app-school-workspace',
+  templateUrl: './school-workspace.component.html',
+  styleUrls: ['./school-workspace.component.css']
 })
-export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
+export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
   // For showing sidenav toolbar
   mobileQuery: MediaQueryList;
   opened: boolean;
   activeLink: string;
+  navbarActiveLinkSubscription: Subscription;
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
 
@@ -29,23 +30,15 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
 
     // Initializing sidenav active route in case page is reloaded
     const active_route = localStorage.getItem('activeRoute');
-    if (active_route && (active_route === 'PROFILE' || active_route === 'INSTITUTES' || active_route === 'CHATROOMS')) {
+    if (active_route) {
       this.activeLink = active_route;
     } else {
-      localStorage.setItem('activeRoute', 'PROFILE');
-      this.activeLink = 'PROFILE';
+      localStorage.setItem('activeRoute', 'INSTITUTES');
+      this.router.navigate(['teacher-workspace/institutes']);
     }
 
-    // Disallowing student and staff to view this workspace
-    if (this.cookieService.get(authTokenName)) {
-      // Rendering appropriate workspace
-      if (localStorage.getItem('is_student') === JSON.stringify(true) ||
-                 localStorage.getItem('is_staff') === JSON.stringify(true)) {
-        this.router.navigate(['/**']);
-      } else {
-        // Get the type of user and then again navigate to appropriate workspace
-      }
-    } else {
+    // If auth token is not saved then redirecting to login page
+    if (!this.cookieService.get(authTokenName)) {
       this.router.navigate(['/login']);
     }
   }
@@ -72,8 +65,20 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
 
       if (this.activeLink === 'HOME') {
         this.router.navigate(['/home']);
-      } else {
+      } else if (this.activeLink === 'INSTITUTES') {
+        localStorage.setItem('activeRoute', 'INSTITUTES');
+        localStorage.removeItem('currentInstituteSlug');
+        localStorage.removeItem('currentInstituteRole');
         this.router.navigate(['/teacher-workspace/' + link.toLowerCase()]);
+      } else {
+        const instituteSlug = localStorage.getItem('currentInstituteSlug');
+        if (this.activeLink === 'SCHOOL_PROFILE') {
+          this.router.navigate(['/school-workspace/' + instituteSlug + '/profile']);
+        } else if (this.activeLink === 'SCHOOL_PERMISSIONS') {
+          this.router.navigate(['/school-workspace/' + instituteSlug + '/permissions']);
+        } else if (this.activeLink === 'SCHOOL_CLASSES') {
+          this.router.navigate(['/school-workspace/' + instituteSlug + '/classes']);
+        }
       }
     }
   }
@@ -87,11 +92,6 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
     this.navigate(link);
   }
 
-  emitShowInstituteListViewEvent() {
-    this.tempBreadcrumbLinkName = '';
-    this.inAppDataTransferService.showInstituteListView(true);
-  }
-
   tempBreadCrumbNameExists() {
     if (this.tempBreadcrumbLinkName) {
       return true;
@@ -100,8 +100,6 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.showTempNamesSubscription.unsubscribe();
-  }
+  ngOnDestroy(): void {}
 
 }

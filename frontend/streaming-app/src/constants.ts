@@ -154,6 +154,25 @@ export const INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS = [
   {value: 'D', viewValue: 'Dance'}
 ];
 
+export const INSTITUTE_TYPE = {
+  SC: 'School',
+  CO: 'College',
+  CC: 'Coaching',
+}
+
+export const INSTITUTE_TYPE_REVERSE = {
+  School: 'SC',
+  College: 'CO',
+  Coaching: 'CC'
+};
+
+export const INSTITUTE_TYPE_FORM_FIELD_OPTIONS = [
+  {value: '', viewValue: ''},
+  {value: 'SC', viewValue: 'School'},
+  {value: 'CO', viewValue: 'College'},
+  {value: 'CC', viewValue: 'Coaching'}
+];
+
 export const INSTITUTE_ROLE = {
   A: 'Admin',
   S: 'Staff',

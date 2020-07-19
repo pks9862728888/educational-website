@@ -247,8 +247,6 @@ class AuthenticatedTeacherUserAPITests(TestCase):
         res = self.client.get(INSTITUTE_MIN_DETAILS_TEACHER_URL)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-        self.assertEqual(res.data[0]['user'], self.user.pk)
         self.assertIn('institute_slug', res.data[0])
         self.assertEqual(res.data[0]['name'], payload['name'].lower())
         self.assertEqual(res.data[0]['institute_category'],

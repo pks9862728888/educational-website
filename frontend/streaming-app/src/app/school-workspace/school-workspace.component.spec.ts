@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PermissionsComponent } from './permissions.component';
+import { SchoolWorkspaceComponent } from './school-workspace.component';
 
-describe('PermissionsComponent', () => {
-  let component: PermissionsComponent;
-  let fixture: ComponentFixture<PermissionsComponent>;
+describe('SchoolWorkspaceComponent', () => {
+  let component: SchoolWorkspaceComponent;
+  let fixture: ComponentFixture<SchoolWorkspaceComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PermissionsComponent ]
+      declarations: [ SchoolWorkspaceComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PermissionsComponent);
+    fixture = TestBed.createComponent(SchoolWorkspaceComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

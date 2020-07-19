@@ -50,11 +50,11 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
 
     class Meta:
         model = Institute
-        fields = ('id', 'user', 'name', 'country', 'role',
+        fields = ('id', 'name', 'country', 'role',
                   'institute_category', 'type', 'created_date',
                   'institute_slug', 'institute_profile',
                   'institute_logo', 'institute_statistics')
-        read_only_fields = ('user', 'name', 'country', 'institute_category',
+        read_only_fields = ('name', 'country', 'institute_category',
                             'type', 'created_date', 'institute_slug', 'role',
                             'institute_profile', 'institute_logo',
                             'institute_statistics')

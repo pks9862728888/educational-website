@@ -13,6 +13,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { TeacherWorkspaceModule } from './teacher-workspace/teacher-workspace.module';
 import { StudentWorkspaceModule } from './student-workspace/student-workspace.module';
 import { StaffWorkspaceModule } from './staff-workspace/staff-workspace.module';
+import { SchoolWorkspaceModule } from './school-workspace/school-workspace.module';
 import { HelpModule } from './help/help.module';
 import { FeaturesModule } from './features/features.module';
 import { PricingModule } from './pricing/pricing.module';
@@ -36,6 +37,7 @@ import { HomeModule } from './home/home.module';
     TeacherWorkspaceModule,
     StudentWorkspaceModule,
     StaffWorkspaceModule,
+    SchoolWorkspaceModule,
     HomeModule,
     FeaturesModule,
     PricingModule,

@@ -1,19 +1,18 @@
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../../in-app-data-transfer.service';
-import { COUNTRY, STATE, INSTITUTE_CATEGORY, INSTITUTE_ROLE } from './../../../constants';
+import { COUNTRY, STATE, INSTITUTE_CATEGORY, INSTITUTE_ROLE, INSTITUTE_TYPE_REVERSE, INSTITUTE_TYPE } from './../../../constants';
 import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MAT_SNACK_BAR_DATA, MatSnackBar } from '@angular/material/snack-bar';
-import { ErrorStateMatcher } from '@angular/material/core';
 
 interface TeacherInstitutesMinDetailInterface {
   id: number;
-  user: number;
   name: string;
   country: string;
   institute_category: string;
+  type: string;
   created_date: string;
   institute_slug: string;
   role: string;
@@ -40,6 +39,7 @@ interface TeacherInstitutesMinDetailInterface {
 interface InstituteCreatedEvent {
   status: boolean;
   url: string;
+  type: string;
 }
 
 
@@ -69,10 +69,10 @@ export class SnackbarComponent {
 
 @Component({
   selector: 'app-teacher-college',
-  templateUrl: './teacher-college.component.html',
-  styleUrls: ['./teacher-college.component.css']
+  templateUrl: './teacher-institute.component.html',
+  styleUrls: ['./teacher-institute.component.css']
 })
-export class TeacherCollegeComponent implements OnInit, OnDestroy {
+export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
   mobileQuery: MediaQueryList;
 
@@ -216,11 +216,20 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
   }
 
-  previewClicked(instituteSlug: string, role:string) {
-    this.inAppDataTransferService.sendActiveBreadcrumbLinkData('INSTITUTE_PROFILE');
+  previewClicked(instituteSlug: string, role:string, type: string) {
     localStorage.setItem('currentInstituteSlug', instituteSlug);
     localStorage.setItem('currentInstituteRole', role);
-    this.router.navigate(['teacher-workspace/institutes/preview/', instituteSlug]);
+
+    if (type === INSTITUTE_TYPE_REVERSE.School) {
+      localStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
+      this.router.navigate(['school-workspace/' + instituteSlug + '/profile']);
+    } else if (type === INSTITUTE_TYPE_REVERSE.College) {
+      localStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
+      // navigate to college workspace
+    } else {
+      localStorage.setItem('activeRoute', 'COACHING_PROFILE');
+      // navigate to school workspace
+    }
   }
 
   // Taking action based on whether institute is created or not
@@ -235,13 +244,20 @@ export class TeacherCollegeComponent implements OnInit, OnDestroy {
         duration: 2000
       });
 
-      // Showing appropriate navigation in breadcrumb
-      this.inAppDataTransferService.sendActiveBreadcrumbLinkData('PREVIEW');
-
       // Routing to institute preview
       const instituteSlug = event.url.substring(event.url.lastIndexOf('/') + 1, event.url.length);
       localStorage.setItem('currentInstituteSlug', instituteSlug);
-      this.router.navigate(['teacher-workspace/institutes/preview', instituteSlug]);
+
+      if (event.type === INSTITUTE_TYPE_REVERSE['School']) {
+        localStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
+        this.router.navigate(['school-workspace/institutes/' + instituteSlug + '/profile']);
+      } else if (event.type === INSTITUTE_TYPE_REVERSE['College']) {
+        localStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
+        // navigate to college workspace
+      } else {
+        localStorage.setItem('activeRoute', 'COACHING_PROFILE');
+        // navigate to coaching workspace
+      }
     } else {
       this.showInstituteListView = true;
       this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');

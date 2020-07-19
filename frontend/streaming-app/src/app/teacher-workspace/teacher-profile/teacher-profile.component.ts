@@ -7,7 +7,6 @@ import { MatSnackBar, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { UploadProfilePictureComponent } from './upload-profile-picture/upload-profile-picture.component';
 import { ChooseFromExistingComponent } from './choose-from-existing/choose-from-existing.component';
-import { InAppDataTransferService } from 'src/app/in-app-data-transfer.service';
 
 interface TeacherProfileDetails {
   id: number;
@@ -104,15 +103,13 @@ export class TeacherProfileComponent implements OnInit {
                private apiService: ApiService,
                private formBuilder: FormBuilder,
                private snackBar: MatSnackBar,
-               private dialog: MatDialog,
-               private inAppDataTransferService: InAppDataTransferService ) {
+               private dialog: MatDialog ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
     this.maxDate = new Date();         // For selecting max date as today
   }
 
   ngOnInit(): void {
     localStorage.setItem('activeRoute', 'PROFILE');
-    this.inAppDataTransferService.showInstituteSidenavView(false);
     if (sessionStorage.getItem('country')) {          // Assuming country will be set initially for all teacher
       this.email = sessionStorage.getItem('email');
       this.username = sessionStorage.getItem('username');

@@ -81,6 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
   logout() {
     this.cookieService.delete(authTokenName);
     sessionStorage.clear();
+    localStorage.clear();
     this.authService.sendLoggedInStatusSignal(false);
     this.snackBar.openFromComponent(SnackbarLoggedOutComponent, {
       duration: this.durationInSeconds * 1000,

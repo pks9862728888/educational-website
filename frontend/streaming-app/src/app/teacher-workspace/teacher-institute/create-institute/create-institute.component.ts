@@ -1,5 +1,5 @@
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { COUNTRY_FORM_FIELD_OPTIONS, LANGUAGE_FORM_FIELD_OPTIONS, INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS } from './../../../../constants';
+import { COUNTRY_FORM_FIELD_OPTIONS, LANGUAGE_FORM_FIELD_OPTIONS, INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS, INSTITUTE_TYPE_FORM_FIELD_OPTIONS } from './../../../../constants';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { STATE_FORM_FIELD_OPTIONS } from 'src/constants';
 import { InstituteApiService } from 'src/app/institute-api.service';
@@ -10,17 +10,18 @@ interface CreatedInstituteResponse {
 }
 
 @Component({
-  selector: 'app-create-college',
-  templateUrl: './create-college.component.html',
-  styleUrls: ['./create-college.component.css']
+  selector: 'app-create-institute',
+  templateUrl: './create-institute.component.html',
+  styleUrls: ['./create-institute.component.css']
 })
-export class CreateCollegeComponent implements OnInit {
+export class CreateInstituteComponent implements OnInit {
 
   // Form field options
   states = STATE_FORM_FIELD_OPTIONS;
   countries = COUNTRY_FORM_FIELD_OPTIONS;
   languages = LANGUAGE_FORM_FIELD_OPTIONS;
   instituteCategories = INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS;
+  instituteTypes = INSTITUTE_TYPE_FORM_FIELD_OPTIONS;
 
   // To control whether create institute is created or not
   @Output() instituteCreated = new EventEmitter();
@@ -44,6 +45,7 @@ export class CreateCollegeComponent implements OnInit {
       ]],
       country: ['IN', [Validators.required, ]],
       institute_category: ['E', [Validators.required, ]],
+      type: ['', [Validators.required, ]],
       institute_profile: this.formBuilder.group ({
         motto: ['', [Validators.maxLength(256), ]],
         email: ['', [Validators.email, ]],
@@ -71,6 +73,7 @@ export class CreateCollegeComponent implements OnInit {
   resetClicked() {
     this.instituteForm.reset({
       institute_category: 'E',
+      type: null,
       country: 'IN',
       institute_profile: {
         primary_language: 'EN'
@@ -92,7 +95,8 @@ export class CreateCollegeComponent implements OnInit {
       (result: CreatedInstituteResponse) => {
         this.instituteCreated.emit({
           status: true,
-          url: result.url
+          url: result.url,
+          type: this.instituteForm.value.type
         });
       },
       errors => {

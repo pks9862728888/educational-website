@@ -6,31 +6,19 @@
 
             <!-- Sidenav contents -->
             <mat-nav-list>
-                <h1 *ngIf="mobileQuery.matches" class="website-name">EduWeb</h1>
-                <div *ngIf="this.showInstituteViewSidenav">
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                  'sidenav-content-more-padding': !mobileQuery.matches}" (click)="performAction('INSTITUTES')">My Institutes</div>
+                <div *ngIf="mobileQuery.matches">
+                    <h1 class="website-name">EduWeb</h1>
                     <mat-divider></mat-divider>
                 </div>
-                <div [hidden]="this.showInstituteViewSidenav">
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                 'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'PROFILE'" (click)="performAction('PROFILE')">My Profile</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                 'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'INSTITUTES' || activeLink === 'INSTITUTE_PROFILE'" (click)="performAction('INSTITUTES')">My Institutes</div>
-                    <mat-divider></mat-divider>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                     'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'CHATROOMS'" (click)="performAction('CHATROOMS')">Chat Rooms</div>
-                    <mat-divider></mat-divider>
-                </div>
-                <div [hidden]="!this.showInstituteViewSidenav">
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                   'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'INSTITUTE_PROFILE' || activeLink === 'INSTITUTES'" (click)="performAction('INSTITUTE_PROFILE')" id="INSTITUTE_PROFILE">Institute Profile</div>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                   'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'INSTITUTE_PERMISSIONS'" (click)="performAction('INSTITUTE_PERMISSIONS')" id="INSTITUTE_PERMISSIONS">Institute Permissions</div>
-                    <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                   'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'INSTITUTE_CLASSES'" (click)="performAction('INSTITUTE_CLASSES')" id="INSTITUTE_CLASSES">Institute Classes</div>
-                </div>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'PROFILE'" (click)="performAction('PROFILE')">My Profile</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'INSTITUTES'" (click)="performAction('INSTITUTES')">My Institutes</div>
+                <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                    'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'CHATROOMS'" (click)="performAction('CHATROOMS')">Chat Rooms</div>
+                <mat-divider></mat-divider>
             </mat-nav-list>
         </mat-sidenav>
 
@@ -44,26 +32,19 @@
             <!-- Navigation breadcrumb -->
             <div class="padding-main-content">
                 <nav aria-label="breadcrumb">
-                    <ol [hidden]="this.showInstituteViewSidenav" class="breadcrumb">
+                    <ol class="breadcrumb">
                         <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}">
                             <a (click)="navigate('HOME')">Home</a></li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'PROFILE'" [ngClass]="{'active': activeLink === 'PROFILE'}">
                             <a (click)="navigate('PROFILE')">Profile</a></li>
-                        <li class="breadcrumb-item mouse-pointer" [hidden]="activeLink !== 'INSTITUTES' || showInstituteViewSidenav" [ngClass]="{'active': !tempBreadCrumbNameExists() || !showInstituteViewSidenav, 'clickable-link': tempBreadCrumbNameExists() || (activeLink !== 'INSTITUTES' && activeLink !== 'PROFILE' && activeLink !== 'CHATROOMS')}">
-                            <a (click)="performAction('INSTITUTES')">Institutes</a>
+                        <li class="breadcrumb-item mouse-pointer" [hidden]="activeLink !== 'INSTITUTES'" [ngClass]="{'active': !tempBreadCrumbNameExists(), 'clickable-link': tempBreadCrumbNameExists() || (activeLink !== 'INSTITUTES' && activeLink !== 'PROFILE' && activeLink !== 'CHATROOMS')}">
+                            <a *ngIf="!tempBreadCrumbNameExists()" (click)="performAction('INSTITUTES')">Institutes</a>
+                            <a *ngIf="tempBreadCrumbNameExists()" (click)="emitShowInstituteListViewEvent()">Institutes</a>
                         </li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'CHATROOMS'" [ngClass]="{'active': activeLink === 'CHATROOMS'}">
                             <a (click)="navigate('CHATROOMS')">Chat Rooms</a></li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES' && tempBreadcrumbLinkName === 'CREATE'" [ngClass]="{'active': tempBreadcrumbLinkName === 'CREATE'}">Create</li>
                     </ol>
-                    <div [hidden]="!this.showInstituteViewSidenav">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
-                            <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
-                            <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'INSTITUTE_PERMISSIONS'">Permissions</li>
-                            <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'INSTITUTE_CLASSES'">Classes</li>
-                        </ol>
-                    </div>
                 </nav>
 
                 <!-- Router outlet for dynamic content -->

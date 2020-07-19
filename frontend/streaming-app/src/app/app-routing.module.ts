@@ -15,11 +15,12 @@ import { TeacherProfileComponent } from './teacher-workspace/teacher-profile/tea
 import { HelpComponent } from './help/help.component';
 import { FeaturesComponent } from './features/features.component';
 import { HomeComponent } from './home/home.component';
-import { TeacherCollegeComponent } from './teacher-workspace/teacher-college/teacher-college.component';
+import { TeacherInstituteComponent } from './teacher-workspace/teacher-institute/teacher-institute.component';
 import { TeacherChatroomComponent } from './teacher-workspace/teacher-chatroom/teacher-chatroom.component';
-import { CollegePreviewComponent } from './teacher-workspace/college/college-preview/college-preview.component';
-import { PermissionsComponent } from './teacher-workspace/college/permissions/permissions.component';
-import { ClassesComponent } from './teacher-workspace/college/classes/classes.component';
+import { SchoolWorkspaceComponent } from './school-workspace/school-workspace.component';
+import { SchoolClassesComponent } from './school-workspace/school-classes/school-classes.component';
+import { SchoolPermissionsComponent } from './school-workspace/school-permissions/school-permissions.component';
+import { SchoolProfileComponent } from './school-workspace/school-profile/school-profile.component';
 
 
 const routes: Routes = [
@@ -31,13 +32,10 @@ const routes: Routes = [
   { path: 'teacher-workspace',
     component: TeacherWorkspaceComponent,
     children: [
-      { path: '', redirectTo: '/teacher-workspace/institutes', pathMatch: 'full'},
+      { path: '', redirectTo: '/teacher-workspace/profile', pathMatch: 'full'},
       { path: 'profile', component: TeacherProfileComponent },
-      { path: 'institutes', component: TeacherCollegeComponent },
+      { path: 'institutes', component: TeacherInstituteComponent },
       { path: 'chatrooms', component: TeacherChatroomComponent },
-      { path: 'institutes/preview/:name', component: CollegePreviewComponent },
-      { path: 'institutes/:name/permissions', component: PermissionsComponent },
-      { path: 'institutes/:name/classes', component: ClassesComponent }
     ]
   },
   {
@@ -54,6 +52,15 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: '/staff-workspace/profile', pathMatch: 'full' },
       { path: 'profile', component: StaffProfileComponent },
+    ]
+  },
+  {
+    path: 'school-workspace',
+    component: SchoolWorkspaceComponent,
+    children: [
+      { path: ':name/profile', component: SchoolProfileComponent },
+      { path: ':name/permissions', component: SchoolPermissionsComponent },
+      { path: ':name/classes', component: SchoolClassesComponent }
     ]
   },
   { path: 'features', component: FeaturesComponent },
