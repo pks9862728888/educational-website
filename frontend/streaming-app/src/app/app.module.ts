@@ -14,6 +14,7 @@ import { TeacherWorkspaceModule } from './teacher-workspace/teacher-workspace.mo
 import { StudentWorkspaceModule } from './student-workspace/student-workspace.module';
 import { StaffWorkspaceModule } from './staff-workspace/staff-workspace.module';
 import { SchoolWorkspaceModule } from './school-workspace/school-workspace.module';
+import { CollegeWorkspaceModule } from './college-workspace/college-workspace.module';
 import { HelpModule } from './help/help.module';
 import { FeaturesModule } from './features/features.module';
 import { PricingModule } from './pricing/pricing.module';
@@ -38,6 +39,7 @@ import { HomeModule } from './home/home.module';
     StudentWorkspaceModule,
     StaffWorkspaceModule,
     SchoolWorkspaceModule,
+    CollegeWorkspaceModule,
     HomeModule,
     FeaturesModule,
     PricingModule,

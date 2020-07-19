@@ -1,0 +1,44 @@
+<!-- Showing sidenav -->
+<div class="full-body-container" [ngClass]="{'is-mobile': mobileQuery.matches}">
+    <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches" [ngClass]="{'sidenav-container-20': mobileQuery.matches === false,
+                                     'sidenav-container-75': mobileQuery.matches}" fixedTopGap="46px" [(opened)]="opened" autoFocus="false" class="sidenav-background-color">
+
+            <!-- Sidenav contents -->
+            <mat-nav-list>
+                <h1 *ngIf="mobileQuery.matches" class="website-name">EduWeb</h1>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                'sidenav-content-more-padding': !mobileQuery.matches}" (click)="performAction('INSTITUTES')">My Institutes</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COLLEGE_PROFILE'" (click)="performAction('COLLEGE_PROFILE')" id="COLLEGE_PROFILE">College Profile</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COLLEGE_PERMISSIONS'" (click)="performAction('COLLEGE_PERMISSIONS')" id="COLLEGE_PERMISSIONS">College Permissions</div>
+            </mat-nav-list>
+        </mat-sidenav>
+
+        <mat-sidenav-content>
+            <section [ngClass]="{'toggle-icon-mobile': mobileQuery.matches, 'toggle-icon-desktop': !mobileQuery.matches}" (click)="snav.toggle()">
+                <mat-icon *ngIf="opened === false" class="icon" aria-hidden="false" aria-label="Show navigaion pane icon">keyboard_arrow_right</mat-icon>
+                <mat-icon *ngIf="opened" class="icon" aria-hidden="false" aria-label="Hide navigaion Pane icon">
+                    keyboard_arrow_left</mat-icon>
+            </section>
+
+            <!-- Navigation breadcrumb -->
+            <div class="padding-main-content">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
+                        <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COLLEGE_PROFILE'">Profile</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COLLEGE_PERMISSIONS'">Permissions</li>
+                    </ol>
+                </nav>
+
+                <!-- Router outlet for dynamic content -->
+                <div class="no-scrollbar">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</div>

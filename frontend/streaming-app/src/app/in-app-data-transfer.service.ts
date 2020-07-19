@@ -14,10 +14,6 @@ export class InAppDataTransferService {
   private setInstituteViewActive = new Subject<boolean>();
   setInstituteViewActive$ = this.setInstituteViewActive.asObservable();
 
-  // Creating observable for showing institute view in sidenav
-  private setInstituteSidenavView = new Subject<boolean>();
-  setInstituteSidenavView$ = this.setInstituteSidenavView.asObservable();
-
   // Creating observable for selecting the active link in sidenav
   private activeSideNavView = new Subject<String>();
   activeSideNavView$ = this.activeSideNavView.asObservable();
@@ -32,11 +28,6 @@ export class InAppDataTransferService {
   // Sends status symbol to show institute view
   showInstituteListView(status: boolean) {
     this.setInstituteViewActive.next(status);
-  }
-
-  // Sends status symbol to show instiute sidenav view
-  showInstituteSidenavView(status: boolean) {
-    this.setInstituteSidenavView.next(status);
   }
 
   // Sends the active link to sidenav

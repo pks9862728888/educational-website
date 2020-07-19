@@ -8,11 +8,10 @@ import { InAppDataTransferService } from 'src/app/in-app-data-transfer.service';
 })
 export class TeacherChatroomComponent implements OnInit {
 
-  constructor( private inAppDataTransferService: InAppDataTransferService ) { }
+  constructor() { }
 
   ngOnInit(): void {
     localStorage.setItem('activeRoute', 'CHATROOMS');
-    this.inAppDataTransferService.showInstituteSidenavView(false);
   }
 
 }

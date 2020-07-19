@@ -42,11 +42,11 @@ interface InstituteDetails {
 
 
 @Component({
-  selector: 'app-school-preview',
-  templateUrl: './school-profile.component.html',
-  styleUrls: ['./school-profile.component.css']
+  selector: 'app-college-preview',
+  templateUrl: './college-profile.component.html',
+  styleUrls: ['./college-profile.component.css']
 })
-export class SchoolProfileComponent implements OnInit {
+export class CollegeProfileComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
 
@@ -66,7 +66,7 @@ export class SchoolProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    localStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
+    localStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
     this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = localStorage.getItem('currentInstituteRole');
     this.instituteApiService.getInstituteDetails(this.currentInstituteSlug).subscribe(

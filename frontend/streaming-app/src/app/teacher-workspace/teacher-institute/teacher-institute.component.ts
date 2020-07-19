@@ -119,7 +119,6 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // this.router.navigate(['teacher-workspace/institutes/' + 'tempView' + '/permissions']);
     localStorage.setItem('activeRoute', 'INSTITUTES');
-    this.inAppDataTransferService.showInstituteSidenavView(false);
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
       (result: TeacherInstitutesMinDetailInterface[]) => {
         for (const institute of result) {
@@ -225,7 +224,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
       this.router.navigate(['school-workspace/' + instituteSlug + '/profile']);
     } else if (type === INSTITUTE_TYPE_REVERSE.College) {
       localStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
-      // navigate to college workspace
+      this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
     } else {
       localStorage.setItem('activeRoute', 'COACHING_PROFILE');
       // navigate to school workspace
@@ -253,7 +252,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
         this.router.navigate(['school-workspace/institutes/' + instituteSlug + '/profile']);
       } else if (event.type === INSTITUTE_TYPE_REVERSE['College']) {
         localStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
-        // navigate to college workspace
+        this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
       } else {
         localStorage.setItem('activeRoute', 'COACHING_PROFILE');
         // navigate to coaching workspace

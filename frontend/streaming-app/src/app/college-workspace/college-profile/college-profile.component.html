@@ -1,0 +1,239 @@
+<section>
+    <mat-card class="main-content" *ngIf="this.currentInstituteDetails">
+        <div class="institute-banner">
+            <img *ngIf="this.currentInstituteDetails.institute_banner.image" mat-card-image [src]="this.currentInstituteDetails.institute_banner.image" alt="institute-banner">
+            <div *ngIf="!this.currentInstituteDetails.institute_banner.image" class="mat-card-image banner-background"></div>
+            <mat-icon class="edit-icon-banner" *ngIf="this.currentInstituteRole === 'A'">camera_enhance</mat-icon>
+        </div>
+        <div class="logo-container">
+            <div class="logo">
+                <img mat-card-image *ngIf="this.currentInstituteDetails.institute_logo.image" [src]="this.currentInstituteDetails.institute_logo.image" alt="institute-logo">
+                <img mat-card-image *ngIf="!this.currentInstituteDetails.institute_logo.image" src="../../assets/imgs/cd6.png" alt="institute-logo">
+            </div>
+        </div>
+        <mat-icon class="edit-icon-logo" *ngIf="this.currentInstituteRole === 'A'">camera_enhance</mat-icon>
+        <mat-card-content>
+            <div [ngClass]="{'institute-title': this.currentInstituteRole === 'A', 'padding-top-non-admin': this.currentInstituteRole !== 'A'}">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h2>{{ this.currentInstituteDetails.name | titlecase }}</h2>
+                        <h3>Type: {{ this.getInstituteType(this.currentInstituteDetails.institute_category) }}</h3>
+                        <h3>Role: {{ this.getRole() }}</h3>
+                        <h3><span *ngIf="this.currentInstituteDetails.institute_profile.state">{{ this.getState(this.currentInstituteDetails.institute_profile.state) }},</span> {{ this.getInstituteCountry(this.currentInstituteDetails.country ) }}</h3>
+                    </div>
+                    <div class="col-sm-6" *ngIf="!this.mobileQuery.matches">
+                        <div class="d-flex justify-content-end margin-left-05" *ngIf="this.currentInstituteRole === 'A'">
+                            <div class="col margin-right-1">
+                                <button mat-raised-button class="green-button margin-publish-button full-width">Publish</button>
+                            </div>
+                            <div class="col margin-right-1">
+                                <button mat-raised-button class="blue-button margin-edit-button full-width">Edit</button>
+                            </div>
+                            <div class="col">
+                                <button mat-raised-button class="red-button margin-delete-button full-width">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="btn-outline-secondary" *ngIf="this.currentInstituteRole === 'A' || !this.mobileQuery.matches" />
+            <div class="row" *ngIf="this.mobileQuery.matches && this.currentInstituteRole === 'A'">
+                <div class="col margin-right-05">
+                    <button mat-raised-button class="green-button full-width margin-bottom-1">Publish</button>
+                </div>
+                <div class="col margin-right-05">
+                    <button mat-raised-button class="blue-button full-width margin-bottom-1">Edit</button>
+                </div>
+                <div class="col">
+                    <button mat-raised-button class="red-button full-width margin-bottom-1">Delete</button>
+                </div>
+            </div>
+            <hr *ngIf="mobileQuery.matches" class="btn-outline-secondary">
+
+            <div class="row text-color">
+                <div class="col-12">
+                    <h4><strong>Motto:</strong></h4>
+                    <span *ngIf="this.currentInstituteDetails.institute_profile.motto"> {{ this.currentInstituteDetails.institute_profile.motto }}</span>
+                </div>
+                <div class="div col-sm-6" [ngClass]="{'padding-right': !mobileQuery.matches}">
+                    <h4 class="section-title padding-top-1"><strong>Contact Details:</strong></h4>
+                    <ul>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">Phone no:</div>
+                                <div class="col-6">
+                                    <span *ngIf="this.currentInstituteDetails.institute_profile.phone">
+                                  {{ this.currentInstituteDetails.institute_profile.phone }}
+                                  </span>
+                                    <span *ngIf="!this.currentInstituteDetails.institute_profile.phone">
+                                  N/A
+                                  </span>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">Email:</div>
+                                <div class="col-6">
+                                    <span *ngIf="!this.currentInstituteDetails.institute_profile.email">
+                                  N/A
+                                  </span>
+                                    <a *ngIf="this.currentInstituteDetails.institute_profile.email" [href]="getEmailLink(this.currentInstituteDetails.institute_profile.email)" target="_blank">
+                                  {{ this.currentInstituteDetails.institute_profile.email }}
+                                </a>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">Website url:</div>
+                                <div class="col-6">
+                                    <span *ngIf="!this.currentInstituteDetails.institute_profile.website_url">
+                                  N/A
+                                  </span>
+                                    <a *ngIf="this.currentInstituteDetails.institute_profile.website_url" [href]="this.currentInstituteDetails.institute_profile.website_url" target="_blank">
+                                  {{ this.currentInstituteDetails.institute_profile.website_url }}
+                                </a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="border-bottom-1">
+                            <div class="row">
+                                <div class="col-6">Address:</div>
+                                <div class="col-6">
+                                    <span *ngIf="!this.currentInstituteDetails.institute_profile.address">
+                                  N/A
+                                </span> {{ this.currentInstituteDetails.institute_profile.address }}
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="div col-sm-6" [ngClass]="{'padding-left': !mobileQuery.matches}">
+                    <h4 class="section-title padding-top-1"><strong>Statistical Information:</strong></h4>
+                    <ul>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">
+                                    Number of admin:
+                                </div>
+                                <div class="col-6">
+                                    {{ this.currentInstituteDetails.institute_statistics.no_of_admin }}
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">
+                                    Number of faculties:
+                                </div>
+                                <div class="col-6">
+                                    {{ this.currentInstituteDetails.institute_statistics.no_of_faculties }}
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">
+                                    Number of staff:
+                                </div>
+                                <div class="col-6">
+                                    {{ this.currentInstituteDetails.institute_statistics.no_of_staff }}
+                                </div>
+                            </div>
+                        </li>
+                        <li class="border-bottom-1">
+                            <div class="row">
+                                <div class="col-6">
+                                    Number of students:
+                                </div>
+                                <div class="col-6">
+                                    {{ this.currentInstituteDetails.institute_statistics.no_of_students }}
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-sm-6" [ngClass]="{'padding-right': !mobileQuery.matches}">
+                    <h4 class="section-title padding-top-1"><strong>Language Preferences:</strong></h4>
+                    <ul>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">Primary Language:</div>
+                                <div class="col-6">{{ this.getLanguage(this.currentInstituteDetails.institute_profile.primary_language)}}</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">Secondary Language:</div>
+                                <div class="col-6">
+                                    <span *ngIf="!this.currentInstituteDetails.institute_profile.secondary_language">
+                                  N/A
+                                </span>
+                                    <span *ngIf="this.currentInstituteDetails.institute_profile.secondary_language">
+                                  {{ this.getLanguage(this.currentInstituteDetails.institute_profile.secondary_language) }}
+                                </span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="border-bottom-1">
+                            <div class="row">
+                                <div class="col-6">Tertiary Language:</div>
+                                <div class="col-6">
+                                    <span *ngIf="!this.currentInstituteDetails.institute_profile.tertiary_language">
+                                  N/A
+                                </span>
+                                    <span *ngIf="this.currentInstituteDetails.institute_profile.tertiary_language">
+                                  {{ this.getLanguage(this.currentInstituteDetails.institute_profile.tertiary_language) }}
+                                </span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-sm-6" [ngClass]="{'padding-left': !mobileQuery.matches}">
+                    <h4 class="section-title padding-top-1"><strong>Additional Details:</strong></h4>
+                    <ul>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">Created Date:</div>
+                                <div class="col-6">{{ this.currentInstituteDetails.created_date | date }}</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="row">
+                                <div class="col-6">
+                                    Recognition:
+                                </div>
+                                <div class="col-6">
+                                    <span *ngIf="!this.currentInstituteDetails.institute_profile.recognition">
+                                  N/A
+                                </span>
+                                    <span *ngIf="this.currentInstituteDetails.institute_profile.recognition">
+                                  {{ this.currentInstituteDetails.institute_profile.recognition | uppercase }}
+                                </span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="border-bottom-1">
+                            <div class="row">
+                                <div class="col-6">
+                                    Published Status:
+                                </div>
+                                <div class="col-6">
+                                    False
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <hr class="btn-outline-secondary" />
+            <div class="d-flex justify-content-end">
+                <button mat-flat-button (click)="exitClicked()" class="green-button back-button">Exit</button>
+            </div>
+        </mat-card-actions>
+    </mat-card>
+</section>
