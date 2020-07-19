@@ -67,7 +67,7 @@ export class SignupComponent implements OnInit {
           username: this.signupForm.controls.username.value,
           userIsStudent: this.signupForm.controls.userIsStudent.value
         });
-        this.loginHint = true;
+        // this.loginHint = true;
       }
     );
   }
