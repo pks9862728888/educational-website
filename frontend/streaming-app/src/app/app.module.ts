@@ -11,6 +11,7 @@ import { AuthService } from './auth.service';
 import { HttpClientModule } from '@angular/common/http';
 
 import { TeacherWorkspaceModule } from './teacher-workspace/teacher-workspace.module';
+import { CoachingWorkspaceModule } from './coaching-workspace/coaching-workspace.module';
 import { StudentWorkspaceModule } from './student-workspace/student-workspace.module';
 import { StaffWorkspaceModule } from './staff-workspace/staff-workspace.module';
 import { SchoolWorkspaceModule } from './school-workspace/school-workspace.module';
@@ -40,6 +41,7 @@ import { HomeModule } from './home/home.module';
     StaffWorkspaceModule,
     SchoolWorkspaceModule,
     CollegeWorkspaceModule,
+    CoachingWorkspaceModule,
     HomeModule,
     FeaturesModule,
     PricingModule,

@@ -24,6 +24,9 @@ import { SchoolProfileComponent } from './school-workspace/school-profile/school
 import { CollegeWorkspaceComponent } from './college-workspace/college-workspace.component';
 import { CollegeProfileComponent } from './college-workspace/college-profile/college-profile.component';
 import { CollegePermissionsComponent } from './college-workspace/college-permissions/college-permissions.component';
+import { CoachingWorkspaceComponent } from './coaching-workspace/coaching-workspace.component';
+import { CoachingPermissionsComponent } from './coaching-workspace/coaching-permissions/coaching-permissions.component';
+import { CoachingProfileComponent } from './coaching-workspace/coaching-profile/coaching-profile.component';
 
 
 const routes: Routes = [
@@ -72,6 +75,14 @@ const routes: Routes = [
     children: [
       { path: ':name/profile', component: CollegeProfileComponent },
       { path: ':name/permissions', component: CollegePermissionsComponent },
+    ]
+  },
+  {
+    path: 'coaching-workspace',
+    component: CoachingWorkspaceComponent,
+    children: [
+      { path: ':name/profile', component: CoachingProfileComponent },
+      { path: ':name/permissions', component: CoachingPermissionsComponent },
     ]
   },
   { path: 'features', component: FeaturesComponent },

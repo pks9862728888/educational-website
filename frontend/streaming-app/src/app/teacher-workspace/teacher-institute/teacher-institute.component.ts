@@ -227,7 +227,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
       this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
     } else {
       localStorage.setItem('activeRoute', 'COACHING_PROFILE');
-      // navigate to school workspace
+      this.router.navigate(['coaching-workspace/' + instituteSlug + '/profile']);
     }
   }
 
@@ -255,7 +255,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
         this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
       } else {
         localStorage.setItem('activeRoute', 'COACHING_PROFILE');
-        // navigate to coaching workspace
+        this.router.navigate(['coaching-workspace/' + instituteSlug + '/profile']);
       }
     } else {
       this.showInstituteListView = true;

@@ -1,0 +1,232 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.col-sm-6,
+.col,
+.col-6,
+.col-12,
+.row,
+ul,
+p {
+    margin: 0px;
+    padding: 0px;
+}
+
+ul {
+    box-shadow: 1px 1px 2px #1f1f1f;
+}
+
+.main-content {
+    background-color: #3f3f3f;
+    overflow: hidden;
+}
+
+.institute-banner .mat-card-image {
+    height: 250px;
+    margin-bottom: 0px;
+}
+
+.institute-banner {
+    padding-bottom: 0px;
+    object-fit: fill;
+}
+
+.logo-container {
+    padding-left: 16px;
+}
+
+.logo {
+    height: 130px;
+    width: 130px;
+    position: absolute;
+}
+
+.logo .mat-card-image {
+    border-radius: 50%;
+    border: 4px solid #c9c9c9;
+    transform: translateY(-50%);
+    box-shadow: 0px 2px 2px #6d6d6d;
+}
+
+.banner-background {
+    background-color: #5a5f69;
+}
+
+.edit-icon-banner {
+    color: #ffffff;
+    float: right;
+    transform: translate(30%, -140%);
+    margin: 0px;
+    cursor: pointer;
+}
+
+.edit-icon-logo {
+    color: #ffffff;
+    transform: translate(280%, 140%);
+    cursor: pointer;
+}
+
+.padding-top-non-admin {
+    padding-top: 4.5rem;
+    color: #bdbdbd;
+}
+
+.institute-title {
+    padding-top: 45px;
+    color: #bdbdbd;
+}
+
+hr {
+    margin-top: 0px;
+}
+
+.padding-left-16 {
+    padding-left: 16px;
+}
+
+.margin-edit-button,
+.margin-publish-button,
+.margin-delete-button {
+    margin-right: 16px;
+}
+
+li {
+    list-style-type: none;
+    padding: 1rem 0.5rem 1rem;
+    border: 1px solid #6c757c;
+    border-bottom: 0px;
+    color: #ffffff;
+    background-color: #3d3d3d;
+}
+
+.border-bottom-1 {
+    border-bottom: 1px;
+    border-color: #6c757c;
+    border-style: solid;
+}
+
+.padding-left {
+    padding-left: 0.5rem;
+}
+
+.padding-right {
+    padding-right: 0.5rem;
+}
+
+.section-title {
+    color: #bdbdbd;
+    padding-bottom: 1rem;
+}
+
+.text-color {
+    color: #bdbdbd;
+}
+
+@media screen and (max-width: 600px) {
+    .institute-banner .mat-card-image {
+        height: 130px;
+        margin-bottom: 0px;
+    }
+    .logo-container {
+        padding-left: 0px;
+    }
+    .logo {
+        height: 80px;
+        width: 80px;
+        padding-left: 16px
+    }
+    .logo .mat-card-image {
+        border-radius: 50%;
+        border: 2px solid #c9c9c9;
+        transform: translateY(-40%);
+    }
+    .edit-icon-logo {
+        color: #ffffff;
+        transform: translate(160%, 70%);
+        font-size: 18px;
+        cursor: pointer;
+    }
+    .institute-title {
+        padding-top: 25px;
+    }
+    .padding-top-non-admin {
+        padding-top: 2.8rem;
+        color: #bdbdbd;
+    }
+    .section-title {
+        padding-bottom: 0.7rem;
+    }
+    .col-6 {
+        word-wrap: break-word;
+    }
+}
+
+.green-button {
+    background-color: #008000;
+    color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
+}
+
+.green-button:hover {
+    background-color: #3a9b0d;
+}
+
+.blue-button {
+    background-color: #1c33ff;
+    color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
+}
+
+.blue-button:hover {
+    background-color: #1021b4;
+}
+
+.red-button {
+    background-color: #ff0000;
+    color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
+}
+
+.red-button:hover {
+    background-color: #b80000;
+}
+
+.margin-top-1 {
+    margin-top: 1rem;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.margin-right-1 {
+    margin-right: 1rem !important;
+}
+
+.margin-right-05 {
+    margin-right: 0.5rem;
+}
+
+.margin-bottom-1 {
+    margin-bottom: 1rem;
+}
+
+.padding-top-1 {
+    padding-top: 1rem;
+}
+
+.margin-bottom-05 {
+    margin-bottom: 0.5rem;
+}
+
+.margin-left-05 {
+    margin-left: 0.5rem;
+}
+
+.back-button {
+    margin-bottom: 0.5rem;
+    margin-right: 0.5rem;
+}
