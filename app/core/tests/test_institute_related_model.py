@@ -50,150 +50,150 @@ def create_institute(user, name='Temp Name ola'):
     )
 
 
-class InstituteModelTests(TestCase):
-    """Test the institute model"""
-
-    def test_teacher_create_institute_success(self):
-        """
-        Test that creation of institute is
-        successful for teacher with minimal details.
-        """
-        user = create_teacher()
-        payload = {
-            'user': user,
-            'name': 'My Custom Institute',
-            'institute_category': models.InstituteCategory.EDUCATION,
-            'type': models.InstituteType.SCHOOL
-        }
-        res = models.Institute.objects.create(**payload)
-
-        self.assertTrue(models.Institute.objects.filter(
-            name=payload['name'].lower()).exists())
-        self.assertEqual(res.user, user)
-        self.assertEqual(res.name, payload['name'].lower())
-        self.assertEqual(res.institute_category, payload['institute_category'])
-        self.assertEqual(res.type, payload['type'])
-        self.assertEqual(res.country, 'IN')
-        self.assertEqual(res.institute_profile.motto, '')
-
-    def test_duplicate_institute_fails(self):
-        """
-        Test that creation of duplicate institute
-        fails for teacher.
-        """
-        payload = {
-            'user': create_teacher(),
-            'name': 'My Custom Institute',
-            'institute_category': models.InstituteCategory.EDUCATION,
-            'type': models.InstituteType.SCHOOL
-        }
-        models.Institute.objects.create(**payload)
-
-        with self.assertRaises(IntegrityError):
-            models.Institute.objects.create(**payload)
-
-    def test_user_institute_name_unique_together_success(self):
-        """
-        Test that creation of institute succeeds
-        for different teacher but with same institute name.
-        """
-        payload = {
-            'user': create_teacher(),
-            'name': 'My Custom Institute',
-            'institute_category': models.InstituteCategory.EDUCATION,
-            'type': models.InstituteType.SCHOOL
-        }
-        payload1 = {
-            'user': create_teacher('temp@gmail.com', 'newusername'),
-            'name': 'My Custom Institute',
-            'institute_category': models.InstituteCategory.EDUCATION,
-            'type': models.InstituteType.SCHOOL
-        }
-        models.Institute.objects.create(**payload)
-        models.Institute.objects.create(**payload1)
-
-        self.assertEqual(len(models.Institute.objects.filter(
-            name=payload['name'].lower()
-        )), 2)
-
-    def test_teacher_create_invalid_institute_fails(self):
-        """
-        Test that creation of institute
-        fails for teacher with invalid details.
-        """
-        user = create_teacher()
-        payload = {
-            'user': user,
-            'name': '   ',
-            'institute_category': models.InstituteCategory.EDUCATION,
-            'type': models.InstituteType.SCHOOL
-        }
-
-        with self.assertRaises(ValueError):
-            models.Institute.objects.create(**payload)
-
-    def test_student_create_institute_fails(self):
-        """
-        Test that creation of institute
-        fails for student.
-        """
-        user = create_student()
-        payload = {
-            'user': user,
-            'name': 'My Educational Institute',
-            'institute_category': models.InstituteCategory.EDUCATION,
-            'type': models.InstituteType.SCHOOL
-        }
-
-        with self.assertRaises(PermissionDenied):
-            models.Institute.objects.create(**payload)
-
-    def test_institute_slug(self):
-        """
-        Test that creation of institute is
-        successful for teacher with minimal details.
-        """
-        user = create_teacher()
-        payload = {
-            'user': user,
-            'name': 'My Custom Institute',
-            'institute_category': models.InstituteCategory.EDUCATION,
-            'type': models.InstituteType.SCHOOL
-        }
-        res = models.Institute.objects.create(**payload)
-
-        self.assertTrue(models.Institute.objects.filter(
-            name=payload['name'].lower()).exists())
-
-        starts_with = res.institute_slug.startswith('my-custom-institute')
-        self.assertTrue(starts_with)
-
-    def test_string_representation_institute_model(self):
-        """Test string representation of institute model"""
-        user = create_teacher()
-        payload = {
-            'user': user,
-            'name': 'My Custom Institute',
-            'institute_category': models.InstituteCategory.EDUCATION,
-            'type': models.InstituteType.SCHOOL
-        }
-        res = models.Institute.objects.create(**payload)
-        self.assertEqual(str(res), payload['name'].lower())
-
-    def test_admin_is_created_for_institute_automatically(self):
-        """
-        Test that owner is set as admin automatically
-        """
-        user = create_teacher()
-        institute = create_institute(user)
-        self.assertTrue(models.InstitutePermission.objects.filter(
-            institute=institute,
-            invitee=user,
-            role=models.InstituteRole.ADMIN,
-            active=True
-        ).exists())
-
-
+# class InstituteModelTests(TestCase):
+#     """Test the institute model"""
+#
+#     def test_teacher_create_institute_success(self):
+#         """
+#         Test that creation of institute is
+#         successful for teacher with minimal details.
+#         """
+#         user = create_teacher()
+#         payload = {
+#             'user': user,
+#             'name': 'My Custom Institute',
+#             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.SCHOOL
+#         }
+#         res = models.Institute.objects.create(**payload)
+#
+#         self.assertTrue(models.Institute.objects.filter(
+#             name=payload['name'].lower()).exists())
+#         self.assertEqual(res.user, user)
+#         self.assertEqual(res.name, payload['name'].lower())
+#         self.assertEqual(res.institute_category, payload['institute_category'])
+#         self.assertEqual(res.type, payload['type'])
+#         self.assertEqual(res.country, 'IN')
+#         self.assertEqual(res.institute_profile.motto, '')
+#
+#     def test_duplicate_institute_fails(self):
+#         """
+#         Test that creation of duplicate institute
+#         fails for teacher.
+#         """
+#         payload = {
+#             'user': create_teacher(),
+#             'name': 'My Custom Institute',
+#             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.SCHOOL
+#         }
+#         models.Institute.objects.create(**payload)
+#
+#         with self.assertRaises(IntegrityError):
+#             models.Institute.objects.create(**payload)
+#
+#     def test_user_institute_name_unique_together_success(self):
+#         """
+#         Test that creation of institute succeeds
+#         for different teacher but with same institute name.
+#         """
+#         payload = {
+#             'user': create_teacher(),
+#             'name': 'My Custom Institute',
+#             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.SCHOOL
+#         }
+#         payload1 = {
+#             'user': create_teacher('temp@gmail.com', 'newusername'),
+#             'name': 'My Custom Institute',
+#             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.SCHOOL
+#         }
+#         models.Institute.objects.create(**payload)
+#         models.Institute.objects.create(**payload1)
+#
+#         self.assertEqual(len(models.Institute.objects.filter(
+#             name=payload['name'].lower()
+#         )), 2)
+#
+#     def test_teacher_create_invalid_institute_fails(self):
+#         """
+#         Test that creation of institute
+#         fails for teacher with invalid details.
+#         """
+#         user = create_teacher()
+#         payload = {
+#             'user': user,
+#             'name': '   ',
+#             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.SCHOOL
+#         }
+#
+#         with self.assertRaises(ValueError):
+#             models.Institute.objects.create(**payload)
+#
+#     def test_student_create_institute_fails(self):
+#         """
+#         Test that creation of institute
+#         fails for student.
+#         """
+#         user = create_student()
+#         payload = {
+#             'user': user,
+#             'name': 'My Educational Institute',
+#             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.SCHOOL
+#         }
+#
+#         with self.assertRaises(PermissionDenied):
+#             models.Institute.objects.create(**payload)
+#
+#     def test_institute_slug(self):
+#         """
+#         Test that creation of institute is
+#         successful for teacher with minimal details.
+#         """
+#         user = create_teacher()
+#         payload = {
+#             'user': user,
+#             'name': 'My Custom Institute',
+#             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.SCHOOL
+#         }
+#         res = models.Institute.objects.create(**payload)
+#
+#         self.assertTrue(models.Institute.objects.filter(
+#             name=payload['name'].lower()).exists())
+#
+#         starts_with = res.institute_slug.startswith('my-custom-institute')
+#         self.assertTrue(starts_with)
+#
+#     def test_string_representation_institute_model(self):
+#         """Test string representation of institute model"""
+#         user = create_teacher()
+#         payload = {
+#             'user': user,
+#             'name': 'My Custom Institute',
+#             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.SCHOOL
+#         }
+#         res = models.Institute.objects.create(**payload)
+#         self.assertEqual(str(res), payload['name'].lower())
+#
+#     def test_admin_is_created_for_institute_automatically(self):
+#         """
+#         Test that owner is set as admin automatically
+#         """
+#         user = create_teacher()
+#         institute = create_institute(user)
+#         self.assertTrue(models.InstitutePermission.objects.filter(
+#             institute=institute,
+#             invitee=user,
+#             role=models.InstituteRole.ADMIN,
+#             active=True
+#         ).exists())
+#
+#
 # class InstituteProfileModelTests(TestCase):
 #     """Tests for institute profile model."""
 #
@@ -206,6 +206,7 @@ class InstituteModelTests(TestCase):
 #             'user': create_teacher(),
 #             'name': 'My Custom Institute12',
 #             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.COLLEGE,
 #             'institute_profile': {
 #                 'motto': 'This is custom moto.',
 #                 'email': 'xyz@gmail.com',
@@ -222,6 +223,7 @@ class InstituteModelTests(TestCase):
 #             user=payload['user'],
 #             name=payload['name'],
 #             institute_category=payload['institute_category'],
+#             type=payload['type']
 #         )
 #
 #         res.institute_profile.motto = institute_profile['motto']
@@ -254,6 +256,7 @@ class InstituteModelTests(TestCase):
 #             'user': user,
 #             'name': 'My Custom Institute',
 #             'institute_category': models.InstituteCategory.EDUCATION,
+#             'type': models.InstituteType.COLLEGE,
 #         }
 #         institute = models.Institute.objects.create(**payload)
 #         institute_profile = models.InstituteProfile.objects.get(
@@ -747,8 +750,8 @@ class InstituteModelTests(TestCase):
 #             role=models.InstituteRole.ADMIN
 #         )
 #         self.assertEqual(str(perm), str(new_admin))
-
-
+#
+#
 # class InstituteClassModelTests(TestCase):
 #     """Tests for institute class"""
 #

@@ -51,11 +51,11 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
     class Meta:
         model = Institute
         fields = ('id', 'user', 'name', 'country', 'role',
-                  'institute_category', 'created_date',
+                  'institute_category', 'type', 'created_date',
                   'institute_slug', 'institute_profile',
                   'institute_logo', 'institute_statistics')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'created_date', 'institute_slug', 'role',
+                            'type', 'created_date', 'institute_slug', 'role',
                             'institute_profile', 'institute_logo',
                             'institute_statistics')
 
@@ -178,11 +178,11 @@ class InstitutesJoinedMinDetailsTeacher(CountryFieldMixin,
     class Meta:
         model = Institute
         fields = ('id', 'name', 'country', 'role',
-                  'institute_category', 'created_date',
+                  'institute_category', 'type', 'created_date',
                   'institute_slug', 'institute_profile',
                   'institute_logo', 'institute_statistics')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'created_date', 'institute_slug', 'role',
+                            'type', 'created_date', 'institute_slug', 'role',
                             'institute_profile', 'institute_logo',
                             'institute_statistics')
 
@@ -245,7 +245,7 @@ class CreateInstituteSerializer(CountryFieldMixin,
 
     class Meta:
         model = Institute
-        fields = ('name', 'country', 'institute_category',
+        fields = ('name', 'country', 'institute_category', 'type',
                   'institute_slug', 'institute_profile', 'url')
         read_only_fields = ('institute_slug', )
 
@@ -309,11 +309,11 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Institute
-        fields = ('user', 'name', 'country', 'institute_category', 'role',
-                  'institute_slug', 'created_date', 'institute_profile',
+        fields = ('user', 'name', 'country', 'institute_category', 'type',
+                  'role', 'institute_slug', 'created_date', 'institute_profile',
                   'institute_statistics', 'institute_logo', 'institute_banner')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'institute_slug', 'created_date', 'role',
+                            'type', 'institute_slug', 'created_date', 'role',
                             'institute_profile', 'institute_statistics',
                             'institute_logo', 'institute_banner')
 
