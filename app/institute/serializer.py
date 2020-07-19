@@ -110,12 +110,12 @@ class InstitutePendingInviteMinDetailsSerializer(CountryFieldMixin,
 
     class Meta:
         model = Institute
-        fields = ('id', 'name', 'country', 'role',
+        fields = ('id', 'name', 'country', 'role', 'type',
                   'invited_by', 'institute_category', 'created_date',
                   'institute_slug', 'institute_profile',
                   'institute_logo', 'institute_statistics')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'created_date', 'institute_slug', 'role',
+                            'type', 'created_date', 'institute_slug', 'role',
                             'invited_by', 'institute_profile',
                             'institute_logo', 'institute_statistics')
 
