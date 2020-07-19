@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django_countries.serializer_fields import CountryField
 from django_countries.serializers import CountryFieldMixin
 
-from core.models import TeacherProfile, ProfilePictures, Subject, Classroom
+from core.models import TeacherProfile, ProfilePictures
 
 
 class TeacherProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
@@ -103,32 +103,3 @@ class ManageTeacherProfileSerializer(serializers.ModelSerializer):
         setattr(instance, 'profile', profile)
 
         return instance
-
-
-class CreateClassroomSerializer(serializers.ModelSerializer):
-    """Serializer class for creating a new classroom"""
-    user = serializers.HiddenField(
-        default=serializers.CurrentUserDefault()
-    )
-
-    class Meta:
-        model = Classroom
-        fields = ('id', 'user', 'name')
-        read_only_fields = ('id', )
-
-
-class CreateUserSerializer(serializers.ModelSerializer):
-    """Serializer class for creating a new subject"""
-    user = serializers.HiddenField(
-        default=serializers.CurrentUserDefault()
-    )
-    classroom = serializers.PrimaryKeyRelatedField(
-        many=False,
-        queryset=Classroom.objects.all(),
-        required=True
-    )
-
-    class Meta:
-        model = Subject
-        fields = ('id', 'user', 'classroom', 'name')
-        read_only_fields = ('id', )

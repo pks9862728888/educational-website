@@ -241,6 +241,23 @@ def unique_slug_generator_for_institute(instance, new_slug=None):
     return slug
 
 
+def unique_slug_generator_for_class(instance, new_slug=None):
+    """Generates a unique slug for institute"""
+    if new_slug is not None:
+        slug = new_slug
+    else:
+        slug = slugify(instance.name)
+
+    k_class = instance.__class__
+    qs_exists = k_class.objects.filter(class_slug=slug).exists()
+
+    if qs_exists:
+        new_slug = f'{slug}-{random_string_generator(size=6)}'
+        return unique_slug_generator_for_class(
+            instance, new_slug=new_slug)
+    return slug
+
+
 class UserManager(BaseUserManager):
 
     def create_user(self, email, password, username, **extra_kwargs):
@@ -347,8 +364,11 @@ class TeacherProfile(models.Model, Languages):
 
     def save(self, *args, **kwargs):
         """Overriding save method"""
-        self.first_name = self.first_name.upper().strip()
-        self.last_name = self.last_name.upper().strip()
+        if self.first_name:
+            self.first_name = self.first_name.upper().strip()
+
+        if self.last_name:
+            self.last_name = self.last_name.upper().strip()
 
         super(TeacherProfile, self).save(*args, **kwargs)
 
@@ -485,7 +505,8 @@ class Institute(models.Model):
 
     def save(self, *args, **kwargs):
         """Overriding save method"""
-        self.name = self.name.lower().strip()
+        if self.name:
+            self.name = self.name.lower().strip()
 
         if len(self.name) == 0:
             raise ValueError({'name': _('Institute name can not be blank')})
@@ -693,70 +714,35 @@ def institute_is_created(sender, instance, created, **kwargs):
             InstituteProfile.objects.create(institute=instance)
 
 
-class Classroom(models.Model):
-    """Creates classroom model where only teacher can create classroom"""
-    user = models.ForeignKey(
-        'User', related_name='classroom', on_delete=models.CASCADE)
+class InstituteClass(models.Model):
+    """Creates model to store institute classes"""
+    institute = models.ForeignKey(
+        'Institute', related_name='institute_classes',
+        on_delete=models.CASCADE)
     name = models.CharField(
-        _('Classroom name'), max_length=30, blank=False, null=False,
-        validators=(MinLengthValidator(4), ProhibitNullCharactersValidator))
+        _('Name'), max_length=40, blank=False, null=False)
+    class_slug = models.CharField(
+        _('Class slug'), max_length=60, blank=True, null=True)
+
+    class Meta:
+        unique_together = ('institute', 'name')
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.lower().strip()
+
+        if not self.name:
+            raise ValueError(_('Name is required.'))
+
+        super(InstituteClass, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        """Overriding save method"""
-        self.name = self.name.lower().strip()
 
-        if len(self.name) == 0:
-            raise ValueError({'name': _('Classroom name can not be blank')})
-
-        # Only teachers can create classroom
-        if not User.objects.get(email=self.user).is_teacher:
-            raise PermissionDenied()
-
-        super(Classroom, self).save(*args, **kwargs)
-
-    class Meta:
-        unique_together = ('user', 'name')
-
-
-class Subject(models.Model):
-    """Creates subject model where only teacher can create subject"""
-    user = models.ForeignKey(
-        'User',
-        related_name='user_subject',
-        on_delete=models.CASCADE)
-    classroom = models.ForeignKey(
-        'Classroom',
-        related_name='classroom_subject',
-        on_delete=models.CASCADE)
-    name = models.CharField(
-        _('Subject name'),
-        max_length=30,
-        blank=False,
-        null=False,
-        validators=(MinLengthValidator(4), ProhibitNullCharactersValidator))
-
-    def __str__(self):
-        return self.name
-
-    def save(self, *args, **kwargs):
-        """Overriding save method"""
-        self.name = self.name.lower().strip()
-
-        if len(self.name) == 0:
-            raise ValueError({'name': _('Subject name can not be blank')})
-
-        # Only teachers can create subject
-        if not User.objects.get(email=self.user).is_teacher:
-            raise PermissionDenied()
-
-        # Teacher can create subject in his classroom only
-        if Classroom.objects.get(name=self.classroom).user != self.user:
-            raise PermissionDenied()
-
-        super(Subject, self).save(*args, **kwargs)
-
-    class Meta:
-        unique_together = ('user', 'classroom', 'name')
+@receiver(pre_save, sender=InstituteClass)
+def institute_class_slug_generator(sender, instance, *args, **kwargs):
+    """Generates slug for institute class"""
+    if not instance.class_slug:
+        slug = unique_slug_generator_for_class(instance)
+        instance.class_slug = slug

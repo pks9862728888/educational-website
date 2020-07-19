@@ -9,12 +9,4 @@ urlpatterns = [
         'teacher-profile',
         views.ManageTeacherProfileView.as_view(),
         name='teacher-profile'),
-    path(
-        'create-classroom',
-        views.CreateClassroomView.as_view(),
-        name='create-classroom'),
-    path(
-        'create-subject',
-        views.CreateSubjectView.as_view(),
-        name='create-subject'),
 ]

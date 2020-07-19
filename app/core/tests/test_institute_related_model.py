@@ -1,54 +1,54 @@
-# import os
-# import datetime
-#
-# from unittest.mock import patch
-#
-# from django.db import IntegrityError
-# from django.test import TestCase
-# from django.contrib.auth import get_user_model
-#
-# from core import models
-# from django.core.exceptions import PermissionDenied
-#
-#
-# def create_teacher(email='teacher@gmail.com', username='tempusername'):
-#     """Creates and return teacher user"""
-#     return get_user_model().objects.create_user(
-#         email=email,
-#         password='teacherpassword',
-#         username=username,
-#         is_teacher=True
-#     )
-#
-#
-# def create_student(email='student@gmail.com', username='tempsdffd'):
-#     """Creates and return student user"""
-#     return get_user_model().objects.create_user(
-#         email=email,
-#         password='teacherpassword',
-#         username=username,
-#         is_student=True
-#     )
-#
-#
-# def create_user(email='user@gmail.com', username='usertemp'):
-#     """Creates and return student user"""
-#     return get_user_model().objects.create_user(
-#         email=email,
-#         password='teacherpassword',
-#         username=username
-#     )
-#
-#
-# def create_institute(user, name='Temp Name ola'):
-#     """Creates and returns an institute"""
-#     return models.Institute.objects.create(
-#         user=user,
-#         name=name,
-#         institute_category=models.InstituteCategory.EDUCATION
-#     )
-#
-#
+import os
+import datetime
+
+from unittest.mock import patch
+
+from django.db import IntegrityError
+from django.test import TestCase
+from django.contrib.auth import get_user_model
+
+from core import models
+from django.core.exceptions import PermissionDenied
+
+
+def create_teacher(email='teacher@gmail.com', username='tempusername'):
+    """Creates and return teacher user"""
+    return get_user_model().objects.create_user(
+        email=email,
+        password='teacherpassword',
+        username=username,
+        is_teacher=True
+    )
+
+
+def create_student(email='student@gmail.com', username='tempsdffd'):
+    """Creates and return student user"""
+    return get_user_model().objects.create_user(
+        email=email,
+        password='teacherpassword',
+        username=username,
+        is_student=True
+    )
+
+
+def create_user(email='user@gmail.com', username='usertemp'):
+    """Creates and return student user"""
+    return get_user_model().objects.create_user(
+        email=email,
+        password='teacherpassword',
+        username=username
+    )
+
+
+def create_institute(user, name='Temp Name ola'):
+    """Creates and returns an institute"""
+    return models.Institute.objects.create(
+        user=user,
+        name=name,
+        institute_category=models.InstituteCategory.EDUCATION
+    )
+
+
 # class InstituteModelTests(TestCase):
 #     """Test the institute model"""
 #
@@ -737,3 +737,51 @@
 #             role=models.InstituteRole.ADMIN
 #         )
 #         self.assertEqual(str(perm), str(new_admin))
+
+
+class InstituteClassModelTests(TestCase):
+    """Tests for institute class"""
+
+    def setUp(self):
+        self.admin = create_teacher()
+        self.institute = create_institute(self.admin)
+
+    def test_institute_admin_create_class_successfully(self):
+        """Test that institute admin can create class successfully"""
+        res = models.InstituteClass.objects.create(
+            institute=self.institute,
+            name='Class 1'
+        )
+
+        self.assertEqual(res.name, 'class 1')
+        self.assertEqual(res.institute, self.institute)
+        self.assertTrue(len(res.class_slug) > 0)
+
+    def test_only_one_class_same_name_allowed_per_institute(self):
+        """Test that class names should be unique per institute"""
+        models.InstituteClass.objects.create(
+            institute=self.institute,
+            name='Class 1'
+        )
+
+        with self.assertRaises(Exception):
+            res = models.InstituteClass.objects.create(
+                institute=self.institute,
+                name='Class 1'
+            )
+
+    def test_name_required(self):
+        """Test that name is required"""
+        with self.assertRaises(ValueError):
+            models.InstituteClass.objects.create(
+                    institute=self.institute,
+                    name='   '
+            )
+
+    def test_string_representation(self):
+        """Test the string representation of the class model"""
+        res = models.InstituteClass.objects.create(
+            institute=self.institute,
+            name='Class 1'
+        )
+        self.assertEqual(str(res), 'class 1')
