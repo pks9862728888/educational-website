@@ -135,6 +135,12 @@ class CustomInstituteLicense(admin.ModelAdmin):
     list_filter = ['type', 'billing']
 
 
+class CustomInstitute(admin.ModelAdmin):
+    model = models.InstituteLicense
+    list_display = ['name', 'institute_category', 'type']
+    list_filter = ['institute_category', 'type']
+
+
 class CustomInstituteProfile(admin.ModelAdmin):
     """Customizing the user profile admin page"""
     list_display = ['institute_name', 'admin_email', 'phone', 'state',
@@ -203,7 +209,7 @@ admin.site.register(models.InstituteLicense, CustomInstituteLicense)
 admin.site.register(models.SystemMessage, CustomSystemMessages)
 admin.site.register(models.TeacherProfile, CustomTeacherUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)
-admin.site.register(models.Institute)
+admin.site.register(models.Institute, CustomInstitute)
 admin.site.register(models.InstituteProfile, CustomInstituteProfile)
 admin.site.register(models.InstituteLogo, CustomInstituteLogo)
 admin.site.register(models.InstituteBanner, CustomInstituteBanner)

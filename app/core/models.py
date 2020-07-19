@@ -148,6 +148,18 @@ class InstituteCategory:
     ]
 
 
+class InstituteType:
+    SCHOOL = 'SC'
+    COLLEGE = 'CO'
+    COACHING = 'CC'
+
+    TYPE_IN_INSTITUTE_TYPE = [
+        (SCHOOL, _(u'SCHOOL')),
+        (COLLEGE, _(u'COLLEGE')),
+        (COACHING, _(u'COACHING')),
+    ]
+
+
 class InstituteRole:
     ADMIN = 'A'
     STAFF = 'S'
@@ -493,6 +505,10 @@ class Institute(models.Model):
         _('Institute Category'), max_length=1,
         choices=InstituteCategory.CATEGORY_IN_INSTITUTE_CATEGORIES,
         blank=False, null=False)
+    type = models.CharField(
+        _('Institute Type'), max_length=2,
+        choices=InstituteType.TYPE_IN_INSTITUTE_TYPE,
+        blank=False, null=False)
     created_date = models.DateTimeField(
         _('Created Date'), default=timezone.now, editable=False
     )
@@ -508,8 +524,11 @@ class Institute(models.Model):
         if self.name:
             self.name = self.name.lower().strip()
 
-        if len(self.name) == 0:
-            raise ValueError({'name': _('Institute name can not be blank')})
+        if not self.name:
+            raise ValueError({'name': _('This field is required.')})
+
+        if not self.type:
+            raise ValueError({'type': _('This field is required.')})
 
         # Only teachers can create institute
         if not User.objects.get(email=self.user).is_teacher:
