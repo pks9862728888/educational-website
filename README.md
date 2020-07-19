@@ -236,6 +236,7 @@ ________________________________________________________________________________
     "name": "temp institute 3",
     "country": "AF",
     "institute_category": "E",
+    "type": "SC",
     "role": "A",
     "institute_profile": {
         "institute": 7,
@@ -277,6 +278,7 @@ ________________________________________________________________________________
         "name": "temp institute teacher 1",
         "country": "IN",
         "institute_category": "A",
+        "type": "SC",
         "created_date": "2020-06-25T11:31:21.445568Z",
         "role": "A",
         "institute_profile": {
@@ -296,6 +298,7 @@ ________________________________________________________________________________
         "name": "institute 2 teacher1",
         "country": "IN",
         "institute_category": "M",
+        "type": "SC"
         "created_date": "2020-06-26T08:18:19.908881Z",
         "role": "S",
         "institute_profile": {
@@ -327,6 +330,7 @@ ________________________________________________________________________________
         "country": "IN",
         "role": "S",
         "institute_category": "E",
+        "type": "SC",
         "created_date": "2020-07-14T16:44:49.594346Z",
         "institute_slug": "second-institute",
         "institute_profile": {
@@ -362,6 +366,7 @@ ________________________________________________________________________________
     "name": "temp institute 3",
     "country": "AF",
     "institute_category": "E",
+    "type": "SC",
     "institute_slug": "temp-institute-3",
     "role": "A",
     "institute_profile": {
@@ -527,6 +532,7 @@ Staff and faculty can not delete any invites.
         "role": "S",
         "invited_by": "teacher1@gmail.com",
         "institute_category": "E",
+        "type": "SC",
         "created_date": "2020-07-14T16:44:49.594346Z",
         "institute_slug": "second-institute",
         "institute_profile": {
