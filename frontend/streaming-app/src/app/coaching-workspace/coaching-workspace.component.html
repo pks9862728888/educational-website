@@ -8,11 +8,13 @@
             <mat-nav-list>
                 <h1 *ngIf="mobileQuery.matches" class="website-name">EduWeb</h1>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" (click)="performAction('INSTITUTES')">My Institutes</div>
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COACHING_PROFILE'" (click)="performAction('COACHING_PROFILE')">Coaching Profile</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COACHING_PROFILE'" (click)="performAction('COACHING_PROFILE')" id="COACHING_PROFILE">Coaching Profile</div>
+                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COACHING_PERMISSIONS'" (click)="performAction('COACHING_PERMISSIONS')">Coaching Permissions</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COACHING_PERMISSIONS'" (click)="performAction('COACHING_PERMISSIONS')" id="COACHING_PERMISSIONS">Coaching Permissions</div>
+                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')">License</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                              'sidenav-content-more-padding': !mobileQuery.matches}" (click)="performAction('EXIT')">Exit</div>
             </mat-nav-list>
         </mat-sidenav>
 
@@ -31,6 +33,7 @@
                         <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COACHING_PROFILE'">Profile</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COACHING_PERMISSIONS'">Permissions</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'">License</li>
                     </ol>
                 </nav>
 

@@ -1,3 +1,4 @@
+import { SitemapComponent } from './sitemap/sitemap.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
@@ -27,6 +28,7 @@ import { CollegePermissionsComponent } from './college-workspace/college-permiss
 import { CoachingWorkspaceComponent } from './coaching-workspace/coaching-workspace.component';
 import { CoachingPermissionsComponent } from './coaching-workspace/coaching-permissions/coaching-permissions.component';
 import { CoachingProfileComponent } from './coaching-workspace/coaching-profile/coaching-profile.component';
+import { LicenseComponent } from './license/license.component';
 
 
 const routes: Routes = [
@@ -66,7 +68,8 @@ const routes: Routes = [
     children: [
       { path: ':name/profile', component: SchoolProfileComponent },
       { path: ':name/permissions', component: SchoolPermissionsComponent },
-      { path: ':name/classes', component: SchoolClassesComponent }
+      { path: ':name/classes', component: SchoolClassesComponent },
+      { path: ':name/license', component: LicenseComponent }
     ]
   },
   {
@@ -75,6 +78,7 @@ const routes: Routes = [
     children: [
       { path: ':name/profile', component: CollegeProfileComponent },
       { path: ':name/permissions', component: CollegePermissionsComponent },
+      { path: ':name/license', component: LicenseComponent },
     ]
   },
   {
@@ -83,12 +87,14 @@ const routes: Routes = [
     children: [
       { path: ':name/profile', component: CoachingProfileComponent },
       { path: ':name/permissions', component: CoachingPermissionsComponent },
+      { path: ':name/license', component: LicenseComponent },
     ]
   },
   { path: 'features', component: FeaturesComponent },
   { path: 'pricing', component: PricingComponent },
   { path: 'about', component: AboutComponent },
   { path: 'help', component: HelpComponent },
+  { path: 'sitemap', component: SitemapComponent },
   { path: '**', component: PageNotFoundComponent }
 ];
 

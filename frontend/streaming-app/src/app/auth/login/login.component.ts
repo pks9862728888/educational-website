@@ -55,7 +55,10 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginForm.value).subscribe(
       (result: ServerResponse) => {
         // Saving the data and navigating to workspace
-        this.cookieService.set(authTokenName, result.token);
+        let expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 30);
+        this.cookieService.set(authTokenName,
+          result.token, expiryDate, '/', '192.168.43.25', false, 'Strict');
         sessionStorage.setItem('user_id', result.id);
         sessionStorage.setItem('username', result.username);
         sessionStorage.setItem('email', result.email);

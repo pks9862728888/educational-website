@@ -1,3 +1,4 @@
+import { MatCardModule } from '@angular/material/card';
 import { NgModule } from '@angular/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,7 +20,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
         MatDividerModule,
         MatSnackBarModule,
         MatBadgeModule,
-        MatToolbarModule
+        MatToolbarModule,
+        MatCardModule
     ],
     exports: [
         MatInputModule,
@@ -30,7 +32,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
         MatDividerModule,
         MatSnackBarModule,
         MatBadgeModule,
-        MatToolbarModule
+        MatToolbarModule,
+        MatCardModule
     ]
 })
 export class MaterialModule {}

@@ -65,11 +65,11 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
 
       if (this.activeLink === 'HOME') {
         this.router.navigate(['/home']);
-      } else if (this.activeLink === 'INSTITUTES') {
+      } else if (this.activeLink === 'EXIT') {
         localStorage.setItem('activeRoute', 'INSTITUTES');
         localStorage.removeItem('currentInstituteSlug');
         localStorage.removeItem('currentInstituteRole');
-        this.router.navigate(['/teacher-workspace/' + link.toLowerCase()]);
+        this.router.navigate(['/teacher-workspace/institutes']);
       } else {
         const instituteSlug = localStorage.getItem('currentInstituteSlug');
         if (this.activeLink === 'COLLEGE_PROFILE') {
@@ -78,6 +78,8 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
           this.router.navigate(['/college-workspace/' + instituteSlug + '/permissions']);
         } else if (this.activeLink === 'COLLEGE_CLASSES') {
           this.router.navigate(['/college-workspace/' + instituteSlug + '/classes']);
+        } else if (this.activeLink === 'LICENSE') {
+          this.router.navigate(['/college-workspace/' + instituteSlug + '/license']);
         }
       }
     }

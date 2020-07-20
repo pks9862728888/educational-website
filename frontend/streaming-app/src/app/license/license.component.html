@@ -1,0 +1,478 @@
+<section>
+    <mat-card class="parent-container">
+        <div class="heading">
+            <h1 *ngIf="!mobileQuery.matches">Choose a License:</h1>
+            <h2 *ngIf="mobileQuery.matches">Choose a License:</h2>
+        </div>
+        <div class="width-100">
+            <div>
+                <div class="row">
+                    <div class="col billing-term monthly" [class.active-term]="activeBilling === 'MONTHLY'" (click)="changeBillingTerm('MONTHLY')">Monthly</div>
+                    <div class="col billing-term yearly" [class.active-term]="activeBilling === 'YEARLY'" (click)="changeBillingTerm('YEARLY')">Yearly</div>
+                </div>
+            </div>
+        </div>
+
+        <section *ngIf="activeBilling === 'MONTHLY'">
+            <div class="width-100">
+                <div [ngClass]="{'plan-container': !mobileQuery.matches, 'col-12': mobileQuery.matches}">
+                    <div class="row">
+                        <div class="col-md-4" [ngClass]="{'margin-bottom-1': mobileQuery.matches, 'inactive-container': !mobileQuery.matches && activePlanContainer !== 'BASIC'}">
+                            <mat-card class="choose-plan-container" [class.choose-plan-active-container]="activePlanContainer === 'BASIC'" (click)="changeActivePlanContainer('BASIC')">
+                                <div class="row center header-background-color" [ngClass]="{'active-container': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                    <div class="icon-circle" [class.icon-circle-active]="!mobileQuery.matches && activePlanContainer === 'BASIC'">
+                                        <mat-icon class="plan-icon">laptop_mac</mat-icon>
+                                    </div>
+                                    <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'BASIC', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <h2 class="license-name">BASIC</h2>
+                                        <h3 class="price">&#8377; 3 K per month</h3>
+                                        <p>Best suited for coaching institutes.</p>
+                                        <p>Billed monthly.</p>
+                                        <button mat-flat-button class="green-button rounded-button">Get started</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card>
+                        </div>
+                        <div class="col-md-4" [ngClass]="{'margin-bottom-1': mobileQuery.matches, 'inactive-container': !mobileQuery.matches && activePlanContainer !== 'BUSINESS'}">
+                            <mat-card class="choose-plan-container" [class.choose-plan-active-container]="activePlanContainer === 'BUSINESS'" (click)="changeActivePlanContainer('BUSINESS')">
+                                <div class="row center header-background-color" [ngClass]="{'active-container': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                    <div class="icon-circle" [class.icon-circle-active]="!mobileQuery.matches && activePlanContainer === 'BUSINESS'">
+                                        <mat-icon class="plan-icon">school</mat-icon>
+                                    </div>
+                                    <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <h2 class="license-name">BUSINESS</h2>
+                                        <h3 class="price">&#8377; 40K per month</h3>
+                                        <p>Best suited for colleges.</p>
+                                        <p>Billed monthly.</p>
+                                        <button mat-flat-button class="green-button rounded-button">Get started</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card>
+                        </div>
+                        <div class="col-md-4" [ngClass]="{'margin-bottom-1': mobileQuery.matches, 'inactive-container': !mobileQuery.matches && activePlanContainer !== 'ENTERPRISE'}">
+                            <mat-card class="choose-plan-container" [class.choose-plan-active-container]="activePlanContainer === 'ENTERPRISE'" (click)="changeActivePlanContainer('ENTERPRISE')">
+                                <div class="row center header-background-color" [ngClass]="{'active-container': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                    <div class="icon-circle" [class.icon-circle-active]="!mobileQuery.matches && activePlanContainer === 'ENTERPRISE'">
+                                        <mat-icon class="plan-icon">account_balance</mat-icon>
+                                    </div>
+                                    <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <h2 class="license-name">ENTERPRISE</h2>
+                                        <h3 class="price">&#8377; 90 K per month</h3>
+                                        <p>Best suited for colleges.</p>
+                                        <p>Billed monthly.</p>
+                                        <button mat-flat-button class="green-button rounded-button">Get started</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section *ngIf="activeBilling === 'YEARLY'">
+            <div class="width-100">
+                <div [ngClass]="{'plan-container': !mobileQuery.matches, 'col-12': mobileQuery.matches}">
+                    <div class="row">
+                        <div class="col-md-4" [ngClass]="{'margin-bottom-1': mobileQuery.matches, 'inactive-container': !mobileQuery.matches && activePlanContainer !== 'BASIC'}">
+                            <mat-card class="choose-plan-container" [class.choose-plan-active-container]="activePlanContainer === 'BASIC'" (click)="changeActivePlanContainer('BASIC')">
+                                <div class="row center header-background-color" [ngClass]="{'active-container': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                    <div class="icon-circle" [class.icon-circle-active]="!mobileQuery.matches && activePlanContainer === 'BASIC'">
+                                        <mat-icon class="plan-icon">laptop_mac</mat-icon>
+                                    </div>
+                                    <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'BASIC', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <h2 class="license-name">BASIC</h2>
+                                        <h3 class="price">&#8377; 2.5 K per month</h3>
+                                        <p>Best suited for coaching institutes.</p>
+                                        <p>Billed yearly.</p>
+                                        <button mat-flat-button class="green-button rounded-button">Get started</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card>
+                        </div>
+                        <div class="col-md-4" [ngClass]="{'margin-bottom-1': mobileQuery.matches, 'inactive-container': !mobileQuery.matches && activePlanContainer !== 'BUSINESS'}">
+                            <mat-card class="choose-plan-container" [class.choose-plan-active-container]="activePlanContainer === 'BUSINESS'" (click)="changeActivePlanContainer('BUSINESS')">
+                                <div class="row center header-background-color" [ngClass]="{'active-container': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                    <div class="icon-circle" [class.icon-circle-active]="!mobileQuery.matches && activePlanContainer === 'BUSINESS'">
+                                        <mat-icon class="plan-icon">school</mat-icon>
+                                    </div>
+                                    <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <h2 class="license-name">BUSINESS</h2>
+                                        <h3 class="price">&#8377; 30K per month</h3>
+                                        <p>Best suited for colleges.</p>
+                                        <p>Billed yearly.</p>
+                                        <button mat-flat-button class="green-button rounded-button">Get started</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card>
+                        </div>
+                        <div class="col-md-4" [ngClass]="{'margin-bottom-1': mobileQuery.matches, 'inactive-container': !mobileQuery.matches && activePlanContainer !== 'ENTERPRISE'}">
+                            <mat-card class="choose-plan-container" [class.choose-plan-active-container]="activePlanContainer === 'ENTERPRISE'" (click)="changeActivePlanContainer('ENTERPRISE')">
+                                <div class="row center header-background-color" [ngClass]="{'active-container': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                    <div class="icon-circle" [class.icon-circle-active]="!mobileQuery.matches && activePlanContainer === 'ENTERPRISE'">
+                                        <mat-icon class="plan-icon">account_balance</mat-icon>
+                                    </div>
+                                    <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <h2 class="license-name">ENTERPRISE</h2>
+                                        <h3 class="price">&#8377; 75 K per month</h3>
+                                        <p>Best suited for colleges.</p>
+                                        <p>Billed monthly.</p>
+                                        <button mat-flat-button class="green-button rounded-button">Get started</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Feature name
+                                            </div>
+                                            <div class="col">Quantity</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </mat-card>
+</section>

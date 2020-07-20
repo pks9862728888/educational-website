@@ -26,7 +26,7 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
                private media: MediaMatcher,
                private inAppDataTransferService: InAppDataTransferService ) {
 
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this.mobileQuery = this.media.matchMedia('(max-width: 768px)');
 
     // Initializing sidenav active route in case page is reloaded
     const active_route = localStorage.getItem('activeRoute');
@@ -65,11 +65,11 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
       if (this.activeLink === 'HOME') {
         this.router.navigate(['/home']);
-      } else if (this.activeLink === 'INSTITUTES') {
+      } else if (this.activeLink === 'EXIT') {
         localStorage.setItem('activeRoute', 'INSTITUTES');
         localStorage.removeItem('currentInstituteSlug');
         localStorage.removeItem('currentInstituteRole');
-        this.router.navigate(['/teacher-workspace/' + link.toLowerCase()]);
+        this.router.navigate(['/teacher-workspace/institutes']);
       } else {
         const instituteSlug = localStorage.getItem('currentInstituteSlug');
         if (this.activeLink === 'SCHOOL_PROFILE') {
@@ -78,6 +78,8 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
           this.router.navigate(['/school-workspace/' + instituteSlug + '/permissions']);
         } else if (this.activeLink === 'SCHOOL_CLASSES') {
           this.router.navigate(['/school-workspace/' + instituteSlug + '/classes']);
+        } else if (this.activeLink === 'LICENSE') {
+          this.router.navigate(['/school-workspace/' + instituteSlug + '/license']);
         }
       }
     }

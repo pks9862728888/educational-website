@@ -19,6 +19,7 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   activeLink: string;
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
+  subscribed = true;
 
   constructor( private cookieService: CookieService,
                private router: Router,
@@ -46,6 +47,7 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
         // Get the type of user and then again navigate to appropriate workspace
       }
     } else {
+      this.subscribed = false;
       this.router.navigate(['/login']);
     }
   }
@@ -101,7 +103,9 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.showTempNamesSubscription.unsubscribe();
+    if (this.subscribed) {
+      this.showTempNamesSubscription.unsubscribe();
+    }
   }
 
 }

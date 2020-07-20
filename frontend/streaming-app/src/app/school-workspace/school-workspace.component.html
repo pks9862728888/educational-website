@@ -8,13 +8,15 @@
             <mat-nav-list>
                 <h1 *ngIf="mobileQuery.matches" class="website-name">EduWeb</h1>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" (click)="performAction('INSTITUTES')">My Institutes</div>
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PROFILE'" (click)="performAction('SCHOOL_PROFILE')">School Profile</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PROFILE'" (click)="performAction('SCHOOL_PROFILE')" id="SCHOOL_PROFILE">School Profile</div>
+                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PERMISSIONS'" (click)="performAction('SCHOOL_PERMISSIONS')">School Permissions</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PERMISSIONS'" (click)="performAction('SCHOOL_PERMISSIONS')" id="SCHOOL_PERMISSIONS">School Permissions</div>
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_CLASSES'" (click)="performAction('SCHOOL_CLASSES')">School Classes</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_CLASSES'" (click)="performAction('SCHOOL_CLASSES')" id="SCHOOL_CLASSES">School Classes</div>
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')">License</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
+                                'sidenav-content-more-padding': !mobileQuery.matches}" (click)="performAction('EXIT')">Exit</div>
             </mat-nav-list>
         </mat-sidenav>
 
@@ -34,6 +36,7 @@
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PROFILE'">Profile</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PERMISSIONS'">Permissions</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_CLASSES'">Classes</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'">License</li>
                     </ol>
                 </nav>
 

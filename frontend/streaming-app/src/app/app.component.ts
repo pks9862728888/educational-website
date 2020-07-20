@@ -79,7 +79,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Clears token and saved info from local storage & then emits logged in signal as false
   logout() {
-    this.cookieService.delete(authTokenName);
+    this.cookieService.deleteAll('/');
     sessionStorage.clear();
     localStorage.clear();
     this.authService.sendLoggedInStatusSignal(false);
