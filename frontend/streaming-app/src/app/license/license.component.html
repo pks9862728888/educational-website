@@ -26,7 +26,7 @@
                                     <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'BASIC', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <h2 class="license-name">BASIC</h2>
                                         <h3 class="price">&#8377; 3 K per month</h3>
-                                        <p>Best suited for coaching institutes.</p>
+                                        <p>Best suited for coachings.</p>
                                         <p>Billed monthly.</p>
                                         <button mat-flat-button class="green-button rounded-button">Get started</button>
                                     </div>
@@ -35,57 +35,97 @@
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Admin
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">1</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Staffs
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">2</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Faculties
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">20</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Students
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited*</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Storage
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">100 GB</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Department
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">X</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Classrooms
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Subjects
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Scheduled Test
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                LMS
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Discussion Forum
+                                            </div>
+                                            <div class="col">1 per subject</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Live Attendees
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">100</div>
                                         </div>
                                     </div>
                                 </div>
@@ -100,7 +140,7 @@
                                     <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <h2 class="license-name">BUSINESS</h2>
                                         <h3 class="price">&#8377; 40K per month</h3>
-                                        <p>Best suited for colleges.</p>
+                                        <p>Best suited for schools.</p>
                                         <p>Billed monthly.</p>
                                         <button mat-flat-button class="green-button rounded-button">Get started</button>
                                     </div>
@@ -109,57 +149,97 @@
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Admin
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">3</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Staffs
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Faculties
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">100</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Students
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Storage
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">500GB</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Departments
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Classrooms
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Subjects
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Scheduled Test
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                LMS
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Discussion Forum
+                                            </div>
+                                            <div class="col">Custom</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Live Attendees
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">500</div>
                                         </div>
                                     </div>
                                 </div>
@@ -183,57 +263,97 @@
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Admin
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Staffs
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Faculties
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Students
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Storage
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Custom</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Departments
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Classrooms
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Subjects
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Scheduled Test
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                LMS
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Discussion Forum
+                                            </div>
+                                            <div class="col">Custom</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Live Attendees
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">700</div>
                                         </div>
                                     </div>
                                 </div>
@@ -257,7 +377,7 @@
                                     <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'BASIC', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <h2 class="license-name">BASIC</h2>
                                         <h3 class="price">&#8377; 2.5 K per month</h3>
-                                        <p>Best suited for coaching institutes.</p>
+                                        <p>Best suited for coachings.</p>
                                         <p>Billed yearly.</p>
                                         <button mat-flat-button class="green-button rounded-button">Get started</button>
                                     </div>
@@ -266,57 +386,97 @@
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Admin
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">1</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Staffs
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">2</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Faculties
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">20</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Students
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited*</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Storage
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">100 GB</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Department
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">X</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Classrooms
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Subjects
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Scheduled Test
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                LMS
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Discussion Forum
+                                            </div>
+                                            <div class="col">1 per subject</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BASIC', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BASIC'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Live Attendees
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">100</div>
                                         </div>
                                     </div>
                                 </div>
@@ -331,7 +491,7 @@
                                     <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <h2 class="license-name">BUSINESS</h2>
                                         <h3 class="price">&#8377; 30K per month</h3>
-                                        <p>Best suited for colleges.</p>
+                                        <p>Best suited for schools.</p>
                                         <p>Billed yearly.</p>
                                         <button mat-flat-button class="green-button rounded-button">Get started</button>
                                     </div>
@@ -340,57 +500,98 @@
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Admin
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">3</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Staffs
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Faculties
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">100</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Students
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Storage
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">500 GB</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Departments
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Classrooms
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Subjects
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Scheduled Test
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                LMS
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Discussion Forum
+                                            </div>
+                                            <div class="col">Custom</div>
+                                        </div>
+                                    </div>
+
                                     <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'BUSINESS', 'features-activated': !mobileQuery.matches && activePlanContainer === 'BUSINESS'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Live Attendees
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">500</div>
                                         </div>
                                     </div>
                                 </div>
@@ -406,7 +607,7 @@
                                         <h2 class="license-name">ENTERPRISE</h2>
                                         <h3 class="price">&#8377; 75 K per month</h3>
                                         <p>Best suited for colleges.</p>
-                                        <p>Billed monthly.</p>
+                                        <p>Billed yearly.</p>
                                         <button mat-flat-button class="green-button rounded-button">Get started</button>
                                     </div>
                                 </div>
@@ -414,57 +615,97 @@
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Admin
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Staffs
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Faculties
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Students
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Storage
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Departments
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Classrooms
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Subjects
+                                            </div>
+                                            <div class="col">Unlimited</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Scheduled Test
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                LMS
+                                            </div>
+                                            <div class="col">Available</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
+                                        <div class="row">
+                                            <div class="col">
+                                                Discussion Forum
+                                            </div>
+                                            <div class="col">Custom</div>
                                         </div>
                                     </div>
                                     <div class="col-12 features last-child" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== 'ENTERPRISE', 'features-activated': !mobileQuery.matches && activePlanContainer === 'ENTERPRISE'}">
                                         <div class="row">
                                             <div class="col">
-                                                Feature name
+                                                Live Attendees
                                             </div>
-                                            <div class="col">Quantity</div>
+                                            <div class="col">700</div>
                                         </div>
                                     </div>
                                 </div>
