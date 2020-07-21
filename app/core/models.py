@@ -194,6 +194,16 @@ class InstituteLicensePlans:
     ]
 
 
+class DiscussionForumBar:
+    ONE_PER_SUBJECT = 'O'
+    ONE_PER_SUBJECT_OR_SECTION = 'S'
+
+    DISCUSSION_FORUM_BAR_IN_DISCUSSION_FORUMS = [
+        (ONE_PER_SUBJECT, _(u'ONE_PER_SUBJECT')),
+        (ONE_PER_SUBJECT_OR_SECTION, _(u'ONE_PER_SUBJECT_OR_SECTION')),
+    ]
+
+
 def user_profile_picture_upload_file_path(instance, filename):
     """Generates file path for uploading images in user profile"""
     extension = filename.split('.')[-1]
@@ -446,13 +456,28 @@ class InstituteLicense(models.Model):
     storage = models.IntegerField(   # In Gb
         _('Storage'), blank=False, null=False)
     no_of_admin = models.PositiveIntegerField(
-        _('no_of_admin'), default=1)
+        _('No of admin'), default=1)
     no_of_staff = models.PositiveIntegerField(
-        _('no_of_staff'), default=0, blank=False, null=False)
+        _('No of staff'), default=0, blank=False, null=False)
     no_of_faculty = models.PositiveIntegerField(
-        _('no_of_faculty'), default=0, blank=False, null=False)
+        _('No of faculty'), default=0, blank=False, null=False)
     no_of_student = models.PositiveIntegerField(
-        _('no_of_student'), default=0, blank=False, null=False)
+        _('No of students'), default=0, blank=False, null=False)
+    video_call_max_attendees = models.PositiveIntegerField(
+        _('Video call maz attendees'), blank=False, null=False)
+    classroom_limit = models.PositiveIntegerField(
+        _('Classroom Limit'), blank=False, null=False)
+    department_limit = models.PositiveIntegerField(
+        _('Department Limit'), blank=False, null=False)
+    subject_limit = models.PositiveIntegerField(
+        _('Subject Limit'), blank=False, null=False)
+    scheduled_test = models.BooleanField(
+        _('Scheduled Test'), default=True, blank=True, null=False)
+    LMS_exists = models.BooleanField(
+        _('LMS exists'), default=True, blank=True, null=False)
+    discussion_forum = models.CharField(
+        _('Discussion forum'), max_length=1, blank=False, null=False,
+        choices=DiscussionForumBar.DISCUSSION_FORUM_BAR_IN_DISCUSSION_FORUMS)
 
     def save(self, *args, **kwargs):
         """Overriding save method to allow only superuser
