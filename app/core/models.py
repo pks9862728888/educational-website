@@ -490,6 +490,9 @@ class InstituteLicense(models.Model):
     def __str__(self):
         return str(self.type)
 
+    class Meta:
+        unique_together = ('type', 'billing')
+
 
 class ProfilePictures(models.Model):
     """Creates profile pictures model to store profile pictures"""

@@ -5,7 +5,26 @@ from django_countries.serializers import CountryFieldMixin
 
 from core.models import Institute, InstituteProfile, InstituteLogo,\
                         InstituteBanner, InstitutePermission,\
-                        InstituteRole
+                        InstituteRole, InstituteLicense, Billing
+
+
+class InstituteLicenseListSerializer(serializers.ModelSerializer):
+    """Serializer for getting list of institute licenses"""
+
+    class Meta:
+        model = InstituteLicense
+        fields = ('id', 'billing', 'type', 'cost', 'discount', 'storage',
+                  'no_of_admin', 'no_of_staff', 'no_of_faculty',
+                  'no_of_student', 'video_call_max_attendees',
+                  'classroom_limit', 'department_limit',
+                  'subject_limit', 'scheduled_test', 'discussion_forum',
+                  'LMS_exists')
+        read_only_fields = ('id', 'billing', 'type', 'cost', 'discount',
+                            'storage', 'no_of_admin', 'no_of_staff',
+                            'no_of_faculty', 'no_of_student',
+                            'video_call_max_attendees', 'classroom_limit',
+                            'department_limit', 'subject_limit',
+                            'scheduled_test', 'discussion_forum', 'LMS_exists')
 
 
 class InstituteLogoPictureOnlySerializer(serializers.ModelSerializer):

@@ -1,215 +1,253 @@
-# from django.contrib.auth import get_user_model
-# from django.urls import reverse
-# from django.test import TestCase
-# from django.utils import timezone
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from django.test import TestCase
+from django.utils import timezone
+
+from rest_framework.test import APIClient
+from rest_framework import status
+
+from core import models
+
+# Urls for checking
+institute_min_url = "institute:institute-min-details-teacher-admin"
+INSTITUTE_MIN_DETAILS_TEACHER_URL = reverse(institute_min_url)
+INSTITUTE_JOINED_MIN_DETAILS_URL = reverse(
+    "institute:joined-institutes-teacher")
+INSTITUTE_PENDING_INVITES_MIN_DETAILS_URL = reverse(
+    "institute:pending-institute-invites-teacher")
+INSTITUTE_CREATE_BY_TEACHER_URL = reverse("institute:create")
+INSTITUTE_GET_ALL_AVAILABLE_INSTITUTE_LICENSE_URL = reverse(
+    "institute:institute-license-list")
+
+
+def get_full_details_institute_url(slug_text):
+    """Creates and returns institute full details url"""
+    return reverse("institute:detail", kwargs={'institute_slug': slug_text})
+
+
+def get_invite_url(slug_text):
+    """Creates and returns institute permission add url"""
+    return reverse("institute:provide_permission",
+                   kwargs={'institute_slug': slug_text})
+
+
+def get_invite_accept_delete_url(slug_text):
+    """Creates and returns institute permission accept delete url"""
+    return reverse("institute:accept_delete_permission",
+                   kwargs={'institute_slug': slug_text})
+
+
+def get_invite_preview_url(institute_slug, role_name):
+    """Creates and returns institute permission list url"""
+    return reverse("institute:get_permission_list",
+                   kwargs={'institute_slug': institute_slug,
+                           'role': role_name})
+
+
+def create_teacher(email='abc@gmail.com', username='tempusername'):
+    """Creates and return teacher"""
+    return get_user_model().objects.create_user(
+        email=email,
+        username=username,
+        password='tempupassword',
+        is_teacher=True
+    )
+
+
+def create_student(email='abc@gmail.com', username='tempusername'):
+    """Creates and return student"""
+    return get_user_model().objects.create_user(
+        email=email,
+        username=username,
+        password='tempupassword',
+        is_student=True
+    )
+
+
+def create_institute(user, institute_name='tempinstitute'):
+    """Creates institute and return institute"""
+    return models.Institute.objects.create(
+        name=institute_name,
+        user=user,
+        institute_category=models.InstituteCategory.EDUCATION,
+        type=models.InstituteType.COLLEGE
+    )
+
+
+def create_invite(institute, inviter, invitee, role):
+    """Creates and returns institute invite permission"""
+    return models.InstitutePermission.objects.create(
+        institute=institute,
+        inviter=inviter,
+        invitee=invitee,
+        role=role
+    )
+
+
+def accept_invite(institute, invitee, role):
+    """Accepts the permission"""
+    role = models.InstitutePermission.objects.filter(
+        institute=institute,
+        invitee=invitee,
+        role=role
+    ).first()
+    role.active = True
+    role.request_accepted_on = timezone.now()
+    role.save()
+
+
+def delete_invite(institute, invitee, role):
+    """Accepts the permission"""
+    role = models.InstitutePermission.objects.filter(
+        institute=institute,
+        invitee=invitee,
+        role=role
+    ).first()
+    role.delete()
+
+
+def role_exists(institute, inviter, invitee, role, active=True):
+    """Returns whether role exists or not"""
+    return models.InstitutePermission.objects.filter(
+        institute=institute,
+        inviter=inviter,
+        invitee=invitee,
+        role=role,
+        active=active
+    ).exists()
+
+
+class PublicInstituteApiTests(TestCase):
+    """Tests the institute api for unauthenticated user"""
+
+    def setUp(self):
+        """Setup code for all test cases"""
+        self.user = get_user_model().objects.create_user(
+            email='test@gmail.com',
+            username='testusername',
+            password='testpassword',
+            is_teacher=True
+        )
+        self.client = APIClient()
 #
-# from rest_framework.test import APIClient
-# from rest_framework import status
+#     def test_get_not_allowed_on_institute_min_details_teacher_url(self):
+#         """Test that get request is not allowed for unauthenticated user"""
+#         res = self.client.get(INSTITUTE_MIN_DETAILS_TEACHER_URL)
 #
-# from core import models
+#         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 #
-# # Urls for checking
-# institute_min_url = "institute:institute-min-details-teacher-admin"
-# INSTITUTE_MIN_DETAILS_TEACHER_URL = reverse(institute_min_url)
-# INSTITUTE_JOINED_MIN_DETAILS_URL = reverse("institute:joined-institutes-teacher")
-# INSTITUTE_PENDING_INVITES_MIN_DETAILS_URL = reverse("institute:pending-institute-invites-teacher")
-# INSTITUTE_CREATE_BY_TEACHER_URL = reverse("institute:create")
+#     def test_post_not_allowed_on_institute_min_details_teacher_url(self):
+#         """Test that post is not allowed for unauthenticated user"""
+#         res = self.client.post(INSTITUTE_MIN_DETAILS_TEACHER_URL, {
+#             "user": self.user,
+#             "name": "Temp name",
+#             "institute_category": models.InstituteCategory.EDUCATION,
+#             "type": models.InstituteType.COLLEGE
+#         })
 #
+#         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 #
-# def get_full_details_institute_url(slug_text):
-#     """Creates and returns institute full details url"""
-#     return reverse("institute:detail", kwargs={'institute_slug': slug_text})
+#     def test_get_not_allowed_on_institute_create_url(self):
+#         """Test that get request is not allowed for unauthenticated user"""
+#         res = self.client.get(INSTITUTE_CREATE_BY_TEACHER_URL)
 #
+#         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 #
-# def get_invite_url(slug_text):
-#     """Creates and returns institute permission add url"""
-#     return reverse("institute:provide_permission",
-#                    kwargs={'institute_slug': slug_text})
+#     def test_post_not_allowed_on_institute_create_teacher_url(self):
+#         """Test that post is not allowed for unauthenticated user"""
+#         res = self.client.post(INSTITUTE_CREATE_BY_TEACHER_URL, {
+#             "name": "Temp name",
+#             "institute_category": models.InstituteCategory.EDUCATION
+#         })
 #
+#         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 #
-# def get_invite_accept_delete_url(slug_text):
-#     """Creates and returns institute permission accept delete url"""
-#     return reverse("institute:accept_delete_permission",
-#                    kwargs={'institute_slug': slug_text})
-#
-#
-# def get_invite_preview_url(institute_slug, role_name):
-#     """Creates and returns institute permission list url"""
-#     return reverse("institute:get_permission_list",
-#                    kwargs={'institute_slug': institute_slug,
-#                            'role': role_name})
-#
-#
-# def create_teacher(email='abc@gmail.com', username='tempusername'):
-#     """Creates and return teacher"""
-#     return get_user_model().objects.create_user(
-#         email=email,
-#         username=username,
-#         password='tempupassword',
-#         is_teacher=True
-#     )
-#
-#
-# def create_student(email='abc@gmail.com', username='tempusername'):
-#     """Creates and return student"""
-#     return get_user_model().objects.create_user(
-#         email=email,
-#         username=username,
-#         password='tempupassword',
-#         is_student=True
-#     )
-#
-#
-# def create_institute(user, institute_name='tempinstitute'):
-#     """Creates institute and return institute"""
-#     return models.Institute.objects.create(
-#         name=institute_name,
-#         user=user,
-#         institute_category=models.InstituteCategory.EDUCATION,
-#         type=models.InstituteType.COLLEGE
-#     )
-#
-#
-# def create_invite(institute, inviter, invitee, role):
-#     """Creates and returns institute invite permission"""
-#     return models.InstitutePermission.objects.create(
-#         institute=institute,
-#         inviter=inviter,
-#         invitee=invitee,
-#         role=role
-#     )
-#
-#
-# def accept_invite(institute, invitee, role):
-#     """Accepts the permission"""
-#     role = models.InstitutePermission.objects.filter(
-#         institute=institute,
-#         invitee=invitee,
-#         role=role
-#     ).first()
-#     role.active = True
-#     role.request_accepted_on = timezone.now()
-#     role.save()
-#
-#
-# def delete_invite(institute, invitee, role):
-#     """Accepts the permission"""
-#     role = models.InstitutePermission.objects.filter(
-#         institute=institute,
-#         invitee=invitee,
-#         role=role
-#     ).first()
-#     role.delete()
-#
-#
-# def role_exists(institute, inviter, invitee, role, active=True):
-#     """Returns whether role exists or not"""
-#     return models.InstitutePermission.objects.filter(
-#         institute=institute,
-#         inviter=inviter,
-#         invitee=invitee,
-#         role=role,
-#         active=active
-#     ).exists()
-#
-#
-# # class PublicInstituteApiTests(TestCase):
-# #     """Tests the institute api for unauthenticated user"""
-# #
-# #     def setUp(self):
-# #         """Setup code for all test cases"""
-# #         self.user = get_user_model().objects.create_user(
-# #             email='test@gmail.com',
-# #             username='testusername',
-# #             password='testpassword',
-# #             is_teacher=True
-# #         )
-# #         self.client = APIClient()
-# #
-# #     def test_get_not_allowed_on_institute_min_details_teacher_url(self):
-# #         """Test that get request is not allowed for unauthenticated user"""
-# #         res = self.client.get(INSTITUTE_MIN_DETAILS_TEACHER_URL)
-# #
-# #         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-# #
-# #     def test_post_not_allowed_on_institute_min_details_teacher_url(self):
-# #         """Test that post is not allowed for unauthenticated user"""
-# #         res = self.client.post(INSTITUTE_MIN_DETAILS_TEACHER_URL, {
-# #             "user": self.user,
-# #             "name": "Temp name",
-# #             "institute_category": models.InstituteCategory.EDUCATION,
-# #             "type": models.InstituteType.COLLEGE
-# #         })
-# #
-# #         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-# #
-# #     def test_get_not_allowed_on_institute_create_url(self):
-# #         """Test that get request is not allowed for unauthenticated user"""
-# #         res = self.client.get(INSTITUTE_CREATE_BY_TEACHER_URL)
-# #
-# #         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-# #
-# #     def test_post_not_allowed_on_institute_create_teacher_url(self):
-# #         """Test that post is not allowed for unauthenticated user"""
-# #         res = self.client.post(INSTITUTE_CREATE_BY_TEACHER_URL, {
-# #             "name": "Temp name",
-# #             "institute_category": models.InstituteCategory.EDUCATION
-# #         })
-# #
-# #         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-# #
-# #     def get_not_allowed_on_institute_full_details_url(self):
-# #         """Test that get is not allowed for unauthenticated user"""
-# #         teacher_user = get_user_model().objects.create_user(
-# #             email='abc@gmail.com',
-# #             password='temppassword',
-# #             username='tempusername',
-# #             is_teacher=True
-# #         )
-# #         institute = models.Institute.objects.create(
-# #             user=teacher_user,
-# #             name='temp name',
-# #             institute_category=models.InstituteCategory.EDUCATION
-# #         )
-# #         res = self.client.post(get_full_details_institute_url(
-# #             institute.institute_slug))
-# #
-# #         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-# #
-# #     def test_unauthenticated_user_get_failure_on_get_permission_list_url(self):
-# #         """
-# #         Test that unauthenticated user can not get details
-# #         """
-# #         owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
-# #         institute = create_institute(owner)
-# #         active_faculty = create_teacher()
-# #         inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
-# #         create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
-# #         create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
-# #         accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
-# #
-# #         res = self.client.get(
-# #             get_invite_preview_url(institute.institute_slug, 'FACULTY')
-# #         )
-# #         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
-# #         self.assertNotIn('active_staff_list', res.data)
-# #         self.assertNotIn('pending_staff_invites', res.data)
-#
-#
-# class AuthenticatedTeacherUserAPITests(TestCase):
-#     """Tests for authenticated teacher user"""
-#
-#     def setUp(self):
-#         """Setup code for all test cases"""
-#         self.user = get_user_model().objects.create_user(
-#             email='test@gmail.com',
-#             username='testusername',
-#             password='testpassword',
+#     def get_not_allowed_on_institute_full_details_url(self):
+#         """Test that get is not allowed for unauthenticated user"""
+#         teacher_user = get_user_model().objects.create_user(
+#             email='abc@gmail.com',
+#             password='temppassword',
+#             username='tempusername',
 #             is_teacher=True
 #         )
-#         self.client = APIClient()
-#         self.client.force_authenticate(user=self.user)
+#         institute = models.Institute.objects.create(
+#             user=teacher_user,
+#             name='temp name',
+#             institute_category=models.InstituteCategory.EDUCATION
+#         )
+#         res = self.client.post(get_full_details_institute_url(
+#             institute.institute_slug))
 #
+#         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+#
+#     def test_unauthenticated_user_get_failure_on_get_permission_list_url(self):
+#         """
+#         Test that unauthenticated user can not get details
+#         """
+#         owner = create_teacher('owenerfg@gmail.com', 'sdfsfowner')
+#         institute = create_institute(owner)
+#         active_faculty = create_teacher()
+#         inactive_faculty = create_teacher('acvdfs@gmail.com', 'sdfsf')
+#         create_invite(institute, owner, active_faculty, models.InstituteRole.FACULTY)
+#         create_invite(institute, owner, inactive_faculty, models.InstituteRole.FACULTY)
+#         accept_invite(institute, active_faculty, models.InstituteRole.FACULTY)
+#
+#         res = self.client.get(
+#             get_invite_preview_url(institute.institute_slug, 'FACULTY')
+#         )
+#         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+#         self.assertNotIn('active_staff_list', res.data)
+#         self.assertNotIn('pending_staff_invites', res.data)
+
+    def test_unauthorized_get_fails_on_all_available_license_url(self):
+        """
+        Test that unauthorized get is not
+        allowed on available license url
+        """
+        res = self.client.get(
+            INSTITUTE_GET_ALL_AVAILABLE_INSTITUTE_LICENSE_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class AuthenticatedTeacherUserAPITests(TestCase):
+    """Tests for authenticated teacher user"""
+
+    def setUp(self):
+        """Setup code for all test cases"""
+        self.user = get_user_model().objects.create_user(
+            email='test@gmail.com',
+            username='testusername',
+            password='testpassword',
+            is_teacher=True
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+        self.superuser = get_user_model().objects.create_superuser(
+            email='testdd@gmail.com',
+            username='testusernamesup',
+            password='testpasswordsup',
+        )
+        self.payload = {
+            'type': models.InstituteLicensePlans.BUSINESS,
+            'billing': models.Billing.MONTHLY,
+            'cost': 2100,
+            'discount': 0.0,
+            'storage': 100,
+            'no_of_admin': 1,
+            'no_of_staff': 1,
+            'no_of_faculty': 1,
+            'no_of_student': 200,
+            'video_call_max_attendees': 100,
+            'classroom_limit': 999,
+            'department_limit': 999,
+            'subject_limit': 999,
+            'scheduled_test': True,
+            'discussion_forum': models.DiscussionForumBar.ONE_PER_SUBJECT,
+            'LMS_exists': True
+        }
+
 #     def test_get_success_institute_min_endpoint_teacher(self):
 #         """Test that get request is success for teacher"""
 #         payload = {
@@ -2360,20 +2398,94 @@
 #         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 #         self.assertNotIn('active_staff_list', res.data)
 #         self.assertNotIn('pending_staff_invites', res.data)
-#
-#
-# class AuthenticatedUserAPITests(TestCase):
-#     """Tests for authenticated user"""
-#
-#     def setUp(self):
-#         """Setup code for all test cases"""
-#         self.user = get_user_model().objects.create_user(
-#             email='test@gmail.com',
-#             username='testusername',
-#             password='testpassword',
-#         )
-#         self.client = APIClient()
-#         self.client.force_authenticate(user=self.user)
+
+    def test_get_successful_by_teacher_on_get_institute_license_url(self):
+        """Test that teacher can get institute license details"""
+        models.InstituteLicense.objects.create(
+            user=self.superuser,
+            type=self.payload['type'],
+            billing=self.payload['billing'],
+            cost=self.payload['cost'],  # in Rs
+            storage=self.payload['storage'],  # in Gb
+            no_of_admin=self.payload['no_of_admin'],
+            no_of_staff=self.payload['no_of_staff'],
+            no_of_faculty=self.payload['no_of_faculty'],
+            no_of_student=self.payload['no_of_student'],
+            video_call_max_attendees=self.payload['video_call_max_attendees'],
+            classroom_limit=self.payload['classroom_limit'],
+            department_limit=self.payload['department_limit'],
+            subject_limit=self.payload['subject_limit'],
+            scheduled_test=self.payload['scheduled_test'],
+            discussion_forum=self.payload['discussion_forum'],
+            LMS_exists=self.payload['LMS_exists'],
+        )
+        models.InstituteLicense.objects.create(
+            user=self.superuser,
+            type=models.InstituteLicensePlans.BASIC,
+            billing=models.Billing.MONTHLY,
+            cost=self.payload['cost'],  # in Rs
+            storage=self.payload['storage'],  # in Gb
+            no_of_admin=self.payload['no_of_admin'],
+            no_of_staff=self.payload['no_of_staff'],
+            no_of_faculty=self.payload['no_of_faculty'],
+            no_of_student=self.payload['no_of_student'],
+            video_call_max_attendees=self.payload['video_call_max_attendees'],
+            classroom_limit=self.payload['classroom_limit'],
+            department_limit=self.payload['department_limit'],
+            subject_limit=self.payload['subject_limit'],
+            scheduled_test=self.payload['scheduled_test'],
+            discussion_forum=self.payload['discussion_forum'],
+            LMS_exists=self.payload['LMS_exists'],
+        )
+        res = self.client.get(
+            INSTITUTE_GET_ALL_AVAILABLE_INSTITUTE_LICENSE_URL)
+
+        monthly_license = res.data['monthly_license'][0]
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(len(res.data['monthly_license']), 2)
+        self.assertEqual(monthly_license['billing'],
+                         self.payload['billing'])
+        self.assertEqual(monthly_license['cost'],
+                         self.payload['cost'])
+        self.assertEqual(monthly_license['storage'],
+                         self.payload['storage'])
+        self.assertEqual(monthly_license['no_of_admin'],
+                         self.payload['no_of_admin'])
+        self.assertEqual(monthly_license['no_of_staff'],
+                         self.payload['no_of_staff'])
+        self.assertEqual(monthly_license['no_of_faculty'],
+                         self.payload['no_of_faculty'])
+        self.assertEqual(monthly_license['no_of_student'],
+                         self.payload['no_of_student'])
+        self.assertEqual(monthly_license['video_call_max_attendees'],
+                         self.payload['video_call_max_attendees'])
+        self.assertEqual(monthly_license['classroom_limit'],
+                         self.payload['classroom_limit'])
+        self.assertEqual(monthly_license['department_limit'],
+                         self.payload['department_limit'])
+        self.assertEqual(monthly_license['subject_limit'],
+                         self.payload['subject_limit'])
+        self.assertEqual(monthly_license['scheduled_test'],
+                         self.payload['scheduled_test'])
+        self.assertEqual(monthly_license['discussion_forum'],
+                         self.payload['discussion_forum'])
+        self.assertEqual(monthly_license['LMS_exists'],
+                         self.payload['LMS_exists'])
+
+
+class AuthenticatedUserAPITests(TestCase):
+    """Tests for authenticated user"""
+
+    def setUp(self):
+        """Setup code for all test cases"""
+        self.user = get_user_model().objects.create_user(
+            email='test@gmail.com',
+            username='testusername',
+            password='testpassword',
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
 #
 #     def test_get_not_allowed_on_institute_min_details_teacher_url(self):
 #         """Test that get request is not allowed for unauthenticated user"""
@@ -2473,3 +2585,13 @@
 #         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 #         self.assertNotIn('active_staff_list', res.data)
 #         self.assertNotIn('pending_staff_invites', res.data)
+
+    def test_student_can_not_get_institute_license_details(self):
+        """
+        Test that institute license details is
+        not available to students
+        """
+        res = self.client.get(
+            INSTITUTE_GET_ALL_AVAILABLE_INSTITUTE_LICENSE_URL)
+
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)

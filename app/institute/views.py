@@ -1,5 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.translation import ugettext as _
+from django.core import serializers
+
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions, status
@@ -7,11 +10,11 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, CreateAPIView,\
     RetrieveAPIView
 from rest_framework.response import Response
-from django.utils.translation import ugettext as _
 
 from . import serializer
 
-from core.models import Institute, InstituteRole, InstitutePermission
+from core.models import Institute, InstituteRole,\
+    InstitutePermission, InstituteLicense, Billing
 
 
 class IsTeacher(permissions.BasePermission):
@@ -25,6 +28,39 @@ class IsTeacher(permissions.BasePermission):
             return True
         else:
             return False
+
+
+class InstituteLicenseListView(ListAPIView):
+    """
+    View for getting list of all available institute license
+    """
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, IsTeacher)
+    serializer_class = serializer.InstituteLicenseListSerializer
+
+    def get(self, *args, **kwargs):
+        """Used for formatting and sending structured data"""
+        licenses = InstituteLicense.objects.all()
+        monthly_license = licenses.filter(
+            billing=Billing.MONTHLY).order_by('type')
+        yearly_license = licenses.filter(
+            billing=Billing.ANNUALLY).order_by('type')
+
+        monthly_license_list = []
+        yearly_license_list = []
+
+        for _license in monthly_license:
+            ser = self.serializer_class(_license)
+            monthly_license_list.append(ser.data)
+
+        for _license in yearly_license:
+            ser = self.serializer_class(_license)
+            yearly_license_list.append(ser.data)
+
+        return Response({
+            'monthly_license': monthly_license_list,
+            'yearly_license': yearly_license_list
+        }, status=status.HTTP_200_OK)
 
 
 class InstituteMinDetailsTeacherView(ListAPIView):
