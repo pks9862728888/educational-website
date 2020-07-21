@@ -41,6 +41,7 @@ export class InstituteApiService {
   instituteJoinedDetailUrl = `${this.instituteBaseUrl}joined-institutes-teacher`;
   institutePendingInvitesUrl = `${this.instituteBaseUrl}pending-institute-invites-teacher`;
   instituteCreateUrl = `${this.instituteBaseUrl}create`;
+  instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
 
   getInstituteDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}detail/${instituteSlug}`;
@@ -107,6 +108,13 @@ export class InstituteApiService {
       { 'operation': operation.toUpperCase()},
       { headers: this.getAuthHeader() }
     )
+  }
+
+  // Get institute license list
+  getInstituteLicenseList() {
+    return this.httpClient.get(
+      this.instituteLicenseListUrl,
+      { 'headers': this.getAuthHeader() })
   }
 
   // To load token from storage

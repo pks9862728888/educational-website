@@ -249,7 +249,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
       if (event.type === INSTITUTE_TYPE_REVERSE['School']) {
         localStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
-        this.router.navigate(['school-workspace/institutes/' + instituteSlug + '/profile']);
+        this.router.navigate(['school-workspace/' + instituteSlug + '/profile']);
       } else if (event.type === INSTITUTE_TYPE_REVERSE['College']) {
         localStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
         this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);

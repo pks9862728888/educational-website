@@ -184,3 +184,30 @@ export const INSTITUTE_ROLE_REVERSE = {
   Staff: 'S',
   Faculty: 'F'
 };
+
+export const BILLING_TERM = {
+  M: 'MONTHLY',
+  A: 'ANNUALLY'
+}
+
+export const BILLING_TERM_REVERSE = {
+  MONTHLY: 'M',
+  ANNUALLY: 'A',
+};
+
+export const INSTITUTE_LICENSE_PLANS = {
+  BAS: 'BASIC',
+  BUS: 'BUSINESS',
+  ENT: 'ENTERPRISE'
+}
+
+export const INSTITUTE_LICENSE_PLANS_REVERSE = {
+  BASIC: 'BAS',
+  BUSINESS: 'BUS',
+  ENTERPRISE: 'ENT'
+}
+
+export const DISCUSSION_FORUM_PER_ATTENDEES = {
+  O: '1 per subject',
+  S: 'Custom'
+}

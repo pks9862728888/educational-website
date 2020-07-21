@@ -464,7 +464,7 @@ class InstituteLicense(models.Model):
     no_of_student = models.PositiveIntegerField(
         _('No of students'), default=0, blank=False, null=False)
     video_call_max_attendees = models.PositiveIntegerField(
-        _('Video call maz attendees'), blank=False, null=False)
+        _('Video call max attendees'), blank=False, null=False)
     classroom_limit = models.PositiveIntegerField(
         _('Classroom Limit'), blank=False, null=False)
     department_limit = models.PositiveIntegerField(
