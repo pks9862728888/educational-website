@@ -1,3 +1,4 @@
+import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -7,10 +8,27 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SchoolClassesComponent implements OnInit {
 
-  constructor() { }
+  mobileQuery: MediaQueryList;
+
+  // For storing classes
+  classStep: number;
+  classList = [1, 2];
+
+  constructor( private media: MediaMatcher) {
+    this.mobileQuery = this.media.matchMedia('(max-width: 768px)');
+  }
 
   ngOnInit(): void {
-    localStorage.setItem('activeRoute', 'SCHOOL_CLASSES');
+    sessionStorage.setItem('activeRoute', 'SCHOOL_CLASSES');
+  }
+
+  // For handling expansion panel
+  setClassStep(step: number) {
+    this.classStep = step;
+  }
+
+  isClassesListEmpty() {
+    return false;
   }
 
 }

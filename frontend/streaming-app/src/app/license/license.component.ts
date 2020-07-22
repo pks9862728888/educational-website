@@ -51,7 +51,7 @@ export class LicenseComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    localStorage.setItem('activeRoute', 'LICENSE');
+    sessionStorage.setItem('activeRoute', 'LICENSE');
     this.instituteApiService.getInstituteLicenseList().subscribe(
       (result: InstituteLicenseInterface) => {
         this.monthlyLicensePlans = result.monthly_license;

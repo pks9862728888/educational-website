@@ -66,9 +66,9 @@ export class CoachingProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    localStorage.setItem('activeRoute', 'COACHING_PROFILE');
-    this.currentInstituteSlug = localStorage.getItem('currentInstituteSlug');
-    this.currentInstituteRole = localStorage.getItem('currentInstituteRole');
+    sessionStorage.setItem('activeRoute', 'COACHING_PROFILE');
+    this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
+    this.currentInstituteRole = sessionStorage.getItem('currentInstituteRole');
     this.instituteApiService.getInstituteDetails(this.currentInstituteSlug).subscribe(
       (result: InstituteDetails) => {
         this.currentInstituteDetails = result;
@@ -79,9 +79,9 @@ export class CoachingProfileComponent implements OnInit {
   // To navigate back to my institutes preview
   exitClicked() {
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
-    localStorage.removeItem('currentInstituteSlug');
-    localStorage.removeItem('currentInstituteRole');
-    localStorage.setItem('activeRoute', 'INSTITUTES');
+    sessionStorage.removeItem('currentInstituteSlug');
+    sessionStorage.removeItem('currentInstituteRole');
+    sessionStorage.setItem('activeRoute', 'INSTITUTES');
     this.router.navigate(['/teacher-workspace/institutes']);
   }
 

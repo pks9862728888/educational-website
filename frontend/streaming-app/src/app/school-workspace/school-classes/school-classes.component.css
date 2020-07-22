@@ -1,0 +1,79 @@
+.row,
+.col,
+.col-12,
+.col-sm-8,
+.col-md-6,
+.col-lg-4,
+h3,
+hr,
+p {
+    padding: 0px;
+    margin: 0px;
+}
+
+.component-body {
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.mat-card {
+    padding: 0px 16px 0px;
+    background-color: #3B3B3B;
+    color: #bdbdbd;
+}
+
+.text-color {
+    color: #bdbdbd;
+}
+
+
+/* For displaying class list */
+
+.mat-expansion-panel {
+    background-color: #303030;
+    box-shadow: 0 1px 1px #4b4b4b;
+    margin-bottom: 0.7rem;
+}
+
+.mat-expansion-panel-header {
+    border-radius: 10px;
+}
+
+.mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
+    background-color: #292929;
+    color: #c5c5c5;
+}
+
+::ng-deep .mat-expansion-indicator::after {
+    color: #c5c5c5;
+}
+
+.invite-top-separator,
+.invite-bottom-separator {
+    background-color: #6c757d;
+}
+
+.invite-top-separator {
+    margin-bottom: 0.5rem;
+}
+
+.invite-bottom-separator {
+    margin-top: 0.5rem;
+}
+
+
+/* Margins and padding */
+
+.padding-bottom-07 {
+    padding-bottom: 0.7rem;
+}
+
+button:focus,
+button:active:focus,
+button.active:focus {
+    outline: none !important;
+    outline-style: none !important;
+}

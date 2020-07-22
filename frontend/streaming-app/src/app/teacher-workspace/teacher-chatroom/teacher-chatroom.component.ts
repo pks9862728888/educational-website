@@ -11,7 +11,7 @@ export class TeacherChatroomComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    localStorage.setItem('activeRoute', 'CHATROOMS');
+    sessionStorage.setItem('activeRoute', 'CHATROOMS');
   }
 
 }

@@ -1,21 +1,22 @@
-import { SitemapComponent } from './sitemap/sitemap.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { LoginComponent } from './auth/login/login.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { HomeComponent } from './home/home.component';
 import { AboutComponent } from './about/about.component';
 import { PricingComponent } from './pricing/pricing.component';
+import { HelpComponent } from './help/help.component';
+import { FeaturesComponent } from './features/features.component';
+import { LicenseComponent } from './license/license.component';
+import { SitemapComponent } from './sitemap/sitemap.component';
 import { TeacherWorkspaceComponent } from './teacher-workspace/teacher-workspace.component';
 import { StudentWorkspaceComponent } from './student-workspace/student-workspace.component';
 import { StaffWorkspaceComponent } from './staff-workspace/staff-workspace.component';
 import { StaffProfileComponent } from './staff-workspace/staff-profile/staff-profile.component';
 import { StudentProfileComponent } from './student-workspace/student-profile/student-profile.component';
 import { TeacherProfileComponent } from './teacher-workspace/teacher-profile/teacher-profile.component';
-import { HelpComponent } from './help/help.component';
-import { FeaturesComponent } from './features/features.component';
-import { HomeComponent } from './home/home.component';
 import { TeacherInstituteComponent } from './teacher-workspace/teacher-institute/teacher-institute.component';
 import { TeacherChatroomComponent } from './teacher-workspace/teacher-chatroom/teacher-chatroom.component';
 import { SchoolWorkspaceComponent } from './school-workspace/school-workspace.component';
@@ -28,14 +29,16 @@ import { CollegePermissionsComponent } from './college-workspace/college-permiss
 import { CoachingWorkspaceComponent } from './coaching-workspace/coaching-workspace.component';
 import { CoachingPermissionsComponent } from './coaching-workspace/coaching-permissions/coaching-permissions.component';
 import { CoachingProfileComponent } from './coaching-workspace/coaching-profile/coaching-profile.component';
-import { LicenseComponent } from './license/license.component';
+import { SignUpLoginGuard,StudentWorkspaceGuard, TeacherWorkspaceGuard,
+         StaffWorkspaceGuard, SchoolWorkspaceGuard, CollegeWorkspaceGuard,
+         CoachingWorkspaceGuard } from './auth/auth.guard';
 
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'signUp', component: SignupComponent },
+  { path: 'login', component: LoginComponent, canActivate: [SignUpLoginGuard] },
+  { path: 'signUp', component: SignupComponent, canActivate: [SignUpLoginGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent},
   { path: 'teacher-workspace',
     component: TeacherWorkspaceComponent,
@@ -44,7 +47,8 @@ const routes: Routes = [
       { path: 'profile', component: TeacherProfileComponent },
       { path: 'institutes', component: TeacherInstituteComponent },
       { path: 'chatrooms', component: TeacherChatroomComponent },
-    ]
+    ],
+    canActivate: [TeacherWorkspaceGuard]
   },
   {
     path: 'student-workspace',
@@ -52,7 +56,8 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: '/student-workspace/profile', pathMatch: 'full' },
       { path: 'profile', component: StudentProfileComponent },
-    ]
+    ],
+    canActivate: [StudentWorkspaceGuard]
   },
   {
     path: 'staff-workspace',
@@ -60,7 +65,8 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: '/staff-workspace/profile', pathMatch: 'full' },
       { path: 'profile', component: StaffProfileComponent },
-    ]
+    ],
+    canActivate: [StaffWorkspaceGuard]
   },
   {
     path: 'school-workspace',
@@ -70,7 +76,8 @@ const routes: Routes = [
       { path: ':name/permissions', component: SchoolPermissionsComponent },
       { path: ':name/classes', component: SchoolClassesComponent },
       { path: ':name/license', component: LicenseComponent }
-    ]
+    ],
+    canActivate: [SchoolWorkspaceGuard]
   },
   {
     path: 'college-workspace',
@@ -79,7 +86,8 @@ const routes: Routes = [
       { path: ':name/profile', component: CollegeProfileComponent },
       { path: ':name/permissions', component: CollegePermissionsComponent },
       { path: ':name/license', component: LicenseComponent },
-    ]
+    ],
+    canActivate: [CollegeWorkspaceGuard]
   },
   {
     path: 'coaching-workspace',
@@ -88,7 +96,8 @@ const routes: Routes = [
       { path: ':name/profile', component: CoachingProfileComponent },
       { path: ':name/permissions', component: CoachingPermissionsComponent },
       { path: ':name/license', component: LicenseComponent },
-    ]
+    ],
+    canActivate: [CoachingWorkspaceGuard]
   },
   { path: 'features', component: FeaturesComponent },
   { path: 'pricing', component: PricingComponent },
@@ -100,7 +109,16 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [
+    SignUpLoginGuard,
+    TeacherWorkspaceGuard,
+    StudentWorkspaceGuard,
+    StaffWorkspaceGuard,
+    SchoolWorkspaceGuard,
+    CollegeWorkspaceGuard,
+    CoachingWorkspaceGuard
+  ]
 })
 export class AppRoutingModule { }
 
@@ -109,4 +127,6 @@ export const routingComponents = [
   LoginComponent,
   ForgotPasswordComponent,
   PageNotFoundComponent,
+  LicenseComponent,
+  SitemapComponent,
 ];

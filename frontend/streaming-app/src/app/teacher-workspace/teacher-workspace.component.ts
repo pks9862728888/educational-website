@@ -1,7 +1,5 @@
-import { authTokenName } from './../../constants';
 import { InAppDataTransferService } from '../in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
@@ -19,36 +17,20 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   activeLink: string;
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
-  subscribed = true;
 
-  constructor( private cookieService: CookieService,
-               private router: Router,
+  constructor( private router: Router,
                private media: MediaMatcher,
                private inAppDataTransferService: InAppDataTransferService ) {
 
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
 
     // Initializing sidenav active route in case page is reloaded
-    const active_route = localStorage.getItem('activeRoute');
+    const active_route = sessionStorage.getItem('activeRoute');
     if (active_route && (active_route === 'PROFILE' || active_route === 'INSTITUTES' || active_route === 'CHATROOMS')) {
       this.activeLink = active_route;
     } else {
-      localStorage.setItem('activeRoute', 'PROFILE');
+      sessionStorage.setItem('activeRoute', 'PROFILE');
       this.activeLink = 'PROFILE';
-    }
-
-    // Disallowing student and staff to view this workspace
-    if (this.cookieService.get(authTokenName)) {
-      // Rendering appropriate workspace
-      if (localStorage.getItem('is_student') === JSON.stringify(true) ||
-                 localStorage.getItem('is_staff') === JSON.stringify(true)) {
-        this.router.navigate(['/**']);
-      } else {
-        // Get the type of user and then again navigate to appropriate workspace
-      }
-    } else {
-      this.subscribed = false;
-      this.router.navigate(['/login']);
     }
   }
 
@@ -103,9 +85,8 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.subscribed) {
+    if (this.showTempNamesSubscription) {
       this.showTempNamesSubscription.unsubscribe();
     }
   }
-
 }

@@ -21,15 +21,11 @@ import { FeaturesModule } from './features/features.module';
 import { PricingModule } from './pricing/pricing.module';
 import { AboutModule } from './about/about.module';
 import { HomeModule } from './home/home.module';
-import { LicenseComponent } from './license/license.component';
-import { SitemapComponent } from './sitemap/sitemap.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     routingComponents,
-    LicenseComponent,
-    SitemapComponent,
   ],
   imports: [
     BrowserModule,

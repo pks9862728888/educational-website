@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
@@ -36,7 +37,8 @@ export class AuthService {
   userLoggedInSignalSource$ = this.userLoggedInSignalSource.asObservable();
 
   constructor( private cookieService: CookieService,
-               private httpClient: HttpClient ) {}
+               private httpClient: HttpClient,
+               private router: Router ) {}
 
   // Method to signup a new user
   signup(formData: SignupFormFormat) {
@@ -50,9 +52,15 @@ export class AuthService {
     return this.httpClient.post(this.signupUrl, JSON.stringify(body), {headers: this.headers});
   }
 
-  // This method logs in new user
   login(formData: LoginFormFormat) {
     return this.httpClient.post(this.loginUrl, JSON.stringify(formData), {headers: this.headers});
+  }
+
+  logout() {
+    this.cookieService.deleteAll('/');
+    sessionStorage.clear();
+    localStorage.clear();
+    this.sendLoggedInStatusSignal(false);
   }
 
   // This method sends login status signal as true

@@ -1,7 +1,5 @@
-import { authTokenName } from './../../constants';
 import { InAppDataTransferService } from '../in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
@@ -21,25 +19,16 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
 
-  constructor( private cookieService: CookieService,
-               private router: Router,
+  constructor( private router: Router,
                private media: MediaMatcher,
                private inAppDataTransferService: InAppDataTransferService ) {
 
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
 
     // Initializing sidenav active route in case page is reloaded
-    const active_route = localStorage.getItem('activeRoute');
+    const active_route = sessionStorage.getItem('activeRoute');
     if (active_route) {
       this.activeLink = active_route;
-    } else {
-      localStorage.setItem('activeRoute', 'INSTITUTES');
-      this.router.navigate(['teacher-workspace/institutes']);
-    }
-
-    // If auth token is not saved then redirecting to login page
-    if (!this.cookieService.get(authTokenName)) {
-      this.router.navigate(['/login']);
     }
   }
 
@@ -66,12 +55,12 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
       if (this.activeLink === 'HOME') {
         this.router.navigate(['/home']);
       } else if (this.activeLink === 'EXIT') {
-        localStorage.setItem('activeRoute', 'INSTITUTES');
-        localStorage.removeItem('currentInstituteSlug');
-        localStorage.removeItem('currentInstituteRole');
+        sessionStorage.setItem('activeRoute', 'INSTITUTES');
+        sessionStorage.removeItem('currentInstituteSlug');
+        sessionStorage.removeItem('currentInstituteRole');
         this.router.navigate(['/teacher-workspace/institutes']);
       } else {
-        const instituteSlug = localStorage.getItem('currentInstituteSlug');
+        const instituteSlug = sessionStorage.getItem('currentInstituteSlug');
         if (this.activeLink === 'COLLEGE_PROFILE') {
           this.router.navigate(['/college-workspace/' + instituteSlug + '/profile']);
         } else if (this.activeLink === 'COLLEGE_PERMISSIONS') {
@@ -102,6 +91,10 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    if (this.showTempNamesSubscription) {
+      this.showTempNamesSubscription.unsubscribe();
+    }
+  }
 
 }

@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../../in-app-data-transfer.service';
-import { COUNTRY, STATE, INSTITUTE_CATEGORY, INSTITUTE_ROLE, INSTITUTE_TYPE_REVERSE } from './../../../constants';
+import { COUNTRY, STATE, INSTITUTE_CATEGORY, INSTITUTE_ROLE, INSTITUTE_TYPE_REVERSE, INSTITUTE_ROLE_REVERSE } from './../../../constants';
 import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
@@ -118,7 +118,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // this.router.navigate(['teacher-workspace/institutes/' + 'tempView' + '/permissions']);
-    localStorage.setItem('activeRoute', 'INSTITUTES');
+    sessionStorage.setItem('activeRoute', 'INSTITUTES');
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
       (result: TeacherInstitutesMinDetailInterface[]) => {
         for (const institute of result) {
@@ -216,17 +216,18 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   }
 
   previewClicked(instituteSlug: string, role:string, type: string) {
-    localStorage.setItem('currentInstituteSlug', instituteSlug);
-    localStorage.setItem('currentInstituteRole', role);
+    sessionStorage.setItem('currentInstituteSlug', instituteSlug);
+    sessionStorage.setItem('currentInstituteRole', role);
+    sessionStorage.setItem('currentInstituteType', type);
 
     if (type === INSTITUTE_TYPE_REVERSE.School) {
-      localStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
+      sessionStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
       this.router.navigate(['school-workspace/' + instituteSlug + '/profile']);
     } else if (type === INSTITUTE_TYPE_REVERSE.College) {
-      localStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
+      sessionStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
       this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
     } else {
-      localStorage.setItem('activeRoute', 'COACHING_PROFILE');
+      sessionStorage.setItem('activeRoute', 'COACHING_PROFILE');
       this.router.navigate(['coaching-workspace/' + instituteSlug + '/profile']);
     }
   }
@@ -245,16 +246,18 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
       // Routing to institute preview
       const instituteSlug = event.url.substring(event.url.lastIndexOf('/') + 1, event.url.length);
-      localStorage.setItem('currentInstituteSlug', instituteSlug);
+      sessionStorage.setItem('currentInstituteSlug', instituteSlug);
+      sessionStorage.setItem('currentInstituteType', event.type);
+      sessionStorage.setItem('currentInstituteRole', INSTITUTE_ROLE_REVERSE['Admin']);
 
       if (event.type === INSTITUTE_TYPE_REVERSE['School']) {
-        localStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
+        sessionStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
         this.router.navigate(['school-workspace/' + instituteSlug + '/profile']);
       } else if (event.type === INSTITUTE_TYPE_REVERSE['College']) {
-        localStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
+        sessionStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
         this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
       } else {
-        localStorage.setItem('activeRoute', 'COACHING_PROFILE');
+        sessionStorage.setItem('activeRoute', 'COACHING_PROFILE');
         this.router.navigate(['coaching-workspace/' + instituteSlug + '/profile']);
       }
     } else {
@@ -320,6 +323,8 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.showInstituteListViewSubscription.unsubscribe();
+    if (this.showInstituteListViewSubscription) {
+      this.showInstituteListViewSubscription.unsubscribe();
+    }
   }
 }

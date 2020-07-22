@@ -98,12 +98,8 @@ p {
     color: #c5c5c5;
 }
 
-.mat-expansion-panel-body {
-    background-color: red;
-}
-
 ::ng-deep .mat-expansion-indicator::after {
-    color: #292929;
+    color: #c5c5c5;
 }
 
 h3,

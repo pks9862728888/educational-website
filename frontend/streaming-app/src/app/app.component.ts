@@ -79,10 +79,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Clears token and saved info from local storage & then emits logged in signal as false
   logout() {
-    this.cookieService.deleteAll('/');
-    sessionStorage.clear();
-    localStorage.clear();
-    this.authService.sendLoggedInStatusSignal(false);
+    this.authService.logout();
     this.snackBar.openFromComponent(SnackbarLoggedOutComponent, {
       duration: this.durationInSeconds * 1000,
     });
@@ -97,13 +94,13 @@ export class AppComponent implements OnInit, OnDestroy {
       return ['/teacher-workspace'];
     } else if (sessionStorage.getItem('is_staff') === JSON.stringify(true)) {
       return ['/staff-workspace'];
-    } else {
-      // Get the type of user and then again navigate to appropriate workspace
     }
   }
 
   // Unsubscribing from the subscriptions
   ngOnDestroy() {
-    this.loggedInStatusSubscription.unsubscribe();
+    if (this.loggedInStatusSubscription) {
+      this.loggedInStatusSubscription.unsubscribe();
+    }
   }
 }
