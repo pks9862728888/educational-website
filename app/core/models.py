@@ -479,12 +479,12 @@ class InstituteLicense(models.Model):
         _('Billing'), max_length=1, blank=False, null=False,
         choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
     amount = models.BigIntegerField(   # In Rs
-        _('Amount'), blank=False, null=False)
+        _('Amount In Rs'), blank=False, null=False)
     discount_percent = models.DecimalField(
         _('Discount In Percentage'), default=0.0,
         max_digits=5, decimal_places=2)
     storage = models.IntegerField(   # In Gb
-        _('Storage'), blank=False, null=False)
+        _('Storage in Gb'), blank=False, null=False)
     no_of_admin = models.PositiveIntegerField(
         _('No of admin'), default=1)
     no_of_staff = models.PositiveIntegerField(
@@ -585,7 +585,7 @@ class InstituteSelectedLicense(models.Model):
         _('Billing'), max_length=1, blank=False, null=False,
         choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
     amount = models.BigIntegerField(  # In Rs
-        _('Amount'), blank=False, null=False)
+        _('Amount In Rs'), blank=False, null=False)
     discount_percent = models.DecimalField(
         _('Discount In Percentage'), default=0.0,
         max_digits=5, decimal_places=2)
@@ -594,10 +594,10 @@ class InstituteSelectedLicense(models.Model):
         blank=True, null=True
     )
     net_amount = models.DecimalField(
-        _('Net Amount'), max_digits=10, decimal_places=2,
+        _('Net Amount in Rs'), max_digits=10, decimal_places=2,
         blank=True, null=True)
     storage = models.IntegerField(  # In Gb
-        _('Storage'), blank=False, null=False)
+        _('Storage in GB'), blank=False, null=False)
     no_of_admin = models.PositiveIntegerField(
         _('No of admin'), blank=False, null=False)
     no_of_staff = models.PositiveIntegerField(
@@ -659,7 +659,7 @@ class InstituteLicenseOrderDetails(models.Model):
     order_id = models.CharField(
         _('Order Id'), max_length=19, blank=True, null=False)
     amount = models.DecimalField(
-        _('Amount'), max_digits=10, decimal_places=2,
+        _('Amount in Rupees'), max_digits=10, decimal_places=2,
         blank=False, null=False)
     selected_license = models.OneToOneField(
         to='InstituteSelectedLicense', on_delete=models.SET_NULL,
