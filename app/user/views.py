@@ -14,7 +14,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 
 from .serializer import CreateUserSerializer, LoginUserSerializer,\
     UploadUserProfilePictureSerializer, SetUserProfilePictureSerializer,\
-    ListProfilePictureSerializer
+    ListProfilePictureSerializer, ManageUserProfileSerializer
 
 from core.models import ProfilePictures
 
@@ -44,6 +44,26 @@ class LoginUserView(ObtainAuthToken):
             'is_staff': user.is_staff,
             'is_active': user.is_active
         })
+
+
+class ManageUserProfileView(generics.RetrieveUpdateAPIView):
+    """Manage the authenticated user"""
+    serializer_class = ManageUserProfileSerializer
+    authentication_classes = [TokenAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+
+    def get_object(self):
+        """Retrieve and return authenticated user and profile data"""
+        return self.request.user
+
+    def get_serializer(self, instance=None, *args, **kwargs):
+        """
+        Return the serializer instance that should be used for validating and
+        deserializing input, and for serializing output.
+        """
+        serializer_class = self.get_serializer_class()
+        return serializer_class(instance, *args, **kwargs,
+                                context={"request": self.request})
 
 
 class ListProfilePictureView(ListAPIView):
