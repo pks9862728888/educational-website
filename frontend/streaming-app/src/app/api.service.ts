@@ -32,13 +32,14 @@ export class ApiService {
 
   // Urls for communicating with backend
   baseUrl = baseUrl;
-  teacherProfileUrl = `${baseUrl}teacher/teacher-profile`;
-  uploadProfilePictureUrl = `${baseUrl}user/upload-profile-picture`;
-  deleteProfilePictureUrl = `${baseUrl}user/delete-profile-picture/`;
-  removeClassProfilePictureUrl = `${baseUrl}user/remove-class-profile-picture`;
-  profilePictureCountUrl = `${baseUrl}user/user-profile-picture-count`;
-  listProfilePictureUrl = `${baseUrl}user/list-profile-picture`;
-  setProfilePictureUrl = `${baseUrl}user/set-profile-picture`;
+  baseUrlUser = `${baseUrl}user/`;
+  teacherProfileUrl = `${this.baseUrlUser}user-profile`;
+  uploadProfilePictureUrl = `${this.baseUrlUser}upload-profile-picture`;
+  deleteProfilePictureUrl = `${this.baseUrlUser}delete-profile-picture/`;
+  removeClassProfilePictureUrl = `${this.baseUrlUser}remove-class-profile-picture`;
+  profilePictureCountUrl = `${this.baseUrlUser}user-profile-picture-count`;
+  listProfilePictureUrl = `${this.baseUrlUser}list-profile-picture`;
+  setProfilePictureUrl = `${this.baseUrlUser}set-profile-picture`;
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }

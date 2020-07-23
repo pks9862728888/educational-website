@@ -13,7 +13,7 @@ interface TeacherProfileDetails {
   email: string;
   username: string;
   created_date: string;
-  teacher_profile: {
+  user_profile: {
     first_name: string;
     last_name: string;
     gender: string;
@@ -139,46 +139,46 @@ export class TeacherProfileComponent implements OnInit {
           this.createdDate = result.created_date;
           sessionStorage.setItem('created_date', result.created_date);
 
-          if (result.teacher_profile.country) {
-            this.country = COUNTRY[result.teacher_profile.country];
+          if (result.user_profile.country) {
+            this.country = COUNTRY[result.user_profile.country];
             sessionStorage.setItem('country', this.country);
           }
 
-          if (result.teacher_profile.date_of_birth) {
-            this.dateOfBirth = result.teacher_profile.date_of_birth;
-            sessionStorage.setItem('date_of_birth', result.teacher_profile.date_of_birth);
+          if (result.user_profile.date_of_birth) {
+            this.dateOfBirth = result.user_profile.date_of_birth;
+            sessionStorage.setItem('date_of_birth', result.user_profile.date_of_birth);
           }
 
-          if (result.teacher_profile.first_name) {
-            this.firstName = result.teacher_profile.first_name;
-            sessionStorage.setItem('first_name', result.teacher_profile.first_name);
+          if (result.user_profile.first_name) {
+            this.firstName = result.user_profile.first_name;
+            sessionStorage.setItem('first_name', result.user_profile.first_name);
           }
 
-          if (result.teacher_profile.last_name) {
-            this.lastName = result.teacher_profile.last_name;
-            sessionStorage.setItem('last_name', result.teacher_profile.last_name);
+          if (result.user_profile.last_name) {
+            this.lastName = result.user_profile.last_name;
+            sessionStorage.setItem('last_name', result.user_profile.last_name);
           }
 
-          if (result.teacher_profile.gender) {
-            this.gender = GENDER[result.teacher_profile.gender];
+          if (result.user_profile.gender) {
+            this.gender = GENDER[result.user_profile.gender];
             sessionStorage.setItem('gender', this.gender);
           }
 
-          if (result.teacher_profile.phone) {
-            this.phone = result.teacher_profile.phone;
-            sessionStorage.setItem('phone', result.teacher_profile.phone);
+          if (result.user_profile.phone) {
+            this.phone = result.user_profile.phone;
+            sessionStorage.setItem('phone', result.user_profile.phone);
           }
 
-          this.primaryLanguage = LANGUAGE[result.teacher_profile.primary_language];
+          this.primaryLanguage = LANGUAGE[result.user_profile.primary_language];
           sessionStorage.setItem('primary_language', this.primaryLanguage);
 
-          if (result.teacher_profile.secondary_language) {
-            this.secondaryLanguage = LANGUAGE[result.teacher_profile.secondary_language];
+          if (result.user_profile.secondary_language) {
+            this.secondaryLanguage = LANGUAGE[result.user_profile.secondary_language];
             sessionStorage.setItem('secondary_language', this.secondaryLanguage);
           }
 
-          if (result.teacher_profile.tertiary_language) {
-            this.tertiaryLanguage = LANGUAGE[result.teacher_profile.tertiary_language];
+          if (result.user_profile.tertiary_language) {
+            this.tertiaryLanguage = LANGUAGE[result.user_profile.tertiary_language];
             sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
           }
 
@@ -216,7 +216,7 @@ export class TeacherProfileComponent implements OnInit {
         Validators.minLength(4),
         Validators.maxLength(30)
       ]],
-      teacher_profile: this.formBuilder.group({
+      user_profile: this.formBuilder.group({
         first_name: [this.firstName, ],
         last_name: [this.lastName, ],
         phone: [this.phone, ],
@@ -240,7 +240,7 @@ export class TeacherProfileComponent implements OnInit {
   profileDetailsReset() {
     this.editProfileForm.patchValue({
       username: this.username,
-      teacher_profile: {
+      user_profile: {
         first_name: this.firstName,
         last_name: this.lastName,
         phone: this.phone,
@@ -256,9 +256,9 @@ export class TeacherProfileComponent implements OnInit {
 
   profileDetailsSubmit() {
     const editProfileDetailsData = this.editProfileForm.value;
-    if (editProfileDetailsData.teacher_profile.date_of_birth) {
+    if (editProfileDetailsData.user_profile.date_of_birth) {
       // Formatting date of birth in YYYY-MM-DD
-      const date = new Date(this.editProfileForm.value.teacher_profile.date_of_birth);
+      const date = new Date(this.editProfileForm.value.user_profile.date_of_birth);
       let month = '' + (date.getMonth() + 1);
       let day = '' + date.getDate();
       if (month.length < 2) {
@@ -268,7 +268,7 @@ export class TeacherProfileComponent implements OnInit {
           day = '0' + day;
       }
       const dateFormatted = date.getFullYear() + '-' + month + '-' + day;
-      editProfileDetailsData.teacher_profile.date_of_birth = dateFormatted;
+      editProfileDetailsData.user_profile.date_of_birth = dateFormatted;
     }
 
     this.apiService.patchTeacherProfileDetails(editProfileDetailsData).subscribe(
@@ -276,31 +276,31 @@ export class TeacherProfileComponent implements OnInit {
         this.username = result.username;
         sessionStorage.setItem('username', result.username);
 
-        this.country = COUNTRY[result.teacher_profile.country];
+        this.country = COUNTRY[result.user_profile.country];
         sessionStorage.setItem('country', this.country);
 
-        this.dateOfBirth = result.teacher_profile.date_of_birth;
-        sessionStorage.setItem('date_of_birth', result.teacher_profile.date_of_birth);
+        this.dateOfBirth = result.user_profile.date_of_birth;
+        sessionStorage.setItem('date_of_birth', result.user_profile.date_of_birth);
 
-        this.firstName = result.teacher_profile.first_name;
-        sessionStorage.setItem('first_name', result.teacher_profile.first_name);
+        this.firstName = result.user_profile.first_name;
+        sessionStorage.setItem('first_name', result.user_profile.first_name);
 
-        this.lastName = result.teacher_profile.last_name;
-        sessionStorage.setItem('last_name', result.teacher_profile.last_name);
+        this.lastName = result.user_profile.last_name;
+        sessionStorage.setItem('last_name', result.user_profile.last_name);
 
-        this.gender = GENDER[result.teacher_profile.gender];
+        this.gender = GENDER[result.user_profile.gender];
         sessionStorage.setItem('gender', this.gender);
 
-        this.phone = result.teacher_profile.phone;
-        sessionStorage.setItem('phone', result.teacher_profile.phone);
+        this.phone = result.user_profile.phone;
+        sessionStorage.setItem('phone', result.user_profile.phone);
 
-        this.primaryLanguage = LANGUAGE[result.teacher_profile.primary_language];
+        this.primaryLanguage = LANGUAGE[result.user_profile.primary_language];
         sessionStorage.setItem('primary_language', this.primaryLanguage);
 
-        this.secondaryLanguage = LANGUAGE[result.teacher_profile.secondary_language];
+        this.secondaryLanguage = LANGUAGE[result.user_profile.secondary_language];
         sessionStorage.setItem('secondary_language', this.secondaryLanguage);
 
-        this.tertiaryLanguage = LANGUAGE[result.teacher_profile.tertiary_language];
+        this.tertiaryLanguage = LANGUAGE[result.user_profile.tertiary_language];
         sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
 
         // Displaying appropriate message
@@ -314,8 +314,8 @@ export class TeacherProfileComponent implements OnInit {
       },
       errors => {
         if (errors.error) {
-          if (errors.error.teacher_profile.phone) {
-            this.phoneNumberError = errors.error.teacher_profile.phone[0];
+          if (errors.error.user_profile.phone) {
+            this.phoneNumberError = errors.error.user_profile.phone[0];
           }
           if (errors.error.username) {
             this.usernameError = errors.error.username[0];
