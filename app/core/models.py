@@ -247,7 +247,7 @@ def random_string_generator(size=10,
 
 def unique_slug_generator_for_institute(instance, new_slug=None):
     """Generates unique slug field for institute"""
-    if new_slug is not None:
+    if new_slug:
         slug = new_slug
     else:
         slug = slugify(instance.name)
@@ -260,6 +260,20 @@ def unique_slug_generator_for_institute(instance, new_slug=None):
         return unique_slug_generator_for_institute(
             instance, new_slug=new_slug
         )
+    return slug
+
+
+def unique_coupon_code_generator(instance):
+    """Generates and returns a new coupon code"""
+    slug = ''
+    while True:
+        slug = 'I' + random_string_generator(size=5).upper()
+
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(coupon_code=slug).exists()
+
+        if not qs_exists:
+            break
     return slug
 
 
@@ -492,6 +506,52 @@ class InstituteLicense(models.Model):
 
     class Meta:
         unique_together = ('type', 'billing')
+
+
+class InstituteDiscountCoupon(models.Model):
+    """
+    Creates discount coupon model to store discount
+    coupon in Rs for institute.
+    """
+    user = models.ForeignKey(
+        'User', related_name='institute_discount_coupon',
+        on_delete=models.SET_NULL, null=True, blank=False)
+    discount = models.BigIntegerField(
+        _('Discount'), blank=False, null=False)
+    created_date = models.DateTimeField(
+        _('Created Date'), default=timezone.now, editable=False)
+    expiry_date = models.DateTimeField(
+        _('Expiry Date'), blank=False, null=False)
+    coupon_code = models.SlugField(
+        _('Coupon Code'), blank=True, null=False, unique=True)
+    active = models.BooleanField(_('Active'), default=True)
+
+    def save(self, *args, **kwargs):
+        """Overrides save method"""
+        if not self.discount:
+            raise ValueError({'discount': _('This field is required.')})
+
+        if not self.user:
+            raise ValueError({'user': _('This field is required.')})
+
+        if not self.expiry_date:
+            raise ValueError({'expiry_date': _('This field is required.')})
+
+        user = User.objects.get(email=self.user)
+        if not (user.is_superuser or user.is_staff):
+            raise PermissionDenied()
+
+        super(InstituteDiscountCoupon, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.coupon_code
+
+
+@receiver(pre_save, sender=InstituteDiscountCoupon)
+def create_discount_coupon_code(sender, instance, *args, **kwargs):
+    if not instance.coupon_code:
+        coupon_code = unique_coupon_code_generator(instance)
+        instance.coupon_code = coupon_code
 
 
 class ProfilePictures(models.Model):

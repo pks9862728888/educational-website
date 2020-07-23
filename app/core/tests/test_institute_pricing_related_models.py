@@ -1,11 +1,14 @@
-# from django.contrib.auth import get_user_model
-# from django.test import TestCase
-# from django.core.exceptions import PermissionDenied
-#
-# from core.models import InstituteLicense, InstituteLicensePlans,\
-#     Billing, DiscussionForumBar
-#
-#
+import datetime
+
+from django.contrib.auth import get_user_model
+from django.test import TestCase
+from django.core.exceptions import PermissionDenied
+from django.utils import timezone
+
+from core.models import InstituteLicense, InstituteLicensePlans,\
+    Billing, DiscussionForumBar, InstituteDiscountCoupon
+
+
 # class InstituteLicenseModelTests(TestCase):
 #     """Test related to institute license models"""
 #
@@ -186,3 +189,152 @@
 #                 discussion_forum=self.payload['discussion_forum'],
 #                 LMS_exists=self.payload['LMS_exists'],
 #             )
+
+
+class TestInstituteDiscountCouponModel(TestCase):
+    """Test that institute discount coupon model works"""
+
+    def test_create_coupon_success_by_staff(self):
+        """"Test that staff can create discount coupon"""
+        staff = get_user_model().objects.create_user(
+            email='staff@gmail.com',
+            password='temppasswordstf',
+            username='jsertempname'
+        )
+        staff.is_staff = True
+        staff.save()
+        expiry_date = timezone.now() + datetime.timedelta(days=365)
+
+        coupon = InstituteDiscountCoupon.objects.create(
+            discount=200,
+            expiry_date=expiry_date,
+            user=staff
+        )
+        self.assertEqual(coupon.discount, 200)
+        self.assertEqual(coupon.expiry_date, expiry_date)
+        self.assertTrue(coupon.coupon_code.startswith('I'))
+        self.assertEqual(coupon.user, staff)
+        self.assertEqual(coupon.active, True)
+
+    def test_create_coupon_success_by_superuser(self):
+        """"Test that superuser can create discount coupon"""
+        superuser = get_user_model().objects.create_superuser(
+            email='superuser@gmail.com',
+            password='temppasswordstf',
+            username='jsertempname'
+        )
+        expiry_date = timezone.now() + datetime.timedelta(days=365)
+
+        coupon = InstituteDiscountCoupon.objects.create(
+            discount=200,
+            expiry_date=expiry_date,
+            user=superuser
+        )
+        self.assertEqual(coupon.discount, 200)
+        self.assertEqual(coupon.expiry_date, expiry_date)
+        self.assertTrue(coupon.coupon_code.startswith('I'))
+        self.assertEqual(coupon.user, superuser)
+        self.assertEqual(coupon.active, True)
+
+    def test_create_coupon_fails_by_teacher(self):
+        """"Test that teacher can not create discount coupon"""
+        teacher = get_user_model().objects.create_user(
+            email='teacher@gmail.com',
+            password='temppasswordstf',
+            username='jsertempname'
+        )
+        teacher.is_teacher = True
+        teacher.save()
+
+        expiry_date = timezone.now() + datetime.timedelta(days=365)
+
+        with self.assertRaises(PermissionDenied):
+            InstituteDiscountCoupon.objects.create(
+                discount=200,
+                expiry_date=expiry_date,
+                user=teacher
+            )
+
+    def test_create_coupon_fails_by_student(self):
+        """"Test that student can not create discount coupon"""
+        student = get_user_model().objects.create_user(
+            email='teacher@gmail.com',
+            password='temppasswordstf',
+            username='jsertempname'
+        )
+        student.is_student = True
+        student.save()
+
+        expiry_date = timezone.now() + datetime.timedelta(days=365)
+
+        with self.assertRaises(PermissionDenied):
+            InstituteDiscountCoupon.objects.create(
+                discount=200,
+                expiry_date=expiry_date,
+                user=student
+            )
+
+    def test_create_coupon_fails_by_normal_user(self):
+        """"Test that user can not create discount coupon"""
+        user = get_user_model().objects.create_user(
+            email='teacher@gmail.com',
+            password='temppasswordstf',
+            username='jsertempname'
+        )
+
+        expiry_date = timezone.now() + datetime.timedelta(days=365)
+
+        with self.assertRaises(PermissionDenied):
+            InstituteDiscountCoupon.objects.create(
+                discount=200,
+                expiry_date=expiry_date,
+                user=user
+            )
+
+    def test_create_coupon_user_required(self):
+        """"Test that user is required to be provided for coupon"""
+        expiry_date = timezone.now() + datetime.timedelta(days=365)
+
+        with self.assertRaises(ValueError):
+            InstituteDiscountCoupon.objects.create(
+                discount=200,
+                expiry_date=expiry_date
+            )
+
+    def test_discount_is_required(self):
+        """"
+        Test that user can not create discount coupon
+        without providing discount field
+        """
+        superuser = get_user_model().objects.create_superuser(
+            email='teacher@gmail.com',
+            password='temppasswordstf',
+            username='jsertempname'
+        )
+
+        expiry_date = timezone.now() + datetime.timedelta(days=365)
+
+        with self.assertRaises(ValueError):
+            InstituteDiscountCoupon.objects.create(
+                expiry_date=expiry_date,
+                user=superuser
+            )
+
+    def test_expiry_date_is_required(self):
+        """"
+        Test that user can not create discount coupon
+        without providing expiry date
+        """
+        superuser = get_user_model().objects.create_superuser(
+            email='teacher@gmail.com',
+            password='temppasswordstf',
+            username='jsertempname'
+        )
+
+        expiry_date = timezone.now() + datetime.timedelta(days=365)
+
+        with self.assertRaises(ValueError):
+            InstituteDiscountCoupon.objects.create(
+                discount=123,
+                user=superuser
+            )
