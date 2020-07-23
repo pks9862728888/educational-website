@@ -31,7 +31,7 @@ Educational streaming website with django and angular
 
 **Allowed methods** GET
 
-**Response:** 
+**Response:**
 ```
 [
     {
@@ -58,7 +58,7 @@ Educational streaming website with django and angular
 
 **Fields:** image
 
-**Response:** 
+**Response:**
 ```
 {
     "id": 9,
@@ -76,7 +76,7 @@ Educational streaming website with django and angular
 
 **Allowed methods** POST
 
-**Fields:** 
+**Fields:**
 ```
 {
 "id" : 9,
@@ -85,7 +85,7 @@ Educational streaming website with django and angular
 }
 ```
 
-**Response:** 
+**Response:**
 ```
 {
     "id": 14,
@@ -108,7 +108,7 @@ Educational streaming website with django and angular
 
 **Allowed methods** DELETE
 
-**Response:** 
+**Response:**
 ```
 {
     "class_profile_picture_deleted": false,
@@ -122,7 +122,7 @@ Educational streaming website with django and angular
 
 **Allowed methods** POST
 
-**Response:** 
+**Response:**
 Returns `true` if the profile picture is removed, else it will return `false`.
 ```
 {
@@ -142,7 +142,7 @@ Returns `true` if the profile picture is removed, else it will return `false`.
 
 **Allowed methods** POST
 
-**Response:** 
+**Response:**
 Returns `true` if the profile picture is removed, else it will return `false`.
 ```
 {
@@ -162,7 +162,7 @@ Returns `true` if the profile picture is removed, else it will return `false`.
 
 **Allowed methods** POST
 
-**Response:** 
+**Response:**
 Returns the total number of profile picture available.
 ```
 {
@@ -171,8 +171,8 @@ Returns the total number of profile picture available.
 ```
 
 
-## Teacher Profile url
-**URL:** https://127.0.0.1:8000/teacher/teacher-profile
+## User Profile url
+**URL:** https://127.0.0.1:8000/user/user-profile
 
 **Allowed methods** GET, PUT, PATCH
 
@@ -183,7 +183,7 @@ Returns the total number of profile picture available.
     "email": "",
     "username": "",
     "created_date": "",
-    "teacher_profile": {
+    "user_profile": {
         "first_name": "",
         "last_name": "",
         "gender": "",
@@ -208,7 +208,7 @@ Returns the total number of profile picture available.
     "email": "",
     "username": "",
     "created_date": "",
-    "teacher_profile": {
+    "user_profile": {
         "first_name": "",
         "last_name": "",
         "gender": "",
@@ -482,7 +482,7 @@ ________________________________________________________________________________
 **Allowed permissions** ADMIN or "A", STAFF or "S", FACULTY or "F". ***Admin** can invite everyone. **Staff** can invite staff and faculty.*
 
 
-**POST Request** 
+**POST Request**
 ```
 {
     "role": "S",
