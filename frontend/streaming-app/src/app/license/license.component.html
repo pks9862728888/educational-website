@@ -27,7 +27,7 @@
                                     </div>
                                     <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== getActivePlan(mp.type), 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === getActivePlan(mp.type)}">
                                         <h2 class="license-name">{{ getActivePlan(mp.type) }}</h2>
-                                        <h3 class="price">&#8377; {{ calculateCostInThousands(mp.cost, mp.discount) }} K per month</h3>
+                                        <h3 class="price">&#8377; {{ calculateCostInThousands(mp.amount, mp.discount_percent) }} K per month</h3>
                                         <p>Best suited for <span *ngIf="getActivePlan(mp.type) === 'BASIC'">coachings</span><span *ngIf="getActivePlan(mp.type) === 'BUSINESS'">schools</span><span *ngIf="getActivePlan(mp.type) === 'ENTERPRISE'">colleges</span>.</p>
                                         <p>Billed monthly.</p>
                                         <button mat-flat-button class="green-button rounded-button">Get started</button>
@@ -79,7 +79,7 @@
                                             <div *ngIf="mp.storage === 99999" class="col">Custom</div>
                                         </div>
                                     </div>
-                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mobileQuery.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                    <div class="col-12 features" *ngIf="!instituteIsCoaching()" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mobileQuery.matches && activePlanContainer === getActivePlan(mp.type)}">
                                         <div class="row">
                                             <div class="col">
                                                 Departments
@@ -160,7 +160,7 @@
                                     </div>
                                     <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== getActivePlan(mp.type), 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === getActivePlan(mp.type)}">
                                         <h2 class="license-name">{{ getActivePlan(mp.type) }}</h2>
-                                        <h3 class="price">&#8377; {{ calculateCostInThousands(mp.cost, mp.discount) }} K per month</h3>
+                                        <h3 class="price">&#8377; {{ calculateCostInThousands(mp.amount, mp.discount_percent) }} K per month</h3>
                                         <p>Best suited for <span *ngIf="getActivePlan(mp.type) === 'BASIC'">coachings</span><span *ngIf="getActivePlan(mp.type) === 'BUSINESS'">schools</span><span *ngIf="getActivePlan(mp.type) === 'ENTERPRISE'">colleges</span>.</p>
                                         <p>Billed yearly.</p>
                                         <button mat-flat-button class="green-button rounded-button">Get started</button>
@@ -212,7 +212,7 @@
                                             <div *ngIf="mp.storage === 99999" class="col">Custom</div>
                                         </div>
                                     </div>
-                                    <div class="col-12 features" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mobileQuery.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                    <div class="col-12 features" *ngIf="!instituteIsCoaching()" [ngClass]="{'features-deactivated': mobileQuery.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mobileQuery.matches && activePlanContainer === getActivePlan(mp.type)}">
                                         <div class="row">
                                             <div class="col">
                                                 Departments

@@ -2398,94 +2398,94 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 #         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 #         self.assertNotIn('active_staff_list', res.data)
 #         self.assertNotIn('pending_staff_invites', res.data)
-
-    def test_get_successful_by_teacher_on_get_institute_license_url(self):
-        """Test that teacher can get institute license details"""
-        models.InstituteLicense.objects.create(
-            user=self.superuser,
-            type=self.payload['type'],
-            billing=self.payload['billing'],
-            amount=self.payload['amount'],  # in Rs
-            storage=self.payload['storage'],  # in Gb
-            no_of_admin=self.payload['no_of_admin'],
-            no_of_staff=self.payload['no_of_staff'],
-            no_of_faculty=self.payload['no_of_faculty'],
-            no_of_student=self.payload['no_of_student'],
-            video_call_max_attendees=self.payload['video_call_max_attendees'],
-            classroom_limit=self.payload['classroom_limit'],
-            department_limit=self.payload['department_limit'],
-            subject_limit=self.payload['subject_limit'],
-            scheduled_test=self.payload['scheduled_test'],
-            discussion_forum=self.payload['discussion_forum'],
-            LMS_exists=self.payload['LMS_exists'],
-        )
-        models.InstituteLicense.objects.create(
-            user=self.superuser,
-            type=models.InstituteLicensePlans.BASIC,
-            billing=models.Billing.MONTHLY,
-            amount=self.payload['amount'],  # in Rs
-            storage=self.payload['storage'],  # in Gb
-            no_of_admin=self.payload['no_of_admin'],
-            no_of_staff=self.payload['no_of_staff'],
-            no_of_faculty=self.payload['no_of_faculty'],
-            no_of_student=self.payload['no_of_student'],
-            video_call_max_attendees=self.payload['video_call_max_attendees'],
-            classroom_limit=self.payload['classroom_limit'],
-            department_limit=self.payload['department_limit'],
-            subject_limit=self.payload['subject_limit'],
-            scheduled_test=self.payload['scheduled_test'],
-            discussion_forum=self.payload['discussion_forum'],
-            LMS_exists=self.payload['LMS_exists'],
-        )
-        res = self.client.get(
-            INSTITUTE_GET_ALL_AVAILABLE_INSTITUTE_LICENSE_URL)
-
-        monthly_license = res.data['monthly_license'][0]
-
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(res.data['monthly_license']), 2)
-        self.assertEqual(monthly_license['billing'],
-                         self.payload['billing'])
-        self.assertEqual(monthly_license['amount'],
-                         self.payload['amount'])
-        self.assertEqual(monthly_license['storage'],
-                         self.payload['storage'])
-        self.assertEqual(monthly_license['no_of_admin'],
-                         self.payload['no_of_admin'])
-        self.assertEqual(monthly_license['no_of_staff'],
-                         self.payload['no_of_staff'])
-        self.assertEqual(monthly_license['no_of_faculty'],
-                         self.payload['no_of_faculty'])
-        self.assertEqual(monthly_license['no_of_student'],
-                         self.payload['no_of_student'])
-        self.assertEqual(monthly_license['video_call_max_attendees'],
-                         self.payload['video_call_max_attendees'])
-        self.assertEqual(monthly_license['classroom_limit'],
-                         self.payload['classroom_limit'])
-        self.assertEqual(monthly_license['department_limit'],
-                         self.payload['department_limit'])
-        self.assertEqual(monthly_license['subject_limit'],
-                         self.payload['subject_limit'])
-        self.assertEqual(monthly_license['scheduled_test'],
-                         self.payload['scheduled_test'])
-        self.assertEqual(monthly_license['discussion_forum'],
-                         self.payload['discussion_forum'])
-        self.assertEqual(monthly_license['LMS_exists'],
-                         self.payload['LMS_exists'])
-
-
-class AuthenticatedUserAPITests(TestCase):
-    """Tests for authenticated user"""
-
-    def setUp(self):
-        """Setup code for all test cases"""
-        self.user = get_user_model().objects.create_user(
-            email='test@gmail.com',
-            username='testusername',
-            password='testpassword',
-        )
-        self.client = APIClient()
-        self.client.force_authenticate(user=self.user)
+#
+#     def test_get_successful_by_teacher_on_get_institute_license_url(self):
+#         """Test that teacher can get institute license details"""
+#         models.InstituteLicense.objects.create(
+#             user=self.superuser,
+#             type=self.payload['type'],
+#             billing=self.payload['billing'],
+#             amount=self.payload['amount'],  # in Rs
+#             storage=self.payload['storage'],  # in Gb
+#             no_of_admin=self.payload['no_of_admin'],
+#             no_of_staff=self.payload['no_of_staff'],
+#             no_of_faculty=self.payload['no_of_faculty'],
+#             no_of_student=self.payload['no_of_student'],
+#             video_call_max_attendees=self.payload['video_call_max_attendees'],
+#             classroom_limit=self.payload['classroom_limit'],
+#             department_limit=self.payload['department_limit'],
+#             subject_limit=self.payload['subject_limit'],
+#             scheduled_test=self.payload['scheduled_test'],
+#             discussion_forum=self.payload['discussion_forum'],
+#             LMS_exists=self.payload['LMS_exists'],
+#         )
+#         models.InstituteLicense.objects.create(
+#             user=self.superuser,
+#             type=models.InstituteLicensePlans.BASIC,
+#             billing=models.Billing.MONTHLY,
+#             amount=self.payload['amount'],  # in Rs
+#             storage=self.payload['storage'],  # in Gb
+#             no_of_admin=self.payload['no_of_admin'],
+#             no_of_staff=self.payload['no_of_staff'],
+#             no_of_faculty=self.payload['no_of_faculty'],
+#             no_of_student=self.payload['no_of_student'],
+#             video_call_max_attendees=self.payload['video_call_max_attendees'],
+#             classroom_limit=self.payload['classroom_limit'],
+#             department_limit=self.payload['department_limit'],
+#             subject_limit=self.payload['subject_limit'],
+#             scheduled_test=self.payload['scheduled_test'],
+#             discussion_forum=self.payload['discussion_forum'],
+#             LMS_exists=self.payload['LMS_exists'],
+#         )
+#         res = self.client.get(
+#             INSTITUTE_GET_ALL_AVAILABLE_INSTITUTE_LICENSE_URL)
+#
+#         monthly_license = res.data['monthly_license'][0]
+#
+#         self.assertEqual(res.status_code, status.HTTP_200_OK)
+#         self.assertTrue(len(res.data['monthly_license']), 2)
+#         self.assertEqual(monthly_license['billing'],
+#                          self.payload['billing'])
+#         self.assertEqual(monthly_license['amount'],
+#                          self.payload['amount'])
+#         self.assertEqual(monthly_license['storage'],
+#                          self.payload['storage'])
+#         self.assertEqual(monthly_license['no_of_admin'],
+#                          self.payload['no_of_admin'])
+#         self.assertEqual(monthly_license['no_of_staff'],
+#                          self.payload['no_of_staff'])
+#         self.assertEqual(monthly_license['no_of_faculty'],
+#                          self.payload['no_of_faculty'])
+#         self.assertEqual(monthly_license['no_of_student'],
+#                          self.payload['no_of_student'])
+#         self.assertEqual(monthly_license['video_call_max_attendees'],
+#                          self.payload['video_call_max_attendees'])
+#         self.assertEqual(monthly_license['classroom_limit'],
+#                          self.payload['classroom_limit'])
+#         self.assertEqual(monthly_license['department_limit'],
+#                          self.payload['department_limit'])
+#         self.assertEqual(monthly_license['subject_limit'],
+#                          self.payload['subject_limit'])
+#         self.assertEqual(monthly_license['scheduled_test'],
+#                          self.payload['scheduled_test'])
+#         self.assertEqual(monthly_license['discussion_forum'],
+#                          self.payload['discussion_forum'])
+#         self.assertEqual(monthly_license['LMS_exists'],
+#                          self.payload['LMS_exists'])
+#
+#
+# class AuthenticatedUserAPITests(TestCase):
+#     """Tests for authenticated user"""
+#
+#     def setUp(self):
+#         """Setup code for all test cases"""
+#         self.user = get_user_model().objects.create_user(
+#             email='test@gmail.com',
+#             username='testusername',
+#             password='testpassword',
+#         )
+#         self.client = APIClient()
+#         self.client.force_authenticate(user=self.user)
 #
 #     def test_get_not_allowed_on_institute_min_details_teacher_url(self):
 #         """Test that get request is not allowed for unauthenticated user"""
@@ -2585,13 +2585,13 @@ class AuthenticatedUserAPITests(TestCase):
 #         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 #         self.assertNotIn('active_staff_list', res.data)
 #         self.assertNotIn('pending_staff_invites', res.data)
-
-    def test_student_can_not_get_institute_license_details(self):
-        """
-        Test that institute license details is
-        not available to students
-        """
-        res = self.client.get(
-            INSTITUTE_GET_ALL_AVAILABLE_INSTITUTE_LICENSE_URL)
-
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+#
+#     def test_student_can_not_get_institute_license_details(self):
+#         """
+#         Test that institute license details is
+#         not available to students
+#         """
+#         res = self.client.get(
+#             INSTITUTE_GET_ALL_AVAILABLE_INSTITUTE_LICENSE_URL)
+#
+#         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)

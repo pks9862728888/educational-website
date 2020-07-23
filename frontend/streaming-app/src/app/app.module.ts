@@ -21,6 +21,7 @@ import { FeaturesModule } from './features/features.module';
 import { PricingModule } from './pricing/pricing.module';
 import { AboutModule } from './about/about.module';
 import { HomeModule } from './home/home.module';
+import { LicenseModule } from './license/license.module';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { HomeModule } from './home/home.module';
     PricingModule,
     AboutModule,
     HelpModule,
+    LicenseModule
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

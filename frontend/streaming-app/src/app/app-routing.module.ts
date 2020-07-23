@@ -9,7 +9,6 @@ import { AboutComponent } from './about/about.component';
 import { PricingComponent } from './pricing/pricing.component';
 import { HelpComponent } from './help/help.component';
 import { FeaturesComponent } from './features/features.component';
-import { LicenseComponent } from './license/license.component';
 import { SitemapComponent } from './sitemap/sitemap.component';
 import { TeacherWorkspaceComponent } from './teacher-workspace/teacher-workspace.component';
 import { StudentWorkspaceComponent } from './student-workspace/student-workspace.component';
@@ -32,6 +31,7 @@ import { CoachingProfileComponent } from './coaching-workspace/coaching-profile/
 import { SignUpLoginGuard,StudentWorkspaceGuard, TeacherWorkspaceGuard,
          StaffWorkspaceGuard, SchoolWorkspaceGuard, CollegeWorkspaceGuard,
          CoachingWorkspaceGuard } from './auth/auth.guard';
+import { LicenseComponent } from './license/license.component';
 
 
 const routes: Routes = [
@@ -127,6 +127,5 @@ export const routingComponents = [
   LoginComponent,
   ForgotPasswordComponent,
   PageNotFoundComponent,
-  LicenseComponent,
   SitemapComponent,
 ];

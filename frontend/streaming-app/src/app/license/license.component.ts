@@ -1,4 +1,4 @@
-import { INSTITUTE_LICENSE_PLANS, DISCUSSION_FORUM_PER_ATTENDEES } from './../../constants';
+import { INSTITUTE_LICENSE_PLANS, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
 import { InstituteApiService } from 'src/app/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
@@ -8,8 +8,8 @@ interface LicenseList {
   'id': number;
   'billing': string;
   'type': string;
-  'cost': number;
-  'discount': number;
+  'amount': number;
+  'discount_percent': number;
   'storage': number;
   'no_of_admin': number;
   'no_of_staff': number;
@@ -80,8 +80,15 @@ export class LicenseComponent implements OnInit {
     return DISCUSSION_FORUM_PER_ATTENDEES[key];
   }
 
-  calculateCostInThousands(cost:number, discount: number) {
-    return (cost * (1 - discount/100))/1000;
+  calculateCostInThousands(amount:number, discountPercent: number) {
+    return (amount * (1 - discountPercent/100))/1000;
   }
 
+  instituteIsCoaching() {
+    if (sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['Coaching']) {
+      return true
+    } else {
+      return false
+    }
+  }
 }
