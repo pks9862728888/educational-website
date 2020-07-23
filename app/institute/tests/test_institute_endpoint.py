@@ -232,8 +232,8 @@ class AuthenticatedTeacherUserAPITests(TestCase):
         self.payload = {
             'type': models.InstituteLicensePlans.BUSINESS,
             'billing': models.Billing.MONTHLY,
-            'cost': 2100,
-            'discount': 0.0,
+            'amount': 2100,
+            'discount_percent': 0.0,
             'storage': 100,
             'no_of_admin': 1,
             'no_of_staff': 1,
@@ -2405,7 +2405,7 @@ class AuthenticatedTeacherUserAPITests(TestCase):
             user=self.superuser,
             type=self.payload['type'],
             billing=self.payload['billing'],
-            cost=self.payload['cost'],  # in Rs
+            amount=self.payload['amount'],  # in Rs
             storage=self.payload['storage'],  # in Gb
             no_of_admin=self.payload['no_of_admin'],
             no_of_staff=self.payload['no_of_staff'],
@@ -2423,7 +2423,7 @@ class AuthenticatedTeacherUserAPITests(TestCase):
             user=self.superuser,
             type=models.InstituteLicensePlans.BASIC,
             billing=models.Billing.MONTHLY,
-            cost=self.payload['cost'],  # in Rs
+            amount=self.payload['amount'],  # in Rs
             storage=self.payload['storage'],  # in Gb
             no_of_admin=self.payload['no_of_admin'],
             no_of_staff=self.payload['no_of_staff'],
@@ -2446,8 +2446,8 @@ class AuthenticatedTeacherUserAPITests(TestCase):
         self.assertTrue(len(res.data['monthly_license']), 2)
         self.assertEqual(monthly_license['billing'],
                          self.payload['billing'])
-        self.assertEqual(monthly_license['cost'],
-                         self.payload['cost'])
+        self.assertEqual(monthly_license['amount'],
+                         self.payload['amount'])
         self.assertEqual(monthly_license['storage'],
                          self.payload['storage'])
         self.assertEqual(monthly_license['no_of_admin'],

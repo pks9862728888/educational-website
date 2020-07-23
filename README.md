@@ -222,6 +222,80 @@ Returns the total number of profile picture available.
 }
 ```
 _______________________________________________________________________________________________________________________________________
+## Institute license list url
+**URL:** https://127.0.0.1:8000/institute/institute-license-list
+
+**Allowed methods** POST
+
+**Scope** Teacher only
+
+**GET JSON format:**
+```
+{
+    "monthly_license": [
+        {
+            "id": 1,
+            "billing": "M",
+            "type": "BAS",
+            "amount": 2000,
+            "discount_percent": "0.00",
+            "storage": 119,
+            "no_of_admin": 1,
+            "no_of_staff": 0,
+            "no_of_faculty": 0,
+            "no_of_student": 99999,
+            "video_call_max_attendees": 9,
+            "classroom_limit": 99999,
+            "department_limit": 0,
+            "subject_limit": 99999,
+            "scheduled_test": true,
+            "discussion_forum": "O",
+            "LMS_exists": true
+        },
+        {
+            "id": 2,
+            "billing": "M",
+            "type": "BUS",
+            "amount": 120000,
+            "discount_percent": "0.00",
+            "storage": 1234,
+            "no_of_admin": 1,
+            "no_of_staff": 0,
+            "no_of_faculty": 0,
+            "no_of_student": 99999,
+            "video_call_max_attendees": 233,
+            "classroom_limit": 99999,
+            "department_limit": 0,
+            "subject_limit": 99999,
+            "scheduled_test": true,
+            "discussion_forum": "S",
+            "LMS_exists": true
+        }
+    ],
+    "yearly_license": [
+        {
+            "id": 3,
+            "billing": "A",
+            "type": "BAS",
+            "amount": 1500,
+            "discount_percent": "0.00",
+            "storage": 12,
+            "no_of_admin": 1,
+            "no_of_staff": 0,
+            "no_of_faculty": 0,
+            "no_of_student": 99999,
+            "video_call_max_attendees": 12,
+            "classroom_limit": 99999,
+            "department_limit": 0,
+            "subject_limit": 99999,
+            "scheduled_test": true,
+            "discussion_forum": "S",
+            "LMS_exists": true
+        }
+    ]
+}
+```
+_______________________________________________________________________________________________________________________________________
 ## Institute create url
 **URL:** https://127.0.0.1:8000/institute/create
 

@@ -131,14 +131,32 @@ class CustomSystemMessages(admin.ModelAdmin):
 
 class CustomInstituteLicense(admin.ModelAdmin):
     model = models.InstituteLicense
-    list_display = ['type', 'billing', 'cost', 'discount']
+    list_display = ['type', 'billing', 'amount', 'discount_percent']
     list_filter = ['type', 'billing']
+
+
+class CustomInstituteDiscountCoupon(admin.ModelAdmin):
+    model = models.InstituteDiscountCoupon
+    list_display = ['coupon_code', 'discount_rs', 'created_date',
+                    'expiry_date', 'active']
+    list_filter = ['active']
 
 
 class CustomInstitute(admin.ModelAdmin):
     model = models.InstituteLicense
     list_display = ['name', 'institute_category', 'type']
     list_filter = ['institute_category', 'type']
+
+
+class CustomInstituteSelectedLicense(admin.ModelAdmin):
+    model = models.InstituteSelectedLicense
+    list_display = ['type', 'billing', 'net_amount', 'discount_coupon']
+    list_filter = ['type', 'billing']
+
+
+class CustomInstituteLicenseOrderDetails(admin.ModelAdmin):
+    model = models.InstituteLicenseOrderDetails
+    list_display = ['order_id', 'amount', 'selected_license', 'created_on']
 
 
 class CustomInstituteProfile(admin.ModelAdmin):
@@ -206,6 +224,12 @@ class CustomInstitutePermission(admin.ModelAdmin):
 
 admin.site.register(models.User, CustomUserAdmin)
 admin.site.register(models.InstituteLicense, CustomInstituteLicense)
+admin.site.register(models.InstituteSelectedLicense,
+                    CustomInstituteSelectedLicense)
+admin.site.register(models.InstituteLicenseOrderDetails,
+                    CustomInstituteLicenseOrderDetails)
+admin.site.register(models.InstituteDiscountCoupon,
+                    CustomInstituteDiscountCoupon)
 admin.site.register(models.SystemMessage, CustomSystemMessages)
 admin.site.register(models.TeacherProfile, CustomTeacherUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)

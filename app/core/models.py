@@ -27,6 +27,10 @@ from rest_framework.authtoken.models import Token
 from .tasks import create_welcome_message_after_user_creation
 
 
+# Constant to define unlimited limit
+UNLIMITED = 99999
+
+
 class OperationalCountries(Countries):
     """Overriding countries to include only operational countries."""
     only = ['IN', ]
@@ -247,7 +251,7 @@ def random_string_generator(size=10,
 
 def unique_slug_generator_for_institute(instance, new_slug=None):
     """Generates unique slug field for institute"""
-    if new_slug is not None:
+    if new_slug:
         slug = new_slug
     else:
         slug = slugify(instance.name)
@@ -261,6 +265,31 @@ def unique_slug_generator_for_institute(instance, new_slug=None):
             instance, new_slug=new_slug
         )
     return slug
+
+
+def unique_coupon_code_generator(instance):
+    """Generates and returns a new coupon code"""
+    while True:
+        slug = 'I' + random_string_generator(size=5).upper()
+
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(coupon_code=slug).exists()
+
+        if not qs_exists:
+            break
+    return slug
+
+
+def create_order_id(instance):
+    """Generates unique order id for institute"""
+    while True:
+        order_id = 'order_ins' + random_string_generator(size=10)
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(order_id=order_id).exists()
+
+        if not qs_exists:
+            break
+    return order_id
 
 
 def unique_slug_generator_for_class(instance, new_slug=None):
@@ -449,32 +478,33 @@ class InstituteLicense(models.Model):
     billing = models.CharField(
         _('Billing'), max_length=1, blank=False, null=False,
         choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
-    cost = models.BigIntegerField(   # In Rs
-        _('Cost'), blank=False, null=False)
-    discount = models.DecimalField(
-        _('Discount'), default=0.0, max_digits=5, decimal_places=2)
+    amount = models.BigIntegerField(   # In Rs
+        _('Amount In Rs'), blank=False, null=False)
+    discount_percent = models.DecimalField(
+        _('Discount In Percentage'), default=0.0,
+        max_digits=5, decimal_places=2)
     storage = models.IntegerField(   # In Gb
-        _('Storage'), blank=False, null=False)
+        _('Storage in Gb'), blank=False, null=False)
     no_of_admin = models.PositiveIntegerField(
         _('No of admin'), default=1)
     no_of_staff = models.PositiveIntegerField(
-        _('No of staff'), default=0, blank=False, null=False)
+        _('No of staff'), default=0)
     no_of_faculty = models.PositiveIntegerField(
-        _('No of faculty'), default=0, blank=False, null=False)
+        _('No of faculty'), default=0)
     no_of_student = models.PositiveIntegerField(
-        _('No of students'), default=0, blank=False, null=False)
+        _('No of students'), default=UNLIMITED)
     video_call_max_attendees = models.PositiveIntegerField(
         _('Video call max attendees'), blank=False, null=False)
     classroom_limit = models.PositiveIntegerField(
-        _('Classroom Limit'), blank=False, null=False)
+        _('Classroom Limit'), default=UNLIMITED)
     department_limit = models.PositiveIntegerField(
-        _('Department Limit'), blank=False, null=False)
+        _('Department Limit'), default=0)
     subject_limit = models.PositiveIntegerField(
-        _('Subject Limit'), blank=False, null=False)
+        _('Subject Limit'), default=UNLIMITED)
     scheduled_test = models.BooleanField(
-        _('Scheduled Test'), default=True, blank=True, null=False)
+        _('Scheduled Test'), default=True)
     LMS_exists = models.BooleanField(
-        _('LMS exists'), default=True, blank=True, null=False)
+        _('LMS exists'), default=True)
     discussion_forum = models.CharField(
         _('Discussion forum'), max_length=1, blank=False, null=False,
         choices=DiscussionForumBar.DISCUSSION_FORUM_BAR_IN_DISCUSSION_FORUMS)
@@ -492,6 +522,160 @@ class InstituteLicense(models.Model):
 
     class Meta:
         unique_together = ('type', 'billing')
+
+
+class InstituteDiscountCoupon(models.Model):
+    """
+    Creates discount coupon model to store discount
+    coupon in Rs for institute.
+    """
+    user = models.ForeignKey(
+        'User', related_name='institute_discount_coupon',
+        on_delete=models.SET_NULL, null=True)
+    discount_rs = models.BigIntegerField(
+        _('Discount in Rupees'), blank=False, null=False)
+    created_date = models.DateTimeField(
+        _('Created Date'), default=timezone.now, editable=False)
+    expiry_date = models.DateTimeField(
+        _('Expiry Date'), blank=False, null=False)
+    coupon_code = models.SlugField(
+        _('Coupon Code'), blank=True, null=False, unique=True)
+    active = models.BooleanField(_('Active'), default=True)
+
+    def save(self, *args, **kwargs):
+        """Overrides save method"""
+        if not self.discount_rs:
+            raise ValueError({'discount_rs': _('This field is required.')})
+
+        if not self.user:
+            raise ValueError({'user': _('This field is required.')})
+
+        if not self.expiry_date:
+            raise ValueError({'expiry_date': _('This field is required.')})
+
+        user = User.objects.get(email=self.user)
+        if not (user.is_superuser or user.is_staff):
+            raise PermissionDenied()
+
+        super(InstituteDiscountCoupon, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.coupon_code
+
+
+@receiver(pre_save, sender=InstituteDiscountCoupon)
+def create_discount_coupon_code(sender, instance, *args, **kwargs):
+    if not instance.coupon_code:
+        coupon_code = unique_coupon_code_generator(instance)
+        instance.coupon_code = coupon_code
+
+
+class InstituteSelectedLicense(models.Model):
+    """
+    Create institute selected license model to store
+    selected license plans at that moment
+    """
+    institute = models.ForeignKey(
+        _('Institute'), related_name='institute_selected_license',
+        on_delete=models.CASCADE)
+    type = models.CharField(
+        _('Type'), max_length=3, blank=False, null=False,
+        choices=InstituteLicensePlans.LICENSE_PLANS_IN_INSTITUTE_LICENSE)
+    billing = models.CharField(
+        _('Billing'), max_length=1, blank=False, null=False,
+        choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
+    amount = models.BigIntegerField(  # In Rs
+        _('Amount In Rs'), blank=False, null=False)
+    discount_percent = models.DecimalField(
+        _('Discount In Percentage'), default=0.0,
+        max_digits=5, decimal_places=2)
+    discount_coupon = models.OneToOneField(
+        to='InstituteDiscountCoupon', on_delete=models.SET_NULL,
+        blank=True, null=True
+    )
+    net_amount = models.DecimalField(
+        _('Net Amount in Rs'), max_digits=10, decimal_places=2,
+        blank=True, null=True)
+    storage = models.IntegerField(  # In Gb
+        _('Storage in GB'), blank=False, null=False)
+    no_of_admin = models.PositiveIntegerField(
+        _('No of admin'), blank=False, null=False)
+    no_of_staff = models.PositiveIntegerField(
+        _('No of staff'), blank=False, null=False)
+    no_of_faculty = models.PositiveIntegerField(
+        _('No of faculty'), blank=False, null=False)
+    no_of_student = models.PositiveIntegerField(
+        _('No of students'), blank=False, null=False)
+    video_call_max_attendees = models.PositiveIntegerField(
+        _('Video call max attendees'), blank=False, null=False)
+    classroom_limit = models.PositiveIntegerField(
+        _('Classroom Limit'), blank=False, null=False)
+    department_limit = models.PositiveIntegerField(
+        _('Department Limit'), blank=False, null=False)
+    subject_limit = models.PositiveIntegerField(
+        _('Subject Limit'), blank=False, null=False)
+    scheduled_test = models.BooleanField(
+        _('Scheduled Test'), blank=False, null=False)
+    LMS_exists = models.BooleanField(
+        _('LMS exists'), blank=True, null=False)
+    discussion_forum = models.CharField(
+        _('Discussion forum'), max_length=1, blank=False, null=False,
+        choices=DiscussionForumBar.DISCUSSION_FORUM_BAR_IN_DISCUSSION_FORUMS)
+
+    def save(self, *args, **kwargs):
+        if self.discount_coupon:
+            if not self.discount_coupon.active:
+                raise ValueError({'discount_coupon': _('Coupon already used.')})
+
+            if timezone.now() > self.discount_coupon.expiry_date:
+                raise ValueError({'discount_coupon': _('Coupon expired.')})
+
+        super(InstituteSelectedLicense, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.institute.name
+
+
+@receiver(post_save, sender=InstituteSelectedLicense)
+def calculate_net_amount(sender, instance, created, *args, **kwargs):
+    """Calculates net amount to be paid"""
+    if created and not instance.net_amount:
+        if instance.discount_coupon:
+            instance.net_amount = max(0, instance.amount * (
+                    1 - instance.discount_percent/100) -
+                                      instance.discount_coupon.discount_rs)
+        else:
+            instance.net_amount = max(0, instance.amount * (
+                    1 - instance.discount_percent / 100))
+        instance.save()
+
+        if instance.discount_coupon:
+            instance.discount_coupon.active = False
+            instance.discount_coupon.save()
+
+
+class InstituteLicenseOrderDetails(models.Model):
+    """Model to store institute license order"""
+    order_id = models.CharField(
+        _('Order Id'), max_length=19, blank=True, null=False)
+    amount = models.DecimalField(
+        _('Amount in Rupees'), max_digits=10, decimal_places=2,
+        blank=False, null=False)
+    selected_license = models.OneToOneField(
+        to='InstituteSelectedLicense', on_delete=models.SET_NULL,
+        null=True)
+    created_on = models.DateTimeField(
+        _('Order Created On'), default=timezone.now, editable=False)
+
+    def __str__(self):
+        return self.order_id
+
+
+@receiver(pre_save, sender=InstituteLicenseOrderDetails)
+def create_unique_order_id(sender, instance, *args, **kwargs):
+    """Creates unique order id for institute"""
+    if not instance.order_id:
+        instance.order_id = create_order_id(instance)
 
 
 class ProfilePictures(models.Model):
