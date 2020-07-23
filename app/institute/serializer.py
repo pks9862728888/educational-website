@@ -13,13 +13,13 @@ class InstituteLicenseListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InstituteLicense
-        fields = ('id', 'billing', 'type', 'cost', 'discount', 'storage',
+        fields = ('id', 'billing', 'type', 'amount', 'discount_percent', 'storage',
                   'no_of_admin', 'no_of_staff', 'no_of_faculty',
                   'no_of_student', 'video_call_max_attendees',
                   'classroom_limit', 'department_limit',
                   'subject_limit', 'scheduled_test', 'discussion_forum',
                   'LMS_exists')
-        read_only_fields = ('id', 'billing', 'type', 'cost', 'discount',
+        read_only_fields = ('id', 'billing', 'type', 'amount', 'discount_percent',
                             'storage', 'no_of_admin', 'no_of_staff',
                             'no_of_faculty', 'no_of_student',
                             'video_call_max_attendees', 'classroom_limit',
