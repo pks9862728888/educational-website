@@ -64,7 +64,7 @@ class CustomUserAdmin(UserAdmin):
     )
 
 
-class CustomTeacherUserProfile(admin.ModelAdmin):
+class CustomUserProfile(admin.ModelAdmin):
     """Customizing the user profile admin page"""
     list_display = ['user', 'first_name', 'last_name',
                     'country', 'phone',
@@ -231,7 +231,7 @@ admin.site.register(models.InstituteLicenseOrderDetails,
 admin.site.register(models.InstituteDiscountCoupon,
                     CustomInstituteDiscountCoupon)
 admin.site.register(models.SystemMessage, CustomSystemMessages)
-admin.site.register(models.TeacherProfile, CustomTeacherUserProfile)
+admin.site.register(models.UserProfile, CustomUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)
 admin.site.register(models.Institute, CustomInstitute)
 admin.site.register(models.InstituteProfile, CustomInstituteProfile)

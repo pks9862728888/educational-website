@@ -370,11 +370,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         )
 
 
-class TeacherProfile(models.Model, Languages):
+class UserProfile(models.Model, Languages):
     """Creates user profile model"""
     user = models.OneToOneField(
         'User',
-        related_name='teacher_profile',
+        related_name='user_profile',
         on_delete=models.CASCADE
     )
     first_name = models.CharField(
@@ -421,7 +421,7 @@ class TeacherProfile(models.Model, Languages):
         if self.last_name:
             self.last_name = self.last_name.upper().strip()
 
-        super(TeacherProfile, self).save(*args, **kwargs)
+        super(UserProfile, self).save(*args, **kwargs)
 
     def __str__(self):
         """String representation"""
@@ -454,7 +454,7 @@ def user_is_created(sender, instance, created, **kwargs):
     if created:
         # Creating teacher profile
         if instance.is_teacher:
-            TeacherProfile.objects.create(user=instance)
+            UserProfile.objects.create(user=instance)
 
         # Creates welcome message using task queue
         if instance.username != os.environ.get('SYSTEM_USER_USERNAME'):
@@ -463,9 +463,9 @@ def user_is_created(sender, instance, created, **kwargs):
         # Saving teacher profile and creating if not existing
         if instance.is_teacher:
             try:
-                instance.teacher_profile.save()
+                instance.user_profile.save()
             except ObjectDoesNotExist:
-                TeacherProfile.objects.create(user=instance)
+                UserProfile.objects.create(user=instance)
 
 
 class InstituteLicense(models.Model):

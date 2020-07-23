@@ -70,7 +70,7 @@ class UploadProfilePictureView(APIView):
     permission_classes = [IsAuthenticated, ]
     parser_classes = [JSONParser, MultiPartParser]
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         """To save the profile picture"""
         user = get_user_model().objects.get(email=request.user)
         serialize = self.serializer_class(data=request.data,
@@ -127,7 +127,7 @@ class SetDeleteProfilePictureView(APIView):
     permission_classes = [IsAuthenticated, ]
     parser_classes = [JSONParser, MultiPartParser]
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         """To save the profile picture"""
         user = get_user_model().objects.get(email=request.user)
         id = request.data.get('id', None)
@@ -245,7 +245,7 @@ class RemoveClassProfilePictureView(APIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, )
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         """To remove the class profile picture"""
         user = get_user_model().objects.get(email=request.user)
         profile_pictures = ProfilePictures.objects.filter(user=user)
@@ -273,7 +273,7 @@ class RemovePublicProfilePictureView(APIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, )
 
-    def post(self, request, format=None):
+    def post(self, request, *args, **kwargs):
         """To remove the public profile picture"""
         user = get_user_model().objects.get(email=request.user)
         profile_pictures = ProfilePictures.objects.filter(user=user)
@@ -301,7 +301,7 @@ class ProfilePictureCountView(APIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, )
 
-    def get(self, request, format=None):
+    def get(self, request, *args, **kwargs):
         """Used to get count of profile pictures"""
         user = get_user_model().objects.get(email=request.user)
         profile_pictures = ProfilePictures.objects.filter(user=user)
@@ -309,3 +309,21 @@ class ProfilePictureCountView(APIView):
         return Response({
             'count': len(profile_pictures)
         }, status=status.HTTP_200_OK)
+
+
+class CheckNameExistsView(APIView):
+    """View for checking whether user has filled
+    first name and last name in user profile"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, *args, **kwargs):
+        """Returns true is user uploaded profile picture"""
+        user = self.request.user
+        if user.user_profile.first_name and\
+                user.user_profile.last_name:
+            return Response(
+                {'status': True}, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'status': False}, status=status.HTTP_200_OK)

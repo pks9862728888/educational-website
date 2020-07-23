@@ -8,9 +8,9 @@ from rest_framework import status
 from . import serializer
 
 
-class ManageTeacherProfileView(generics.RetrieveUpdateAPIView):
+class ManageUserProfileView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user"""
-    serializer_class = serializer.ManageTeacherProfileSerializer
+    serializer_class = serializer.ManageUserProfileSerializer
     authentication_classes = [TokenAuthentication, ]
     permission_classes = [IsAuthenticated, ]
 

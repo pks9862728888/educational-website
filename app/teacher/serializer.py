@@ -4,15 +4,15 @@ from rest_framework import serializers
 from django_countries.serializer_fields import CountryField
 from django_countries.serializers import CountryFieldMixin
 
-from core.models import TeacherProfile, ProfilePictures
+from core.models import UserProfile, ProfilePictures
 
 
-class TeacherProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
+class UserProfileSerializer(CountryFieldMixin, serializers.ModelSerializer):
     """Serializer class for teacher profile"""
     country = CountryField()
 
     class Meta:
-        model = TeacherProfile
+        model = UserProfile
         fields = ('first_name', 'last_name', 'gender', 'phone', 'country',
                   'date_of_birth', 'primary_language', 'secondary_language',
                   'tertiary_language')
@@ -27,15 +27,15 @@ class ProfilePicturesSerializer(serializers.ModelSerializer):
                   'class_profile_picture', 'public_profile_picture')
 
 
-class ManageTeacherProfileSerializer(serializers.ModelSerializer):
+class ManageUserProfileSerializer(serializers.ModelSerializer):
     """Serializer class for creating, retrieving & updating teacher profile"""
-    teacher_profile = TeacherProfileSerializer()
+    user_profile = UserProfileSerializer()
     profile_pictures = serializers.SerializerMethodField()
 
     class Meta:
         model = get_user_model()
         fields = ('id', 'email', 'username', 'created_date',
-                  'teacher_profile', 'profile_pictures')
+                  'user_profile', 'profile_pictures')
         read_only_fields = ('id', 'email', 'created_date')
 
     def get_profile_pictures(self, instance):
@@ -57,11 +57,11 @@ class ManageTeacherProfileSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Add or modify details of user"""
-        profile_data = validated_data.pop('teacher_profile', None)
+        profile_data = validated_data.pop('user_profile', None)
         validated_data.pop('email', None)
         validated_data.pop('profile_pictures', None)
         validated_data.pop('email', None)
-        profile = instance.teacher_profile
+        profile = instance.user_profile
 
         user = super().update(instance, validated_data)
         user.save()
