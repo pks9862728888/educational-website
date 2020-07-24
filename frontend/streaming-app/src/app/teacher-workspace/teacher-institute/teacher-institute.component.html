@@ -34,13 +34,24 @@
         <div class="col-lg-5"></div>
 
         <div class="col-12 col-lg-2 create-institute-padding" [ngClass]="{'create-institute-button': this.mobileQuery.matches}">
-            <button mat-flat-button class="green-button" (click)="createInstitute()">
+            <button mat-flat-button [disabled]="createInstituteDisabled" class="green-button" (click)="createInstitute()">
               Create Institute
             </button>
         </div>
     </section>
 
     <mat-divider class="margin-bottom-0"></mat-divider>
+
+    <div *ngIf="showCreateInstituteProgressSpinner" class="margin-top-15">
+        <div class="d-flex justify-content-center">
+            <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+        </div>
+        <h3 class="text-center">Checking out the pre-requisites.</h3>
+    </div>
+
+    <div class="col-12 error-text" *ngIf="createInstituteError">
+        <h3>{{ createInstituteError }}</h3>
+    </div>
 
     <!-- For showing search results -->
     <section *ngIf="this.searched">
@@ -785,7 +796,10 @@
                     <div class="magin-right-10">
                         <button mat-flat-button class="lightblue-button">Message</button>
                     </div>
-                    <div class="margin-right-10 margin-left-0">
+                    <div *ngIf="showJoinInstituteProgressSpinner" class="margin-left-10 margin-right-10">
+                        <mat-progress-spinner mode="indeterminate" [diameter]="40"></mat-progress-spinner>
+                    </div>
+                    <div class="margin-right-10 margin-left-0" *ngIf="!showJoinInstituteProgressSpinner">
                         <button mat-flat-button class="green-button" (click)="joinInstitute(institute)">Join</button>
                     </div>
                     <div class="margin-right-10">
@@ -798,6 +812,6 @@
 </section>
 
 <!-- For creating institute -->
-<section *ngIf="!this.showInstituteListView">
+<section *ngIf="!showInstituteListView">
     <app-create-institute (instituteCreated)="instituteCreated($event)"></app-create-institute>
 </section>

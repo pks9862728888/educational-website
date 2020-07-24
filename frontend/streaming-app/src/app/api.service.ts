@@ -6,7 +6,7 @@ import { authTokenName } from 'src/constants';
 
 interface TeacherProfileEditDetails {
   username: string;
-  teacher_profile: {
+  user_profile: {
     first_name: string;
     last_name: string;
     gender: string;
@@ -40,6 +40,7 @@ export class ApiService {
   profilePictureCountUrl = `${this.baseUrlUser}user-profile-picture-count`;
   listProfilePictureUrl = `${this.baseUrlUser}list-profile-picture`;
   setProfilePictureUrl = `${this.baseUrlUser}set-profile-picture`;
+  userNameExistsUrl = `${this.baseUrlUser}check-name-exists`
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -52,16 +53,16 @@ export class ApiService {
   patchTeacherProfileDetails(profileDetails: TeacherProfileEditDetails) {
     const formattedData = {
       username: profileDetails.username,
-      teacher_profile: {
-        first_name: profileDetails.teacher_profile.first_name || '',
-        last_name: profileDetails.teacher_profile.last_name || '',
-        gender: profileDetails.teacher_profile.gender || '',
-        phone: profileDetails.teacher_profile.phone || '',
-        country: profileDetails.teacher_profile.country,
-        date_of_birth: profileDetails.teacher_profile.date_of_birth || null,
-        primary_language: profileDetails.teacher_profile.primary_language,
-        secondary_language: profileDetails.teacher_profile.secondary_language || '',
-        tertiary_language: profileDetails.teacher_profile.tertiary_language || ''
+      user_profile: {
+        first_name: profileDetails.user_profile.first_name || '',
+        last_name: profileDetails.user_profile.last_name || '',
+        gender: profileDetails.user_profile.gender || '',
+        phone: profileDetails.user_profile.phone || '',
+        country: profileDetails.user_profile.country,
+        date_of_birth: profileDetails.user_profile.date_of_birth || null,
+        primary_language: profileDetails.user_profile.primary_language,
+        secondary_language: profileDetails.user_profile.secondary_language || '',
+        tertiary_language: profileDetails.user_profile.tertiary_language || ''
       }
     };
     return this.httpClient.patch(this.teacherProfileUrl,
@@ -104,6 +105,10 @@ export class ApiService {
 
   setUserProfilePicture(data: SetProfilePictureData) {
     return this.httpClient.post(this.setProfilePictureUrl, JSON.stringify(data), {headers: this.getAuthHeaders()});
+  }
+
+  checkNameExists() {
+    return this.httpClient.get(this.userNameExistsUrl, {headers: this.getAuthHeaders()});
   }
 
   // To load token from storage

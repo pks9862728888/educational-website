@@ -149,7 +149,7 @@
                         </mat-card>
 
                         <!-- For editing profile details -->
-                        <mat-card class="edit-canvas" *ngIf="this.editProfile">
+                        <mat-card class="edit-canvas" *ngIf="editProfile">
                             <form (submit)="profileDetailsSubmit()" [formGroup]="this.editProfileForm">
                                 <mat-form-field>
                                     <mat-label>Username</mat-label>

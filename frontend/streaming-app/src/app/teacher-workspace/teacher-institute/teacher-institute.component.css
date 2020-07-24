@@ -15,7 +15,7 @@
 .col-12,
 h3 {
     padding: 0px;
-    width: 100%;
+    margin: 0px;
 }
 
 
@@ -258,8 +258,14 @@ a:active {
     background-color: #008000;
 }
 
-.green-button:hover {
+.green-button:hover:not(:disabled) {
     background-color: #3a9b0d;
+}
+
+.green-button:disabled {
+    background-color: #008000;
+    color: #fff;
+    opacity: 0.4;
 }
 
 .blue-button {
@@ -286,6 +292,15 @@ a:active {
     background-color: #c40000;
 }
 
+.error-text {
+    border: 1px solid rgba(187, 134, 252);
+    background-color: rgba(187, 134, 252, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+    text-align: center;
+    margin: 1rem 0;
+}
+
 
 /* Styling padding and margin */
 
@@ -297,8 +312,16 @@ a:active {
     margin-right: 10px;
 }
 
+.margin-left-10 {
+    margin-left: 20px;
+}
+
 .margin-left-0 {
     margin-left: 0;
+}
+
+.margin-top-15 {
+    margin-top: 1.5rem;
 }
 
 .padding-top-5 {

@@ -40,7 +40,7 @@ export class SignupComponent implements OnInit {
   signUp() {
     this.authService.signup(this.signupForm.value).subscribe(
       result => {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       },
       error => {
         this.serverResponseErrors.emailError = error.error.email ? error.error.email[0] : null;

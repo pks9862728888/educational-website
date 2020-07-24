@@ -6,6 +6,7 @@ import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MAT_SNACK_BAR_DATA, MatSnackBar } from '@angular/material/snack-bar';
+import { ApiService } from 'src/app/api.service';
 
 interface TeacherInstitutesMinDetailInterface {
   id: number;
@@ -43,10 +44,14 @@ interface InstituteCreatedEvent {
 }
 
 
-interface InstituteJoinDeclineResponse {
+interface StatusResponse {
   status: string;
 }
 
+
+interface NameExistsStatus {
+  status: boolean;
+}
 
 // For showing snackbar
 @Component({
@@ -84,6 +89,9 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
   // For handling views
   showInstituteListView = true;
+  showCreateInstituteProgressSpinner: boolean;
+  showJoinInstituteProgressSpinner: boolean;
+  createInstituteDisabled: boolean;
 
   // For handling expansion panel
   searchedInstituteStep: number;
@@ -107,9 +115,11 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
   // For showing status results
   instituteJoinDeclineError: string;
+  createInstituteError: string;
 
   constructor(private media: MediaMatcher,
               private instituteApiService: InstituteApiService,
+              private apiService: ApiService,
               private inAppDataTransferService: InAppDataTransferService,
               private snackBar: MatSnackBar,
               private router: Router ) {
@@ -211,9 +221,22 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   }
 
   createInstitute() {
-
-    this.showInstituteListView = false;
-    this.inAppDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
+    this.showCreateInstituteProgressSpinner = true;
+    this.createInstituteError = null;
+    this.apiService.checkNameExists().subscribe(
+      (result: NameExistsStatus) => {
+        if (result.status === true) {
+          this.showCreateInstituteProgressSpinner = false;
+          this.showInstituteListView = false;
+          this.inAppDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
+        } else {
+          this.showCreateInstituteProgressSpinner = false;
+          this.createInstituteDisabled = true;
+          this.createInstituteError = 'First fill out your profile details & then try again.';
+        }
+      },
+      error => {}
+    )
   }
 
   previewClicked(instituteSlug: string, role:string, type: string) {
@@ -268,36 +291,52 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   }
 
   joinInstitute(institute: TeacherInstitutesMinDetailInterface) {
+    this.showJoinInstituteProgressSpinner = true;
     this.instituteJoinDeclineError = null;
-    this.instituteApiService.acceptDeleteInstituteJoinInvitation(
-      institute.institute_slug, 'ACCEPT').subscribe(
-      (result: InstituteJoinDeclineResponse) => {
-        if (result.status === 'ACCEPTED') {
-          this.teacherJoinedInstituteMinList.push(institute);
-          this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute));
-          // Show snackbar
-          this.snackBar.openFromComponent(SnackbarComponent, {
-            data: 'Institute joined successfully!',
-            duration: 2000
-          });
+    this.apiService.checkNameExists().subscribe(
+      (result: NameExistsStatus) => {
+        if (result.status === true) {
+          this.showJoinInstituteProgressSpinner = false;
+          this.instituteApiService.acceptDeleteInstituteJoinInvitation(
+            institute.institute_slug, 'ACCEPT').subscribe(
+            (result: StatusResponse) => {
+              if (result.status === 'ACCEPTED') {
+                this.teacherJoinedInstituteMinList.push(institute);
+                this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute));
+                // Show snackbar
+                this.snackBar.openFromComponent(SnackbarComponent, {
+                  data: 'Institute joined successfully!',
+                  duration: 2000
+                });
+              }
+            },
+            error => {
+              if (error.error) {
+                if (error.error.error) {
+                  this.instituteJoinDeclineError = error.error.error;
+                }
+              } else {
+                this.instituteJoinDeclineError = 'Unable to process request. Refresh and try again.';
+              }
+            }
+          )
+        } else {
+            this.showJoinInstituteProgressSpinner = false;
+            this.instituteJoinDeclineError = 'Error! First fill out your profile details.';
         }
       },
       error => {
-        if (error.error) {
-          if (error.error.error) {
-            this.instituteJoinDeclineError = error.error.error;
-          }
-        } else {
-          this.instituteJoinDeclineError = 'Unable to process request. Refresh and try again.';
-        }
+        this.instituteJoinDeclineError = 'Unable to process request. Refresh and try again.';
       }
-    )
+    );
+
+
   }
 
   declineInvitation(institute: TeacherInstitutesMinDetailInterface) {
     this.instituteJoinDeclineError = null;
     this.instituteApiService.acceptDeleteInstituteJoinInvitation(institute.institute_slug, 'DELETE').subscribe(
-      (result: InstituteJoinDeclineResponse) => {
+      (result: StatusResponse) => {
         if (result.status === 'DELETED') {
           this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute), 1);
           // Show snackbar
