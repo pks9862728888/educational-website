@@ -1,110 +1,73 @@
+import { AuthModule } from './auth/auth.module';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { SignupComponent } from './auth/signup/signup.component';
-import { LoginComponent } from './auth/login/login.component';
-import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { HomeComponent } from './home/home.component';
-import { AboutComponent } from './about/about.component';
-import { PricingComponent } from './pricing/pricing.component';
-import { HelpComponent } from './help/help.component';
-import { FeaturesComponent } from './features/features.component';
-import { SitemapComponent } from './sitemap/sitemap.component';
-import { TeacherWorkspaceComponent } from './teacher-workspace/teacher-workspace.component';
-import { StudentWorkspaceComponent } from './student-workspace/student-workspace.component';
-import { StaffWorkspaceComponent } from './staff-workspace/staff-workspace.component';
-import { StaffProfileComponent } from './staff-workspace/staff-profile/staff-profile.component';
-import { StudentProfileComponent } from './student-workspace/student-profile/student-profile.component';
-import { TeacherProfileComponent } from './teacher-workspace/teacher-profile/teacher-profile.component';
-import { TeacherInstituteComponent } from './teacher-workspace/teacher-institute/teacher-institute.component';
-import { TeacherChatroomComponent } from './teacher-workspace/teacher-chatroom/teacher-chatroom.component';
-import { SchoolWorkspaceComponent } from './school-workspace/school-workspace.component';
-import { SchoolClassesComponent } from './school-workspace/school-classes/school-classes.component';
-import { SchoolPermissionsComponent } from './school-workspace/school-permissions/school-permissions.component';
-import { SchoolProfileComponent } from './school-workspace/school-profile/school-profile.component';
-import { CollegeWorkspaceComponent } from './college-workspace/college-workspace.component';
-import { CollegeProfileComponent } from './college-workspace/college-profile/college-profile.component';
-import { CollegePermissionsComponent } from './college-workspace/college-permissions/college-permissions.component';
-import { CoachingWorkspaceComponent } from './coaching-workspace/coaching-workspace.component';
-import { CoachingPermissionsComponent } from './coaching-workspace/coaching-permissions/coaching-permissions.component';
-import { CoachingProfileComponent } from './coaching-workspace/coaching-profile/coaching-profile.component';
 import { SignUpLoginGuard,StudentWorkspaceGuard, TeacherWorkspaceGuard,
          StaffWorkspaceGuard, SchoolWorkspaceGuard, CollegeWorkspaceGuard,
          CoachingWorkspaceGuard } from './auth/auth.guard';
-import { LicenseComponent } from './license/license.component';
 
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
-  { path: 'login', component: LoginComponent, canActivate: [SignUpLoginGuard] },
-  { path: 'signUp', component: SignupComponent, canActivate: [SignUpLoginGuard] },
-  { path: 'forgot-password', component: ForgotPasswordComponent},
+  {
+    path: 'auth',
+    loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
+    canLoad: [SignUpLoginGuard]
+  },
   { path: 'teacher-workspace',
-    component: TeacherWorkspaceComponent,
-    children: [
-      { path: '', redirectTo: '/teacher-workspace/profile', pathMatch: 'full'},
-      { path: 'profile', component: TeacherProfileComponent },
-      { path: 'institutes', component: TeacherInstituteComponent },
-      { path: 'chatrooms', component: TeacherChatroomComponent },
-    ],
-    canActivate: [TeacherWorkspaceGuard]
+    loadChildren: () => import('./teacher-workspace/teacher-workspace.module').then(m => m.TeacherWorkspaceModule),
+    canLoad: [TeacherWorkspaceGuard]
   },
   {
     path: 'student-workspace',
-    component: StudentWorkspaceComponent,
-    children: [
-      { path: '', redirectTo: '/student-workspace/profile', pathMatch: 'full' },
-      { path: 'profile', component: StudentProfileComponent },
-    ],
-    canActivate: [StudentWorkspaceGuard]
+    loadChildren: () => import('./student-workspace/student-workspace.module').then(m => m.StudentWorkspaceModule),
+    canLoad: [StudentWorkspaceGuard]
   },
   {
     path: 'staff-workspace',
-    component: StaffWorkspaceComponent,
-    children: [
-      { path: '', redirectTo: '/staff-workspace/profile', pathMatch: 'full' },
-      { path: 'profile', component: StaffProfileComponent },
-    ],
-    canActivate: [StaffWorkspaceGuard]
+    loadChildren: () => import('./staff-workspace/staff-workspace.module').then(m => m.StaffWorkspaceModule),
+    canLoad: [StaffWorkspaceGuard]
   },
   {
     path: 'school-workspace',
-    component: SchoolWorkspaceComponent,
-    children: [
-      { path: ':name/profile', component: SchoolProfileComponent },
-      { path: ':name/permissions', component: SchoolPermissionsComponent },
-      { path: ':name/classes', component: SchoolClassesComponent },
-      { path: ':name/license', component: LicenseComponent }
-    ],
-    canActivate: [SchoolWorkspaceGuard]
+    loadChildren: () => import('./school-workspace/school-workspace.module').then(m => m.SchoolWorkspaceModule),
+    canLoad: [SchoolWorkspaceGuard]
   },
   {
     path: 'college-workspace',
-    component: CollegeWorkspaceComponent,
-    children: [
-      { path: ':name/profile', component: CollegeProfileComponent },
-      { path: ':name/permissions', component: CollegePermissionsComponent },
-      { path: ':name/license', component: LicenseComponent },
-    ],
-    canActivate: [CollegeWorkspaceGuard]
+    loadChildren: () => import('./college-workspace/college-workspace.module').then(m => m.CollegeWorkspaceModule),
+    canLoad: [CollegeWorkspaceGuard]
   },
   {
     path: 'coaching-workspace',
-    component: CoachingWorkspaceComponent,
-    children: [
-      { path: ':name/profile', component: CoachingProfileComponent },
-      { path: ':name/permissions', component: CoachingPermissionsComponent },
-      { path: ':name/license', component: LicenseComponent },
-    ],
-    canActivate: [CoachingWorkspaceGuard]
+    loadChildren: () => import('./coaching-workspace/coaching-workspace.module').then(m => m.CoachingWorkspaceModule),
+    canLoad: [CoachingWorkspaceGuard]
   },
-  { path: 'features', component: FeaturesComponent },
-  { path: 'pricing', component: PricingComponent },
-  { path: 'about', component: AboutComponent },
-  { path: 'help', component: HelpComponent },
-  { path: 'sitemap', component: SitemapComponent },
-  { path: '**', component: PageNotFoundComponent }
+  {
+    path: 'features',
+    loadChildren: () => import('./features/features.module').then(m => m.FeaturesModule)
+  },
+  {
+    path: 'pricing',
+    loadChildren: () => import('./pricing/pricing.module').then(m => m.PricingModule)
+  },
+  {
+    path: 'about',
+    loadChildren: () => import('./about/about.module').then(m => m.AboutModule)
+  },
+  {
+    path: 'help',
+    loadChildren: () => import('./help/help.module').then(m => m.HelpModule)
+  },
+  {
+    path: 'sitemap',
+    loadChildren: () => import('./sitemap/sitemap.module').then(m => m.SitemapModule)
+  },
+  {
+    path: '**',
+    loadChildren: () => import('./page-not-found/page-not-found.module').then(m => m.PageNotFoundModule)
+  }
 ];
 
 @NgModule({
@@ -122,10 +85,4 @@ const routes: Routes = [
 })
 export class AppRoutingModule { }
 
-export const routingComponents = [
-  SignupComponent,
-  LoginComponent,
-  ForgotPasswordComponent,
-  PageNotFoundComponent,
-  SitemapComponent,
-];
+export const routingComponents = [];

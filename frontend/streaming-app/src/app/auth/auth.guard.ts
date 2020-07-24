@@ -1,18 +1,18 @@
 import { AuthService } from 'src/app/auth.service';
-import { authTokenName, INSTITUTE_TYPE, INSTITUTE_TYPE_REVERSE } from './../../constants';
+import { authTokenName, INSTITUTE_TYPE_REVERSE } from './../../constants';
 import { CookieService } from 'ngx-cookie-service';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { Router, CanLoad } from '@angular/router';
 import { Injectable } from '@angular/core';
+import { Route } from '@angular/compiler/src/core';
 
 
 @Injectable()
-export class SignUpLoginGuard implements CanActivate {
+export class SignUpLoginGuard implements CanLoad {
 
   constructor( private cookieService: CookieService,
                private authService: AuthService ) {}
 
-  canActivate(route: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot) {
+  canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
         this.authService.logout();
       }
@@ -22,82 +22,78 @@ export class SignUpLoginGuard implements CanActivate {
 
 
 @Injectable()
-export class StudentWorkspaceGuard implements CanActivate {
+export class StudentWorkspaceGuard implements CanLoad {
 
   constructor( private cookieService: CookieService,
                private authService: AuthService,
                private router: Router ) {}
 
-  canActivate(route: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot) {
+  canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
         if (sessionStorage.getItem('is_student') === 'true') {
           return true;
         } else {
           this.authService.logout();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/auth/login']);
         }
       } else {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       }
   }
 }
 
 
 @Injectable()
-export class TeacherWorkspaceGuard implements CanActivate {
+export class TeacherWorkspaceGuard implements CanLoad {
 
   constructor( private cookieService: CookieService,
                private authService: AuthService,
                private router: Router ) {}
 
-  canActivate(route: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot) {
+  canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
         if (sessionStorage.getItem('is_teacher') === 'true') {
           return true;
         } else {
           this.authService.logout();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/auth/login']);
         }
       } else {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       }
   }
 }
 
 
 @Injectable()
-export class StaffWorkspaceGuard implements CanActivate {
+export class StaffWorkspaceGuard implements CanLoad {
 
   constructor( private cookieService: CookieService,
                private authService: AuthService,
                private router: Router ) {}
 
-  canActivate(route: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot) {
+  canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
         if (sessionStorage.getItem('is_staff') === 'true') {
           return true;
         } else {
           this.authService.logout();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/auth/login']);
         }
       } else {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       }
   }
 }
 
 
 @Injectable()
-export class SchoolWorkspaceGuard implements CanActivate {
+export class SchoolWorkspaceGuard implements CanLoad {
 
   constructor( private cookieService: CookieService,
                private router: Router ) {}
 
-  canActivate(route: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot) {
+  canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
         if (sessionStorage.getItem('activeRoute') &&
             sessionStorage.getItem('currentInstituteRole') &&
@@ -109,20 +105,19 @@ export class SchoolWorkspaceGuard implements CanActivate {
           this.router.navigate(['/teacher-workspace/institutes']);
         }
       } else {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       }
   }
 }
 
 
 @Injectable()
-export class CollegeWorkspaceGuard implements CanActivate {
+export class CollegeWorkspaceGuard implements CanLoad {
 
   constructor( private cookieService: CookieService,
                private router: Router ) {}
 
-  canActivate(route: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot) {
+  canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
         if (sessionStorage.getItem('activeRoute') &&
             sessionStorage.getItem('currentInstituteRole') &&
@@ -134,20 +129,19 @@ export class CollegeWorkspaceGuard implements CanActivate {
           this.router.navigate(['/teacher-workspace/institutes']);
         }
       } else {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       }
   }
 }
 
 
 @Injectable()
-export class CoachingWorkspaceGuard implements CanActivate {
+export class CoachingWorkspaceGuard implements CanLoad {
 
   constructor( private cookieService: CookieService,
                private router: Router ) {}
 
-  canActivate(route: ActivatedRouteSnapshot,
-              state: RouterStateSnapshot) {
+  canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
         if (sessionStorage.getItem('activeRoute') &&
             sessionStorage.getItem('currentInstituteRole') &&
@@ -159,7 +153,7 @@ export class CoachingWorkspaceGuard implements CanActivate {
           this.router.navigate(['/teacher-workspace/institutes']);
         }
       } else {
-        this.router.navigate(['/login']);
+        this.router.navigate(['/auth/login']);
       }
   }
 }

@@ -1,20 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StaffWorkspaceComponent } from './staff-workspace.component';
 import { StaffMaterialWorkspaceModule } from './material.staff.workspace.module';
-import { StaffProfileComponent } from './staff-profile/staff-profile.component';
-import { AppRoutingModule } from '../app-routing.module';
-
+import { StaffWorkspaceRoutingModule, staffWorkspaceRoutingComponents } from './staff-workspace-routing.module';
 
 
 @NgModule({
-  declarations: [
-    StaffWorkspaceComponent,
-    StaffProfileComponent,
-  ],
+  declarations: [staffWorkspaceRoutingComponents],
   imports: [
     CommonModule,
-    AppRoutingModule,
+    StaffWorkspaceRoutingModule,
     StaffMaterialWorkspaceModule,
   ]
 })

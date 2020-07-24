@@ -1,16 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HelpComponent } from './help.component';
-import { AppRoutingModule } from '../app-routing.module';
+import { HelpRoutingModule, helpRoutingComponents } from './help-routing.module';
 import { HelpMaterialWorkspaceModule } from './material.help.module';
 
 
 
 @NgModule({
-  declarations: [HelpComponent],
+  declarations: [helpRoutingComponents],
   imports: [
     CommonModule,
-    AppRoutingModule,
+    HelpRoutingModule,
     HelpMaterialWorkspaceModule,
   ]
 })

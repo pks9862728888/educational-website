@@ -211,6 +211,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   }
 
   createInstitute() {
+
     this.showInstituteListView = false;
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('CREATE');
   }

@@ -1,20 +1,15 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StudentWorkspaceComponent } from './student-workspace.component';
 import { StudentMaterialWorkspaceModule } from './material.student.workspace.module';
-import { StudentProfileComponent } from './student-profile/student-profile.component';
-import { AppRoutingModule } from '../app-routing.module';
-
-
+import { studentWorkspaceRoutingComponents, StudentWorkspaceRoutingModule } from './student-workspace-routing.module';
 
 @NgModule({
   declarations: [
-    StudentWorkspaceComponent,
-    StudentProfileComponent
+    studentWorkspaceRoutingComponents
   ],
   imports: [
     CommonModule,
-    AppRoutingModule,
+    StudentWorkspaceRoutingModule,
     StudentMaterialWorkspaceModule,
   ]
 })

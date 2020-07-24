@@ -20,7 +20,7 @@
                         Email is required.
                     </mat-error>
                     <mat-error *ngIf="loginForm.controls['email'].errors &&
-                                    !loginForm.controls['email'].errors?.required">
+                                     !loginForm.controls['email'].errors?.required">
                         Enter a valid email address.
                     </mat-error>
                 </mat-form-field>
@@ -37,10 +37,10 @@
                 <button [disabled]="loginForm.invalid" mat-raised-button color="primary">Log in</button>
                 <mat-divider></mat-divider>
                 <p class="mat-caption" class="bottom-hint">
-                    <strong><a routerLink="/forgot-password">Forgot password</a></strong>
+                    <strong><a routerLink="/auth/forgot-password">Forgot password</a></strong>
                 </p>
                 <p class="mat-caption">
-                    Don't have an account? <strong><a routerLink="/signUp">Click here to register.</a></strong>
+                    Don't have an account? <strong><a routerLink="/auth/signUp">Click here to register.</a></strong>
                 </p>
             </section>
         </ng-container>

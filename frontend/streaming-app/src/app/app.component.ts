@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
                private authService: AuthService,
                private router: Router,
                private snackBar: MatSnackBar ) {
-                this.mobileQuery = media.matchMedia('(max-width: 600px)');
+    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit() {

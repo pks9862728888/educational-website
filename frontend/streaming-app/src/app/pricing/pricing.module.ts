@@ -1,16 +1,16 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PricingComponent } from './pricing.component';
-import { AppRoutingModule } from '../app-routing.module';
+import { PricingRoutingModule, pricingRoutingComponents } from './pricing-routing.module';
 import { PricingMaterialWorkspaceModule } from './material.pricing.module';
 
 
-
 @NgModule({
-  declarations: [PricingComponent],
+  declarations: [
+    pricingRoutingComponents
+  ],
   imports: [
     CommonModule,
-    AppRoutingModule,
+    PricingRoutingModule,
     PricingMaterialWorkspaceModule,
   ]
 })
