@@ -584,8 +584,9 @@ class InstituteSelectedLicense(models.Model):
     billing = models.CharField(
         _('Billing'), max_length=1, blank=False, null=False,
         choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
-    amount = models.BigIntegerField(  # In Rs
-        _('Amount In Rs'), blank=False, null=False)
+    amount = models.DecimalField(  # In Rs
+        _('Amount In Rs'), max_digits=10, decimal_places=2,
+        blank=False, null=False)
     discount_percent = models.DecimalField(
         _('Discount In Percentage'), default=0.0,
         max_digits=5, decimal_places=2)

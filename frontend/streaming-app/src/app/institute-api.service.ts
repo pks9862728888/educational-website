@@ -43,6 +43,7 @@ export class InstituteApiService {
   instituteCreateUrl = `${this.instituteBaseUrl}create`;
   instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
   instituteSelectedLicenseDetail = `${this.instituteBaseUrl}institute-license-detail`;
+  instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
 
   getInstituteDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}detail/${instituteSlug}`;
@@ -91,7 +92,7 @@ export class InstituteApiService {
   getUserList(instituteSlug: string, role:string) {
     return this.httpClient.get(
       this.getUserListUrl(instituteSlug, role),
-      { headers: this.getAuthHeader() })
+      { headers: this.getAuthHeader() });
   }
 
   // Invite new user
@@ -108,14 +109,14 @@ export class InstituteApiService {
       this.getInstituteJoinDeclineUrl(instituteSlug),
       { 'operation': operation.toUpperCase()},
       { headers: this.getAuthHeader() }
-    )
+    );
   }
 
   // Get institute license list
   getInstituteLicenseList() {
     return this.httpClient.get(
       this.instituteLicenseListUrl,
-      { 'headers': this.getAuthHeader() })
+      { 'headers': this.getAuthHeader() });
   }
 
   // Get specific license details
@@ -124,7 +125,16 @@ export class InstituteApiService {
       this.instituteSelectedLicenseDetail,
       {'id': id},
       {headers: this.getAuthHeader()}
-    )
+    );
+  }
+
+  // Get coupon details
+  getDiscountCouponDetails(couponCode: string) {
+    return this.httpClient.post(
+      this.instituteDiscountCouponDetailUrl,
+      {'coupon_code': couponCode},
+      {headers: this.getAuthHeader()}
+    );
   }
 
   // To load token from storage
