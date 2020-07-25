@@ -239,7 +239,7 @@ ________________________________________________________________________________
 ## Institute license list url
 **URL:** https://127.0.0.1:8000/institute/institute-license-list
 
-**Allowed methods** POST
+**Allowed methods** GET
 
 **Scope** Teacher only
 
@@ -309,6 +309,67 @@ ________________________________________________________________________________
     ]
 }
 ```
+
+## Institute selected license detail url
+**URL:** https://127.0.0.1:8000/institute/institute-license-detail
+
+**Allowed methods** POST
+
+**Scope** Institute admin only
+
+**POST JSON Request format:**
+```
+{
+    "id": 5
+}
+```
+
+**POST JSON Response format:**
+```
+{
+    "id": 3,
+    "billing": "A",
+    "type": "BAS",
+    "amount": 1500,
+    "discount_percent": "0.00",
+    "storage": 12,
+    "no_of_admin": 1,
+    "no_of_staff": 0,
+    "no_of_faculty": 0,
+    "no_of_student": 99999,
+    "video_call_max_attendees": 12,
+    "classroom_limit": 99999,
+    "department_limit": 0,
+    "subject_limit": 99999,
+    "scheduled_test": true,
+    "discussion_forum": "S",
+    "LMS_exists": true
+}
+```
+
+## Institute get coupon details url
+**URL:** https://127.0.0.1:8000/institute/get-discount-coupon
+
+**Allowed methods** POST
+
+**Scope** Institute admin only
+
+**POST JSON Request format:**
+```
+{
+    'coupon_code': 'ABCABC'
+}
+```
+
+
+**POST JSON Response format:**
+```
+{
+    'discount_rs': 1000,
+    'active': True
+}
+```
+
 _______________________________________________________________________________________________________________________________________
 ## Institute create url
 **URL:** https://127.0.0.1:8000/institute/create
