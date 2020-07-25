@@ -9,6 +9,13 @@ p {
     padding: 0px;
 }
 
+button:focus,
+button:active:focus,
+button.active:focus {
+    outline: none !important;
+    outline-style: none !important;
+}
+
 .heading {
     margin-bottom: 1rem;
     text-align: center;
@@ -160,6 +167,7 @@ p {
     border-bottom: 1px dotted #494949;
     background-color: #e6e6e6;
     color: rgb(6, 32, 53);
+    word-wrap: break-word;
 }
 
 .last-child {
@@ -177,13 +185,6 @@ p {
 .green-button:hover {
     background-color: #3a9b0d;
     box-shadow: none;
-}
-
-button:focus,
-button:active:focus,
-button.active:focus {
-    outline: none !important;
-    outline-style: none !important;
 }
 
 .rounded-button {

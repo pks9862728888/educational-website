@@ -5,6 +5,9 @@ from . import views
 app_name = 'institute'
 
 urlpatterns = [
+    path('get-discount-coupon',
+         views.GetInstituteDiscountCouponView.as_view(),
+         name='get-discount-coupon'),
     path('institute-license-list',
          views.InstituteLicenseListView.as_view(),
          name="institute-license-list"),

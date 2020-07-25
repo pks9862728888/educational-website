@@ -14,7 +14,8 @@ from rest_framework.response import Response
 from . import serializer
 
 from core.models import Institute, InstituteRole,\
-    InstitutePermission, InstituteLicense, Billing
+    InstitutePermission, InstituteLicense, Billing,\
+    InstituteDiscountCoupon
 
 
 class IsTeacher(permissions.BasePermission):
@@ -28,6 +29,46 @@ class IsTeacher(permissions.BasePermission):
             return True
         else:
             return False
+
+
+class GetInstituteDiscountCouponView(APIView):
+    """View to get institute discount coupon"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Used for getting discount coupon details"""
+        if not InstitutePermission.objects.filter(
+            invitee=self.request.user.pk,
+            role=InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': _('Invalid permission')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        coupon_code = request.data.get('coupon_code')
+
+        if not coupon_code:
+            return Response({'error': _('Coupon code is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        coupon = InstituteDiscountCoupon.objects.filter(
+            coupon_code=coupon_code
+        ).first()
+
+        if not coupon:
+            return Response({'error': _('Coupon not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if not coupon.active:
+            return Response({'error': _('Coupon already used.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if timezone.now() > coupon.expiry_date:
+            return Response({'error': _('Coupon expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'discount_rs': coupon.discount_rs,
+                         'active': coupon.active},
+                        status=status.HTTP_200_OK)
 
 
 class InstituteLicenseListView(ListAPIView):

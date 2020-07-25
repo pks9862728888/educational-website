@@ -1,4 +1,5 @@
 export const authTokenName = 'auth-token-edu-website';
+export const UNLIMITED = 99999;
 
 export const COUNTRY = {
     IN: 'India',

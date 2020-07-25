@@ -1,3 +1,4 @@
+import { ReactiveFormsModule } from '@angular/forms';
 import { LicenseComponent } from './license.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -16,7 +17,8 @@ import { LicenseReviewComponent } from './license-review/license-review.componen
   imports: [
     CommonModule,
     LicenseMaterialWorkspaceModule,
-    LicenseRoutingModule
+    LicenseRoutingModule,
+    ReactiveFormsModule
   ],
   exports: [
     LicenseComponent,
