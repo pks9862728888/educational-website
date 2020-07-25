@@ -221,6 +221,20 @@ Returns the total number of profile picture available.
     }
 }
 ```
+
+## User Name exists url
+**URL:** https://127.0.0.1:8000/user/check-name-exists
+
+**Allowed methods** GET
+
+**Scope** Authenticated users
+
+**GET Response JSON format:**
+```
+{
+    "status": true
+}
+```
 _______________________________________________________________________________________________________________________________________
 ## Institute license list url
 **URL:** https://127.0.0.1:8000/institute/institute-license-list
@@ -480,7 +494,6 @@ ________________________________________________________________________________
 **Scope** Teacher only
 
 **Allowed permissions** ADMIN or "A", STAFF or "S", FACULTY or "F". ***Admin** can invite everyone. **Staff** can invite staff and faculty.*
-
 
 **POST Request**
 ```
