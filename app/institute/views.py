@@ -1,7 +1,7 @@
+import json
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from django.core import serializers
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -63,10 +63,44 @@ class InstituteLicenseListView(ListAPIView):
         }, status=status.HTTP_200_OK)
 
 
+class InstituteLicenseDetailView(APIView):
+    """
+    View for getting institute license details
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            id_ = int(request.data.get('id'))
+        except Exception:
+            return Response({'id': _('Invalid id.')})
+
+        if not id_:
+            return Response({'error': _('Id is required.')})
+
+        if not InstitutePermission.objects.filter(
+            invitee=self.request.user.pk,
+            role=InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': 'Unauthorized request.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        license_ = InstituteLicense.objects.filter(pk=id_).values()
+
+        if license_:
+            return Response(license_[0], status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'error': 'License not Found'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
 class InstituteMinDetailsTeacherView(ListAPIView):
     """
     View for getting the min details of institute
-    by admin teacher"""
+    by admin teacher
+    """
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, IsTeacher)
     serializer_class = serializer.InstituteMinDetailsSerializer

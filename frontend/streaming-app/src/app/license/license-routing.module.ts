@@ -14,7 +14,3 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class LicenseRoutingModule {}
-
-export const licenseRouteComponents = [
-  LicenseComponent
-];

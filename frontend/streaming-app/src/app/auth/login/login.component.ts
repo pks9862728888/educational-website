@@ -76,9 +76,7 @@ export class LoginComponent implements OnInit {
         if (error.error.non_field_errors) {
           this.errorText = error.error.non_field_errors[0];
           this.signUpHint = true;
-        } else {
-          console.log(error);
-        }
+        } else {}
       }
     );
   }

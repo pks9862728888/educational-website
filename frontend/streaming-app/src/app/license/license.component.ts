@@ -1,33 +1,10 @@
+import { Router } from '@angular/router';
+import { LicenseDetails, InstituteLicenseList } from './license.model';
 import { INSTITUTE_LICENSE_PLANS, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
 import { InstituteApiService } from 'src/app/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 
-
-interface LicenseList {
-  'id': number;
-  'billing': string;
-  'type': string;
-  'amount': number;
-  'discount_percent': number;
-  'storage': number;
-  'no_of_admin': number;
-  'no_of_staff': number;
-  'no_of_faculty': number;
-  'no_of_student': number;
-  'video_call_max_attendees': number;
-  'classroom_limit': number;
-  'department_limit': number;
-  'subject_limit': number;
-  'scheduled_test': boolean;
-  'discussion_forum': string;
-  'LMS_exists': boolean
-}
-
-interface InstituteLicenseInterface {
-  'monthly_license': LicenseList[]
-  'yearly_license': LicenseList[]
-}
 
 @Component({
   selector: 'app-license',
@@ -42,18 +19,19 @@ export class LicenseComponent implements OnInit {
   activeBilling = 'MONTHLY';
   activePlanContainer = 'BUSINESS';
 
-  monthlyLicensePlans: LicenseList[];
-  yearlyLicensePlans: LicenseList[];
+  monthlyLicensePlans: LicenseDetails[];
+  yearlyLicensePlans: LicenseDetails[];
 
   constructor( private media: MediaMatcher,
-               private instituteApiService: InstituteApiService ) {
+               private instituteApiService: InstituteApiService,
+               private router: Router ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {
     sessionStorage.setItem('activeRoute', 'LICENSE');
     this.instituteApiService.getInstituteLicenseList().subscribe(
-      (result: InstituteLicenseInterface) => {
+      (result: InstituteLicenseList) => {
         this.monthlyLicensePlans = result.monthly_license;
         this.yearlyLicensePlans = result.yearly_license;
       }
@@ -90,5 +68,11 @@ export class LicenseComponent implements OnInit {
     } else {
       return false
     }
+  }
+
+  selectedLicense(id: string) {
+    sessionStorage.setItem('selectedLicenseId', id);
+    this.router.navigate(
+      ['/school-workspace/' + sessionStorage.getItem('currentInstituteSlug') + '/license/review'])
   }
 }

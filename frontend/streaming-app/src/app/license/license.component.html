@@ -30,7 +30,7 @@
                                         <h3 class="price">&#8377; {{ calculateCostInThousands(mp.amount, mp.discount_percent) }} K per month</h3>
                                         <p>Best suited for <span *ngIf="getActivePlan(mp.type) === 'BASIC'">coachings</span><span *ngIf="getActivePlan(mp.type) === 'BUSINESS'">schools</span><span *ngIf="getActivePlan(mp.type) === 'ENTERPRISE'">colleges</span>.</p>
                                         <p>Billed monthly.</p>
-                                        <button mat-flat-button class="green-button rounded-button">Get started</button>
+                                        <button mat-flat-button class="green-button rounded-button" (click)="selectedLicense(mp.id)">Get started</button>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -163,7 +163,7 @@
                                         <h3 class="price">&#8377; {{ calculateCostInThousands(mp.amount, mp.discount_percent) }} K per month</h3>
                                         <p>Best suited for <span *ngIf="getActivePlan(mp.type) === 'BASIC'">coachings</span><span *ngIf="getActivePlan(mp.type) === 'BUSINESS'">schools</span><span *ngIf="getActivePlan(mp.type) === 'ENTERPRISE'">colleges</span>.</p>
                                         <p>Billed yearly.</p>
-                                        <button mat-flat-button class="green-button rounded-button">Get started</button>
+                                        <button mat-flat-button class="green-button rounded-button" (click)="selectedLicense(mp.id)">Get started</button>
                                     </div>
                                 </div>
                                 <div class="row">
