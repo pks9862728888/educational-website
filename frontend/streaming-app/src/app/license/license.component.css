@@ -77,6 +77,19 @@ button.active:focus {
 
 /* Designing plan container */
 
+.striked-text {
+    color: red;
+}
+
+.strike-color {
+    color: #000;
+    text-decoration: line-through;
+}
+
+.current-price {
+    color: #1d1d1d;
+}
+
 .plan-container {
     width: 85%;
 }

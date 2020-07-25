@@ -1,0 +1,263 @@
+<section>
+    <mat-card class="parent-container">
+        <h3><strong>Review Your License:</strong></h3>
+        <hr class="top-separator">
+
+        <div *ngIf="!selectedLicense && !retryGetLicenseDetails">
+            <div class="d-flex justify-content-center">
+                <mat-progress-spinner mode="indeterminate" [diameter]="60"></mat-progress-spinner>
+            </div>
+            <div class="d-flex justify-content-center">
+                <h3>Fetching License Details...</h3>
+            </div>
+        </div>
+        <div *ngIf="retryGetLicenseDetails" class="error-text padding-tb-1">
+            <div class="d-flex justify-content-center">
+                <h3 *ngIf="!mobileQuery.matches">Unable To Fetch License Details.</h3>
+                <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Unable To Fetch License Details.</p>
+            </div>
+            <div class="d-flex justify-content-center">
+                <h3 *ngIf="!mobileQuery.matches">Please check your internet connectivity.</h3>
+                <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Please check your internet connectivity.</p>
+            </div>
+            <div class="d-flex justify-content-center">
+                <h3 *ngIf="!mobileQuery.matches">If problem persists, let us know :)</h3>
+                <p *ngIf="mobileQuery.matches" class="margin-bottom-03">If problem persists, let us know :)</p>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button mat-flat-button class="green-button rounded-button" (click)="getLicenseDetails()">Retry</button>
+            </div>
+        </div>
+
+        <div class="row main-content-row" *ngIf="selectedLicense">
+            <div class="col-sm-6 col-md-4">
+                <mat-card class="choose-plan-container">
+                    <div class="row header">
+                        <div class="icon-circle">
+                            <mat-icon *ngIf="getActivePlan(selectedLicense.type) === 'BASIC'" class="plan-icon">laptop_mac</mat-icon>
+                            <mat-icon *ngIf="getActivePlan(selectedLicense.type) === 'BUSINESS'" class="plan-icon">school</mat-icon>
+                            <mat-icon *ngIf="getActivePlan(selectedLicense.type) === 'ENTERPRISE'" class="plan-icon">account_balance</mat-icon>
+                        </div>
+                        <div class="col-12 header-text-container">
+                            <h2 class="license-name">{{ getActivePlan(selectedLicense.type) }}</h2>
+                            <h3 class="price">
+                                <span *ngIf="selectedLicense.discount_percent" class="strike-color">
+                                  <span class="striked-text">&#8377;{{ selectedLicense.amount / 1000 }} K</span>
+                                </span>
+                                &nbsp;
+                                <span class="current-price">&#8377; {{ calculateCostInThousands(selectedLicense.amount, selectedLicense.discount_percent) }} K / month</span>
+                            </h3>
+                            <p>Best suited for <span *ngIf="getActivePlan(selectedLicense.type) === 'BASIC'">coachings</span><span *ngIf="getActivePlan(selectedLicense.type) === 'BUSINESS'">schools</span><span *ngIf="getActivePlan(selectedLicense.type) === 'ENTERPRISE'">colleges</span>.</p>
+                            <p>Billed {{ getBillingTerm(selectedLicense.billing) | lowercase}}.</p>
+                            <button mat-flat-button class="green-button rounded-button" (click)="changeLicense()">Change license</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Admin
+                                </div>
+                                <div *ngIf="!(selectedLicense.no_of_admin === UNLIMITED)" class="col">{{ selectedLicense.no_of_admin }}</div>
+                                <div *ngIf="selectedLicense.no_of_admin === UNLIMITED" class="col">Unlimited</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Staffs
+                                </div>
+                                <div *ngIf="!(selectedLicense.no_of_staff === UNLIMITED)" class="col">{{ selectedLicense.no_of_staff }}</div>
+                                <div *ngIf="selectedLicense.no_of_staff === UNLIMITED" class="col">Unlimited</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Faculties
+                                </div>
+                                <div *ngIf="!(selectedLicense.no_of_faculty === UNLIMITED)" class="col">{{ selectedLicense.no_of_faculty }}</div>
+                                <div *ngIf="selectedLicense.no_of_faculty === UNLIMITED" class="col">Unlimited</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Students
+                                </div>
+                                <div *ngIf="!(selectedLicense.no_of_student === UNLIMITED)" class="col">{{ selectedLicense.no_of_student }}</div>
+                                <div *ngIf="selectedLicense.no_of_student === UNLIMITED" class="col">Unlimited<span *ngIf="getActivePlan(selectedLicense.type) === 'BASIC'">*</span></div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Storage
+                                </div>
+                                <div *ngIf="!(selectedLicense.storage === UNLIMITED)" class="col">{{ selectedLicense.storage }} GB</div>
+                                <div *ngIf="selectedLicense.storage === UNLIMITED" class="col">Custom</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features" *ngIf="!instituteIsCoaching()">
+                            <div class="row">
+                                <div class="col">
+                                    Departments
+                                </div>
+                                <div *ngIf="!(selectedLicense.department_limit === UNLIMITED)" class="col">{{ selectedLicense.department_limit }}</div>
+                                <div *ngIf="selectedLicense.department_limit === UNLIMITED" class="col">Unlimited</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Classrooms
+                                </div>
+                                <div *ngIf="!(selectedLicense.classroom_limit === UNLIMITED)" class="col">{{ selectedLicense.classroom_limit }}</div>
+                                <div *ngIf="selectedLicense.classroom_limit === UNLIMITED" class="col">Unlimited</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Subjects
+                                </div>
+                                <div *ngIf="!(selectedLicense.subject_limit === UNLIMITED)" class="col">{{ selectedLicense.subject_limit }}</div>
+                                <div *ngIf="selectedLicense.subject_limit === UNLIMITED" class="col">Unlimited</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Scheduled Test
+                                </div>
+                                <div *ngIf="selectedLicense.scheduled_test" class="col">Available</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    LMS
+                                </div>
+                                <div *ngIf="selectedLicense.LMS_exists" class="col">Available</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features">
+                            <div class="row">
+                                <div class="col">
+                                    Discussion Forum
+                                </div>
+                                <div class="col">{{ getDiscussionForums(selectedLicense.discussion_forum) }}</div>
+                            </div>
+                        </div>
+                        <div class="col-12 features last-child">
+                            <div class="row">
+                                <div class="col">
+                                    Live Attendees
+                                </div>
+                                <div class="col">{{ selectedLicense.video_call_max_attendees}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+            <div class="col-sm-6 col-md-8" [ngClass]="{'padding-left-1': !mobileQuery.matches, 'padding-top-1': mobileQuery.matches}">
+                <mat-card class="costing-card margin-bottom-1">
+                    <div class="row">
+                        <div class="col-12">
+                            <form [formGroup]="couponCodeForm" class="input-group">
+                                <input type="text" maxlength="6" formControlName="coupon_code" [disabled]="couponApplied" (keyup)="convertToUpperCase()" class="form-control search-color" placeholder="Enter coupon code" aria-label="Apply coupon">
+                                <div class="input-group-append">
+                                    <button [disabled]="couponCodeForm.invalid || couponApplied || showApplyingIndicator" (click)="applyCouponCode()" class="btn" [ngClass]="{'apply-button-active': !couponCodeForm.invalid && !couponApplied && !showApplyingIndicator, 'apply-button-disabled': couponCodeForm.invalid || couponApplied || showApplyingIndicator}">Apply</button>
+                                </div>
+                            </form>
+                            <div class="col-12" *ngIf="showApplyingIndicator">
+                                <div class="row coupon-applying">
+                                    <mat-progress-spinner mode="indeterminate" [diameter]="28" class="progress-spinner"></mat-progress-spinner>
+                                    <h3 class="applying-text">Applying...</h3>
+                                </div>
+                            </div>
+                            <div class="col-12 error-text" *ngIf="couponError">
+                                <div class="d-flex justify-content-between">
+                                    <h3 class="coupon-error-text">{{ couponError }}</h3>
+                                    <div>
+                                        <mat-icon class="highlight-icon" (click)="hideCouponError()">highlight_off</mat-icon>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 success-text" *ngIf="couponApplied">
+                                <div class="row">
+                                    <mat-icon class="check-icon">check</mat-icon>
+                                    <h3>{{ couponApplied }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card>
+                <mat-card class="costing-card">
+                    <h3><strong>Billing summary:</strong></h3>
+                    <hr class="top-separator" />
+                    <div class="row">
+                        <div class="col-7">
+                            <h3>Billing term:</h3>
+                        </div>
+                        <div class="col">
+                            <h3 class="align-end">{{ getBillingTerm(selectedLicense.billing) | titlecase}}</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-7">
+                            <h3>Monthly charge:</h3>
+                        </div>
+                        <div class="col-5">
+                            <h3 class="align-end">&#8377; {{ selectedLicense.amount | number }}</h3>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="getBillingTerm(selectedLicense.billing) === 'ANNUALLY'">
+                        <div class="col-7">
+                            <h3>Yearly charge:</h3>
+                        </div>
+                        <div class="col-5">
+                            <h3 class="align-end">&#8377; {{ selectedLicense.amount * 12 | number}}</h3>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="selectedLicense.discount_percent">
+                        <div class="col-7">
+                            <h3>Flat Discount:</h3>
+                        </div>
+                        <div class="col-5">
+                            <h3 class="align-end">{{ selectedLicense.discount_percent }} %</h3>
+                        </div>
+                    </div>
+                    <hr class="mid-separator" *ngIf="couponApplied" />
+                    <div class="row" *ngIf="couponApplied">
+                        <div class="col-7">
+                            <h3>Total amount:</h3>
+                        </div>
+                        <div class="col-5">
+                            <h3 class="align-end">&#8377; {{ amountBeforeApplyingCoupon | number}}</h3>
+                        </div>
+                        <div class="col-7">
+                            <h3>Discount coupon:</h3>
+                        </div>
+                        <div class="col-5">
+                            <h3 class="align-end">- &#8377; {{ couponDiscount }}</h3>
+                        </div>
+                    </div>
+                    <hr class="mid-separator" />
+                    <div class="row">
+                        <div class="col-7">
+                            <h3>Net amount:</h3>
+                        </div>
+                        <div class="col-5">
+                            <h3 class="align-end">&#8377; {{ netPayableAmount | number}}</h3>
+                        </div>
+                    </div>
+                    <hr class="mid-separator" />
+                    <div class="purchase-button">
+                        <button mat-flat-button class="green-button" aria-label="Purchase license button">Purchase</button>
+                    </div>
+                </mat-card>
+            </div>
+        </div>
+    </mat-card>
+</section>

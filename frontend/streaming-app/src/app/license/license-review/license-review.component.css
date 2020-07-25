@@ -1,0 +1,263 @@
+.row,
+.col,
+.col-5,
+.col-7,
+.col-12,
+.col-sm-6,
+.col-md-4,
+.col-md-8,
+h2,
+h3,
+p,
+hr {
+    margin: 0px;
+    padding: 0px;
+    word-wrap: break-word;
+}
+
+button:focus,
+button:active:focus,
+button.active:focus {
+    outline: none !important;
+    outline-style: none !important;
+}
+
+.parent-container {
+    background-color: #3b3b3b;
+    color: #bdbdbd;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.top-separator {
+    background-color: #6c757d;
+    margin-bottom: 0.7rem;
+}
+
+.mid-separator {
+    background-color: #6c757d;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+
+/* Styling selected license */
+
+.striked-text {
+    color: red;
+}
+
+.strike-color {
+    color: #000;
+    text-decoration: line-through;
+}
+
+.current-price {
+    font-weight: bold;
+    color: #1d1d1d;
+}
+
+.choose-plan-container {
+    padding: 0;
+    box-shadow: 1px 1px 1px #a0a0a0;
+    border: 3px solid #f8a306;
+    border-radius: 5px;
+}
+
+.main-content-row {
+    margin-top: 3rem;
+}
+
+.header {
+    background-color: rgb(57, 214, 212);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    padding-bottom: 1rem;
+    justify-content: center;
+}
+
+.features {
+    padding: 0.7rem 2rem;
+    border-bottom: 1px dotted #494949;
+    background-color: #e6e6e6;
+    color: rgb(6, 32, 53);
+    word-wrap: break-word;
+}
+
+.icon-circle {
+    background-color: #fff;
+    border-radius: 50%;
+    overflow: hidden;
+    height: 4.5rem;
+    width: 4.5rem;
+    border: 3px solid #f8a306;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-50%);
+    position: absolute;
+    z-index: 1;
+    box-shadow: 0 1px 3px #fff;
+}
+
+.plan-icon {
+    height: 2.5rem;
+    width: 2.5rem;
+    font-size: 2.5rem;
+    color: #f8a306;
+}
+
+.header-text-container {
+    padding-top: 3rem;
+    text-align: center;
+}
+
+.license-name {
+    color: #1d1d1d;
+}
+
+.last-child {
+    border-bottom: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.align-end {
+    float: right;
+}
+
+
+/* Styling coupon */
+
+.coupon-applying {
+    margin-top: 0.5rem;
+}
+
+.applying-text {
+    margin-left: 0.5rem;
+}
+
+::ng-deep.mat-progress-spinner circle,
+.mat-spinner circle {
+    stroke: #f2aa4cff !important;
+}
+
+.search-color {
+    background-color: #303030;
+    color: #bdbdbd;
+    border-color: #6c757d;
+    box-shadow: none;
+}
+
+.apply-button-active:not(.disabled) {
+    color: #fff;
+    border-color: #6c757d;
+    background-color: #6c757e;
+    box-shadow: none;
+}
+
+.apply-button-disabled {
+    border-color: #6c757d;
+    color: #fff;
+    background-color: #6c757e;
+    box-shadow: none;
+    opacity: 0.2;
+}
+
+.error-text {
+    border: 1px solid rgba(187, 134, 252);
+    background-color: rgba(187, 134, 252, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 0.25rem 0.6rem;
+    margin-top: 1rem;
+}
+
+.success-text {
+    border: 1px solid rgb(148, 252, 134);
+    background-color: rgba(148, 252, 134, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 0.25rem 0.6rem;
+    margin-top: 1rem;
+}
+
+.check-icon {
+    margin-right: 0.5rem;
+    color: rgb(148, 252, 134);
+}
+
+.close-error-icon {
+    display: block;
+    float: right;
+}
+
+.coupon-error-text {
+    padding-top: 0.1rem;
+}
+
+.highlight-icon {
+    color: rgb(187, 134, 252);
+    cursor: pointer;
+    padding-top: 0.2rem;
+}
+
+
+/* Styling costing */
+
+.costing-card {
+    background-color: #3f3f3f;
+    color: #bdbdbd;
+}
+
+.text-color {
+    color: #bdbdbd;
+}
+
+.green-button {
+    background-color: #008000;
+    color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
+}
+
+.green-button:hover {
+    background-color: #3a9b0d;
+    box-shadow: none;
+}
+
+.rounded-button {
+    border-radius: 25px;
+    margin-top: 0.5rem;
+}
+
+.purchase-button {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* Padding and margin */
+
+.padding-top-1 {
+    padding-top: 1rem;
+}
+
+.padding-left-1 {
+    padding-left: 1rem;
+}
+
+.padding-tb-1 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.margin-bottom-03 {
+    margin-bottom: 0.3rem;
+}
+
+.margin-bottom-1 {
+    margin-bottom: 1rem;
+}

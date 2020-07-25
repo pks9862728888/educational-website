@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
 import { LicenseDetails, InstituteLicenseList } from './license.model';
-import { INSTITUTE_LICENSE_PLANS, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
+import { INSTITUTE_LICENSE_PLANS, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE, BILLING_TERM_REVERSE, BILLING_TERM } from './../../constants';
 import { InstituteApiService } from 'src/app/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
@@ -21,6 +21,7 @@ export class LicenseComponent implements OnInit {
 
   monthlyLicensePlans: LicenseDetails[];
   yearlyLicensePlans: LicenseDetails[];
+  currentActiveLicensePlans: LicenseDetails[];
 
   constructor( private media: MediaMatcher,
                private instituteApiService: InstituteApiService,
@@ -34,6 +35,7 @@ export class LicenseComponent implements OnInit {
       (result: InstituteLicenseList) => {
         this.monthlyLicensePlans = result.monthly_license;
         this.yearlyLicensePlans = result.yearly_license;
+        this.currentActiveLicensePlans = this.monthlyLicensePlans;
       }
     );
   }
@@ -41,6 +43,11 @@ export class LicenseComponent implements OnInit {
   changeBillingTerm(term: string) {
     if (!(this.activeBilling === term)) {
       this.activeBilling = term;
+      if (this.activeBilling === 'YEARLY') {
+        this.currentActiveLicensePlans = this.yearlyLicensePlans;
+      } else {
+        this.currentActiveLicensePlans = this.monthlyLicensePlans;
+      }
     }
   }
 
@@ -52,6 +59,10 @@ export class LicenseComponent implements OnInit {
 
   getActivePlan(key: string) {
     return INSTITUTE_LICENSE_PLANS[key];
+  }
+
+  getBillingTerm(key: string) {
+    return BILLING_TERM[key];
   }
 
   getDiscussionForums(key: string) {
