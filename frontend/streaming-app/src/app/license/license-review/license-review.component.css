@@ -36,6 +36,12 @@ hr {
     margin-top: 0.5rem;
 }
 
+.purchase-error-separator {
+    background-color: #6c757d;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+}
+
 
 /* Styling selected license */
 
@@ -202,6 +208,11 @@ hr {
 .purchase-button {
     display: flex;
     justify-content: flex-end;
+}
+
+.wait-line-height {
+    line-height: 30px;
+    padding-right: 0.5rem;
 }
 
 

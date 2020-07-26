@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
+
 from core.models import InstituteLicense, InstituteLicensePlans,\
     Billing, DiscussionForumBar, InstituteDiscountCoupon, Institute,\
     InstituteCategory, InstituteType, InstituteSelectedLicense,\
@@ -587,12 +588,14 @@ def create_institute(user, name='Temp Name ola'):
 #             LMS_exists=True
 #         )
 #
-#     def test_order_id_creation_successful(self):
-#         """Test that order id can be created successfully"""
+#     def test_order_creation_successful(self):
+#         """Test that order can be created successfully"""
 #         res = InstituteLicenseOrderDetails.objects.create(
-#             amount=self.sel_lic.net_amount,
 #             selected_license=self.sel_lic,
+#             institute=self.institute
 #         )
 #         self.assertEqual(res.amount, self.sel_lic.net_amount)
 #         self.assertEqual(res.selected_license, self.sel_lic)
+#         self.assertTrue(len(res.order_receipt) > 0)
+#         self.assertEqual(res.institute, self.institute)
 #         self.assertTrue(len(res.order_id) > 0)

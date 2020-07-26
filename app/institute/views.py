@@ -15,7 +15,8 @@ from . import serializer
 
 from core.models import Institute, InstituteRole,\
     InstitutePermission, InstituteLicense, Billing,\
-    InstituteDiscountCoupon, InstituteSelectedLicense
+    InstituteDiscountCoupon, InstituteSelectedLicense,\
+    InstituteLicenseOrderDetails
 
 
 class IsTeacher(permissions.BasePermission):
@@ -214,6 +215,9 @@ class InstituteConfirmLicensePlan(APIView):
                 discussion_forum=license_.discussion_forum
             )
             if sel_lic:
+                InstituteLicenseOrderDetails.objects.create(
+                    institute=institute,
+                    selected_license=sel_lic)
                 return Response({'status': _('SUCCESS'),
                                  'net_amount': sel_lic.net_amount},
                                 status=status.HTTP_200_OK)

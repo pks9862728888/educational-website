@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import razorpay
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -176,3 +177,8 @@ CELERY_BROKER_URL = 'amqp://rabbitmq'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_TASK_SERIALIZER = 'json'
+
+# For razorpay
+client = razorpay.Client(auth=(os.environ.get('RAZORPAY_TEST_KEY_ID'),
+                               os.environ.get('RAZORPAY_TEST_KEY_PASSWORD')))
+client.set_app_details({"title": "Education webapp", "version": "1.0.0"})

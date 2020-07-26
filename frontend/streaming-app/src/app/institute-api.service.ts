@@ -44,6 +44,7 @@ export class InstituteApiService {
   instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
   instituteSelectedLicenseDetail = `${this.instituteBaseUrl}institute-license-detail`;
   instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
+  licensePurchaseOrderUrl = `${this.instituteBaseUrl}create-license-purchase-order`;
 
   getInstituteDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}detail/${instituteSlug}`;
@@ -133,6 +134,15 @@ export class InstituteApiService {
     return this.httpClient.post(
       this.instituteDiscountCouponDetailUrl,
       {'coupon_code': couponCode},
+      {headers: this.getAuthHeader()}
+    );
+  }
+
+  // To initiate purchase request
+  purchase(institute_slug: string, license_id: string, coupon_code: string) {
+    return this.httpClient.post(
+      this.licensePurchaseOrderUrl,
+      {'institute_slug': institute_slug, 'license_id': license_id, 'coupon_code': coupon_code},
       {headers: this.getAuthHeader()}
     );
   }

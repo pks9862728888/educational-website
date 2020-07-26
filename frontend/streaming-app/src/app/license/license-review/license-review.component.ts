@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { UNLIMITED, INSTITUTE_TYPE_REVERSE, DISCUSSION_FORUM_PER_ATTENDEES, BILLING_TERM, BILLING_TERM_REVERSE } from './../../../constants';
 import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { LicenseDetails, InstituteDiscountCouponDetailsResponse } from './../license.model';
+import { LicenseDetails, InstituteDiscountCouponDetailsResponse, InstitutePurchaseProcessInitializedResponse } from './../license.model';
 import { Component, OnInit } from '@angular/core';
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 
@@ -28,7 +28,9 @@ export class LicenseReviewComponent implements OnInit {
   couponCode: string;
   amountBeforeApplyingCoupon: number;
   netPayableAmount: number;
+  purchaseError: string;
   showApplyingIndicator: boolean;
+  showPurchasingIndicator: boolean;
 
   UNLIMITED = UNLIMITED;
 
@@ -126,16 +128,60 @@ export class LicenseReviewComponent implements OnInit {
 
   changeLicense() {
     sessionStorage.removeItem('selectedLicenseId');
+    this.navigateToWorkspace('/license');
+  }
+
+  navigateToWorkspace(path: string) {
     if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['School']) {
-      this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + '/license']);
+      this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + path]);
     } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['Coaching']) {
-      this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + '/license']);
+      this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + path]);
     } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['College']) {
-      this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + '/license']);
+      this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + path]);
     }
   }
 
   hideCouponError() {
     this.couponError = null;
+  }
+
+  hidePurchaseError() {
+    this.purchaseError = null;
+  }
+
+  purchaseClicked() {
+    this.showPurchasingIndicator = true;
+    this.purchaseError = null;
+    this.instituteApiService.purchase(
+      this.currentInstituteSlug,
+      this.selectedLicenseId,
+      this.couponCode || ''
+    ).subscribe(
+      (result: InstitutePurchaseProcessInitializedResponse) => {
+        this.showPurchasingIndicator = false;
+        if (result.status === 'SUCCESS') {
+          sessionStorage.setItem('netPayableAmount', result.net_amount);
+          this.navigateToWorkspace('/license/checkout');
+        }
+      },
+      errors => {
+        this.showPurchasingIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.purchaseError = errors.error.error;
+          } else if (errors.error.coupon_code) {
+            this.purchaseError = errors.error.coupon_code;
+            this.netPayableAmount = this.amountBeforeApplyingCoupon;
+            this.couponDiscount = null;
+            this.couponCodeForm.enable();
+            this.couponApplied = null;
+            this.couponError = this.couponCode + ': ' + this.purchaseError;
+            this.couponCode = null;
+          }
+        } else {
+          this.purchaseError = 'Unable to purchase at the moment. Please let us know.';
+        }
+      }
+    )
   }
 }

@@ -17,6 +17,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
+from app import settings
 
 from phonenumber_field.modelfields import PhoneNumberField
 from django_countries import Countries
@@ -25,7 +26,6 @@ from django_countries.fields import CountryField
 from rest_framework.authtoken.models import Token
 
 from .tasks import create_welcome_message_after_user_creation
-
 
 # Constant to define unlimited limit
 UNLIMITED = 99999
@@ -280,16 +280,16 @@ def unique_coupon_code_generator(instance):
     return slug
 
 
-def create_order_id(instance):
-    """Generates unique order id for institute"""
+def create_order_receipt(instance):
+    """Generates unique receipt id for institute"""
     while True:
-        order_id = 'order_ins' + random_string_generator(size=10)
+        order_receipt = 'order_rcptidins' + random_string_generator(size=10)
         k_class = instance.__class__
-        qs_exists = k_class.objects.filter(order_id=order_id).exists()
+        qs_exists = k_class.objects.filter(order_receipt=order_receipt).exists()
 
         if not qs_exists:
             break
-    return order_id
+    return order_receipt
 
 
 def unique_slug_generator_for_class(instance, new_slug=None):
@@ -343,7 +343,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Creates user model that supports using email as username"""
     email = models.EmailField(_('Email'),
                               max_length=255, unique=True,
-                              validators=(EmailValidator, ))
+                              validators=(EmailValidator,))
     username = models.CharField(_('Username'), max_length=30, unique=True)
     is_active = models.BooleanField(_('Is Active'), default=True)
     is_staff = models.BooleanField(_('Is Staff'), default=False)
@@ -379,15 +379,15 @@ class UserProfile(models.Model, Languages):
     )
     first_name = models.CharField(
         _('First Name'), max_length=70, blank=True,
-        validators=(ProhibitNullCharactersValidator, ))
+        validators=(ProhibitNullCharactersValidator,))
     last_name = models.CharField(
         _('Last Name'), max_length=70, blank=True,
-        validators=(ProhibitNullCharactersValidator, ))
+        validators=(ProhibitNullCharactersValidator,))
     gender = models.CharField(
         _('Gender'),
         max_length=1,
         blank=True,
-        choices=Gender.GENDER_IN_GENDER_CHOICES,)
+        choices=Gender.GENDER_IN_GENDER_CHOICES, )
     phone = PhoneNumberField(_('Phone'), null=True, blank=True)
     date_of_birth = models.DateField(
         _('Date of Birth'), max_length=10, null=True, blank=True)
@@ -478,12 +478,12 @@ class InstituteLicense(models.Model):
     billing = models.CharField(
         _('Billing'), max_length=1, blank=False, null=False,
         choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
-    amount = models.BigIntegerField(   # In Rs
+    amount = models.BigIntegerField(  # In Rs
         _('Amount In Rs'), blank=False, null=False)
     discount_percent = models.DecimalField(
         _('Discount In Percentage'), default=0.0,
         max_digits=5, decimal_places=2)
-    storage = models.IntegerField(   # In Gb
+    storage = models.IntegerField(  # In Gb
         _('Storage in Gb'), blank=False, null=False)
     no_of_admin = models.PositiveIntegerField(
         _('No of admin'), default=1)
@@ -576,7 +576,7 @@ class InstituteSelectedLicense(models.Model):
     selected license plans at that moment
     """
     institute = models.ForeignKey(
-        _('Institute'), related_name='institute_selected_license',
+        'Institute', related_name='institute_selected_license',
         on_delete=models.CASCADE)
     type = models.CharField(
         _('Type'), max_length=3, blank=False, null=False,
@@ -634,7 +634,7 @@ class InstituteSelectedLicense(models.Model):
         super(InstituteSelectedLicense, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.institute)
+        return 'License: ' + str(self.type) + ', billed: ' + str(self.billing)
 
 
 @receiver(post_save, sender=InstituteSelectedLicense)
@@ -643,7 +643,7 @@ def calculate_net_amount(sender, instance, created, *args, **kwargs):
     if created and not instance.net_amount:
         if instance.discount_coupon:
             instance.net_amount = max(0, instance.amount * (
-                    1 - instance.discount_percent/100) -
+                    1 - instance.discount_percent / 100) -
                                       instance.discount_coupon.discount_rs)
         else:
             instance.net_amount = max(0, instance.amount * (
@@ -657,11 +657,18 @@ def calculate_net_amount(sender, instance, created, *args, **kwargs):
 
 class InstituteLicenseOrderDetails(models.Model):
     """Model to store institute license order"""
+    order_receipt = models.CharField(
+        _('Order receipt'), max_length=27, blank=True, null=False)
     order_id = models.CharField(
-        _('Order Id'), max_length=19, blank=True, null=False)
+        _('Order Id'), max_length=100, blank=True, null=False)
     amount = models.DecimalField(
         _('Amount in Rupees'), max_digits=10, decimal_places=2,
-        blank=False, null=False)
+        blank=True, null=False)
+    currency = models.CharField(
+        _('Currency'), default='INR', null=False, max_length=4)
+    institute = models.ForeignKey(
+        'Institute', on_delete=models.SET_NULL,
+        related_name='institute_license_order', null=True, blank=False)
     selected_license = models.OneToOneField(
         to='InstituteSelectedLicense', on_delete=models.SET_NULL,
         null=True)
@@ -669,14 +676,30 @@ class InstituteLicenseOrderDetails(models.Model):
         _('Order Created On'), default=timezone.now, editable=False)
 
     def __str__(self):
-        return self.order_id
+        return self.order_receipt
+
+    class Meta:
+        unique_together = ('institute', 'selected_license')
 
 
 @receiver(pre_save, sender=InstituteLicenseOrderDetails)
-def create_unique_order_id(sender, instance, *args, **kwargs):
+def create_unique_receipt_id(sender, instance, *args, **kwargs):
     """Creates unique order id for institute"""
+    if not instance.amount:
+        instance.amount = instance.selected_license.net_amount
+    if not instance.order_receipt:
+        instance.order_receipt = create_order_receipt(instance)
     if not instance.order_id:
-        instance.order_id = create_order_id(instance)
+        order = settings.client.order.create(
+            data={
+                'amount': float(instance.amount * 100),
+                'currency': instance.currency,
+                'receipt': instance.order_receipt,
+                'notes': {'institute': instance.institute.institute_slug,
+                          'selected_license': str(instance.selected_license)},
+                'payment_capture': '1'
+            })
+        instance.order_id = order['id']
 
 
 class ProfilePictures(models.Model):
@@ -909,11 +932,11 @@ class InstitutePermission(models.Model):
         if not inviter_role and self.inviter == self.institute.user:
             pass
         # Only active admin can add admin and staff
-        elif (self.role == InstituteRole.ADMIN or self.role == InstituteRole.STAFF) and\
+        elif (self.role == InstituteRole.ADMIN or self.role == InstituteRole.STAFF) and \
                 (not inviter_role or inviter_role.role != InstituteRole.ADMIN):
             raise PermissionDenied()
         # Only active admin and staff can add faculty
-        elif self.role == InstituteRole.FACULTY and\
+        elif self.role == InstituteRole.FACULTY and \
                 ((not inviter_role) or inviter_role.role == InstituteRole.FACULTY):
             raise PermissionDenied()
 

@@ -167,7 +167,7 @@
                     <div class="row">
                         <div class="col-12">
                             <form [formGroup]="couponCodeForm" class="input-group">
-                                <input type="text" maxlength="6" formControlName="coupon_code" [disabled]="couponApplied" (keyup)="convertToUpperCase()" class="form-control search-color" placeholder="Enter coupon code" aria-label="Apply coupon">
+                                <input type="text" maxlength="6" formControlName="coupon_code" (keyup)="convertToUpperCase()" class="form-control search-color" placeholder="Enter coupon code" aria-label="Apply coupon">
                                 <div class="input-group-append">
                                     <button [disabled]="couponCodeForm.invalid || couponApplied || showApplyingIndicator" (click)="applyCouponCode()" class="btn" [ngClass]="{'apply-button-active': !couponCodeForm.invalid && !couponApplied && !showApplyingIndicator, 'apply-button-disabled': couponCodeForm.invalid || couponApplied || showApplyingIndicator}">Apply</button>
                                 </div>
@@ -255,8 +255,21 @@
                         </div>
                     </div>
                     <hr class="mid-separator" />
+                    <div class="col-12 error-text" *ngIf="purchaseError">
+                        <div class="d-flex justify-content-between">
+                            <h3 class="coupon-error-text">{{ purchaseError }}</h3>
+                            <div>
+                                <mat-icon class="highlight-icon" (click)="hidePurchaseError()">highlight_off</mat-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="purchase-error-separator" *ngIf="purchaseError" />
                     <div class="purchase-button">
-                        <button mat-flat-button class="green-button" aria-label="Purchase license button">Purchase</button>
+                        <div *ngIf="showPurchasingIndicator" class="d-flex">
+                            <h3 class="wait-line-height">Please wait...</h3>&nbsp;
+                            <mat-spinner mode="indeterminate" [diameter]="30"></mat-spinner>
+                        </div>
+                        <button *ngIf="!showPurchasingIndicator" mat-flat-button (click)="purchaseClicked()" class="green-button" aria-label="Purchase license button">Purchase</button>
                     </div>
                 </mat-card>
             </div>

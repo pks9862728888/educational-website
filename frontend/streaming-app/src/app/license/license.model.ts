@@ -27,3 +27,9 @@ export interface InstituteDiscountCouponDetailsResponse {
   'discount_rs': number;
   'active': boolean;
 }
+
+
+export interface InstitutePurchaseProcessInitializedResponse {
+  'status': string;
+  'net_amount': string;
+}

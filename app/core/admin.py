@@ -150,19 +150,21 @@ class CustomInstitute(admin.ModelAdmin):
 
 class CustomInstituteSelectedLicense(admin.ModelAdmin):
     model = models.InstituteSelectedLicense
-    list_display = ['type', 'billing', 'net_amount', 'discount_coupon']
+    list_display = ['type', 'billing', 'net_amount',
+                    'discount_coupon']
     list_filter = ['type', 'billing']
 
 
 class CustomInstituteLicenseOrderDetails(admin.ModelAdmin):
     model = models.InstituteLicenseOrderDetails
-    list_display = ['order_id', 'amount', 'selected_license', 'created_on']
+    list_display = ['order_receipt', 'order_id', 'amount',
+                    'selected_license', 'created_on']
 
 
 class CustomInstituteProfile(admin.ModelAdmin):
     """Customizing the user profile admin page"""
-    list_display = ['institute_name', 'admin_email', 'phone', 'state',
-                    'recognition', 'primary_language',
+    list_display = ['institute_name', 'admin_email', 'phone',
+                    'state', 'recognition', 'primary_language',
                     'secondary_language', 'tertiary_language']
     search_fields = ['institute_name', 'first_name',
                      'last_name', 'country',

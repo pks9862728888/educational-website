@@ -14,7 +14,7 @@ from core import models
 # Urls for checking
 INSTITUTE_GET_SPECIFIC_LICENSE_URL = reverse("institute:institute-license-detail")
 INSTITUTE_DISCOUNT_COUPON_CHECK_URL = reverse("institute:get-discount-coupon")
-INSTITUTE_SELECT_LICENSE_URL = reverse("institute:confirm-license-plan")
+INSTITUTE_CREATE_LICENSE_PURCHASE_ORDER_URL = reverse("institute:create-license-purchase-order")
 
 
 def create_institute(user, institute_name='tempinstitute'):
@@ -237,7 +237,7 @@ class AuthenticatedAdminTests(TestCase):
         institute = create_institute(self.user)
 
         res = self.client.post(
-            INSTITUTE_SELECT_LICENSE_URL,
+            INSTITUTE_CREATE_LICENSE_PURCHASE_ORDER_URL,
             {
                 "institute_slug": institute.institute_slug,
                 "license_id": self.license.pk,
@@ -283,6 +283,15 @@ class AuthenticatedAdminTests(TestCase):
                          self.license.discussion_forum)
         self.assertEqual(lic.LMS_exists,
                          self.license.LMS_exists)
+        self.assertTrue(models.InstituteLicenseOrderDetails.objects.filter(
+            institute=institute
+        ).exists())
+
+        order = models.InstituteLicenseOrderDetails.objects.filter(
+            institute=institute
+        ).first()
+        self.assertNotEqual(order, None)
+        self.assertEqual(order.amount, self.license.amount)
 
     def test_pre_payment_processing_success_with_discount_coupon_by_admin(self):
         """Test saving details before payment success by admin"""
@@ -294,7 +303,7 @@ class AuthenticatedAdminTests(TestCase):
         )
 
         res = self.client.post(
-            INSTITUTE_SELECT_LICENSE_URL,
+            INSTITUTE_CREATE_LICENSE_PURCHASE_ORDER_URL,
             {
                 "institute_slug": institute.institute_slug,
                 "license_id": self.license.pk,
@@ -347,18 +356,28 @@ class AuthenticatedAdminTests(TestCase):
                          self.license.discussion_forum)
         self.assertEqual(lic.LMS_exists,
                          self.license.LMS_exists)
+        self.assertTrue(models.InstituteLicenseOrderDetails.objects.filter(
+            institute=institute
+        ).exists())
 
         cpn = models.InstituteDiscountCoupon.objects.filter(
             coupon_code=coupon.coupon_code
         ).first()
         self.assertFalse(cpn.active)
 
+        order = models.InstituteLicenseOrderDetails.objects.filter(
+            institute=institute
+        ).first()
+        self.assertNotEqual(order, None)
+        self.assertEqual(order.amount, max(
+            0, self.license.amount - coupon.discount_rs))
+
     def test_pre_payment_processing_fails_no_discount_coupon_by_other_user(self):
         """Test saving details before payment fails by other user"""
         institute = create_institute(create_teacher())
 
         res = self.client.post(
-            INSTITUTE_SELECT_LICENSE_URL,
+            INSTITUTE_CREATE_LICENSE_PURCHASE_ORDER_URL,
             {
                 "institute_slug": institute.institute_slug,
                 "license_id": self.license.pk,
@@ -378,7 +397,7 @@ class AuthenticatedAdminTests(TestCase):
         create_institute(self.user)
 
         res = self.client.post(
-            INSTITUTE_SELECT_LICENSE_URL,
+            INSTITUTE_CREATE_LICENSE_PURCHASE_ORDER_URL,
             {
                 "institute_slug": "abc-asd",
                 "license_id": self.license.pk,
