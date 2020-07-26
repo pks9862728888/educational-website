@@ -15,13 +15,6 @@ hr {
     word-wrap: break-word;
 }
 
-button:focus,
-button:active:focus,
-button.active:focus {
-    outline: none !important;
-    outline-style: none !important;
-}
-
 .parent-container {
     background-color: #3b3b3b;
     color: #bdbdbd;
@@ -140,11 +133,6 @@ button.active:focus {
     margin-left: 0.5rem;
 }
 
-::ng-deep.mat-progress-spinner circle,
-.mat-spinner circle {
-    stroke: #f2aa4cff !important;
-}
-
 .search-color {
     background-color: #303030;
     color: #bdbdbd;
@@ -167,24 +155,6 @@ button.active:focus {
     opacity: 0.2;
 }
 
-.error-text {
-    border: 1px solid rgba(187, 134, 252);
-    background-color: rgba(187, 134, 252, 0.2);
-    color: #ffffff;
-    border-radius: 5px;
-    padding: 0.25rem 0.6rem;
-    margin-top: 1rem;
-}
-
-.success-text {
-    border: 1px solid rgb(148, 252, 134);
-    background-color: rgba(148, 252, 134, 0.2);
-    color: #ffffff;
-    border-radius: 5px;
-    padding: 0.25rem 0.6rem;
-    margin-top: 1rem;
-}
-
 .check-icon {
     margin-right: 0.5rem;
     color: rgb(148, 252, 134);
@@ -205,27 +175,23 @@ button.active:focus {
     padding-top: 0.2rem;
 }
 
+.error-text,
+.success-text {
+    padding: 0.25rem 0.6rem;
+    margin-top: 1rem;
+}
+
+::ng-deep.mat-progress-spinner circle,
+.mat-spinner circle {
+    stroke: #f2aa4cff !important;
+}
+
 
 /* Styling costing */
 
 .costing-card {
     background-color: #3f3f3f;
     color: #bdbdbd;
-}
-
-.text-color {
-    color: #bdbdbd;
-}
-
-.green-button {
-    background-color: #008000;
-    color: #ffffff;
-    box-shadow: 1px 1px 2px #1d1d1d;
-}
-
-.green-button:hover {
-    background-color: #3a9b0d;
-    box-shadow: none;
 }
 
 .rounded-button {

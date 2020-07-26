@@ -15,7 +15,7 @@ from . import serializer
 
 from core.models import Institute, InstituteRole,\
     InstitutePermission, InstituteLicense, Billing,\
-    InstituteDiscountCoupon
+    InstituteDiscountCoupon, InstituteSelectedLicense
 
 
 class IsTeacher(permissions.BasePermission):
@@ -135,6 +135,94 @@ class InstituteLicenseDetailView(APIView):
             return Response({
                 'error': 'License not Found'
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteConfirmLicensePlan(APIView):
+    """View for confirming institute license"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        institute_slug = request.data.get('institute_slug')
+        license_id = request.data.get('license_id')
+        coupon_code = request.data.get('coupon_code')
+
+        errors = {}
+        if not institute_slug:
+            errors['institute_slug'] = _('This field is required.')
+        if not license_id:
+            errors['license_id'] = _('This field is required.')
+
+        if errors:
+            return Response(
+                errors, status=status.HTTP_400_BAD_REQUEST)
+
+        institute = Institute.objects.filter(
+            institute_slug=institute_slug
+        ).first()
+        if not institute:
+            return Response({'error': _('Invalid request.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not InstitutePermission.objects.filter(
+            institute=institute.pk,
+            invitee=self.request.user.pk,
+            active=True,
+            role=InstituteRole.ADMIN
+        ):
+            return Response({'error': _('Insufficient permission')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        coupon = None
+        if coupon_code:
+            coupon = InstituteDiscountCoupon.objects.filter(
+                coupon_code=coupon_code
+            ).first()
+
+            if not coupon.active:
+                return Response({'coupon_code': _('Coupon already used.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if timezone.now() > coupon.expiry_date:
+                return Response({'coupon_code': _('Coupon expired.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        license_ = InstituteLicense.objects.filter(
+            pk=license_id
+        ).first()
+        if not license_:
+            return Response({'error': _('License not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            sel_lic = InstituteSelectedLicense.objects.create(
+                institute=institute,
+                type=license_.type,
+                billing=license_.billing,
+                amount=license_.amount,
+                discount_percent=license_.discount_percent,
+                discount_coupon=coupon,
+                storage=license_.storage,
+                no_of_admin=license_.no_of_admin,
+                no_of_staff=license_.no_of_staff,
+                no_of_faculty=license_.no_of_faculty,
+                no_of_student=license_.no_of_student,
+                video_call_max_attendees=license_.video_call_max_attendees,
+                classroom_limit=license_.classroom_limit,
+                department_limit=license_.department_limit,
+                subject_limit=license_.subject_limit,
+                scheduled_test=license_.scheduled_test,
+                LMS_exists=license_.LMS_exists,
+                discussion_forum=license_.discussion_forum
+            )
+            if sel_lic:
+                return Response({'status': _('SUCCESS'),
+                                 'net_amount': sel_lic.net_amount},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({'error': _('Internal server error.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class InstituteMinDetailsTeacherView(ListAPIView):

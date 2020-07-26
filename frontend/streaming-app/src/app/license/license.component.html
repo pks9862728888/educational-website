@@ -28,7 +28,7 @@
                                     <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mobileQuery.matches || activePlanContainer !== getActivePlan(mp.type), 'main-content-plan-active': !mobileQuery.matches && activePlanContainer === getActivePlan(mp.type)}">
                                         <h2 class="license-name">{{ getActivePlan(mp.type) }}</h2>
                                         <h3 class="price">
-                                            <span *ngIf="mp.discount_percent" class="strike-color">
+                                            <span *ngIf="isDiscountPresent(mp.discount_percent)" class="strike-color">
                                               <span class="striked-text">&#8377;{{ mp.amount / 1000 }} K</span>
                                             </span>
                                             &nbsp;

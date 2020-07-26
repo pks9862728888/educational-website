@@ -86,4 +86,12 @@ export class LicenseComponent implements OnInit {
     this.router.navigate(
       ['/school-workspace/' + sessionStorage.getItem('currentInstituteSlug') + '/license/review'])
   }
+
+  isDiscountPresent(discount: number) {
+    if (Math.abs(discount)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

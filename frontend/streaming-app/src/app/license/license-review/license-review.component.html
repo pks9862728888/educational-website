@@ -11,21 +11,23 @@
                 <h3>Fetching License Details...</h3>
             </div>
         </div>
-        <div *ngIf="retryGetLicenseDetails" class="error-text padding-tb-1">
-            <div class="d-flex justify-content-center">
-                <h3 *ngIf="!mobileQuery.matches">Unable To Fetch License Details.</h3>
-                <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Unable To Fetch License Details.</p>
-            </div>
-            <div class="d-flex justify-content-center">
-                <h3 *ngIf="!mobileQuery.matches">Please check your internet connectivity.</h3>
-                <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Please check your internet connectivity.</p>
-            </div>
-            <div class="d-flex justify-content-center">
-                <h3 *ngIf="!mobileQuery.matches">If problem persists, let us know :)</h3>
-                <p *ngIf="mobileQuery.matches" class="margin-bottom-03">If problem persists, let us know :)</p>
-            </div>
-            <div class="d-flex justify-content-center">
-                <button mat-flat-button class="green-button rounded-button" (click)="getLicenseDetails()">Retry</button>
+        <div *ngIf="retryGetLicenseDetails" class="center-retry-text">
+            <div class="align-horizontally-center">
+                <div class="d-flex justify-content-center">
+                    <h3 *ngIf="!mobileQuery.matches">Unable To Fetch License Details.</h3>
+                    <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Unable To Fetch License Details.</p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <h3 *ngIf="!mobileQuery.matches">Please check your internet connectivity.</h3>
+                    <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Please check your internet connectivity.</p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <h3 *ngIf="!mobileQuery.matches">If problem persists, let us know :)</h3>
+                    <p *ngIf="mobileQuery.matches" class="margin-bottom-03">If problem persists, let us know :)</p>
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button mat-flat-button class="green-button rounded-button" (click)="getLicenseDetails()">Retry</button>
+                </div>
             </div>
         </div>
 

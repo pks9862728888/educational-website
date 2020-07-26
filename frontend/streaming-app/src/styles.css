@@ -1,10 +1,72 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body {
+html,
+body {
     padding: 0px;
     margin: 0px;
     width: 100%;
     height: 100%;
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+body {
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+
+/* Button color globally */
+
+button:focus,
+button:active:focus,
+button.active:focus {
+    outline: none !important;
+    outline-style: none !important;
+}
+
+.green-button {
+    background-color: #008000;
+    color: #ffffff;
+    box-shadow: 1px 1px 2px #1d1d1d;
+}
+
+.green-button:hover {
+    background-color: #3a9b0d;
+    box-shadow: none;
+}
+
+
+/* Message color globally */
+
+.error-text {
+    border: 1px solid rgba(187, 134, 252);
+    background-color: rgba(187, 134, 252, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+.success-text {
+    border: 1px solid rgb(148, 252, 134);
+    background-color: rgba(148, 252, 134, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+}
+
+.center-retry-text {
+    border: 1px solid rgba(187, 134, 252);
+    background-color: rgba(187, 134, 252, 0.2);
+    color: #ffffff;
+    border-radius: 5px;
+    height: calc(100vh / 2);
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.align-horizontally-center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.text-color {
+    color: #bdbdbd;
+}

@@ -25,15 +25,10 @@ button.active:focus {
     background-color: #3b3b3b;
     color: #bdbdbd;
     user-select: none;
-    /* supported by Chrome and Opera */
     -webkit-user-select: none;
-    /* Safari */
     -khtml-user-select: none;
-    /* Konqueror HTML */
     -moz-user-select: none;
-    /* Firefox */
     -ms-user-select: none;
-    /* Internet Explorer/Edge */
 }
 
 .width-100 {
@@ -187,17 +182,6 @@ button.active:focus {
     border-bottom: none;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-}
-
-.green-button {
-    background-color: #008000;
-    color: #ffffff;
-    box-shadow: 1px 1px 2px #1d1d1d;
-}
-
-.green-button:hover {
-    background-color: #3a9b0d;
-    box-shadow: none;
 }
 
 .rounded-button {

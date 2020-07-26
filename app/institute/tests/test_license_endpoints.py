@@ -14,6 +14,7 @@ from core import models
 # Urls for checking
 INSTITUTE_GET_SPECIFIC_LICENSE_URL = reverse("institute:institute-license-detail")
 INSTITUTE_DISCOUNT_COUPON_CHECK_URL = reverse("institute:get-discount-coupon")
+INSTITUTE_SELECT_LICENSE_URL = reverse("institute:confirm-license-plan")
 
 
 def create_institute(user, institute_name='tempinstitute'):
@@ -34,6 +35,7 @@ def create_teacher(email='abc@gmail.com', username='tempusername'):
         password='tempupassword',
         is_teacher=True
     )
+
 
 class AuthenticatedAdminTests(TestCase):
     """Tests for users with institute admin permissions"""
@@ -146,27 +148,145 @@ class AuthenticatedAdminTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_check_valid_coupon_code_success(self):
-        """Test admin can check valid coupon code"""
-        create_institute(self.user)
-        coupon = models.InstituteDiscountCoupon.objects.create(
-            user=self.superuser,
-            discount_rs=1000,
-            expiry_date=timezone.now() + datetime.timedelta(days=365)
-        )
+    # def test_check_valid_coupon_code_success(self):
+    #     """Test admin can check valid coupon code"""
+    #     create_institute(self.user)
+    #     coupon = models.InstituteDiscountCoupon.objects.create(
+    #         user=self.superuser,
+    #         discount_rs=1000,
+    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
+    #     )
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+    #         {'coupon_code': coupon.coupon_code}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['discount_rs'], coupon.discount_rs)
+    #     self.assertEqual(res.data['active'], True)
+    #
+    # def test_check_valid_coupon_code_success_fails_staff(self):
+    #     """Test non admin can not check valid coupon code"""
+    #     create_institute(create_teacher())
+    #     coupon = models.InstituteDiscountCoupon.objects.create(
+    #         user=self.superuser,
+    #         discount_rs=1000,
+    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
+    #     )
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+    #         {'coupon_code': coupon.coupon_code}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #
+    # def test_check_invalid_coupon_code_fails(self):
+    #     """Test invalid coupon code show error"""
+    #     create_institute(self.user)
+    #     coupon = models.InstituteDiscountCoupon.objects.create(
+    #         user=self.superuser,
+    #         discount_rs=1000,
+    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
+    #     )
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+    #         {'coupon_code': 'ADBSDF'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #
+    # def test_check_inactive_coupon_code_fails(self):
+    #     """Test inactive coupon code show error"""
+    #     create_institute(self.user)
+    #     coupon = models.InstituteDiscountCoupon.objects.create(
+    #         user=self.superuser,
+    #         discount_rs=1000,
+    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
+    #     )
+    #     coupon.active = False
+    #     coupon.save()
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+    #         {'coupon_code': coupon.coupon_code}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #
+    # def test_check_expired_coupon_code_fails(self):
+    #     """Test invalid coupon code show error"""
+    #     create_institute(self.user)
+    #     coupon = models.InstituteDiscountCoupon.objects.create(
+    #         user=self.superuser,
+    #         discount_rs=1000,
+    #         expiry_date=timezone.now() - datetime.timedelta(days=365)
+    #     )
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+    #         {'coupon_code': coupon.coupon_code}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_pre_payment_processing_success_no_discount_coupon_by_admin(self):
+        """Test saving details before payment success by admin"""
+        institute = create_institute(self.user)
 
         res = self.client.post(
-            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-            {'coupon_code': coupon.coupon_code}
+            INSTITUTE_SELECT_LICENSE_URL,
+            {
+                "institute_slug": institute.institute_slug,
+                "license_id": self.license.pk,
+                "coupon_code": ""
+            }
         )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['discount_rs'], coupon.discount_rs)
-        self.assertEqual(res.data['active'], True)
+        self.assertEqual(res.data['status'], 'SUCCESS')
+        self.assertEqual(res.data['net_amount'], self.license.amount)
 
-    def test_check_valid_coupon_code_success_fails_staff(self):
-        """Test non admin can not check valid coupon code"""
-        create_institute(create_teacher())
+        lic = models.InstituteSelectedLicense.objects.filter(
+            institute=institute.pk
+        ).first()
+        self.assertNotEqual(lic, None)
+        self.assertEqual(lic.amount, self.license.amount)
+        self.assertEqual(lic.discount_percent,
+                         self.license.discount_percent)
+        self.assertEqual(lic.discount_coupon, None)
+        self.assertEqual(lic.net_amount, self.license.amount)
+        self.assertEqual(lic.type, self.license.type)
+        self.assertEqual(lic.billing, self.license.billing)
+        self.assertEqual(lic.storage, self.license.storage)
+        self.assertEqual(lic.no_of_admin,
+                         self.license.no_of_admin)
+        self.assertEqual(lic.no_of_staff,
+                         self.license.no_of_staff)
+        self.assertEqual(lic.no_of_faculty,
+                         self.license.no_of_faculty)
+        self.assertEqual(lic.no_of_student,
+                         self.license.no_of_student)
+        self.assertEqual(lic.video_call_max_attendees,
+                         self.license.video_call_max_attendees)
+        self.assertEqual(lic.classroom_limit,
+                         self.license.classroom_limit)
+        self.assertEqual(lic.department_limit,
+                         self.license.department_limit)
+        self.assertEqual(lic.subject_limit,
+                         self.license.subject_limit)
+        self.assertEqual(lic.scheduled_test,
+                         self.license.scheduled_test)
+        self.assertEqual(lic.discussion_forum,
+                         self.license.discussion_forum)
+        self.assertEqual(lic.LMS_exists,
+                         self.license.LMS_exists)
+
+    def test_pre_payment_processing_success_with_discount_coupon_by_admin(self):
+        """Test saving details before payment success by admin"""
+        institute = create_institute(self.user)
         coupon = models.InstituteDiscountCoupon.objects.create(
             user=self.superuser,
             discount_rs=1000,
@@ -174,58 +294,97 @@ class AuthenticatedAdminTests(TestCase):
         )
 
         res = self.client.post(
-            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-            {'coupon_code': coupon.coupon_code}
+            INSTITUTE_SELECT_LICENSE_URL,
+            {
+                "institute_slug": institute.institute_slug,
+                "license_id": self.license.pk,
+                "coupon_code": coupon.coupon_code
+            }
         )
 
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'SUCCESS')
+        self.assertEqual(res.data['net_amount'], max(
+            0, self.license.amount - coupon.discount_rs))
 
-    def test_check_invalid_coupon_code_fails(self):
-        """Test invalid coupon code show error"""
-        create_institute(self.user)
-        coupon = models.InstituteDiscountCoupon.objects.create(
-            user=self.superuser,
-            discount_rs=1000,
-            expiry_date=timezone.now() + datetime.timedelta(days=365)
-        )
+        lic = models.InstituteSelectedLicense.objects.filter(
+            institute=institute
+        ).first()
+
+        self.assertNotEqual(lic, None)
+        self.assertEqual(lic.amount, self.license.amount)
+        self.assertEqual(
+            lic.discount_percent,
+            self.license.discount_percent)
+        self.assertEqual(lic.discount_coupon, coupon)
+        self.assertEqual(lic.net_amount, max(
+            0, self.license.amount - coupon.discount_rs))
+        self.assertEqual(lic.type,
+                         self.license.type)
+        self.assertEqual(lic.billing,
+                         self.license.billing)
+        self.assertEqual(lic.storage,
+                         self.license.storage)
+        self.assertEqual(lic.no_of_admin,
+                         self.license.no_of_admin)
+        self.assertEqual(lic.no_of_staff,
+                         self.license.no_of_staff)
+        self.assertEqual(lic.no_of_faculty,
+                         self.license.no_of_faculty)
+        self.assertEqual(lic.no_of_student,
+                         self.license.no_of_student)
+        self.assertEqual(lic.video_call_max_attendees,
+                         self.license.video_call_max_attendees)
+        self.assertEqual(lic.classroom_limit,
+                         self.license.classroom_limit)
+        self.assertEqual(lic.department_limit,
+                         self.license.department_limit)
+        self.assertEqual(lic.subject_limit,
+                         self.license.subject_limit)
+        self.assertEqual(lic.scheduled_test,
+                         self.license.scheduled_test)
+        self.assertEqual(lic.discussion_forum,
+                         self.license.discussion_forum)
+        self.assertEqual(lic.LMS_exists,
+                         self.license.LMS_exists)
+
+        cpn = models.InstituteDiscountCoupon.objects.filter(
+            coupon_code=coupon.coupon_code
+        ).first()
+        self.assertFalse(cpn.active)
+
+    def test_pre_payment_processing_fails_no_discount_coupon_by_other_user(self):
+        """Test saving details before payment fails by other user"""
+        institute = create_institute(create_teacher())
 
         res = self.client.post(
-            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-            {'coupon_code': 'ADBSDF'}
+            INSTITUTE_SELECT_LICENSE_URL,
+            {
+                "institute_slug": institute.institute_slug,
+                "license_id": self.license.pk,
+                "coupon_code": ""
+            }
         )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_check_inactive_coupon_code_fails(self):
-        """Test inactive coupon code show error"""
+        lic = models.InstituteSelectedLicense.objects.filter(
+            institute=institute.pk
+        ).exists()
+        self.assertFalse(lic)
+
+    def test_pre_payment_processing_fails_invalid_institute_id(self):
+        """Test saving details before payment success by admin"""
         create_institute(self.user)
-        coupon = models.InstituteDiscountCoupon.objects.create(
-            user=self.superuser,
-            discount_rs=1000,
-            expiry_date=timezone.now() + datetime.timedelta(days=365)
-        )
-        coupon.active = False
-        coupon.save()
 
         res = self.client.post(
-            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-            {'coupon_code': coupon.coupon_code}
+            INSTITUTE_SELECT_LICENSE_URL,
+            {
+                "institute_slug": "abc-asd",
+                "license_id": self.license.pk,
+                "coupon_code": ""
+            }
         )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_check_expired_coupon_code_fails(self):
-        """Test invalid coupon code show error"""
-        create_institute(self.user)
-        coupon = models.InstituteDiscountCoupon.objects.create(
-            user=self.superuser,
-            discount_rs=1000,
-            expiry_date=timezone.now() - datetime.timedelta(days=365)
-        )
-
-        res = self.client.post(
-            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-            {'coupon_code': coupon.coupon_code}
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Invalid request.')

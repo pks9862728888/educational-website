@@ -634,7 +634,7 @@ class InstituteSelectedLicense(models.Model):
         super(InstituteSelectedLicense, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.institute.name
+        return str(self.institute)
 
 
 @receiver(post_save, sender=InstituteSelectedLicense)
