@@ -17,6 +17,7 @@ INSTITUTE_GET_SPECIFIC_LICENSE_URL = reverse("institute:institute-license-detail
 INSTITUTE_DISCOUNT_COUPON_CHECK_URL = reverse("institute:get-discount-coupon")
 INSTITUTE_SELECT_LICENSE_URL = reverse("institute:select-license")
 INSTITUTE_CREATE_ORDER_URL = reverse("institute:create-order")
+RAZORPAY_CALLBACK_URL = reverse("institute:razorpay-payment-callback")
 
 
 def create_institute(user, institute_name='tempinstitute'):
@@ -427,7 +428,9 @@ class AuthenticatedAdminTests(TestCase):
         self.assertEqual(res.data['amount'], self.payload['amount'])
         self.assertEqual(res.data['key_id'], os.environ.get('RAZORPAY_TEST_KEY_ID'))
         self.assertEqual(res.data['currency'], 'INR')
+        self.assertEqual(res.data['email'], str(self.user))
         self.assertNotEqual(res.data['order_id'], None)
+        self.assertIn('order_details_id', res.data)
 
         order = models.InstituteLicenseOrderDetails.objects.filter(
             institute=institute
@@ -439,6 +442,7 @@ class AuthenticatedAdminTests(TestCase):
         self.assertEqual(order.end_date, None)
         self.assertFalse(order.paid)
         self.assertFalse(order.active)
+        self.assertEqual(res.data['order_details_id'], order.pk)
 
     def test_create_order_fails_by_other_user(self):
         """Test that creating order fails by non admin"""
@@ -479,3 +483,48 @@ class AuthenticatedAdminTests(TestCase):
             institute=institute
         ).first()
         self.assertEqual(order, None)
+
+    def test_callback_url_post_success(self):
+        """Test that post data into callback url success"""
+        institute = create_institute(self.user)
+        lic = models.InstituteSelectedLicense.objects.create(
+            institute=institute,
+            type=self.payload['type'],
+            billing=self.payload['billing'],
+            amount=self.payload['amount'],
+            discount_percent=self.payload['discount_percent'],
+            storage=self.payload['storage'],
+            no_of_admin=self.payload['no_of_admin'],
+            no_of_staff=self.payload['no_of_staff'],
+            no_of_faculty=self.payload['no_of_faculty'],
+            no_of_student=self.payload['no_of_student'],
+            video_call_max_attendees=self.payload[
+                'video_call_max_attendees'],
+            classroom_limit=self.payload['classroom_limit'],
+            department_limit=self.payload['department_limit'],
+            subject_limit=self.payload['subject_limit'],
+            scheduled_test=self.payload['scheduled_test'],
+            LMS_exists=self.payload['LMS_exists'],
+            discussion_forum=self.payload['discussion_forum']
+        )
+        order = models.InstituteLicenseOrderDetails.objects.create(
+            institute=institute,
+            payment_gateway=models.PaymentGateway.RAZORPAY,
+            selected_license=lic
+        )
+        payload = {
+            'razorpay_order_id': 'order_FJksdhflkshfkshfs',
+            'razorpay_payment_id': 'pay_FJlsjdfkljslfjljf',
+            'razorpay_signature': 'lkkjslfjsljfsljfsljljs'
+        }
+        res = self.client.post(
+            RAZORPAY_CALLBACK_URL,
+            {
+                'razorpay_order_id': payload['razorpay_order_id'],
+                'razorpay_payment_id': payload['razorpay_payment_id'],
+                'razorpay_signature': payload['razorpay_signature'],
+                'order_details_id': order.pk
+            }
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'FAILURE')

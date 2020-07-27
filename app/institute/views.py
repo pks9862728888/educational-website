@@ -1,9 +1,9 @@
-import json
 import os
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.translation import ugettext as _
+from razorpay.errors import SignatureVerificationError
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -14,11 +14,13 @@ from rest_framework.generics import ListAPIView, CreateAPIView,\
 from rest_framework.response import Response
 
 from . import serializer
+from app.settings import client
 
 from core.models import Institute, InstituteRole,\
     InstitutePermission, InstituteLicense, Billing,\
     InstituteDiscountCoupon, InstituteSelectedLicense,\
-    InstituteLicenseOrderDetails, PaymentGateway
+    InstituteLicenseOrderDetails, PaymentGateway,\
+    RazorpayCallback
 
 
 class IsTeacher(permissions.BasePermission):
@@ -285,13 +287,17 @@ class InstituteCreateOrderView(APIView):
         if prev_order:
             if prev_order.payment_gateway != payment_gateway:
                 prev_order.payment_gateway = payment_gateway
+                # Generate order with new payment gateway
                 prev_order.save()
             return Response(
                 {'status': 'SUCCESS',
                  'amount': prev_order.amount,
                  'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
                  'currency': prev_order.currency,
-                 'order_id': prev_order.order_id},
+                 'order_id': prev_order.order_id,
+                 'order_details_id': prev_order.pk,
+                 'email': self.request.user,
+                 'type': prev_order.selected_license.type},
                 status=status.HTTP_201_CREATED)
 
         try:
@@ -306,13 +312,63 @@ class InstituteCreateOrderView(APIView):
                      'amount': order.amount,
                      'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
                      'currency': order.currency,
-                     'order_id': order.order_id},
+                     'order_id': order.order_id,
+                     'order_details_id': order.pk,
+                     'email': str(self.request.user),
+                     'type': order.selected_license.type},
                     status=status.HTTP_201_CREATED)
             else:
-                return Response({'error': _('Internal server error')},
+                return Response({'error': _('Internal server error.')},
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception:
-            return Response({'error': _('Internal server error')},
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RazorpayPaymentCallbackView(APIView):
+    """
+    View for storing payment callback data
+    and checking whether payment was successful
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        params_dict = {
+            'razorpay_order_id': request.data.get('razorpay_order_id'),
+            'razorpay_payment_id': request.data.get('razorpay_payment_id'),
+            'razorpay_signature': request.data.get('razorpay_signature')
+        }
+        order_details_id = request.data.get('order_details_id')
+
+        if not params_dict['razorpay_order_id'] and\
+                not params_dict['razorpay_payment_id'] and\
+                not params_dict['razorpay_signature'] and\
+                not order_details_id:
+            return Response({'error': _('Invalid fields. Contact support.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            callback_data = RazorpayCallback.objects.create(
+                razorpay_order_id=params_dict['razorpay_order_id'],
+                razorpay_payment_id=params_dict['razorpay_payment_id'],
+                razorpay_signature=params_dict['razorpay_signature'],
+                institute_license_order_details=InstituteLicenseOrderDetails.objects.filter(
+                    pk=order_details_id
+                ).first())
+
+            try:
+                res = client.utility.verify_payment_signature(params_dict)
+                if res:
+                    callback_data.institute_license_order_details.paid = True
+                    callback_data.save()
+                return Response({'status': _('SUCCESS')},
+                                status=status.HTTP_200_OK)
+            except SignatureVerificationError:
+                return Response({'status': _('FAILURE')},
+                                status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

@@ -5,7 +5,7 @@ import { TeacherMaterialWorkspaceModule } from './material.teacher.workspace.mod
 import { TeacherWorkspaceRoutingModule, teacherWorkspaceRoutingComponents } from './teacher-workspace-routing.module';
 import { CreateInstituteComponent } from './teacher-institute/create-institute/create-institute.component';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { ApiService } from '../api.service';
+import { ApiService } from '../services/api.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';

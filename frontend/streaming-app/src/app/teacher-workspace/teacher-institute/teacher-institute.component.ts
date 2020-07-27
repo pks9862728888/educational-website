@@ -6,7 +6,7 @@ import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MAT_SNACK_BAR_DATA, MatSnackBar } from '@angular/material/snack-bar';
-import { ApiService } from 'src/app/api.service';
+import { ApiService } from '../../services/api.service';
 
 interface TeacherInstitutesMinDetailInterface {
   id: number;

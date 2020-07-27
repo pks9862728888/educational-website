@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { baseUrl } from '../urls';
-import { HttpHeaders, HttpClient, HttpRequest } from '@angular/common/http';
+import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+import { baseUrl } from './../../urls';
 import { authTokenName } from 'src/constants';
+
 
 interface TeacherProfileEditDetails {
   username: string;
@@ -19,11 +20,13 @@ interface TeacherProfileEditDetails {
   };
 }
 
+
 interface SetProfilePictureData {
   id: string;
   class_profile_picture: boolean;
   public_profile_picture: boolean;
 }
+
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +35,7 @@ export class ApiService {
 
   // Urls for communicating with backend
   baseUrl = baseUrl;
-  baseUrlUser = `${baseUrl}user/`;
+  baseUrlUser = `${this.baseUrl}user/`;
   teacherProfileUrl = `${this.baseUrlUser}user-profile`;
   uploadProfilePictureUrl = `${this.baseUrlUser}upload-profile-picture`;
   deleteProfilePictureUrl = `${this.baseUrlUser}delete-profile-picture/`;

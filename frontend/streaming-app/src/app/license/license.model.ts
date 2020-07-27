@@ -41,4 +41,13 @@ export interface InstituteLicenceOrderCreatedResponse {
   key_id: string;
   currency: string;
   order_id: string;
+  order_details_id: string;
+  email: string;
+  type: string;
+}
+
+export interface PaymentSuccessCallbackResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
 }

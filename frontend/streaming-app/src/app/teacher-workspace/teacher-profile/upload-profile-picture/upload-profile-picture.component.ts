@@ -1,4 +1,4 @@
-import { ApiService } from './../../../api.service';
+import { ApiService } from '../../../services/api.service';
 import { Component, OnInit, Type, } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ImageCroppedEvent, base64ToFile } from 'ngx-image-cropper';

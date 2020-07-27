@@ -1,7 +1,9 @@
+import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
+import { WindowRefService } from './../../services/window-ref.service';
 import { PAYMENT_PORTAL_REVERSE } from './../../../constants';
 import { InstituteApiService } from 'src/app/institute-api.service';
 import { Component, OnInit } from '@angular/core';
-import { InstituteLicenceOrderCreatedResponse } from '../license.model';
+import { InstituteLicenceOrderCreatedResponse, PaymentSuccessCallbackResponse } from '../license.model';
 import { MediaMatcher } from '@angular/cdk/layout';
 
 @Component({
@@ -16,10 +18,12 @@ export class LicenseCheckoutComponent implements OnInit {
   currentInstituteSlug: string;
   selectedLicensePlanId: string;
   netPayableAmount: string;
+  orderDetailsId: string;
   showInitiatingPaymentIndicator: boolean;
 
   constructor( private media: MediaMatcher,
-               private instituteApiService: InstituteApiService ) {
+               private instituteApiService: InstituteApiService,
+               private windowRefService: WindowRefService ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.selectedLicensePlanId = sessionStorage.getItem('selectedLicensePlanId');
@@ -37,7 +41,8 @@ export class LicenseCheckoutComponent implements OnInit {
         (result: InstituteLicenceOrderCreatedResponse) => {
           this.showInitiatingPaymentIndicator = false;
           if (result.status === 'SUCCESS') {
-            console.log(result);
+            this.orderDetailsId = result.order_details_id;
+            this.payWithRazorpay(result);
           }
         },
         errors => {
@@ -53,6 +58,31 @@ export class LicenseCheckoutComponent implements OnInit {
           }
         }
       )
+  }
+
+  payWithRazorpay(data: InstituteLicenceOrderCreatedResponse) {
+    const options = {
+      "key": data.key_id,
+      "amount": data.amount,
+      "currency": data.currency,
+      "name": "Edu Web",
+      "description": "Institute " + INSTITUTE_LICENSE_PLANS[data.type].toLowerCase() + " license purchase.",
+      "image": "",
+      "order_id": data.order_id,
+      "handler": function (response: PaymentSuccessCallbackResponse){
+          console.log(response);
+      },
+      "prefill": {
+        "email": data.email
+      },
+      "notes": {},
+      "theme": {
+          "color": "#4CC5E4"
+      }
+    };
+
+    const rzpWindow = new this.windowRefService.nativeWindow.Razorpay(options);
+    rzpWindow.open();
   }
 
   hideCreateOrderError() {

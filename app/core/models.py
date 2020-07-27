@@ -712,7 +712,7 @@ def create_unique_receipt_id(sender, instance, *args, **kwargs):
         if instance.payment_gateway == PaymentGateway.RAZORPAY:
             order = settings.client.order.create(
                 data={
-                    'amount': float(instance.amount * 100),
+                    'amount': float(instance.amount) * 100,
                     'currency': instance.currency,
                     'receipt': instance.order_receipt,
                     'notes': {'institute': instance.institute.institute_slug,
@@ -720,6 +720,24 @@ def create_unique_receipt_id(sender, instance, *args, **kwargs):
                     'payment_capture': '1'
                 })
             instance.order_id = order['id']
+
+
+class RazorpayCallback(models.Model):
+    """Stores Razorpay callback credentials"""
+    razorpay_order_id = models.CharField(
+        _('Razorpay order id'), max_length=100,
+        blank=False, null=False)
+    razorpay_payment_id = models.CharField(
+        _('Razorpay payment id'), max_length=100,
+        blank=False, null=False)
+    razorpay_signature = models.CharField(
+        _('Razorpay signature'), max_length=150,
+        blank=False, null=False)
+    institute_license_order_details = models.ForeignKey(
+        InstituteLicenseOrderDetails,
+        on_delete=models.CASCADE,
+        blank=False, null=False,
+        related_name='institute_license_order_details')
 
 
 class ProfilePictures(models.Model):

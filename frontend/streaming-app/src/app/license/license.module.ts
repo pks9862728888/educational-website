@@ -6,6 +6,7 @@ import { LicenseMaterialWorkspaceModule } from './material.license.workspace.mod
 import { LicenseRoutingModule } from './license-routing.module';
 import { LicenseCheckoutComponent } from './license-checkout/license-checkout.component';
 import { LicenseReviewComponent } from './license-review/license-review.component';
+import { WindowRefService } from '../services/window-ref.service';
 
 
 @NgModule({
@@ -24,6 +25,7 @@ import { LicenseReviewComponent } from './license-review/license-review.componen
     LicenseComponent,
     LicenseCheckoutComponent,
     LicenseReviewComponent
-  ]
+  ],
+  providers: [WindowRefService]
 })
 export class LicenseModule { }

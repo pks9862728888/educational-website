@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Inject } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { ApiService } from '../../api.service';
+import { ApiService } from '../../services/api.service';
 import { GENDER, COUNTRY, LANGUAGE, LANGUAGE_REVERSE, GENDER_REVERSE, COUNTRY_REVERSE } from '../../../constants';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
