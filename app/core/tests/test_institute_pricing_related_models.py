@@ -9,7 +9,7 @@ from django.utils import timezone
 from core.models import InstituteLicense, InstituteLicensePlans,\
     Billing, DiscussionForumBar, InstituteDiscountCoupon, Institute,\
     InstituteCategory, InstituteType, InstituteSelectedLicense,\
-    InstituteLicenseOrderDetails
+    InstituteLicenseOrderDetails, PaymentGateway
 
 
 def create_user(email='abdfc@gmail.com', username='teampsdfuser'):
@@ -592,10 +592,52 @@ def create_institute(user, name='Temp Name ola'):
 #         """Test that order can be created successfully"""
 #         res = InstituteLicenseOrderDetails.objects.create(
 #             selected_license=self.sel_lic,
-#             institute=self.institute
+#             institute=self.institute,
+#             payment_gateway=PaymentGateway.RAZORPAY,
+#             currency='INR'
 #         )
 #         self.assertEqual(res.amount, self.sel_lic.net_amount)
 #         self.assertEqual(res.selected_license, self.sel_lic)
 #         self.assertTrue(len(res.order_receipt) > 0)
 #         self.assertEqual(res.institute, self.institute)
+#         self.assertEqual(res.payment_gateway, PaymentGateway.RAZORPAY)
+#         self.assertFalse(res.paid)
+#         self.assertFalse(res.active)
+#         self.assertEqual(res.start_date, None)
+#         self.assertEqual(res.end_date, None)
 #         self.assertTrue(len(res.order_id) > 0)
+#
+#     def test_payment_status_activation_success(self):
+#         """Test that payment status can be activated successfully"""
+#         res = InstituteLicenseOrderDetails.objects.create(
+#             selected_license=self.sel_lic,
+#             institute=self.institute,
+#             payment_gateway=PaymentGateway.RAZORPAY,
+#             currency='INR'
+#         )
+#         res.paid = True
+#         res.save()
+#
+#         self.assertTrue(res.paid)
+#
+#     def test_activate_order_success(self):
+#         """Test that payment status can be activated successfully"""
+#         res = InstituteLicenseOrderDetails.objects.create(
+#             selected_license=self.sel_lic,
+#             institute=self.institute,
+#             payment_gateway=PaymentGateway.RAZORPAY,
+#             currency='INR'
+#         )
+#         start_date = timezone.now()
+#         end_date = timezone.now() + datetime.timedelta(days=365)
+#         res.paid = True
+#         res.active = True
+#         res.start_date = start_date
+#         res.end_date = end_date
+#         res.save()
+#         res.refresh_from_db()
+#
+#         self.assertTrue(res.paid)
+#         self.assertTrue(res.active)
+#         self.assertEqual(res.start_date, start_date)
+#         self.assertEqual(res.end_date, end_date)

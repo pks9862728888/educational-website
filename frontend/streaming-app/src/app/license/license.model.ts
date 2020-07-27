@@ -29,7 +29,8 @@ export interface InstituteDiscountCouponDetailsResponse {
 }
 
 
-export interface InstitutePurchaseProcessInitializedResponse {
+export interface InstituteLicenseSelectedResponse {
   'status': string;
   'net_amount': string;
+  'selected_license_id': string;
 }

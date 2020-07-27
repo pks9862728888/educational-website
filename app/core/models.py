@@ -208,6 +208,14 @@ class DiscussionForumBar:
     ]
 
 
+class PaymentGateway:
+    RAZORPAY = 'R'
+
+    PAYMENT_GATEWAY_IN_PAYMENT_GATEWAYS = [
+        (RAZORPAY, _(u'RAZORPAY')),
+    ]
+
+
 def user_profile_picture_upload_file_path(instance, filename):
     """Generates file path for uploading images in user profile"""
     extension = filename.split('.')[-1]
@@ -672,8 +680,19 @@ class InstituteLicenseOrderDetails(models.Model):
     selected_license = models.OneToOneField(
         to='InstituteSelectedLicense', on_delete=models.SET_NULL,
         null=True)
-    created_on = models.DateTimeField(
+    payment_gateway = models.CharField(
+        _('Payment gateway'), max_length=1, null=False, blank=False,
+        choices=PaymentGateway.PAYMENT_GATEWAY_IN_PAYMENT_GATEWAYS)
+    active = models.BooleanField(
+        _('Active'), default=False, blank=True, null=False)
+    paid = models.BooleanField(
+        _('Paid'), default=False, blank=True, null=False)
+    order_created_on = models.DateTimeField(
         _('Order Created On'), default=timezone.now, editable=False)
+    start_date = models.DateTimeField(
+        _('License Start Date'), blank=True, null=True)
+    end_date = models.DateTimeField(
+        _('License Expiry Date'), blank=True, null=True)
 
     def __str__(self):
         return self.order_receipt
@@ -690,16 +709,17 @@ def create_unique_receipt_id(sender, instance, *args, **kwargs):
     if not instance.order_receipt:
         instance.order_receipt = create_order_receipt(instance)
     if not instance.order_id:
-        order = settings.client.order.create(
-            data={
-                'amount': float(instance.amount * 100),
-                'currency': instance.currency,
-                'receipt': instance.order_receipt,
-                'notes': {'institute': instance.institute.institute_slug,
-                          'selected_license': str(instance.selected_license)},
-                'payment_capture': '1'
-            })
-        instance.order_id = order['id']
+        if instance.payment_gateway == PaymentGateway.RAZORPAY:
+            order = settings.client.order.create(
+                data={
+                    'amount': float(instance.amount * 100),
+                    'currency': instance.currency,
+                    'receipt': instance.order_receipt,
+                    'notes': {'institute': instance.institute.institute_slug,
+                              'selected_license': str(instance.selected_license)},
+                    'payment_capture': '1'
+                })
+            instance.order_id = order['id']
 
 
 class ProfilePictures(models.Model):

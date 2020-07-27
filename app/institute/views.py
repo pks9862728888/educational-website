@@ -1,4 +1,6 @@
 import json
+import os
+
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.translation import ugettext as _
@@ -16,7 +18,7 @@ from . import serializer
 from core.models import Institute, InstituteRole,\
     InstitutePermission, InstituteLicense, Billing,\
     InstituteDiscountCoupon, InstituteSelectedLicense,\
-    InstituteLicenseOrderDetails
+    InstituteLicenseOrderDetails, PaymentGateway
 
 
 class IsTeacher(permissions.BasePermission):
@@ -138,7 +140,7 @@ class InstituteLicenseDetailView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
-class InstituteConfirmLicensePlan(APIView):
+class InstituteSelectLicenseView(APIView):
     """View for confirming institute license"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
@@ -171,7 +173,7 @@ class InstituteConfirmLicensePlan(APIView):
             active=True,
             role=InstituteRole.ADMIN
         ):
-            return Response({'error': _('Insufficient permission')},
+            return Response({'error': _('Insufficient permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
         coupon = None
         if coupon_code:
@@ -215,11 +217,9 @@ class InstituteConfirmLicensePlan(APIView):
                 discussion_forum=license_.discussion_forum
             )
             if sel_lic:
-                InstituteLicenseOrderDetails.objects.create(
-                    institute=institute,
-                    selected_license=sel_lic)
                 return Response({'status': _('SUCCESS'),
-                                 'net_amount': sel_lic.net_amount},
+                                 'net_amount': sel_lic.net_amount,
+                                 'selected_license_id': sel_lic.id},
                                 status=status.HTTP_200_OK)
             else:
                 return Response({'error': _('Internal server error.')},
@@ -227,6 +227,77 @@ class InstituteConfirmLicensePlan(APIView):
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteCreateOrderView(APIView):
+    """View for creating order"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        institute_slug = request.data.get('institute_slug')
+        license_id = request.data.get('license_id')
+        payment_gateway = request.data.get('payment_gateway')
+
+        errors = {}
+        if not institute_slug:
+            errors['institute_slug'] = _('This field is required.')
+        if not license_id:
+            errors['license_id'] = _('This field is required.')
+        if not payment_gateway:
+            errors['payment_gateway'] = _('This field is required.')
+
+        if errors:
+            return Response(
+                errors, status=status.HTTP_400_BAD_REQUEST)
+
+        institute = Institute.objects.filter(
+            institute_slug=institute_slug
+        ).first()
+        if not institute:
+            return Response({'error': _('Invalid request.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not InstitutePermission.objects.filter(
+                institute=institute.pk,
+                invitee=self.request.user.pk,
+                active=True,
+                role=InstituteRole.ADMIN
+        ):
+            return Response({'error': _('Insufficient permission.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        license_ = InstituteSelectedLicense.objects.filter(
+            pk=license_id
+        ).first()
+        if not license_:
+            return Response({'error': _('Selected license not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if payment_gateway != PaymentGateway.RAZORPAY:
+            return Response({'error': _('Payment gateway not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            order = InstituteLicenseOrderDetails.objects.create(
+                institute=institute,
+                payment_gateway=payment_gateway,
+                selected_license=license_
+            )
+            if order:
+                return Response(
+                    {'status': 'SUCCESS',
+                     'amount': order.amount,
+                     'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
+                     'currency': order.currency,
+                     'order_id': order.order_id},
+                    status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': _('Internal server error')},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response({'error': _('Internal server error')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class InstituteMinDetailsTeacherView(ListAPIView):

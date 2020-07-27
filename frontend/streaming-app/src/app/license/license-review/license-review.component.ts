@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { UNLIMITED, INSTITUTE_TYPE_REVERSE, DISCUSSION_FORUM_PER_ATTENDEES, BILLING_TERM, BILLING_TERM_REVERSE } from './../../../constants';
 import { InstituteApiService } from './../../institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { LicenseDetails, InstituteDiscountCouponDetailsResponse, InstitutePurchaseProcessInitializedResponse } from './../license.model';
+import { LicenseDetails, InstituteDiscountCouponDetailsResponse, InstituteLicenseSelectedResponse } from './../license.model';
 import { Component, OnInit } from '@angular/core';
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 
@@ -157,7 +157,7 @@ export class LicenseReviewComponent implements OnInit {
       this.selectedLicenseId,
       this.couponCode || ''
     ).subscribe(
-      (result: InstitutePurchaseProcessInitializedResponse) => {
+      (result: InstituteLicenseSelectedResponse) => {
         this.showPurchasingIndicator = false;
         if (result.status === 'SUCCESS') {
           sessionStorage.setItem('netPayableAmount', result.net_amount);

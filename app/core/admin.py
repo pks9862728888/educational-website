@@ -157,8 +157,11 @@ class CustomInstituteSelectedLicense(admin.ModelAdmin):
 
 class CustomInstituteLicenseOrderDetails(admin.ModelAdmin):
     model = models.InstituteLicenseOrderDetails
-    list_display = ['order_receipt', 'order_id', 'amount',
-                    'selected_license', 'created_on']
+    list_display = ['order_receipt', 'payment_gateway', 'amount',
+                    'selected_license', 'order_created_on',
+                    'paid', 'active', 'end_date']
+    list_filter = ('paid', 'active')
+    search_fields = ['order_receipt', 'order_id']
 
 
 class CustomInstituteProfile(admin.ModelAdmin):
