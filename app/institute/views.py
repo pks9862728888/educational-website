@@ -297,6 +297,7 @@ class InstituteCreateOrderView(APIView):
                  'order_id': prev_order.order_id,
                  'order_details_id': prev_order.pk,
                  'email': self.request.user,
+                 'contact': self.request.user.user_profile.phone,
                  'type': prev_order.selected_license.type},
                 status=status.HTTP_201_CREATED)
 
@@ -315,6 +316,7 @@ class InstituteCreateOrderView(APIView):
                      'order_id': order.order_id,
                      'order_details_id': order.pk,
                      'email': str(self.request.user),
+                     'contact': self.request.user.user_profile.phone,
                      'type': order.selected_license.type},
                     status=status.HTTP_201_CREATED)
             else:
@@ -360,8 +362,12 @@ class RazorpayPaymentCallbackView(APIView):
             try:
                 res = client.utility.verify_payment_signature(params_dict)
                 if res:
-                    callback_data.institute_license_order_details.paid = True
-                    callback_data.save()
+                    order = InstituteLicenseOrderDetails.objects.filter(
+                        pk=callback_data.institute_license_order_details.id
+                    ).first()
+                    order.paid = True
+                    order.payment_date = timezone.now()
+                    order.save()
                 return Response({'status': _('SUCCESS')},
                                 status=status.HTTP_200_OK)
             except SignatureVerificationError:

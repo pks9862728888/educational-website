@@ -689,6 +689,8 @@ class InstituteLicenseOrderDetails(models.Model):
         _('Paid'), default=False, blank=True, null=False)
     order_created_on = models.DateTimeField(
         _('Order Created On'), default=timezone.now, editable=False)
+    payment_date = models.DateTimeField(
+        _('Payment Date'), null=True, blank=True)
     start_date = models.DateTimeField(
         _('License Start Date'), blank=True, null=True)
     end_date = models.DateTimeField(

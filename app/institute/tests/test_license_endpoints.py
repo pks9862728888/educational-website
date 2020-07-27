@@ -429,6 +429,7 @@ class AuthenticatedAdminTests(TestCase):
         self.assertEqual(res.data['key_id'], os.environ.get('RAZORPAY_TEST_KEY_ID'))
         self.assertEqual(res.data['currency'], 'INR')
         self.assertEqual(res.data['email'], str(self.user))
+        self.assertEqual(res.data['contact'], None)
         self.assertNotEqual(res.data['order_id'], None)
         self.assertIn('order_details_id', res.data)
 

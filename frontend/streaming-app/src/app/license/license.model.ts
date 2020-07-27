@@ -51,3 +51,7 @@ export interface PaymentSuccessCallbackResponse {
   razorpay_order_id: string;
   razorpay_signature: string;
 }
+
+export interface PaymentVerificatonResponse {
+  status: string;
+}

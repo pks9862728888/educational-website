@@ -3,6 +3,7 @@ import { baseUrl } from './../urls';
 import { CookieService } from 'ngx-cookie-service';
 import { Injectable } from '@angular/core';
 import { authTokenName } from '../constants';
+import { PaymentSuccessCallbackResponse } from './license/license.model';
 
 interface FormDataInterface {
   name: string;
@@ -46,6 +47,7 @@ export class InstituteApiService {
   instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
   licenseSelectPlanUrl = `${this.instituteBaseUrl}select-license`;
   createLicensePurchaseOrderUrl = `${this.instituteBaseUrl}create-order`;
+  razorpayCallbackUrl = `${this.instituteBaseUrl}razorpay-payment-callback`;
 
   getInstituteDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}detail/${instituteSlug}`;
@@ -156,6 +158,20 @@ export class InstituteApiService {
         'institute_slug': instituteSlug,
         'payment_gateway': paymentGateway,
         'license_id': selectedLicensePlanId
+      },
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  // To send razorpay callback to server
+  sendCallbackAndVerifyPayment(data: PaymentSuccessCallbackResponse, order_details_id: string) {
+    return this.httpClient.post(
+      this.razorpayCallbackUrl,
+      {
+        'razorpay_order_id': data.razorpay_order_id,
+        'razorpay_payment_id': data.razorpay_payment_id,
+        'razorpay_signature': data.razorpay_signature,
+        'order_details_id': order_details_id
       },
       { headers: this.getAuthHeader() }
     );

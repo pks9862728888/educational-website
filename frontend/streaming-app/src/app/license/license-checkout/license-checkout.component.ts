@@ -1,9 +1,12 @@
+import { PaymentSuccessCallbackResponse } from './../license.model';
+import { CookieService } from 'ngx-cookie-service';
+import { HttpClient } from '@angular/common/http';
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 import { WindowRefService } from './../../services/window-ref.service';
 import { PAYMENT_PORTAL_REVERSE } from './../../../constants';
 import { InstituteApiService } from 'src/app/institute-api.service';
 import { Component, OnInit } from '@angular/core';
-import { InstituteLicenceOrderCreatedResponse, PaymentSuccessCallbackResponse } from '../license.model';
+import { InstituteLicenceOrderCreatedResponse, PaymentSuccessCallbackResponse, PaymentVerificatonResponse } from '../license.model';
 import { MediaMatcher } from '@angular/cdk/layout';
 
 @Component({
@@ -20,6 +23,8 @@ export class LicenseCheckoutComponent implements OnInit {
   netPayableAmount: string;
   orderDetailsId: string;
   showInitiatingPaymentIndicator: boolean;
+  ref = this;
+  paymentSuccessCallbackResponse: PaymentSuccessCallbackResponse
 
   constructor( private media: MediaMatcher,
                private instituteApiService: InstituteApiService,
@@ -42,7 +47,7 @@ export class LicenseCheckoutComponent implements OnInit {
           this.showInitiatingPaymentIndicator = false;
           if (result.status === 'SUCCESS') {
             this.orderDetailsId = result.order_details_id;
-            this.payWithRazorpay(result);
+            this.payWithRazorpay(result, this.ref);
           }
         },
         errors => {
@@ -60,7 +65,19 @@ export class LicenseCheckoutComponent implements OnInit {
       )
   }
 
-  payWithRazorpay(data: InstituteLicenceOrderCreatedResponse) {
+  razorpayCallbackFunction(response: PaymentSuccessCallbackResponse) {
+    this.instituteApiService.sendCallbackAndVerifyPayment(response, this.orderDetailsId).subscribe(
+      (result: PaymentVerificatonResponse) => {
+        if (result.status === 'SUCCESS') {
+          console.log(result.status);
+        } else {
+          console.log(result.status);
+        }
+      }
+    )
+  }
+
+  payWithRazorpay(data: InstituteLicenceOrderCreatedResponse, ref: any) {
     const options = {
       "key": data.key_id,
       "amount": data.amount,
@@ -69,8 +86,9 @@ export class LicenseCheckoutComponent implements OnInit {
       "description": "Institute " + INSTITUTE_LICENSE_PLANS[data.type].toLowerCase() + " license purchase.",
       "image": "",
       "order_id": data.order_id,
-      "handler": function (response: PaymentSuccessCallbackResponse){
-          console.log(response);
+      "handler": function(response: PaymentSuccessCallbackResponse){
+        ref.paymentSuccessCallbackResponse = response;
+        ref.razorpayCallbackFunction(response);
       },
       "prefill": {
         "email": data.email
