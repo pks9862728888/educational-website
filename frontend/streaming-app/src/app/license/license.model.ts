@@ -43,6 +43,7 @@ export interface InstituteLicenceOrderCreatedResponse {
   order_id: string;
   order_details_id: string;
   email: string;
+  contact: string;
   type: string;
 }
 

@@ -1,6 +1,3 @@
-import { PaymentSuccessCallbackResponse } from './../license.model';
-import { CookieService } from 'ngx-cookie-service';
-import { HttpClient } from '@angular/common/http';
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 import { WindowRefService } from './../../services/window-ref.service';
 import { PAYMENT_PORTAL_REVERSE } from './../../../constants';
@@ -23,8 +20,8 @@ export class LicenseCheckoutComponent implements OnInit {
   netPayableAmount: string;
   orderDetailsId: string;
   showInitiatingPaymentIndicator: boolean;
+  paymentSuccessCallbackResponse: PaymentSuccessCallbackResponse;
   ref = this;
-  paymentSuccessCallbackResponse: PaymentSuccessCallbackResponse
 
   constructor( private media: MediaMatcher,
                private instituteApiService: InstituteApiService,
@@ -39,6 +36,7 @@ export class LicenseCheckoutComponent implements OnInit {
 
   createOrder(paymentPortalName: string) {
     this.showInitiatingPaymentIndicator = true;
+    this.createOrderError = null;
     this.instituteApiService.createOrder(
       this.currentInstituteSlug,
       this.selectedLicensePlanId,
@@ -83,7 +81,7 @@ export class LicenseCheckoutComponent implements OnInit {
       "amount": data.amount,
       "currency": data.currency,
       "name": "Edu Web",
-      "description": "Institute " + INSTITUTE_LICENSE_PLANS[data.type].toLowerCase() + " license purchase.",
+      "description": "Purchasing institute " + INSTITUTE_LICENSE_PLANS[data.type].toLowerCase() + " license.",
       "image": "",
       "order_id": data.order_id,
       "handler": function(response: PaymentSuccessCallbackResponse){
@@ -91,7 +89,8 @@ export class LicenseCheckoutComponent implements OnInit {
         ref.razorpayCallbackFunction(response);
       },
       "prefill": {
-        "email": data.email
+        "email": data.email,
+        "contact": data.contact || ''
       },
       "notes": {},
       "theme": {
