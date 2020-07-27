@@ -161,6 +161,7 @@ export class LicenseReviewComponent implements OnInit {
         this.showPurchasingIndicator = false;
         if (result.status === 'SUCCESS') {
           sessionStorage.setItem('netPayableAmount', result.net_amount);
+          sessionStorage.setItem('selectedLicensePlanId', result.selected_license_id);
           this.navigateToWorkspace('/license/checkout');
         }
       },

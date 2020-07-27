@@ -23,7 +23,6 @@ interface ServerResponse {
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-
   loginForm: FormGroup;
 
   // For showing error
@@ -35,13 +34,7 @@ export class LoginComponent implements OnInit {
   constructor( private formBuilder: FormBuilder,
                private authService: AuthService,
                private cookieService: CookieService,
-               private router: Router ) {
-
-    // If auth token is already saved then skipping login step
-    if (this.cookieService.get(authTokenName)) {
-      this.redirectToAppropriateWorkspace();
-    }
-  }
+               private router: Router ) {}
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
@@ -66,17 +59,13 @@ export class LoginComponent implements OnInit {
         sessionStorage.setItem('is_student', result.is_student);
         sessionStorage.setItem('is_staff', result.is_staff);
         sessionStorage.setItem('is_active', result.is_active);
-
-        // Sending logged in status as broadcast
-        this.authService.sendLoggedInStatusSignal(true);
-
         this.redirectToAppropriateWorkspace();
       },
       error => {
         if (error.error.non_field_errors) {
           this.errorText = error.error.non_field_errors[0];
           this.signUpHint = true;
-        } else {}
+        }
       }
     );
   }
@@ -88,7 +77,7 @@ export class LoginComponent implements OnInit {
 
   // To redirect to appropriate workspace
   redirectToAppropriateWorkspace() {
-    // Rendering appropriate workspace
+    this.authService.sendLoggedInStatusSignal(true);
     if (sessionStorage.getItem('is_student') === JSON.stringify(true)) {
       this.router.navigate(['/student-workspace']);
     } else if (sessionStorage.getItem('is_teacher') === JSON.stringify(true)) {

@@ -44,7 +44,8 @@ export class InstituteApiService {
   instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
   instituteSelectedLicenseDetail = `${this.instituteBaseUrl}institute-license-detail`;
   instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
-  licensePurchaseOrderUrl = `${this.instituteBaseUrl}create-license-purchase-order`;
+  licenseSelectPlanUrl = `${this.instituteBaseUrl}select-license`;
+  createLicensePurchaseOrderUrl = `${this.instituteBaseUrl}create-order`;
 
   getInstituteDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}detail/${instituteSlug}`;
@@ -125,7 +126,7 @@ export class InstituteApiService {
     return this.httpClient.post(
       this.instituteSelectedLicenseDetail,
       {'id': id},
-      {headers: this.getAuthHeader()}
+      { headers: this.getAuthHeader() }
     );
   }
 
@@ -133,17 +134,30 @@ export class InstituteApiService {
   getDiscountCouponDetails(couponCode: string) {
     return this.httpClient.post(
       this.instituteDiscountCouponDetailUrl,
-      {'coupon_code': couponCode},
-      {headers: this.getAuthHeader()}
+      { 'coupon_code': couponCode },
+      { headers: this.getAuthHeader() }
     );
   }
 
   // To initiate purchase request
   purchase(institute_slug: string, license_id: string, coupon_code: string) {
     return this.httpClient.post(
-      this.licensePurchaseOrderUrl,
-      {'institute_slug': institute_slug, 'license_id': license_id, 'coupon_code': coupon_code},
-      {headers: this.getAuthHeader()}
+      this.licenseSelectPlanUrl,
+      { 'institute_slug': institute_slug, 'license_id': license_id, 'coupon_code': coupon_code },
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  // To create order for license purchase
+  createOrder(instituteSlug: string, selectedLicensePlanId: string, paymentGateway: string) {
+    return this.httpClient.post(
+      this.createLicensePurchaseOrderUrl,
+      {
+        'institute_slug': instituteSlug,
+        'payment_gateway': paymentGateway,
+        'license_id': selectedLicensePlanId
+      },
+      { headers: this.getAuthHeader() }
     );
   }
 

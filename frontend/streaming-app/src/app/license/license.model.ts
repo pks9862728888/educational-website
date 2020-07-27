@@ -34,3 +34,11 @@ export interface InstituteLicenseSelectedResponse {
   'net_amount': string;
   'selected_license_id': string;
 }
+
+export interface InstituteLicenceOrderCreatedResponse {
+  status: string;
+  amount: number;
+  key_id: string;
+  currency: string;
+  order_id: string;
+}

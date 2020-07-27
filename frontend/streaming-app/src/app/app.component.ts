@@ -58,7 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Subscribing to know user logged in status
     this.loggedInStatusSubscription = this.authService.userLoggedInSignalSource$.subscribe(
-      status => {
+      (status: boolean) => {
         if (status === true ) {
           this.showLogoutButton = true;
           this.showLoginSignUpButton = false;
@@ -87,7 +87,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   getWorkSpaceRoute() {
-    // Rendering appropriate workspace
     if (sessionStorage.getItem('is_student') === JSON.stringify(true)) {
       return ['/student-workspace'];
     } else if (sessionStorage.getItem('is_teacher') === JSON.stringify(true)) {

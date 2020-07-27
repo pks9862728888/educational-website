@@ -1,0 +1,73 @@
+.row,
+.col-12,
+h2,
+h3,
+p,
+hr {
+    margin: 0;
+    padding: 0;
+    word-wrap: break-word;
+}
+
+.parent-container {
+    background-color: #3b3b3b;
+    color: #bdbdbd;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.top-separator {
+    background-color: #6c757d;
+    margin-bottom: 0.7rem;
+}
+
+.payment-portals {
+    margin: 0.7rem 0;
+}
+
+.error-text {
+    padding: 0.2rem 0.7rem;
+    margin-top: 0.5rem;
+}
+
+.highlight-icon {
+    color: rgb(187, 134, 252);
+    cursor: pointer;
+    padding-top: 0.2rem;
+}
+
+.coupon-error-text {
+    padding-top: 0.1rem;
+}
+
+.wait-line-height {
+    line-height: 30px;
+}
+
+.full-width-button {
+    width: 100%;
+}
+
+.green-button:disabled {
+    background-color: #008000;
+    color: #ffffff;
+    opacity: 0.3;
+    cursor: progress;
+}
+
+::ng-deep.mat-progress-spinner circle,
+.mat-spinner circle {
+    stroke: #f2aa4cff !important;
+}
+
+.progress-indicator {
+    display: flex;
+    margin-top: 0.7rem;
+}
+
+.margin-right-05 {
+    margin-right: 0.5rem;
+}

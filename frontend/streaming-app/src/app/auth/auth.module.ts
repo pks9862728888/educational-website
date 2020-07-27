@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { authRoutingComponents, AuthRoutingModule } from './auth-routing.module';
 import { AuthMaterialModule } from './material.auth.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AuthService } from '../auth.service';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { AuthService } from '../auth.service';
 
 
 @NgModule({

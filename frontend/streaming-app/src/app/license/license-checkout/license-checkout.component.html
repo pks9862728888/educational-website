@@ -1,1 +1,27 @@
-<p>license-checkout works!</p>
+<section>
+    <mat-card class="parent-container">
+        <h3><strong>Choose Payment Portal:</strong></h3>
+        <hr class="top-separator">
+        <h3 *ngIf="!mobileQuery.matches">Choose to make payment of &#8377; {{ netPayableAmount | number}}</h3>
+        <p *ngIf="mobileQuery.matches">Choose to make payment of &#8377; {{ netPayableAmount | number}}</p>
+        <div *ngIf="showInitiatingPaymentIndicator" class="progress-indicator">
+            <mat-spinner mode="indeterminate" [diameter]="30" class="margin-right-05"></mat-spinner>
+            <h3 class="wait-line-height">Creating order...</h3>&nbsp;
+        </div>
+        <div class="row" *ngIf="createOrderError">
+            <div class="col-12 error-text">
+                <div class="d-flex justify-content-between">
+                    <h3 class="coupon-error-text">{{ createOrderError }}</h3>
+                    <div>
+                        <mat-icon class="highlight-icon" (click)="hideCreateOrderError()">highlight_off</mat-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="payment-portals">
+            <button [disabled]="showInitiatingPaymentIndicator" mat-flat-button class="green-button" [ngClass]="{'full-width-button': mobileQuery.matches}" (click)="createOrder('RAZORPAY')" aria-label="Pay with Razorpay (recommended)">
+              Pay With Razorpay<span *ngIf="!mobileQuery.matches"> Payment Portal</span> (recommended)
+            </button>
+        </div>
+    </mat-card>
+</section>

@@ -159,7 +159,7 @@ export const INSTITUTE_TYPE = {
   SC: 'School',
   CO: 'College',
   CC: 'Coaching',
-}
+};
 
 export const INSTITUTE_TYPE_REVERSE = {
   School: 'SC',
@@ -189,7 +189,7 @@ export const INSTITUTE_ROLE_REVERSE = {
 export const BILLING_TERM = {
   M: 'MONTHLY',
   A: 'ANNUALLY'
-}
+};
 
 export const BILLING_TERM_REVERSE = {
   MONTHLY: 'M',
@@ -200,15 +200,23 @@ export const INSTITUTE_LICENSE_PLANS = {
   BAS: 'BASIC',
   BUS: 'BUSINESS',
   ENT: 'ENTERPRISE'
-}
+};
 
 export const INSTITUTE_LICENSE_PLANS_REVERSE = {
   BASIC: 'BAS',
   BUSINESS: 'BUS',
   ENTERPRISE: 'ENT'
-}
+};
 
 export const DISCUSSION_FORUM_PER_ATTENDEES = {
   O: '1 per subject',
   S: 'Custom'
-}
+};
+
+export const PAYMENT_PORTAL = {
+  R: 'RAZORPAY',
+};
+
+export const PAYMENT_PORTAL_REVERSE = {
+  RAZORPAY: 'R'
+};

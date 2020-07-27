@@ -278,6 +278,22 @@ class InstituteCreateOrderView(APIView):
             return Response({'error': _('Payment gateway not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        prev_order = InstituteLicenseOrderDetails.objects.filter(
+            institute=institute,
+            selected_license=license_
+        ).first()
+        if prev_order:
+            if prev_order.payment_gateway != payment_gateway:
+                prev_order.payment_gateway = payment_gateway
+                prev_order.save()
+            return Response(
+                {'status': 'SUCCESS',
+                 'amount': prev_order.amount,
+                 'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
+                 'currency': prev_order.currency,
+                 'order_id': prev_order.order_id},
+                status=status.HTTP_201_CREATED)
+
         try:
             order = InstituteLicenseOrderDetails.objects.create(
                 institute=institute,

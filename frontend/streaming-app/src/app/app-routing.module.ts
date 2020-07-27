@@ -2,9 +2,12 @@ import { AuthModule } from './auth/auth.module';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { SignUpLoginGuard,StudentWorkspaceGuard, TeacherWorkspaceGuard,
+import { StudentWorkspaceGuard, TeacherWorkspaceGuard,
          StaffWorkspaceGuard, SchoolWorkspaceGuard, CollegeWorkspaceGuard,
          CoachingWorkspaceGuard } from './auth/auth.guard';
+import { LoginComponent } from './auth/login/login.component';
+import { SignupComponent } from './auth/signup/signup.component';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 
 
 const routes: Routes = [
@@ -12,8 +15,11 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent },
   {
     path: 'auth',
-    loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
-    canLoad: [SignUpLoginGuard]
+    children: [
+      { path: 'login', component: LoginComponent },
+      { path: 'signUp', component: SignupComponent },
+      { path: 'forgot-password', component: ForgotPasswordComponent },
+    ]
   },
   { path: 'teacher-workspace',
     loadChildren: () => import('./teacher-workspace/teacher-workspace.module').then(m => m.TeacherWorkspaceModule),
@@ -74,7 +80,7 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
   providers: [
-    SignUpLoginGuard,
+    // SignUpLoginGuard,
     TeacherWorkspaceGuard,
     StudentWorkspaceGuard,
     StaffWorkspaceGuard,

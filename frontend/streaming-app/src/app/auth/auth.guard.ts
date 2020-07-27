@@ -6,19 +6,19 @@ import { Injectable } from '@angular/core';
 import { Route } from '@angular/compiler/src/core';
 
 
-@Injectable()
-export class SignUpLoginGuard implements CanLoad {
+// @Injectable()
+// export class SignUpLoginGuard implements CanLoad {
 
-  constructor( private cookieService: CookieService,
-               private authService: AuthService ) {}
+//   constructor( private cookieService: CookieService,
+//                private authService: AuthService ) {}
 
-  canLoad(route: Route) {
-      if (this.cookieService.get(authTokenName)) {
-        this.authService.logout();
-      }
-      return true;
-  }
-}
+//   canLoad(route: Route) {
+//       if (this.cookieService.get(authTokenName)) {
+//         this.authService.logout();
+//       }
+//       return true;
+//   }
+// }
 
 
 @Injectable()
