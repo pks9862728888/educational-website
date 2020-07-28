@@ -8,6 +8,7 @@ import { NgModule } from '@angular/core';
 import { LicenseComponent } from '../license/license.component';
 import { LicenseCheckoutComponent } from '../license/license-checkout/license-checkout.component';
 import { LicenseReviewComponent } from './../license/license-review/license-review.component';
+import { PurchaseLicenseComponent } from '../license/purchase-license/purchase-license.component';
 
 
 const routes: Routes = [
@@ -19,6 +20,7 @@ const routes: Routes = [
       { path: ':name/permissions', component: SchoolPermissionsComponent },
       { path: ':name/classes', component: SchoolClassesComponent },
       { path: ':name/license', component: LicenseComponent },
+      { path: ':name/license/purchase', component: PurchaseLicenseComponent },
       { path: ':name/license/review', component: LicenseReviewComponent, canActivate: [LicenseReviewGuard]},
       { path: ':name/license/checkout', component: LicenseCheckoutComponent }
     ],

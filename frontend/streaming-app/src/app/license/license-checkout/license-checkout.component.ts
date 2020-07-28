@@ -1,10 +1,11 @@
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 import { WindowRefService } from './../../services/window-ref.service';
-import { PAYMENT_PORTAL_REVERSE } from './../../../constants';
+import { PAYMENT_PORTAL_REVERSE, INSTITUTE_TYPE_REVERSE } from './../../../constants';
 import { InstituteApiService } from 'src/app/institute-api.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { InstituteLicenceOrderCreatedResponse, PaymentSuccessCallbackResponse, PaymentVerificatonResponse } from '../license.model';
 import { MediaMatcher } from '@angular/cdk/layout';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-license-checkout',
@@ -14,65 +15,99 @@ import { MediaMatcher } from '@angular/cdk/layout';
 export class LicenseCheckoutComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
-  createOrderError: string;
   currentInstituteSlug: string;
+  currentInstituteType: string;
+  errorText: string;
+  successText: string;
   selectedLicensePlanId: string;
   netPayableAmount: string;
   orderDetailsId: string;
-  showInitiatingPaymentIndicator: boolean;
+  paymentPortalName: string;
+  initiatingPaymentIndicator: boolean;
   paymentSuccessCallbackResponse: PaymentSuccessCallbackResponse;
+  verifyPaymentIndicator: boolean;
+  paymentComplete: boolean;
+  retryVerification: boolean;
   ref = this;
 
   constructor( private media: MediaMatcher,
+               private router: Router,
                private instituteApiService: InstituteApiService,
-               private windowRefService: WindowRefService ) {
+               private windowRefService: WindowRefService,
+               private ngZone: NgZone ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
+    this.currentInstituteType = sessionStorage.getItem('currentInstituteType');
     this.selectedLicensePlanId = sessionStorage.getItem('selectedLicensePlanId');
     this.netPayableAmount = sessionStorage.getItem('netPayableAmount');
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (sessionStorage.getItem('paymentComplete')) {
+      sessionStorage.removeItem('paymentComplete');
+      this.redirectToLicenseView();
+    }
+  }
 
   createOrder(paymentPortalName: string) {
-    this.showInitiatingPaymentIndicator = true;
-    this.createOrderError = null;
+    this.paymentPortalName = paymentPortalName;
+    this.initiatingPaymentIndicator = true;
+    this.errorText = null;
     this.instituteApiService.createOrder(
       this.currentInstituteSlug,
       this.selectedLicensePlanId,
       PAYMENT_PORTAL_REVERSE[paymentPortalName]).subscribe(
         (result: InstituteLicenceOrderCreatedResponse) => {
-          this.showInitiatingPaymentIndicator = false;
+          this.initiatingPaymentIndicator = false;
           if (result.status === 'SUCCESS') {
             this.orderDetailsId = result.order_details_id;
             this.payWithRazorpay(result, this.ref);
           }
         },
         errors => {
-          this.showInitiatingPaymentIndicator = false;
+          this.initiatingPaymentIndicator = false;
           if (errors.error) {
             if (errors.error.error) {
-              this.createOrderError = errors.error.error;
+              this.errorText = errors.error.error;
             } else {
-              this.createOrderError = 'Unable to process request. Please try again after sometime.';
+              this.errorText = 'Unable to process request. Please try again after sometime.';
             }
           } else {
-            this.createOrderError = 'Unable to process request. Check internet connectivity.';
+            this.errorText = 'Unable to process request. Check internet connectivity.';
           }
         }
       )
   }
 
   razorpayCallbackFunction(response: PaymentSuccessCallbackResponse) {
-    this.instituteApiService.sendCallbackAndVerifyPayment(response, this.orderDetailsId).subscribe(
-      (result: PaymentVerificatonResponse) => {
-        if (result.status === 'SUCCESS') {
-          console.log(result.status);
-        } else {
-          console.log(result.status);
+    this.ngZone.run(() => {
+      this.paymentComplete = true;
+      this.verifyPaymentIndicator = true;
+      this.errorText = null;
+      this.successText = null;
+      this.retryVerification = false;
+      this.instituteApiService.sendCallbackAndVerifyPayment(response, this.orderDetailsId).subscribe(
+        (result: PaymentVerificatonResponse) => {
+          this.verifyPaymentIndicator = false;
+          if (result.status === 'SUCCESS') {
+            this.successText = 'Payment is successful. Redirecting...';
+            setTimeout(() => {
+              this.ngZone.run(() => this.redirectToLicenseView());
+            }, 3000);
+          } else {
+            this.errorText = 'Payment verification failed. You can retry payment if money was not deducted. If money was deducted please let us know.';
+          }
+        },
+        errors => {
+          this.verifyPaymentIndicator = false;
+          if (errors.error) {
+            this.errorText = errors.error;
+          }
+          this.errorText = 'Payment verification error. If payment was successful, then we will verify it automatically after sometime.'
+          this.retryVerification = true;
         }
-      }
-    )
+      )
+    });
   }
 
   payWithRazorpay(data: InstituteLicenceOrderCreatedResponse, ref: any) {
@@ -86,6 +121,7 @@ export class LicenseCheckoutComponent implements OnInit {
       "order_id": data.order_id,
       "handler": function(response: PaymentSuccessCallbackResponse){
         ref.paymentSuccessCallbackResponse = response;
+        sessionStorage.setItem('paymentComplete', 'true');
         ref.razorpayCallbackFunction(response);
       },
       "prefill": {
@@ -102,8 +138,23 @@ export class LicenseCheckoutComponent implements OnInit {
     rzpWindow.open();
   }
 
-  hideCreateOrderError() {
-    this.createOrderError = null;
+  redirectToLicenseView() {
+    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['School']) {
+      this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + '/license']);
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['College']) {
+      this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + '/license']);
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['Coaching']) {
+      this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + '/license']);
+    }
   }
 
+  retryVerificationClicked() {
+    if (this.paymentPortalName === 'RAZORPAY') {
+      this.razorpayCallbackFunction(this.paymentSuccessCallbackResponse);
+    }
+  }
+
+  hideErrorText() {
+    this.errorText = null;
+  }
 }

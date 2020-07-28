@@ -25,7 +25,7 @@ import { AuthService } from './auth.service';
     MaterialModule,
     HttpClientModule,
     HomeModule,
-    AuthModule
+    AuthModule,
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

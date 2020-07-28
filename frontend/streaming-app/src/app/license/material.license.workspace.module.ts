@@ -1,3 +1,4 @@
+import { MatExpansionModule } from '@angular/material/expansion';
 import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,13 +11,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         MatButtonModule,
         MatIconModule,
         MatCardModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatExpansionModule
     ],
     exports: [
         MatButtonModule,
         MatIconModule,
         MatCardModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        MatExpansionModule
     ]
 })
 export class LicenseMaterialWorkspaceModule { }

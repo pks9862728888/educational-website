@@ -1,218 +1,89 @@
 .row,
 .col,
 .col-12,
-.col-md-4,
 h2,
 h3,
-p {
-    margin: 0px;
-    padding: 0px;
-}
-
-button:focus,
-button:active:focus,
-button.active:focus {
-    outline: none !important;
-    outline-style: none !important;
-}
-
-.heading {
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.parent-container {
-    background-color: #3b3b3b;
-    color: #bdbdbd;
-    user-select: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
-.width-100 {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1rem;
-}
-
-.billing-term {
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    color: #fff;
-    box-shadow: 0px 1px 1px #061616;
-}
-
-.monthly {
-    border: 1px solid rgba(58, 236, 234, 1);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    border-right: 0;
-}
-
-.yearly {
-    border: 1px solid rgba(58, 236, 234, 1);
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    border-left: 0;
-}
-
-.active-term {
-    background-color: rgba(58, 236, 234, 0.9);
-    color: #000;
-    cursor: default;
-}
-
-.billing-term:hover:not(.active-term) {
-    background-color: rgba(58, 236, 234, 0.5);
-    border: 2px;
-}
-
-
-/* Designing plan container */
-
-.striked-text {
-    color: red;
-}
-
-.strike-color {
-    color: #000;
-    text-decoration: line-through;
-}
-
-.current-price {
-    color: #1d1d1d;
-}
-
-.plan-container {
-    width: 85%;
-}
-
-.choose-plan-container {
+p,
+hr {
+    margin: 0;
     padding: 0;
-    margin-top: 3rem;
-    margin-bottom: 2rem;
-    box-shadow: 1px 1px 1px #a0a0a0;
-}
-
-.choose-plan-active-container {
-    padding-bottom: 1.5rem;
-    background-color: #e6e6e6;
-}
-
-.choose-plan-active-container,
-.choose-plan-container:hover {
-    border: 3px solid #f8a306;
-}
-
-.active-container {
-    padding: 2rem 1rem 3rem 1rem;
-}
-
-.inactive-container {
-    padding: 1rem;
-}
-
-.icon-circle {
-    background-color: #fff;
-    border-radius: 50%;
-    overflow: hidden;
-    height: 4.5rem;
-    width: 4.5rem;
-    border: 3px solid #f8a306;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform: translateY(-50%);
-    position: absolute;
-    z-index: 1;
-    box-shadow: 0 1px 3px #fff;
-}
-
-.plan-icon {
-    height: 2.5rem;
-    width: 2.5rem;
-    font-size: 2.5rem;
-    color: #f8a306;
-}
-
-.header-background-color {
-    background-color: rgba(58, 236, 234, 1);
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-}
-
-.header-background-color:hover {
-    background-color: rgb(57, 214, 212);
-}
-
-.icon-circle-active {
-    transform: translateY(-100%);
-}
-
-.main-content-plan-inactive {
-    padding: 3rem 1rem 1.5rem 1rem;
-}
-
-.main-content-plan-active {
-    padding-top: 1rem;
-}
-
-.features-deactivated {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-.features-activated {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-.features {
-    padding-top: 0.7rem;
-    padding-bottom: 0.7rem;
-    border-bottom: 1px dotted #494949;
-    background-color: #e6e6e6;
-    color: rgb(6, 32, 53);
     word-wrap: break-word;
 }
 
-.last-child {
-    border-bottom: none;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+::ng-deep.mat-progress-spinner circle,
+.mat-spinner circle {
+    stroke: #f2aa4cff !important;
 }
 
-.rounded-button {
-    border-radius: 25px;
-    margin-top: 0.5rem;
+.loading {
+    height: calc(100vh / 2);
+    display: flex;
+    align-items: center;
 }
 
-.center {
+.width-100 {
+    width: 100%;
+}
+
+.progress-spinner-center {
+    display: flex;
     justify-content: center;
+    padding-bottom: 1rem;
 }
 
-.license-name {
-    color: #1d1d1d;
+
+/* Styling expansion panel */
+
+.mat-expansion-panel {
+    background-color: #303030;
+    box-shadow: 0 1px 1px #4b4b4b;
+    margin-bottom: 0.7rem;
 }
 
-.price {
-    font-size: large;
+.mat-expansion-panel-header {
+    border-radius: 10px;
 }
 
-.margin-bottom-1 {
-    margin-bottom: 1rem;
+.mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
+    background-color: #292929;
+    color: #c5c5c5;
 }
 
-@media screen and (max-width: 991.98px) {
-    .plan-container {
-        width: 100%;
-    }
+::ng-deep .mat-expansion-indicator::after {
+    color: #bdbdbd;
 }
 
-@media screen and (max-width: 768px) {
-    .choose-plan-active-container {
-        padding-bottom: 0;
-    }
+.license-icon,
+.header-color {
+    color: #bdbdbd;
+}
+
+.invite-top-separator,
+.invite-bottom-separator {
+    background-color: #6c757d;
+}
+
+.invite-top-separator {
+    margin-bottom: 0.5rem;
+}
+
+.invite-bottom-separator {
+    margin: 0.5rem 0;
+}
+
+.invite-details {
+    padding: 0.3rem 0;
+    color: #bdbdbd;
+}
+
+.top-separator {
+    margin-bottom: 0.7rem;
+}
+
+.margin-bottom-03 {
+    margin-bottom: 0.3rem;
+}
+
+.margin-bottom-07 {
+    margin-bottom: 0.7rem;
 }

@@ -1,3 +1,4 @@
+import { SharedModule } from './../shared/shared.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SchoolMaterialWorkspaceModule } from './material.school.workspace.module';
@@ -24,7 +25,8 @@ import { WindowRefService } from './../services/window-ref.service';
     ReactiveFormsModule,
     FlexLayoutModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    SharedModule
   ],
   providers: [
     ApiService,

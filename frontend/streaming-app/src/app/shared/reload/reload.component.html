@@ -1,0 +1,19 @@
+<div class="center-retry-text">
+    <div class="align-horizontally-center">
+        <div class="d-flex justify-content-center">
+            <h3 *ngIf="!mobileQuery.matches">{{ errorText }}</h3>
+            <p *ngIf="mobileQuery.matches" class="margin-bottom-03">{{ errorText }}</p>
+        </div>
+        <div class="d-flex justify-content-center">
+            <h3 *ngIf="!mobileQuery.matches">Please check your internet connectivity.</h3>
+            <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Please check your internet connectivity.</p>
+        </div>
+        <div class="d-flex justify-content-center">
+            <h3 *ngIf="!mobileQuery.matches">If problem persists, let us know :)</h3>
+            <p *ngIf="mobileQuery.matches" class="margin-bottom-03">If problem persists, let us know :)</p>
+        </div>
+        <div class="d-flex justify-content-center">
+            <button mat-flat-button class="green-button rounded-button" (click)="retry()">Retry</button>
+        </div>
+    </div>
+</div>

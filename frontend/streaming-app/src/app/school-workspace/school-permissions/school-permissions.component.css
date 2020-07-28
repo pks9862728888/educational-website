@@ -58,25 +58,16 @@ p {
 }
 
 .error-text {
-    border: 1px solid rgba(187, 134, 252);
-    background-color: rgba(187, 134, 252, 0.2);
-    color: #ffffff;
-    border-radius: 5px;
     padding: 0.25rem;
     margin-bottom: 0.7rem;
 }
 
 .success-text {
-    border: 1px solid rgb(148, 252, 134);
-    background-color: rgba(148, 252, 134, 0.2);
-    color: #ffffff;
-    border-radius: 5px;
     padding: 0.25rem;
     margin-bottom: 0.7rem;
 }
 
 .top-separator {
-    background-color: #6c757d;
     margin-top: 0.2rem;
 }
 

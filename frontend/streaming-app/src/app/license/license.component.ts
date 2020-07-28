@@ -1,7 +1,4 @@
 import { Router } from '@angular/router';
-import { LicenseDetails, InstituteLicenseList } from './license.model';
-import { INSTITUTE_LICENSE_PLANS, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE, BILLING_TERM_REVERSE, BILLING_TERM } from './../../constants';
-import { InstituteApiService } from 'src/app/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 
@@ -14,84 +11,26 @@ import { Component, OnInit } from '@angular/core';
 export class LicenseComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
+  fetchActiveLicenseIndicator: boolean;
+  reloadErrorText: string;
 
-  // For controlling billing term
-  activeBilling = 'MONTHLY';
-  activePlanContainer = 'BUSINESS';
-
-  monthlyLicensePlans: LicenseDetails[];
-  yearlyLicensePlans: LicenseDetails[];
-  currentActiveLicensePlans: LicenseDetails[];
+  // For controlling expansion panel
+  licenseStep: number;
 
   constructor( private media: MediaMatcher,
-               private instituteApiService: InstituteApiService,
                private router: Router ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
   }
 
-  ngOnInit(): void {
+  ngOnInit() {
     sessionStorage.setItem('activeRoute', 'LICENSE');
-    this.instituteApiService.getInstituteLicenseList().subscribe(
-      (result: InstituteLicenseList) => {
-        this.monthlyLicensePlans = result.monthly_license;
-        this.yearlyLicensePlans = result.yearly_license;
-        this.currentActiveLicensePlans = this.monthlyLicensePlans;
-      }
-    );
   }
 
-  changeBillingTerm(term: string) {
-    if (!(this.activeBilling === term)) {
-      this.activeBilling = term;
-      if (this.activeBilling === 'YEARLY') {
-        this.currentActiveLicensePlans = this.yearlyLicensePlans;
-      } else {
-        this.currentActiveLicensePlans = this.monthlyLicensePlans;
-      }
-    }
+  setLicenseStep(step: number) {
+    this.licenseStep = step;
   }
 
-  changeActivePlanContainer(plan: string) {
-    if (!(this.activePlanContainer === plan)) {
-      this.activePlanContainer = plan;
-    }
-  }
-
-  getActivePlan(key: string) {
-    return INSTITUTE_LICENSE_PLANS[key];
-  }
-
-  getBillingTerm(key: string) {
-    return BILLING_TERM[key];
-  }
-
-  getDiscussionForums(key: string) {
-    return DISCUSSION_FORUM_PER_ATTENDEES[key];
-  }
-
-  calculateCostInThousands(amount:number, discountPercent: number) {
-    return (amount * (1 - discountPercent/100))/1000;
-  }
-
-  instituteIsCoaching() {
-    if (sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['Coaching']) {
-      return true
-    } else {
-      return false
-    }
-  }
-
-  selectedLicense(id: string) {
-    sessionStorage.setItem('selectedLicenseId', id);
-    this.router.navigate(
-      ['/school-workspace/' + sessionStorage.getItem('currentInstituteSlug') + '/license/review'])
-  }
-
-  isDiscountPresent(discount: number) {
-    if (Math.abs(discount)) {
-      return true;
-    } else {
-      return false;
-    }
+  retryClicked() {
+    // Retry reloading
   }
 }

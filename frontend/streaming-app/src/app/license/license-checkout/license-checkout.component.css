@@ -9,18 +9,7 @@ hr {
     word-wrap: break-word;
 }
 
-.parent-container {
-    background-color: #3b3b3b;
-    color: #bdbdbd;
-    user-select: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
 .top-separator {
-    background-color: #6c757d;
     margin-bottom: 0.7rem;
 }
 
@@ -28,7 +17,8 @@ hr {
     margin: 0.7rem 0;
 }
 
-.error-text {
+.error-text,
+.success-text {
     padding: 0.2rem 0.7rem;
     margin-top: 0.5rem;
 }
@@ -51,6 +41,10 @@ hr {
     width: 100%;
 }
 
+.retry-verification {
+    margin-top: 1.5rem;
+}
+
 .green-button:disabled {
     background-color: #008000;
     color: #ffffff;
@@ -66,6 +60,11 @@ hr {
 .progress-indicator {
     display: flex;
     margin-top: 0.7rem;
+}
+
+.redirect-indicator {
+    display: flex;
+    margin-top: 0.1rem;
 }
 
 .margin-right-05 {
