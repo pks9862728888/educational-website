@@ -562,133 +562,133 @@ def create_institute(user, name='Temp Name ola'):
 #             )
 #
 #
-class InstituteOrderTests(TestCase):
-    """Tests related to institute order table"""
-
-    def setUp(self):
-        self.admin = create_teacher()
-        self.institute = create_institute(self.admin)
-        self.sel_lic = InstituteSelectedLicense.objects.create(
-            institute=self.institute,
-            type=InstituteType.COLLEGE,
-            billing=Billing.MONTHLY,
-            amount=1111,
-            discount_percent=0.0,
-            storage=100,
-            no_of_admin=1,
-            no_of_staff=2,
-            no_of_faculty=3,
-            no_of_student=34,
-            video_call_max_attendees=200,
-            classroom_limit=999,
-            department_limit=999,
-            subject_limit=57,
-            scheduled_test=True,
-            discussion_forum=DiscussionForumBar.ONE_PER_SUBJECT_OR_SECTION,
-            LMS_exists=True
-        )
-
-    def test_order_creation_successful(self):
-        """Test that order can be created successfully"""
-        res = InstituteLicenseOrderDetails.objects.create(
-            selected_license=self.sel_lic,
-            institute=self.institute,
-            payment_gateway=PaymentGateway.RAZORPAY,
-            currency='INR'
-        )
-        self.assertEqual(res.amount, self.sel_lic.net_amount)
-        self.assertEqual(res.selected_license, self.sel_lic)
-        self.assertTrue(len(res.order_receipt) > 0)
-        self.assertEqual(res.institute, self.institute)
-        self.assertEqual(res.payment_gateway, PaymentGateway.RAZORPAY)
-        self.assertFalse(res.paid)
-        self.assertFalse(res.active)
-        self.assertEqual(res.start_date, None)
-        self.assertEqual(res.end_date, None)
-        self.assertTrue(len(res.order_id) > 0)
-
-    def test_payment_status_activation_success(self):
-        """Test that payment status can be activated successfully"""
-        res = InstituteLicenseOrderDetails.objects.create(
-            selected_license=self.sel_lic,
-            institute=self.institute,
-            payment_gateway=PaymentGateway.RAZORPAY,
-            currency='INR'
-        )
-        res.paid = True
-        res.save()
-
-        self.assertTrue(res.paid)
-
-    def test_activate_order_success(self):
-        """Test that payment status can be activated successfully"""
-        res = InstituteLicenseOrderDetails.objects.create(
-            selected_license=self.sel_lic,
-            institute=self.institute,
-            payment_gateway=PaymentGateway.RAZORPAY,
-            currency='INR'
-        )
-        start_date = timezone.now()
-        end_date = timezone.now() + datetime.timedelta(days=365)
-        res.paid = True
-        res.active = True
-        res.start_date = start_date
-        res.end_date = end_date
-        res.save()
-        res.refresh_from_db()
-
-        self.assertTrue(res.paid)
-        self.assertTrue(res.active)
-        self.assertEqual(res.start_date, start_date)
-        self.assertEqual(res.end_date, end_date)
-
-
-class RazorpayCallbackModelTests(TestCase):
-    """Tests for razorpay callback url"""
-
-    def setUp(self):
-        user = create_teacher()
-        institute = create_institute(user)
-        sel_lic = InstituteSelectedLicense.objects.create(
-            institute=institute,
-            type=InstituteType.COLLEGE,
-            billing=Billing.MONTHLY,
-            amount=1111,
-            discount_percent=0.0,
-            storage=100,
-            no_of_admin=1,
-            no_of_staff=2,
-            no_of_faculty=3,
-            no_of_student=34,
-            video_call_max_attendees=200,
-            classroom_limit=999,
-            department_limit=999,
-            subject_limit=57,
-            scheduled_test=True,
-            discussion_forum=DiscussionForumBar.ONE_PER_SUBJECT_OR_SECTION,
-            LMS_exists=True
-        )
-        self.order = InstituteLicenseOrderDetails.objects.create(
-            selected_license=sel_lic,
-            institute=institute,
-            payment_gateway=PaymentGateway.RAZORPAY,
-            currency='INR'
-        )
-        self.payload = {
-            'razorpay_order_id': 'order_FJksdhflkshfkshfs',
-            'razorpay_payment_id': 'pay_FJlsjdfkljslfjljf',
-            'razorpay_signature': 'lkkjslfjsljfsljfsljljs'
-        }
-
-    def test_callback_success(self):
-        """Test that callback on razorpay callback url success"""
-        res = RazorpayCallback.objects.create(
-            razorpay_order_id=self.payload['razorpay_order_id'],
-            razorpay_payment_id=self.payload['razorpay_payment_id'],
-            razorpay_signature=self.payload['razorpay_signature'],
-            institute_license_order_details=self.order
-        )
-        self.assertEqual(res.razorpay_order_id, self.payload['razorpay_order_id'])
-        self.assertEqual(res.razorpay_payment_id, self.payload['razorpay_payment_id'])
-        self.assertEqual(res.razorpay_signature, self.payload['razorpay_signature'])
-        self.assertEqual(res.institute_license_order_details, self.order)
+# class InstituteOrderTests(TestCase):
+#     """Tests related to institute order table"""
+#
+#     def setUp(self):
+#         self.admin = create_teacher()
+#         self.institute = create_institute(self.admin)
+#         self.sel_lic = InstituteSelectedLicense.objects.create(
+#             institute=self.institute,
+#             type=InstituteType.COLLEGE,
+#             billing=Billing.MONTHLY,
+#             amount=1111,
+#             discount_percent=0.0,
+#             storage=100,
+#             no_of_admin=1,
+#             no_of_staff=2,
+#             no_of_faculty=3,
+#             no_of_student=34,
+#             video_call_max_attendees=200,
+#             classroom_limit=999,
+#             department_limit=999,
+#             subject_limit=57,
+#             scheduled_test=True,
+#             discussion_forum=DiscussionForumBar.ONE_PER_SUBJECT_OR_SECTION,
+#             LMS_exists=True
+#         )
+#
+#     def test_order_creation_successful(self):
+#         """Test that order can be created successfully"""
+#         res = InstituteLicenseOrderDetails.objects.create(
+#             selected_license=self.sel_lic,
+#             institute=self.institute,
+#             payment_gateway=PaymentGateway.RAZORPAY,
+#             currency='INR'
+#         )
+#         self.assertEqual(res.amount, self.sel_lic.net_amount)
+#         self.assertEqual(res.selected_license, self.sel_lic)
+#         self.assertTrue(len(res.order_receipt) > 0)
+#         self.assertEqual(res.institute, self.institute)
+#         self.assertEqual(res.payment_gateway, PaymentGateway.RAZORPAY)
+#         self.assertFalse(res.paid)
+#         self.assertFalse(res.active)
+#         self.assertEqual(res.start_date, None)
+#         self.assertEqual(res.end_date, None)
+#         self.assertTrue(len(res.order_id) > 0)
+#
+#     def test_payment_status_activation_success(self):
+#         """Test that payment status can be activated successfully"""
+#         res = InstituteLicenseOrderDetails.objects.create(
+#             selected_license=self.sel_lic,
+#             institute=self.institute,
+#             payment_gateway=PaymentGateway.RAZORPAY,
+#             currency='INR'
+#         )
+#         res.paid = True
+#         res.save()
+#
+#         self.assertTrue(res.paid)
+#
+#     def test_activate_order_success(self):
+#         """Test that payment status can be activated successfully"""
+#         res = InstituteLicenseOrderDetails.objects.create(
+#             selected_license=self.sel_lic,
+#             institute=self.institute,
+#             payment_gateway=PaymentGateway.RAZORPAY,
+#             currency='INR'
+#         )
+#         start_date = timezone.now()
+#         end_date = timezone.now() + datetime.timedelta(days=365)
+#         res.paid = True
+#         res.active = True
+#         res.start_date = start_date
+#         res.end_date = end_date
+#         res.save()
+#         res.refresh_from_db()
+#
+#         self.assertTrue(res.paid)
+#         self.assertTrue(res.active)
+#         self.assertEqual(res.start_date, start_date)
+#         self.assertEqual(res.end_date, end_date)
+#
+#
+# class RazorpayCallbackModelTests(TestCase):
+#     """Tests for razorpay callback url"""
+#
+#     def setUp(self):
+#         user = create_teacher()
+#         institute = create_institute(user)
+#         sel_lic = InstituteSelectedLicense.objects.create(
+#             institute=institute,
+#             type=InstituteType.COLLEGE,
+#             billing=Billing.MONTHLY,
+#             amount=1111,
+#             discount_percent=0.0,
+#             storage=100,
+#             no_of_admin=1,
+#             no_of_staff=2,
+#             no_of_faculty=3,
+#             no_of_student=34,
+#             video_call_max_attendees=200,
+#             classroom_limit=999,
+#             department_limit=999,
+#             subject_limit=57,
+#             scheduled_test=True,
+#             discussion_forum=DiscussionForumBar.ONE_PER_SUBJECT_OR_SECTION,
+#             LMS_exists=True
+#         )
+#         self.order = InstituteLicenseOrderDetails.objects.create(
+#             selected_license=sel_lic,
+#             institute=institute,
+#             payment_gateway=PaymentGateway.RAZORPAY,
+#             currency='INR'
+#         )
+#         self.payload = {
+#             'razorpay_order_id': 'order_FJksdhflkshfkshfs',
+#             'razorpay_payment_id': 'pay_FJlsjdfkljslfjljf',
+#             'razorpay_signature': 'lkkjslfjsljfsljfsljljs'
+#         }
+#
+#     def test_callback_success(self):
+#         """Test that callback on razorpay callback url success"""
+#         res = RazorpayCallback.objects.create(
+#             razorpay_order_id=self.payload['razorpay_order_id'],
+#             razorpay_payment_id=self.payload['razorpay_payment_id'],
+#             razorpay_signature=self.payload['razorpay_signature'],
+#             institute_license_order_details=self.order
+#         )
+#         self.assertEqual(res.razorpay_order_id, self.payload['razorpay_order_id'])
+#         self.assertEqual(res.razorpay_payment_id, self.payload['razorpay_payment_id'])
+#         self.assertEqual(res.razorpay_signature, self.payload['razorpay_signature'])
+#         self.assertEqual(res.institute_license_order_details, self.order)

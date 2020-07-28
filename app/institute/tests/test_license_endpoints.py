@@ -20,6 +20,11 @@ INSTITUTE_CREATE_ORDER_URL = reverse("institute:create-order")
 RAZORPAY_CALLBACK_URL = reverse("institute:razorpay-payment-callback")
 
 
+def institute_license_order_get_url(institute_slug):
+    return reverse("institute:get-license-purchased",
+                   kwargs={'institute_slug': institute_slug})
+
+
 def create_institute(user, institute_name='tempinstitute'):
     """Creates institute and return institute"""
     return models.Institute.objects.create(
@@ -391,102 +396,147 @@ class AuthenticatedAdminTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Invalid request.')
+    #
+    # def test_create_order_success_by_admin(self):
+    #     """Test that creating order is successful by admin"""
+    #     institute = create_institute(self.user)
+    #     lic = models.InstituteSelectedLicense.objects.create(
+    #         institute=institute,
+    #         type=self.payload['type'],
+    #         billing=self.payload['billing'],
+    #         amount=self.payload['amount'],
+    #         discount_percent=self.payload['discount_percent'],
+    #         storage=self.payload['storage'],
+    #         no_of_admin=self.payload['no_of_admin'],
+    #         no_of_staff=self.payload['no_of_staff'],
+    #         no_of_faculty=self.payload['no_of_faculty'],
+    #         no_of_student=self.payload['no_of_student'],
+    #         video_call_max_attendees=self.payload[
+    #             'video_call_max_attendees'],
+    #         classroom_limit=self.payload['classroom_limit'],
+    #         department_limit=self.payload['department_limit'],
+    #         subject_limit=self.payload['subject_limit'],
+    #         scheduled_test=self.payload['scheduled_test'],
+    #         LMS_exists=self.payload['LMS_exists'],
+    #         discussion_forum=self.payload['discussion_forum']
+    #     )
+    #     res = self.client.post(
+    #         INSTITUTE_CREATE_ORDER_URL,
+    #         {
+    #             'institute_slug': institute.institute_slug,
+    #             'payment_gateway': models.PaymentGateway.RAZORPAY,
+    #             'license_id': lic.pk
+    #         }
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['status'], 'SUCCESS')
+    #     self.assertEqual(res.data['amount'], self.payload['amount'])
+    #     self.assertEqual(res.data['key_id'], os.environ.get('RAZORPAY_TEST_KEY_ID'))
+    #     self.assertEqual(res.data['currency'], 'INR')
+    #     self.assertEqual(res.data['email'], str(self.user))
+    #     self.assertEqual(res.data['contact'], None)
+    #     self.assertNotEqual(res.data['order_id'], None)
+    #     self.assertIn('order_details_id', res.data)
+    #
+    #     order = models.InstituteLicenseOrderDetails.objects.filter(
+    #         institute=institute
+    #     ).first()
+    #     self.assertNotEqual(order, None)
+    #     self.assertEqual(order.payment_gateway,
+    #                      models.PaymentGateway.RAZORPAY)
+    #     self.assertEqual(order.start_date, None)
+    #     self.assertEqual(order.end_date, None)
+    #     self.assertFalse(order.paid)
+    #     self.assertFalse(order.active)
+    #     self.assertEqual(res.data['order_details_id'], order.pk)
+    #
+    # def test_create_order_fails_by_other_user(self):
+    #     """Test that creating order fails by non admin"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = models.InstituteSelectedLicense.objects.create(
+    #         institute=institute,
+    #         type=self.payload['type'],
+    #         billing=self.payload['billing'],
+    #         amount=self.payload['amount'],
+    #         discount_percent=self.payload['discount_percent'],
+    #         storage=self.payload['storage'],
+    #         no_of_admin=self.payload['no_of_admin'],
+    #         no_of_staff=self.payload['no_of_staff'],
+    #         no_of_faculty=self.payload['no_of_faculty'],
+    #         no_of_student=self.payload['no_of_student'],
+    #         video_call_max_attendees=self.payload[
+    #             'video_call_max_attendees'],
+    #         classroom_limit=self.payload['classroom_limit'],
+    #         department_limit=self.payload['department_limit'],
+    #         subject_limit=self.payload['subject_limit'],
+    #         scheduled_test=self.payload['scheduled_test'],
+    #         LMS_exists=self.payload['LMS_exists'],
+    #         discussion_forum=self.payload['discussion_forum']
+    #     )
+    #     res = self.client.post(
+    #         INSTITUTE_CREATE_ORDER_URL,
+    #         {
+    #             'institute_slug': institute.institute_slug,
+    #             'payment_gateway': models.PaymentGateway.RAZORPAY,
+    #             'license_id': lic.pk
+    #         }
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #
+    #     order = models.InstituteLicenseOrderDetails.objects.filter(
+    #         institute=institute
+    #     ).first()
+    #     self.assertEqual(order, None)
+    #
+    # def test_callback_url_post_success(self):
+    #     """Test that post data into callback url success"""
+    #     institute = create_institute(self.user)
+    #     lic = models.InstituteSelectedLicense.objects.create(
+    #         institute=institute,
+    #         type=self.payload['type'],
+    #         billing=self.payload['billing'],
+    #         amount=self.payload['amount'],
+    #         discount_percent=self.payload['discount_percent'],
+    #         storage=self.payload['storage'],
+    #         no_of_admin=self.payload['no_of_admin'],
+    #         no_of_staff=self.payload['no_of_staff'],
+    #         no_of_faculty=self.payload['no_of_faculty'],
+    #         no_of_student=self.payload['no_of_student'],
+    #         video_call_max_attendees=self.payload[
+    #             'video_call_max_attendees'],
+    #         classroom_limit=self.payload['classroom_limit'],
+    #         department_limit=self.payload['department_limit'],
+    #         subject_limit=self.payload['subject_limit'],
+    #         scheduled_test=self.payload['scheduled_test'],
+    #         LMS_exists=self.payload['LMS_exists'],
+    #         discussion_forum=self.payload['discussion_forum']
+    #     )
+    #     order = models.InstituteLicenseOrderDetails.objects.create(
+    #         institute=institute,
+    #         payment_gateway=models.PaymentGateway.RAZORPAY,
+    #         selected_license=lic
+    #     )
+    #     payload = {
+    #         'razorpay_order_id': 'order_FJksdhflkshfkshfs',
+    #         'razorpay_payment_id': 'pay_FJlsjdfkljslfjljf',
+    #         'razorpay_signature': 'lkkjslfjsljfsljfsljljs'
+    #     }
+    #     res = self.client.post(
+    #         RAZORPAY_CALLBACK_URL,
+    #         {
+    #             'razorpay_order_id': payload['razorpay_order_id'],
+    #             'razorpay_payment_id': payload['razorpay_payment_id'],
+    #             'razorpay_signature': payload['razorpay_signature'],
+    #             'order_details_id': order.pk
+    #         }
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['status'], 'FAILURE')
 
-    def test_create_order_success_by_admin(self):
-        """Test that creating order is successful by admin"""
-        institute = create_institute(self.user)
-        lic = models.InstituteSelectedLicense.objects.create(
-            institute=institute,
-            type=self.payload['type'],
-            billing=self.payload['billing'],
-            amount=self.payload['amount'],
-            discount_percent=self.payload['discount_percent'],
-            storage=self.payload['storage'],
-            no_of_admin=self.payload['no_of_admin'],
-            no_of_staff=self.payload['no_of_staff'],
-            no_of_faculty=self.payload['no_of_faculty'],
-            no_of_student=self.payload['no_of_student'],
-            video_call_max_attendees=self.payload[
-                'video_call_max_attendees'],
-            classroom_limit=self.payload['classroom_limit'],
-            department_limit=self.payload['department_limit'],
-            subject_limit=self.payload['subject_limit'],
-            scheduled_test=self.payload['scheduled_test'],
-            LMS_exists=self.payload['LMS_exists'],
-            discussion_forum=self.payload['discussion_forum']
-        )
-        res = self.client.post(
-            INSTITUTE_CREATE_ORDER_URL,
-            {
-                'institute_slug': institute.institute_slug,
-                'payment_gateway': models.PaymentGateway.RAZORPAY,
-                'license_id': lic.pk
-            }
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['status'], 'SUCCESS')
-        self.assertEqual(res.data['amount'], self.payload['amount'])
-        self.assertEqual(res.data['key_id'], os.environ.get('RAZORPAY_TEST_KEY_ID'))
-        self.assertEqual(res.data['currency'], 'INR')
-        self.assertEqual(res.data['email'], str(self.user))
-        self.assertEqual(res.data['contact'], None)
-        self.assertNotEqual(res.data['order_id'], None)
-        self.assertIn('order_details_id', res.data)
-
-        order = models.InstituteLicenseOrderDetails.objects.filter(
-            institute=institute
-        ).first()
-        self.assertNotEqual(order, None)
-        self.assertEqual(order.payment_gateway,
-                         models.PaymentGateway.RAZORPAY)
-        self.assertEqual(order.start_date, None)
-        self.assertEqual(order.end_date, None)
-        self.assertFalse(order.paid)
-        self.assertFalse(order.active)
-        self.assertEqual(res.data['order_details_id'], order.pk)
-
-    def test_create_order_fails_by_other_user(self):
-        """Test that creating order fails by non admin"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = models.InstituteSelectedLicense.objects.create(
-            institute=institute,
-            type=self.payload['type'],
-            billing=self.payload['billing'],
-            amount=self.payload['amount'],
-            discount_percent=self.payload['discount_percent'],
-            storage=self.payload['storage'],
-            no_of_admin=self.payload['no_of_admin'],
-            no_of_staff=self.payload['no_of_staff'],
-            no_of_faculty=self.payload['no_of_faculty'],
-            no_of_student=self.payload['no_of_student'],
-            video_call_max_attendees=self.payload[
-                'video_call_max_attendees'],
-            classroom_limit=self.payload['classroom_limit'],
-            department_limit=self.payload['department_limit'],
-            subject_limit=self.payload['subject_limit'],
-            scheduled_test=self.payload['scheduled_test'],
-            LMS_exists=self.payload['LMS_exists'],
-            discussion_forum=self.payload['discussion_forum']
-        )
-        res = self.client.post(
-            INSTITUTE_CREATE_ORDER_URL,
-            {
-                'institute_slug': institute.institute_slug,
-                'payment_gateway': models.PaymentGateway.RAZORPAY,
-                'license_id': lic.pk
-            }
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-
-        order = models.InstituteLicenseOrderDetails.objects.filter(
-            institute=institute
-        ).first()
-        self.assertEqual(order, None)
-
-    def test_callback_url_post_success(self):
-        """Test that post data into callback url success"""
+    def test_get_active_institute_license_details_success_by_admin(self):
+        """Test that get active institute license successful by admin"""
         institute = create_institute(self.user)
         lic = models.InstituteSelectedLicense.objects.create(
             institute=institute,
@@ -509,23 +559,225 @@ class AuthenticatedAdminTests(TestCase):
             discussion_forum=self.payload['discussion_forum']
         )
         order = models.InstituteLicenseOrderDetails.objects.create(
+            selected_license=lic,
             institute=institute,
             payment_gateway=models.PaymentGateway.RAZORPAY,
-            selected_license=lic
+            currency='INR'
         )
-        payload = {
-            'razorpay_order_id': 'order_FJksdhflkshfkshfs',
-            'razorpay_payment_id': 'pay_FJlsjdfkljslfjljf',
-            'razorpay_signature': 'lkkjslfjsljfsljfsljljs'
-        }
-        res = self.client.post(
-            RAZORPAY_CALLBACK_URL,
-            {
-                'razorpay_order_id': payload['razorpay_order_id'],
-                'razorpay_payment_id': payload['razorpay_payment_id'],
-                'razorpay_signature': payload['razorpay_signature'],
-                'order_details_id': order.pk
-            }
+        order.paid = True
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(
+            days=364)
+        order.save()
+        res = self.client.get(
+            institute_license_order_get_url(
+                institute.institute_slug)
         )
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['status'], 'FAILURE')
+        self.assertIn('active_license', res.data)
+        self.assertIn('purchased_inactive_license', res.data)
+        self.assertIn('expired_license', res.data)
+        self.assertEqual(
+            res.data['active_license'][
+                'payment_date'], str(order.payment_date))
+        self.assertEqual(
+            res.data['active_license'][
+                'start_date'], str(order.start_date))
+        self.assertEqual(
+            res.data['active_license'][
+                'end_date'], str(order.end_date))
+        self.assertEqual(
+            res.data['active_license'][
+                'selected_license_id'], order.selected_license.id)
+        self.assertEqual(res.data['purchased_inactive_license'], {})
+        self.assertEqual(res.data['expired_license'], {})
+
+    def test_get_inactive_institute_license_details_success_by_admin(self):
+        """Test that get inactive institute license successful by admin"""
+        institute = create_institute(self.user)
+        lic = models.InstituteSelectedLicense.objects.create(
+            institute=institute,
+            type=self.payload['type'],
+            billing=self.payload['billing'],
+            amount=self.payload['amount'],
+            discount_percent=self.payload['discount_percent'],
+            storage=self.payload['storage'],
+            no_of_admin=self.payload['no_of_admin'],
+            no_of_staff=self.payload['no_of_staff'],
+            no_of_faculty=self.payload['no_of_faculty'],
+            no_of_student=self.payload['no_of_student'],
+            video_call_max_attendees=self.payload[
+                'video_call_max_attendees'],
+            classroom_limit=self.payload['classroom_limit'],
+            department_limit=self.payload['department_limit'],
+            subject_limit=self.payload['subject_limit'],
+            scheduled_test=self.payload['scheduled_test'],
+            LMS_exists=self.payload['LMS_exists'],
+            discussion_forum=self.payload['discussion_forum']
+        )
+        order = models.InstituteLicenseOrderDetails.objects.create(
+            selected_license=lic,
+            institute=institute,
+            payment_gateway=models.PaymentGateway.RAZORPAY,
+            currency='INR'
+        )
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        res = self.client.get(
+            institute_license_order_get_url(
+                institute.institute_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('active_license', res.data)
+        self.assertIn('purchased_inactive_license', res.data)
+        self.assertIn('expired_license', res.data)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'payment_date'], str(order.payment_date))
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'selected_license_id'], order.selected_license.id)
+        self.assertEqual(res.data['active_license'], {})
+        self.assertEqual(res.data['expired_license'], {})
+
+    def test_get_expired_institute_license_details_success_by_admin(self):
+        """Test that get expired institute license successful by admin"""
+        institute = create_institute(self.user)
+        lic = models.InstituteSelectedLicense.objects.create(
+            institute=institute,
+            type=self.payload['type'],
+            billing=self.payload['billing'],
+            amount=self.payload['amount'],
+            discount_percent=self.payload['discount_percent'],
+            storage=self.payload['storage'],
+            no_of_admin=self.payload['no_of_admin'],
+            no_of_staff=self.payload['no_of_staff'],
+            no_of_faculty=self.payload['no_of_faculty'],
+            no_of_student=self.payload['no_of_student'],
+            video_call_max_attendees=self.payload[
+                'video_call_max_attendees'],
+            classroom_limit=self.payload['classroom_limit'],
+            department_limit=self.payload['department_limit'],
+            subject_limit=self.payload['subject_limit'],
+            scheduled_test=self.payload['scheduled_test'],
+            LMS_exists=self.payload['LMS_exists'],
+            discussion_forum=self.payload['discussion_forum']
+        )
+        order = models.InstituteLicenseOrderDetails.objects.create(
+            selected_license=lic,
+            institute=institute,
+            payment_gateway=models.PaymentGateway.RAZORPAY,
+            currency='INR'
+        )
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.start_date = timezone.now() - datetime.timedelta(
+            days=364)
+        order.end_date = timezone.now() - datetime.timedelta(
+            days=1)
+        order.save()
+        res = self.client.get(
+            institute_license_order_get_url(
+                institute.institute_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('active_license', res.data)
+        self.assertIn('purchased_inactive_license', res.data)
+        self.assertIn('expired_license', res.data)
+        self.assertEqual(
+            res.data['expired_license'][
+                'payment_date'], str(order.payment_date))
+        self.assertEqual(
+            res.data['expired_license'][
+                'start_date'], str(order.start_date))
+        self.assertEqual(
+            res.data['expired_license'][
+                'end_date'], str(order.end_date))
+        self.assertEqual(
+            res.data['expired_license'][
+                'selected_license_id'], order.selected_license.id)
+        self.assertEqual(res.data['active_license'], {})
+        self.assertEqual(res.data['purchased_inactive_license'], {})
+
+    def test_get_institute_license_details_success_by_admin(self):
+        """Test that get institute license successful by admin"""
+        institute = create_institute(self.user)
+        lic = models.InstituteSelectedLicense.objects.create(
+            institute=institute,
+            type=self.payload['type'],
+            billing=self.payload['billing'],
+            amount=self.payload['amount'],
+            discount_percent=self.payload['discount_percent'],
+            storage=self.payload['storage'],
+            no_of_admin=self.payload['no_of_admin'],
+            no_of_staff=self.payload['no_of_staff'],
+            no_of_faculty=self.payload['no_of_faculty'],
+            no_of_student=self.payload['no_of_student'],
+            video_call_max_attendees=self.payload[
+                'video_call_max_attendees'],
+            classroom_limit=self.payload['classroom_limit'],
+            department_limit=self.payload['department_limit'],
+            subject_limit=self.payload['subject_limit'],
+            scheduled_test=self.payload['scheduled_test'],
+            LMS_exists=self.payload['LMS_exists'],
+            discussion_forum=self.payload['discussion_forum']
+        )
+        res = self.client.get(
+            institute_license_order_get_url(
+                institute.institute_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('active_license', res.data)
+        self.assertIn('purchased_inactive_license', res.data)
+        self.assertIn('expired_license', res.data)
+        self.assertEqual(res.data['active_license'], {})
+        self.assertEqual(res.data['expired_license'], {})
+        self.assertEqual(res.data['purchased_inactive_license'], {})
+
+    def test_get_expired_institute_license_details_fails_by_non_admin(self):
+        """Test that get expired institute license fails for non admin"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = models.InstituteSelectedLicense.objects.create(
+            institute=institute,
+            type=self.payload['type'],
+            billing=self.payload['billing'],
+            amount=self.payload['amount'],
+            discount_percent=self.payload['discount_percent'],
+            storage=self.payload['storage'],
+            no_of_admin=self.payload['no_of_admin'],
+            no_of_staff=self.payload['no_of_staff'],
+            no_of_faculty=self.payload['no_of_faculty'],
+            no_of_student=self.payload['no_of_student'],
+            video_call_max_attendees=self.payload[
+                'video_call_max_attendees'],
+            classroom_limit=self.payload['classroom_limit'],
+            department_limit=self.payload['department_limit'],
+            subject_limit=self.payload['subject_limit'],
+            scheduled_test=self.payload['scheduled_test'],
+            LMS_exists=self.payload['LMS_exists'],
+            discussion_forum=self.payload['discussion_forum']
+        )
+        order = models.InstituteLicenseOrderDetails.objects.create(
+            selected_license=lic,
+            institute=institute,
+            payment_gateway=models.PaymentGateway.RAZORPAY,
+            currency='INR'
+        )
+        order.paid = True
+        order.start_date = timezone.now() - datetime.timedelta(
+            days=364)
+        order.end_date = timezone.now() - datetime.timedelta(
+            days=1)
+        order.save()
+        res = self.client.get(
+            institute_license_order_get_url(
+                institute.institute_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Insufficient permission.')

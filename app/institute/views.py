@@ -367,7 +367,6 @@ class RazorpayPaymentCallbackView(APIView):
                 order.paid = True
                 order.payment_date = timezone.now()
                 order.save()
-                print(order)
                 return Response({'status': _('SUCCESS')},
                                 status=status.HTTP_200_OK)
             except SignatureVerificationError:
@@ -376,6 +375,78 @@ class RazorpayPaymentCallbackView(APIView):
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteLicenseOrderDetailsView(APIView):
+    """View for getting list of license orders"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """
+        View for getting active_license, expired_license
+        and purchased_inactive_license details by admin.
+        """
+        institute = Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Invalid institute.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=self.request.user,
+            active=True,
+            role=InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': _('Insufficient permission.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        orders = InstituteLicenseOrderDetails.objects.filter(
+            institute=institute,
+            paid=True
+        )
+        active_license = orders.filter(
+            active=True,
+            end_date__gte=timezone.now()).first()
+        purchased_inactive_license = orders.filter(
+            active=False,
+            end_date=None).first()
+        expired_license = orders.filter(
+            active=False,
+            end_date__lte=timezone.now()).first()
+        response = {}
+        if not active_license:
+            response['active_license'] = {}
+        else:
+            response['active_license'] = {
+                'payment_date': str(active_license.payment_date),
+                'start_date': str(active_license.start_date),
+                'end_date': str(active_license.end_date),
+                'selected_license_id': active_license.selected_license.id
+            }
+
+        if not purchased_inactive_license:
+            response['purchased_inactive_license'] = {}
+        else:
+            response['purchased_inactive_license'] = {
+                'payment_date': str(purchased_inactive_license.payment_date),
+                'selected_license_id': purchased_inactive_license.selected_license.id
+            }
+
+        if not expired_license:
+            response['expired_license'] = {}
+        else:
+            response['expired_license'] = {
+                'payment_date': str(expired_license.payment_date),
+                'start_date': str(expired_license.start_date),
+                'end_date': str(expired_license.end_date),
+                'selected_license_id': expired_license.selected_license.id
+            }
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class InstituteMinDetailsTeacherView(ListAPIView):

@@ -65,6 +65,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/accept-delete-permission`;
   }
 
+  getInstituteLicensePurchasedUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/get-license-purchased`;
+  }
+
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -173,6 +177,14 @@ export class InstituteApiService {
         'razorpay_signature': data.razorpay_signature,
         'order_details_id': order_details_id
       },
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  // To get license purchase details of institue
+  getInstituteLicensePurchased(instituteSlug: string) {
+    return this.httpClient.post(
+      this.getInstituteLicensePurchasedUrl(instituteSlug),
       { headers: this.getAuthHeader() }
     );
   }
