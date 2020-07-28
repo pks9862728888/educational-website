@@ -2,7 +2,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { COUNTRY_FORM_FIELD_OPTIONS, LANGUAGE_FORM_FIELD_OPTIONS, INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS, INSTITUTE_TYPE_FORM_FIELD_OPTIONS } from './../../../../constants';
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { STATE_FORM_FIELD_OPTIONS } from 'src/constants';
-import { InstituteApiService } from 'src/app/institute-api.service';
+import { InstituteApiService } from '../../../services/institute-api.service';
 
 interface CreatedInstituteResponse {
   created: boolean;

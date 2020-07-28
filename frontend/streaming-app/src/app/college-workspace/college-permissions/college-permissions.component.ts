@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { InstituteApiService } from 'src/app/institute-api.service';
+import { InstituteApiService } from '../../services/institute-api.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { INSTITUTE_ROLE_REVERSE } from 'src/constants';
 import { InAppDataTransferService } from 'src/app/in-app-data-transfer.service';

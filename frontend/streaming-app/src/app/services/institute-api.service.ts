@@ -1,9 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { baseUrl } from './../urls';
+import { baseUrl } from '../../urls';
 import { CookieService } from 'ngx-cookie-service';
 import { Injectable } from '@angular/core';
-import { authTokenName } from '../constants';
-import { PaymentSuccessCallbackResponse } from './license/license.model';
+import { authTokenName } from './../../constants';
+import { PaymentSuccessCallbackResponse } from './../license/license.model';
 
 interface FormDataInterface {
   name: string;

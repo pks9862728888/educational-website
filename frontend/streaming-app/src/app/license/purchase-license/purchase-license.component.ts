@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { InstituteApiService } from 'src/app/institute-api.service';
+import { InstituteApiService } from '../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { InstituteLicenseList, LicenseDetails } from '../license.model';
 import { INSTITUTE_TYPE_REVERSE, DISCUSSION_FORUM_PER_ATTENDEES, BILLING_TERM, INSTITUTE_LICENSE_PLANS } from 'src/constants';

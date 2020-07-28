@@ -1,7 +1,7 @@
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 import { WindowRefService } from './../../services/window-ref.service';
 import { PAYMENT_PORTAL_REVERSE, INSTITUTE_TYPE_REVERSE } from './../../../constants';
-import { InstituteApiService } from 'src/app/institute-api.service';
+import { InstituteApiService } from '../../services/institute-api.service';
 import { Component, OnInit, NgZone } from '@angular/core';
 import { InstituteLicenceOrderCreatedResponse, PaymentSuccessCallbackResponse, PaymentVerificatonResponse } from '../license.model';
 import { MediaMatcher } from '@angular/cdk/layout';
