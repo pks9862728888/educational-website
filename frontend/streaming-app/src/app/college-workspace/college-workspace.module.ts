@@ -5,7 +5,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { APP_DATE_FORMATS, AppDateAdapter } from '../format-datepicker';
-import { InAppDataTransferService } from '../in-app-data-transfer.service';
+import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { CollegeMaterialWorkspaceModule } from './material.college.workspace.module';
 import { CollegeWorkspaceRoutingModule, collegeWorkspaceRoutingComponents } from './college-workspace-routing.module';
 import { LicenseModule } from '../license/license.module';

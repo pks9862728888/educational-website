@@ -3,7 +3,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { INSTITUTE_ROLE_REVERSE } from 'src/constants';
-import { InAppDataTransferService } from 'src/app/in-app-data-transfer.service';
+import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
 
 interface BaseInvitation {
   email: string;

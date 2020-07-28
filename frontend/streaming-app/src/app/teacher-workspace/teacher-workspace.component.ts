@@ -1,4 +1,4 @@
-import { InAppDataTransferService } from '../in-app-data-transfer.service';
+import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';

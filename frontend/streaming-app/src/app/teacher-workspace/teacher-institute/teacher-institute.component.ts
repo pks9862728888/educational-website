@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { InAppDataTransferService } from '../../in-app-data-transfer.service';
+import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
 import { COUNTRY, STATE, INSTITUTE_CATEGORY, INSTITUTE_ROLE, INSTITUTE_TYPE_REVERSE, INSTITUTE_ROLE_REVERSE } from './../../../constants';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';

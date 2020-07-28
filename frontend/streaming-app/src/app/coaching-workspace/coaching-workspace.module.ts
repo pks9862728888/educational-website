@@ -6,7 +6,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { ApiService } from '../services/api.service';
 import { APP_DATE_FORMATS, AppDateAdapter } from '../format-datepicker';
-import { InAppDataTransferService } from '../in-app-data-transfer.service';
+import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 
 import { CoachingMaterialWorkspaceModule } from './material.coaching.workspace.module';
 import { coachingWorkspaceRoutingComponents, CoachingWorkspaceRoutingModule } from './coaching-workspace-routing.module';

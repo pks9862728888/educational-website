@@ -12,7 +12,7 @@ import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
 import { UploadProfilePictureComponent } from './teacher-profile/upload-profile-picture/upload-profile-picture.component';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { ChooseFromExistingComponent } from './teacher-profile/choose-from-existing/choose-from-existing.component';
-import { InAppDataTransferService } from '../in-app-data-transfer.service';
+import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 
 
 @NgModule({

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { InAppDataTransferService } from 'src/app/in-app-data-transfer.service';
+import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { INSTITUTE_CATEGORY, COUNTRY, STATE, LANGUAGE, INSTITUTE_ROLE } from 'src/constants';
 
