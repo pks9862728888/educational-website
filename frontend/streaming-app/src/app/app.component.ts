@@ -2,7 +2,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { authTokenName } from './../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';

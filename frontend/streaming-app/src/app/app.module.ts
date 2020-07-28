@@ -10,7 +10,7 @@ import { MaterialModule } from './material.module';
 import { HttpClientModule } from '@angular/common/http';
 
 import { HomeModule } from './home/home.module';
-import { AuthService } from './auth.service';
+import { AuthService } from './services/auth.service';
 
 @NgModule({
   declarations: [

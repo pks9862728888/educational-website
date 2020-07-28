@@ -1,4 +1,4 @@
-import { AuthService } from 'src/app/auth.service';
+import { AuthService } from '../services/auth.service';
 import { authTokenName, INSTITUTE_TYPE_REVERSE } from './../../constants';
 import { CookieService } from 'ngx-cookie-service';
 import { Router, CanLoad } from '@angular/router';

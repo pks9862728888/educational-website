@@ -4,7 +4,7 @@ import { authRoutingComponents, AuthRoutingModule } from './auth-routing.module'
 import { AuthMaterialModule } from './material.auth.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../services/auth.service';
 
 
 @NgModule({

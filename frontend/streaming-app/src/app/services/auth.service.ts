@@ -1,9 +1,8 @@
-import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
-import { baseUrl } from '../urls';
 import { Subject } from 'rxjs';
+import { baseUrl } from '../../urls';
 
 interface LoginFormFormat {
   email: string;
@@ -37,8 +36,7 @@ export class AuthService {
   userLoggedInSignalSource$ = this.userLoggedInSignalSource.asObservable();
 
   constructor( private cookieService: CookieService,
-               private httpClient: HttpClient,
-               private router: Router ) {}
+               private httpClient: HttpClient ) {}
 
   // Method to signup a new user
   signup(formData: SignupFormFormat) {
