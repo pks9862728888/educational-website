@@ -472,6 +472,15 @@ class InstituteLicenseOrderDetailsView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class RazorpayWebhookCallbackView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        print(request.data)
+        print(args)
+        print(kwargs)
+        return Response({'status': 'ok'}, status=status.HTTP_200_OK)
+
+
 class InstituteMinDetailsTeacherView(ListAPIView):
     """
     View for getting the min details of institute
