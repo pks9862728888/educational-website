@@ -475,11 +475,19 @@ class InstituteLicenseOrderDetailsView(APIView):
 class RazorpayWebhookCallbackView(APIView):
 
     def post(self, request, *args, **kwargs):
-        print('**************************************')
-        print(request.data)
-        print(request.META)
-        print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
-        return Response({'status': 'ok'}, status=status.HTTP_200_OK)
+        webhook_body = request.data
+        webhook_signature = request.META.get('HTTP_X_RAZORPAY_SIGNATURE')
+        webhook_secret = os.environ.get('RAZORPAY_WEBHOOK_SECRET')
+
+        try:
+            client.utility.verify_webhook_signature(webhook_body, webhook_signature, webhook_secret)
+            razorpay_order_id = request.data['payload']['payment']['entity']['order_id']
+            razorpay_payment_id = request.data['payload']['payment']['entity']['id']
+            print(razorpay_order_id)
+            print(razorpay_payment_id)
+            return Response({'status': 'ok'}, status=status.HTTP_200_OK)
+        except SignatureVerificationError:
+            return Response({'status': 'failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InstituteMinDetailsTeacherView(ListAPIView):

@@ -61,8 +61,7 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
       if (this.activeLink === 'HOME') {
         this.router.navigate(['/home']);
-      } else if (this.activeLink === 'EXIT') {
-        sessionStorage.setItem('activeRoute', 'INSTITUTES');
+      } else if (this.activeLink === 'EXIT' || this.activeLink === 'INSTITUTES') {
         sessionStorage.removeItem('currentInstituteSlug');
         sessionStorage.removeItem('currentInstituteRole');
         this.router.navigate(['/teacher-workspace/institutes']);

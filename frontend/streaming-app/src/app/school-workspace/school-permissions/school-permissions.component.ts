@@ -135,7 +135,6 @@ export class SchoolPermissionsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    sessionStorage.setItem('activeRoute', 'SCHOOL_PERMISSIONS');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = sessionStorage.getItem('currentInstituteRole');
     this.getAdminUserList();
