@@ -18,9 +18,7 @@ export class SchoolClassesComponent implements OnInit {
     this.mobileQuery = this.media.matchMedia('(max-width: 768px)');
   }
 
-  ngOnInit(): void {
-    sessionStorage.setItem('activeRoute', 'SCHOOL_CLASSES');
-  }
+  ngOnInit(): void {}
 
   // For handling expansion panel
   setClassStep(step: number) {
