@@ -1,8 +1,9 @@
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
+
 
 @Component({
   selector: 'app-school-workspace',
@@ -18,18 +19,24 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
   navbarActiveLinkSubscription: Subscription;
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
+  routerEventsSubscription: Subscription;
 
   constructor( private router: Router,
                private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService ) {
-
+               private inAppDataTransferService: InAppDataTransferService) {
     this.mobileQuery = this.media.matchMedia('(max-width: 768px)');
-
-    // Initializing sidenav active route in case page is reloaded
-    const active_route = sessionStorage.getItem('activeRoute');
-    if (active_route) {
-      this.activeLink = active_route;
-    }
+    this.activeLink = 'SCHOOL_PROFILE';
+    this.routerEventsSubscription = router.events.subscribe(val => {
+      if (val instanceof NavigationEnd) {
+        if(val.url.includes('profile')) {
+          this.activeLink = 'SCHOOL_PROFILE';
+        } else if (val.url.includes('permissions')) {
+          this.activeLink = 'SCHOOL_PERMISSIONS';
+        } else if (val.url.includes('license')) {
+          this.activeLink = 'LICENSE';
+        }
+      }
+    })
   }
 
   ngOnInit(): void {
@@ -91,6 +98,10 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    if (this.routerEventsSubscription) {
+      this.routerEventsSubscription.unsubscribe();
+    }
+  }
 
 }

@@ -1,8 +1,10 @@
-import { Router } from '@angular/router';
+import { INSTITUTE_TYPE, INSTITUTE_LICENSE_PLANS, BILLING_TERM_REVERSE, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { InstituteApiService } from '../services/institute-api.service';
 import { TileStyler } from '@angular/material/grid-list/tile-styler';
+import { PaidLicenseResponse, ActiveLicenseDetails, PurchasedInactiveLicenseDetails, ExpiredLicenseDetails } from './license.model';
 
 
 @Component({
@@ -13,19 +15,26 @@ import { TileStyler } from '@angular/material/grid-list/tile-styler';
 export class LicenseComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
+  fetchedLicenseDetails: boolean;
   fetchActiveLicenseIndicator: boolean;
   reloadErrorText: string;
   errorText: string;
   currentInstituteSlug: string;
+  activeLicenseDetails: ActiveLicenseDetails;
+  expiredLicenseDetails: ExpiredLicenseDetails;
+  purchasedInactiveLicenseDetails: PurchasedInactiveLicenseDetails;
+  UNLIMITED = UNLIMITED;
 
   // For controlling expansion panel
   licenseStep: number;
 
   constructor( private media: MediaMatcher,
                private router: Router,
-               private instituteApiService: InstituteApiService ) {
+               private instituteApiService: InstituteApiService,
+               private activatedRoute: ActivatedRoute ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
+    this.fetchedLicenseDetails = false;
   }
 
   ngOnInit() {
@@ -37,9 +46,12 @@ export class LicenseComponent implements OnInit {
     this.fetchActiveLicenseIndicator = true;
     this.reloadErrorText = null;
     this.instituteApiService.getInstituteLicensePurchased(this.currentInstituteSlug).subscribe(
-      (result) => {
+      (result: PaidLicenseResponse) => {
+        this.activeLicenseDetails = result.active_license;
+        this.purchasedInactiveLicenseDetails = result.purchased_inactive_license;
+        this.expiredLicenseDetails = result.expired_license;
+        this.fetchedLicenseDetails = true;
         this.fetchActiveLicenseIndicator = false;
-        console.log(result);
       },
       errors => {
         this.fetchActiveLicenseIndicator = false;
@@ -62,5 +74,55 @@ export class LicenseComponent implements OnInit {
 
   retryClicked() {
     this.fetchLicenseDetails();
+  }
+
+  closeErrorTextClicked() {
+    this.errorText = null;
+  }
+
+  activeLicenseExists() {
+    if (this.activeLicenseDetails) {
+      return Object.keys(this.activeLicenseDetails).length !== 0;
+    } else {
+      return false;
+    }
+  }
+
+  expiredLicenseExists() {
+    if (this.expiredLicenseDetails) {
+      return Object.keys(this.expiredLicenseDetails).length !== 0;
+    } else {
+      return false;
+    }
+  }
+
+  purchasedInactiveLicenseExists() {
+    if (this.purchasedInactiveLicenseDetails) {
+      return Object.keys(this.purchasedInactiveLicenseDetails).length !== 0;
+    } else {
+      return false;
+    }
+  }
+
+  getLicensePlan(key: string) {
+    return INSTITUTE_LICENSE_PLANS[key];
+  }
+
+  getBillingType(key: string) {
+    return BILLING_TERM[key];
+  }
+
+  getDiscussionForum(key: string) {
+    return DISCUSSION_FORUM_PER_ATTENDEES[key];
+  }
+
+  purchaseLicense() {
+    if (sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['School']) {
+      this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + '/license/purchase']);
+    } else if (sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['College']) {
+      this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + '/license/purchase']);
+    } else if (sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['Coaching']) {
+      this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + '/license/purchase']);
+    }
   }
 }

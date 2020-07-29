@@ -1,6 +1,6 @@
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
 
@@ -17,21 +17,25 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   activeLink: string;
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
+  routerActiveLinkSubscription: Subscription;
 
   constructor( private router: Router,
                private media: MediaMatcher,
                private inAppDataTransferService: InAppDataTransferService ) {
 
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
-
-    // Initializing sidenav active route in case page is reloaded
-    const active_route = sessionStorage.getItem('activeRoute');
-    if (active_route && (active_route === 'PROFILE' || active_route === 'INSTITUTES' || active_route === 'CHATROOMS')) {
-      this.activeLink = active_route;
-    } else {
-      sessionStorage.setItem('activeRoute', 'PROFILE');
-      this.activeLink = 'PROFILE';
-    }
+    this.activeLink = 'PROFILE';
+    this.routerActiveLinkSubscription = router.events.subscribe(val => {
+      if (val instanceof NavigationEnd) {
+        if (val.url.includes('profile')) {
+          this.activeLink = 'PROFILE';
+        } else if (val.url.includes('institutes')) {
+          this.activeLink = 'INSTITUTES';
+        } else if (val.url.includes('chatrooms')) {
+          this.activeLink = 'CHATROOMS';
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -87,6 +91,9 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.showTempNamesSubscription) {
       this.showTempNamesSubscription.unsubscribe();
+    }
+    if (this.routerActiveLinkSubscription) {
+      this.routerActiveLinkSubscription.unsubscribe();
     }
   }
 }

@@ -56,3 +56,46 @@ export interface PaymentSuccessCallbackResponse {
 export interface PaymentVerificatonResponse {
   status: string;
 }
+
+interface LicenseDetailsForPaidLicenseResponse {
+  LMS_exists: boolean;
+  billing: string;
+  classroom_limit: number;
+  department_limit: number;
+  discussion_forum: string;
+  id: number;
+  net_amount: number;
+  no_of_admin: number;
+  no_of_faculty: number;
+  no_of_staff: number;
+  no_of_student: number;
+  scheduled_test: boolean;
+  storage: number;
+  type: string;
+  video_call_max_attendees: number;
+}
+
+export interface ActiveLicenseDetails {
+    payment_date?: string;
+    start_date?: string;
+    end_date?: string;
+    license_details?: LicenseDetailsForPaidLicenseResponse;
+}
+
+export interface ExpiredLicenseDetails {
+  payment_date?: string;
+  start_date?: string;
+  end_date?: string;
+  license_details?: LicenseDetailsForPaidLicenseResponse;
+}
+
+export interface PurchasedInactiveLicenseDetails {
+  payment_date?: string;
+  license_details?: LicenseDetailsForPaidLicenseResponse;
+}
+
+export interface PaidLicenseResponse {
+  active_license: ActiveLicenseDetails;
+  expired_license: ExpiredLicenseDetails;
+  purchased_inactive_license: PurchasedInactiveLicenseDetails;
+}

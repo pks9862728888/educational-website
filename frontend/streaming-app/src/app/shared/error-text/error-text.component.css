@@ -1,0 +1,20 @@
+.row,
+.col-12,
+h3 {
+    margin: 0;
+    padding: 0;
+}
+
+.highlight-icon {
+    color: rgb(187, 134, 252);
+    cursor: pointer;
+    padding-top: 0.2rem;
+}
+
+.coupon-error-text {
+    padding-top: 0.1rem;
+}
+
+.error-content {
+    padding: 0.2rem 0.5rem;
+}

@@ -49,6 +49,10 @@ hr {
     color: #c5c5c5;
 }
 
+.yellow-color {
+    color: #f2aa4cff;
+}
+
 ::ng-deep .mat-expansion-indicator::after {
     color: #bdbdbd;
 }
@@ -86,4 +90,14 @@ hr {
 
 .margin-bottom-07 {
     margin-bottom: 0.7rem;
+}
+
+.heading-text {
+    line-height: 36px;
+    margin-bottom: 0.5rem;
+    transform: translateY(0.75rem);
+}
+
+.purchase-icon {
+    color: #f2aa4cff;
 }
