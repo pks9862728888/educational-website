@@ -183,7 +183,7 @@ export class InstituteApiService {
 
   // To get license purchase details of institue
   getInstituteLicensePurchased(instituteSlug: string) {
-    return this.httpClient.post(
+    return this.httpClient.get(
       this.getInstituteLicensePurchasedUrl(instituteSlug),
       { headers: this.getAuthHeader() }
     );

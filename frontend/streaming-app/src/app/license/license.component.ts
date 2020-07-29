@@ -2,6 +2,7 @@ import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { InstituteApiService } from '../services/institute-api.service';
+import { TileStyler } from '@angular/material/grid-list/tile-styler';
 
 
 @Component({
@@ -14,6 +15,7 @@ export class LicenseComponent implements OnInit {
   mobileQuery: MediaQueryList;
   fetchActiveLicenseIndicator: boolean;
   reloadErrorText: string;
+  errorText: string;
   currentInstituteSlug: string;
 
   // For controlling expansion panel
@@ -28,18 +30,30 @@ export class LicenseComponent implements OnInit {
 
   ngOnInit() {
     sessionStorage.setItem('activeRoute', 'LICENSE');
+    this.fetchLicenseDetails();
+  }
+
+  fetchLicenseDetails() {
     this.fetchActiveLicenseIndicator = true;
+    this.reloadErrorText = null;
     this.instituteApiService.getInstituteLicensePurchased(this.currentInstituteSlug).subscribe(
       (result) => {
         this.fetchActiveLicenseIndicator = false;
         console.log(result);
-
       },
       errors => {
         this.fetchActiveLicenseIndicator = false;
-        console.log(errors);
+        if (errors.error) {
+          if(errors.error.error) {
+            this.errorText = errors.error.error;
+          } else {
+            this.reloadErrorText = 'Unable to fetch licence details.';
+          }
+        } else {
+          this.reloadErrorText = 'Unable to fetch licence details.';
+        }
       }
-    )
+    );
   }
 
   setLicenseStep(step: number) {
@@ -47,6 +61,6 @@ export class LicenseComponent implements OnInit {
   }
 
   retryClicked() {
-    // Retry reloading
+    this.fetchLicenseDetails();
   }
 }

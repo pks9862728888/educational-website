@@ -1,4 +1,5 @@
 import os
+import json
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -382,6 +383,26 @@ class InstituteLicenseOrderDetailsView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
+    def _get_license_details(self, selected_license):
+        """Used to add license details"""
+        return {
+            'id': selected_license.pk,
+            'type': selected_license.type,
+            'billing': selected_license.billing,
+            'net_amount': float(selected_license.net_amount),
+            'storage': selected_license.storage,
+            'no_of_admin': selected_license.no_of_admin,
+            'no_of_staff': selected_license.no_of_staff,
+            'no_of_faculty': selected_license.no_of_faculty,
+            'no_of_student': selected_license.no_of_student,
+            'video_call_max_attendees': selected_license.video_call_max_attendees,
+            'classroom_limit': selected_license.classroom_limit,
+            'department_limit': selected_license.department_limit,
+            'discussion_forum': selected_license.discussion_forum,
+            'scheduled_test': selected_license.scheduled_test,
+            'LMS_exists': selected_license.LMS_exists,
+        }
+
     def get(self, *args, **kwargs):
         """
         View for getting active_license, expired_license
@@ -425,7 +446,8 @@ class InstituteLicenseOrderDetailsView(APIView):
                 'payment_date': str(active_license.payment_date),
                 'start_date': str(active_license.start_date),
                 'end_date': str(active_license.end_date),
-                'selected_license_id': active_license.selected_license.id
+                'license_details': self._get_license_details(
+                    active_license.selected_license)
             }
 
         if not purchased_inactive_license:
@@ -433,7 +455,8 @@ class InstituteLicenseOrderDetailsView(APIView):
         else:
             response['purchased_inactive_license'] = {
                 'payment_date': str(purchased_inactive_license.payment_date),
-                'selected_license_id': purchased_inactive_license.selected_license.id
+                'license_details': self._get_license_details(
+                    purchased_inactive_license.selected_license)
             }
 
         if not expired_license:
@@ -443,10 +466,11 @@ class InstituteLicenseOrderDetailsView(APIView):
                 'payment_date': str(expired_license.payment_date),
                 'start_date': str(expired_license.start_date),
                 'end_date': str(expired_license.end_date),
-                'selected_license_id': expired_license.selected_license.id
+                'license_details': self._get_license_details(
+                    expired_license.selected_license)
             }
 
-        return Response(response, status=status.HTTP_200_OK)
+        return Response(json.dumps(response), status=status.HTTP_200_OK)
 
 
 class InstituteMinDetailsTeacherView(ListAPIView):

@@ -10,7 +10,7 @@
                 <h3 class="text-center">Fetching Institute License Details...</h3>
             </div>
         </div>
-        <app-reload [errorText]="reloadErrorText" (retryEvent)="retryClicked()"></app-reload>
+        <app-reload *ngIf="reloadErrorText" [errorText]="reloadErrorText" (retryEvent)="retryClicked()"></app-reload>
         <section class="margin-bottom-07">
             <h3 class="margin-bottom-03">Active License:</h3>
             <mat-accordion>

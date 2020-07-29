@@ -1,5 +1,6 @@
 import datetime
 import os
+import json
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -573,6 +574,7 @@ class AuthenticatedAdminTests(TestCase):
             institute_license_order_get_url(
                 institute.institute_slug)
         )
+        res.data = json.loads(res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('active_license', res.data)
         self.assertIn('purchased_inactive_license', res.data)
@@ -588,7 +590,52 @@ class AuthenticatedAdminTests(TestCase):
                 'end_date'], str(order.end_date))
         self.assertEqual(
             res.data['active_license'][
-                'selected_license_id'], order.selected_license.id)
+                'license_details']['id'], order.selected_license.id)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['type'], order.selected_license.type)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['billing'], order.selected_license.billing)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['storage'], order.selected_license.storage)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['net_amount'], order.selected_license.net_amount)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['no_of_admin'], order.selected_license.no_of_admin)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['no_of_staff'], order.selected_license.no_of_staff)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['no_of_faculty'], order.selected_license.no_of_faculty)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['no_of_student'], order.selected_license.no_of_student)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['video_call_max_attendees'], order.selected_license.video_call_max_attendees)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['classroom_limit'], order.selected_license.classroom_limit)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['department_limit'], order.selected_license.department_limit)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['discussion_forum'], order.selected_license.discussion_forum)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['scheduled_test'], order.selected_license.scheduled_test)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['LMS_exists'], order.selected_license.LMS_exists)
+        self.assertEqual(
+            res.data['active_license'][
+                'license_details']['scheduled_test'], order.selected_license.scheduled_test)
         self.assertEqual(res.data['purchased_inactive_license'], {})
         self.assertEqual(res.data['expired_license'], {})
 
@@ -628,7 +675,7 @@ class AuthenticatedAdminTests(TestCase):
             institute_license_order_get_url(
                 institute.institute_slug)
         )
-
+        res.data = json.loads(res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('active_license', res.data)
         self.assertIn('purchased_inactive_license', res.data)
@@ -638,7 +685,53 @@ class AuthenticatedAdminTests(TestCase):
                 'payment_date'], str(order.payment_date))
         self.assertEqual(
             res.data['purchased_inactive_license'][
-                'selected_license_id'], order.selected_license.id)
+                'license_details']['id'], order.selected_license.id)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['type'], order.selected_license.type)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['billing'], order.selected_license.billing)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['storage'], order.selected_license.storage)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['net_amount'], order.selected_license.net_amount)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['no_of_admin'], order.selected_license.no_of_admin)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['no_of_staff'], order.selected_license.no_of_staff)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['no_of_faculty'], order.selected_license.no_of_faculty)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['no_of_student'], order.selected_license.no_of_student)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['video_call_max_attendees'], order.selected_license.video_call_max_attendees)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['classroom_limit'], order.selected_license.classroom_limit)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['department_limit'], order.selected_license.department_limit)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['discussion_forum'], order.selected_license.discussion_forum)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['scheduled_test'], order.selected_license.scheduled_test)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['LMS_exists'], order.selected_license.LMS_exists)
+        self.assertEqual(
+            res.data['purchased_inactive_license'][
+                'license_details']['scheduled_test'], order.selected_license.scheduled_test)
+
         self.assertEqual(res.data['active_license'], {})
         self.assertEqual(res.data['expired_license'], {})
 
@@ -682,7 +775,7 @@ class AuthenticatedAdminTests(TestCase):
             institute_license_order_get_url(
                 institute.institute_slug)
         )
-
+        res.data = json.loads(res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('active_license', res.data)
         self.assertIn('purchased_inactive_license', res.data)
@@ -698,7 +791,52 @@ class AuthenticatedAdminTests(TestCase):
                 'end_date'], str(order.end_date))
         self.assertEqual(
             res.data['expired_license'][
-                'selected_license_id'], order.selected_license.id)
+                'license_details']['id'], order.selected_license.id)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['type'], order.selected_license.type)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['billing'], order.selected_license.billing)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['storage'], order.selected_license.storage)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['net_amount'], order.selected_license.net_amount)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['no_of_admin'], order.selected_license.no_of_admin)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['no_of_staff'], order.selected_license.no_of_staff)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['no_of_faculty'], order.selected_license.no_of_faculty)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['no_of_student'], order.selected_license.no_of_student)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['video_call_max_attendees'], order.selected_license.video_call_max_attendees)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['classroom_limit'], order.selected_license.classroom_limit)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['department_limit'], order.selected_license.department_limit)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['discussion_forum'], order.selected_license.discussion_forum)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['scheduled_test'], order.selected_license.scheduled_test)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['LMS_exists'], order.selected_license.LMS_exists)
+        self.assertEqual(
+            res.data['expired_license'][
+                'license_details']['scheduled_test'], order.selected_license.scheduled_test)
         self.assertEqual(res.data['active_license'], {})
         self.assertEqual(res.data['purchased_inactive_license'], {})
 
@@ -729,7 +867,7 @@ class AuthenticatedAdminTests(TestCase):
             institute_license_order_get_url(
                 institute.institute_slug)
         )
-
+        res.data = json.loads(res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('active_license', res.data)
         self.assertIn('purchased_inactive_license', res.data)
