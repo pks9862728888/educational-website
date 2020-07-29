@@ -1,5 +1,4 @@
 import os
-import json
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -470,7 +469,7 @@ class InstituteLicenseOrderDetailsView(APIView):
                     expired_license.selected_license)
             }
 
-        return Response(json.dumps(response), status=status.HTTP_200_OK)
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class InstituteMinDetailsTeacherView(ListAPIView):

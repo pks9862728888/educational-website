@@ -1,6 +1,7 @@
 import datetime
-import os
 import json
+import os
+import sys
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -574,7 +575,7 @@ class AuthenticatedAdminTests(TestCase):
             institute_license_order_get_url(
                 institute.institute_slug)
         )
-        res.data = json.loads(res.data)
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('active_license', res.data)
         self.assertIn('purchased_inactive_license', res.data)
@@ -675,7 +676,7 @@ class AuthenticatedAdminTests(TestCase):
             institute_license_order_get_url(
                 institute.institute_slug)
         )
-        res.data = json.loads(res.data)
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('active_license', res.data)
         self.assertIn('purchased_inactive_license', res.data)
@@ -775,7 +776,7 @@ class AuthenticatedAdminTests(TestCase):
             institute_license_order_get_url(
                 institute.institute_slug)
         )
-        res.data = json.loads(res.data)
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('active_license', res.data)
         self.assertIn('purchased_inactive_license', res.data)
@@ -867,7 +868,7 @@ class AuthenticatedAdminTests(TestCase):
             institute_license_order_get_url(
                 institute.institute_slug)
         )
-        res.data = json.loads(res.data)
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('active_license', res.data)
         self.assertIn('purchased_inactive_license', res.data)
