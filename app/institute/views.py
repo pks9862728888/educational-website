@@ -475,9 +475,10 @@ class InstituteLicenseOrderDetailsView(APIView):
 class RazorpayWebhookCallbackView(APIView):
 
     def post(self, request, *args, **kwargs):
+        print('**************************************')
         print(request.data)
-        print(args)
-        print(kwargs)
+        print(request.META)
+        print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
         return Response({'status': 'ok'}, status=status.HTTP_200_OK)
 
 
