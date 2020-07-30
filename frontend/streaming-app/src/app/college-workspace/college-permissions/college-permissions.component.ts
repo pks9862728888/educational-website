@@ -3,7 +3,6 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { INSTITUTE_ROLE_REVERSE } from 'src/constants';
-import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
 
 interface BaseInvitation {
   email: string;
@@ -71,8 +70,7 @@ export class CollegePermissionsComponent implements OnInit {
 
   constructor( private media: MediaMatcher,
                private instituteApiService: InstituteApiService,
-               private formBuilder: FormBuilder,
-               private inAppDataTransferService: InAppDataTransferService ) {
+               private formBuilder: FormBuilder) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
@@ -135,7 +133,6 @@ export class CollegePermissionsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    sessionStorage.setItem('activeRoute', 'COLLEGE_PERMISSIONS');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = sessionStorage.getItem('currentInstituteRole');
     this.getAdminUserList();

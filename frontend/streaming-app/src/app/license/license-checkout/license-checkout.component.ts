@@ -93,7 +93,7 @@ export class LicenseCheckoutComponent implements OnInit {
             this.successText = 'Payment is successful. Redirecting...';
             setTimeout(() => {
               this.ngZone.run(() => this.redirectToLicenseView());
-            }, 3000);
+            }, 2000);
           } else {
             this.errorText = 'Payment verification failed. You can retry payment if money was not deducted. If money was deducted please let us know.';
           }

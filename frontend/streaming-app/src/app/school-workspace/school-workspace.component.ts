@@ -36,7 +36,7 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
           this.activeLink = 'LICENSE';
         }
       }
-    })
+    });
   }
 
   ngOnInit(): void {

@@ -66,7 +66,6 @@ export class CollegeProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    sessionStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = sessionStorage.getItem('currentInstituteRole');
     this.instituteApiService.getInstituteDetails(this.currentInstituteSlug).subscribe(

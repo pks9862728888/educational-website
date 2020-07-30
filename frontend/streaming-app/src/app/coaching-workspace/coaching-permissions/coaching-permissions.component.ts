@@ -135,7 +135,6 @@ export class CoachingPermissionsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    sessionStorage.setItem('activeRoute', 'COACHING_PERMISSIONS');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.currentInstituteRole = sessionStorage.getItem('currentInstituteRole');
     this.getAdminUserList();
