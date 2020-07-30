@@ -1,8 +1,9 @@
+import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
 import { INSTITUTE_LICENSE_PLANS, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { InstituteApiService } from '../services/institute-api.service';
 import { PaidLicenseResponse, ActiveLicenseDetails, PurchasedInactiveLicenseDetails, ExpiredLicenseDetails } from './license.model';
 
@@ -12,7 +13,7 @@ import { PaidLicenseResponse, ActiveLicenseDetails, PurchasedInactiveLicenseDeta
   templateUrl: './license.component.html',
   styleUrls: ['./license.component.css']
 })
-export class LicenseComponent implements OnInit {
+export class LicenseComponent implements OnInit, OnDestroy {
 
   mobileQuery: MediaQueryList;
   fetchedLicenseDetails: boolean;
@@ -27,6 +28,7 @@ export class LicenseComponent implements OnInit {
 
   // For controlling expansion panel
   licenseStep: number;
+  canPurchaseAnotherLicense: boolean;
 
   constructor( private media: MediaMatcher,
                private router: Router,
@@ -35,6 +37,7 @@ export class LicenseComponent implements OnInit {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.fetchedLicenseDetails = false;
+    this.canPurchaseAnotherLicense = true;
   }
 
   ngOnInit() {
@@ -51,6 +54,7 @@ export class LicenseComponent implements OnInit {
         this.expiredLicenseDetails = result.expired_license;
         this.fetchedLicenseDetails = true;
         this.fetchActiveLicenseIndicator = false;
+        this.purchasedInactiveLicenseExists();
       },
       errors => {
         this.fetchActiveLicenseIndicator = false;
@@ -80,40 +84,29 @@ export class LicenseComponent implements OnInit {
   }
 
   activeLicenseExists() {
-    if (this.activeLicenseDetails) {
-      const status =  Object.keys(this.activeLicenseDetails).length !== 0;
-      if (status) {
-        sessionStorage.setItem('paymentComplete', 'true');
-        sessionStorage.setItem('purchasedLicenseExists', 'true');
-        this.inAppDataTransferService.showTeacherFullInstituteView();
-      }
-      return status;
-    } else {
-      return false;
+    const status =  Object.keys(this.activeLicenseDetails).length !== 0;
+    if (status) {
+      sessionStorage.setItem('paymentComplete', 'true');
+      sessionStorage.setItem('purchasedLicenseExists', 'true');
+      this.inAppDataTransferService.showTeacherFullInstituteView();
     }
+    return status;
   }
 
   expiredLicenseExists() {
-    if (this.expiredLicenseDetails) {
-      return Object.keys(this.expiredLicenseDetails).length !== 0;
-    } else {
-      return false;
-    }
+    return Object.keys(this.expiredLicenseDetails).length !== 0;
   }
 
   purchasedInactiveLicenseExists() {
-    if (this.purchasedInactiveLicenseDetails) {
-      const status =  Object.keys(this.purchasedInactiveLicenseDetails).length !== 0;
-      if (status) {
-        sessionStorage.setItem('paymentComplete', 'true');
-        sessionStorage.setItem('purchasedLicenseExists', 'true');
-        this.inAppDataTransferService.showTeacherFullInstituteView();
-      }
-      return status;
-    } else {
-      return false;
+    const status =  Object.keys(this.purchasedInactiveLicenseDetails).length !== 0;
+    if (status) {
+      sessionStorage.setItem('paymentComplete', 'true');
+      sessionStorage.setItem('purchasedLicenseExists', 'true');
+      this.inAppDataTransferService.showTeacherFullInstituteView();
+      this.canPurchaseAnotherLicense = false;
     }
-  }
+    return status;
+}
 
   getLicensePlan(key: string) {
     return INSTITUTE_LICENSE_PLANS[key];
@@ -136,4 +129,6 @@ export class LicenseComponent implements OnInit {
       this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + '/license/purchase']);
     }
   }
+
+  ngOnDestroy() {}
 }

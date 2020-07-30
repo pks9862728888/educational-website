@@ -1,8 +1,8 @@
 <section>
     <mat-card class="parent-container">
         <div class="d-flex justify-content-between">
-            <h3 [ngClass]="{'heading-text': !mobileQuery.matches}"><strong>License Details:</strong></h3>
-            <div>
+            <h3 [ngClass]="{'heading-text': !mobileQuery.matches && canPurchaseAnotherLicense}"><strong>License Details:</strong></h3>
+            <div *ngIf="canPurchaseAnotherLicense">
                 <button *ngIf="!mobileQuery.matches" mat-flat-button class="green-button" (click)="purchaseLicense()">Purchase License</button>
                 <mat-icon class="purchase-icon" *ngIf="mobileQuery.matches" (click)="purchaseLicense()">shopping_cart</mat-icon>
             </div>
