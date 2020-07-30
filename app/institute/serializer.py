@@ -5,7 +5,8 @@ from django_countries.serializers import CountryFieldMixin
 
 from core.models import Institute, InstituteProfile, InstituteLogo,\
                         InstituteBanner, InstitutePermission,\
-                        InstituteRole, InstituteLicense, Billing
+                        InstituteRole, InstituteLicense, Billing,\
+                        InstituteClass
 
 
 class InstituteLicenseListSerializer(serializers.ModelSerializer):
@@ -389,3 +390,12 @@ class InstituteProvidePermissionSerializer(serializers.ModelSerializer):
         model = InstitutePermission
         fields = ('institute', 'inviter', 'invitee', 'active', 'role',
                   'request_accepted_on')
+
+
+class InstituteClassSerializer(serializers.ModelSerializer):
+    """Serializer for creating institute class"""
+
+    class Meta:
+        model = InstituteClass
+        fields = ('id', 'institute', 'name', 'class_slug')
+        read_only_fields = ('id', 'class_slug')

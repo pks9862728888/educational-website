@@ -1,55 +1,55 @@
-# import os
-# import datetime
-#
-# from unittest.mock import patch
-#
-# from django.db import IntegrityError
-# from django.test import TestCase
-# from django.contrib.auth import get_user_model
-#
-# from core import models
-# from django.core.exceptions import PermissionDenied
-#
-#
-# def create_teacher(email='teacher@gmail.com', username='tempusername'):
-#     """Creates and return teacher user"""
-#     return get_user_model().objects.create_user(
-#         email=email,
-#         password='teacherpassword',
-#         username=username,
-#         is_teacher=True
-#     )
-#
-#
-# def create_student(email='student@gmail.com', username='tempsdffd'):
-#     """Creates and return student user"""
-#     return get_user_model().objects.create_user(
-#         email=email,
-#         password='teacherpassword',
-#         username=username,
-#         is_student=True
-#     )
-#
-#
-# def create_user(email='user@gmail.com', username='usertemp'):
-#     """Creates and return student user"""
-#     return get_user_model().objects.create_user(
-#         email=email,
-#         password='teacherpassword',
-#         username=username
-#     )
-#
-#
-# def create_institute(user, name='Temp Name ola'):
-#     """Creates and returns an institute"""
-#     return models.Institute.objects.create(
-#         user=user,
-#         name=name,
-#         institute_category=models.InstituteCategory.EDUCATION,
-#         type=models.InstituteType.COLLEGE
-#     )
-#
-#
+import os
+import datetime
+
+from unittest.mock import patch
+
+from django.db import IntegrityError
+from django.test import TestCase
+from django.contrib.auth import get_user_model
+
+from core import models
+from django.core.exceptions import PermissionDenied
+
+
+def create_teacher(email='teacher@gmail.com', username='tempusername'):
+    """Creates and return teacher user"""
+    return get_user_model().objects.create_user(
+        email=email,
+        password='teacherpassword',
+        username=username,
+        is_teacher=True
+    )
+
+
+def create_student(email='student@gmail.com', username='tempsdffd'):
+    """Creates and return student user"""
+    return get_user_model().objects.create_user(
+        email=email,
+        password='teacherpassword',
+        username=username,
+        is_student=True
+    )
+
+
+def create_user(email='user@gmail.com', username='usertemp'):
+    """Creates and return student user"""
+    return get_user_model().objects.create_user(
+        email=email,
+        password='teacherpassword',
+        username=username
+    )
+
+
+def create_institute(user, name='Temp Name ola'):
+    """Creates and returns an institute"""
+    return models.Institute.objects.create(
+        user=user,
+        name=name,
+        institute_category=models.InstituteCategory.EDUCATION,
+        type=models.InstituteType.COLLEGE
+    )
+
+
 # class InstituteModelTests(TestCase):
 #     """Test the institute model"""
 #
@@ -798,3 +798,57 @@
 #             name='Class 1'
 #         )
 #         self.assertEqual(str(res), 'class 1')
+#
+#
+# class InstituteStatisticsModelTests(TestCase):
+#     """Test that institute statistic model data is initialized to zero"""
+#
+#     def setUp(self):
+#         self.user = create_teacher()
+#         self.institute = create_institute(self.user)
+#
+#     def test_institute_statistics_model_is_created_when_institute_creates(self):
+#         """Test that creating institute creates this model"""
+#         self.assertTrue(models.InstituteStatistics.objects.filter(
+#             institute=self.institute
+#         ).exists())
+#
+#     def test_institute_statistics_model_is_initialized_to_zero(self):
+#         """Test admin is 1 but others are initialized to 0"""
+#         res = models.InstituteStatistics.objects.filter(
+#             institute=self.institute
+#         ).first()
+#
+#         self.assertEqual(res.no_of_admins, 1)
+#         self.assertEqual(res.no_of_staffs, 0)
+#         self.assertEqual(res.no_of_faculties, 0)
+#         self.assertEqual(res.no_of_students, 0)
+#         self.assertEqual(res.department_count, 0)
+#         self.assertEqual(res.class_count, 0)
+#         self.assertEqual(res.section_count, 0)
+#         self.assertEqual(res.storage_count, 0.0)
+#
+#     def test_institute_statistics_model_update_value_success(self):
+#         """Test that update statistics is success"""
+#         res = models.InstituteStatistics.objects.filter(
+#             institute=self.institute
+#         ).first()
+#         res.no_of_admins += 1
+#         res.no_of_staffs += 1
+#         res.no_of_faculties += 1
+#         res.no_of_students += 1
+#         res.department_count += 1
+#         res.class_count += 1
+#         res.section_count += 1
+#         res.storage_count += 1
+#         res.save()
+#         res.refresh_from_db()
+#
+#         self.assertEqual(res.no_of_admins, 2)
+#         self.assertEqual(res.no_of_staffs, 1)
+#         self.assertEqual(res.no_of_faculties, 1)
+#         self.assertEqual(res.no_of_students, 1)
+#         self.assertEqual(res.department_count, 1)
+#         self.assertEqual(res.class_count, 1)
+#         self.assertEqual(res.section_count, 1)
+#         self.assertEqual(res.storage_count, 1)

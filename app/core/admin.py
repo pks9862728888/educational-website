@@ -129,6 +129,14 @@ class CustomSystemMessages(admin.ModelAdmin):
         return obj.sender.email
 
 
+class CustomInstituteStatistics(admin.ModelAdmin):
+    model = models.InstituteStatistics
+    list_display = ['institute', 'storage_count', 'no_of_admins',
+                    'no_of_staffs', 'no_of_faculties', 'class_count',
+                    'department_count']
+    search_fields = ['institute__name']
+
+
 class CustomInstituteLicense(admin.ModelAdmin):
     model = models.InstituteLicense
     list_display = ['type', 'billing', 'amount', 'discount_percent']
@@ -256,6 +264,7 @@ admin.site.register(models.SystemMessage, CustomSystemMessages)
 admin.site.register(models.UserProfile, CustomUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)
 admin.site.register(models.Institute, CustomInstitute)
+admin.site.register(models.InstituteStatistics, CustomInstituteStatistics)
 admin.site.register(models.InstituteProfile, CustomInstituteProfile)
 admin.site.register(models.InstituteLogo, CustomInstituteLogo)
 admin.site.register(models.InstituteBanner, CustomInstituteBanner)

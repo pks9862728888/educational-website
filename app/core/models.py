@@ -999,6 +999,25 @@ class InstitutePermission(models.Model):
         return str(self.invitee)
 
 
+class InstituteStatistics(models.Model):
+    """Creates model for storing institute statistics"""
+    institute = models.OneToOneField(
+        'Institute', related_name='institute_statistics',
+        on_delete=models.CASCADE)
+    no_of_admins = models.PositiveSmallIntegerField(_('No of Admins'), default=1)
+    no_of_staffs = models.PositiveSmallIntegerField(_('No of Staffs'), default=0)
+    no_of_faculties = models.PositiveSmallIntegerField(_('No of Faculties'), default=0)
+    no_of_students = models.PositiveSmallIntegerField(_('No of Students'), default=0)
+    department_count = models.PositiveSmallIntegerField(_('Department Count'), default=0)
+    class_count = models.PositiveSmallIntegerField(_('Class Count'), default=0)
+    section_count = models.PositiveSmallIntegerField(_('Section Count'), default=0)
+    storage_count = models.DecimalField(_('Storage Count in Gb'), default=0.0,
+                                        max_digits=8, decimal_places=3)
+
+    def __str__(self):
+        return self.institute.name
+
+
 @receiver(post_save, sender=Institute)
 def institute_is_created(sender, instance, created, **kwargs):
     if created:
@@ -1012,6 +1031,7 @@ def institute_is_created(sender, instance, created, **kwargs):
         )
         admin_role.active = True
         admin_role.save()
+        InstituteStatistics.objects.create(institute=instance)
     else:
         try:
             instance.institute_profile.save()
@@ -1028,6 +1048,8 @@ class InstituteClass(models.Model):
         _('Name'), max_length=40, blank=False, null=False)
     class_slug = models.CharField(
         _('Class slug'), max_length=60, blank=True, null=True)
+    created_date = models.DateTimeField(
+        _('Created Date'), default=timezone.now, editable=False)
 
     class Meta:
         unique_together = ('institute', 'name')

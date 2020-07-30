@@ -20,7 +20,8 @@ from core.models import Institute, InstituteRole,\
     InstitutePermission, InstituteLicense, Billing,\
     InstituteDiscountCoupon, InstituteSelectedLicense,\
     InstituteLicenseOrderDetails, PaymentGateway,\
-    RazorpayCallback, RazorpayWebHookCallback
+    RazorpayCallback, RazorpayWebHookCallback,\
+    InstituteStatistics
 
 
 class IsTeacher(permissions.BasePermission):
@@ -1080,3 +1081,54 @@ class InstitutePermittedUserListView(APIView):
                     permitted_user_invitations.filter(active=False), False)
             }
             return Response(response_data, status=status.HTTP_200_OK)
+
+
+class CreateInstituteClassView(CreateAPIView):
+    """View to creating institute class"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher,)
+    serializer_class = serializer.InstituteClassSerializer
+
+    def create(self, request, *args, **kwargs):
+        institute = Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=self.request.user,
+            active=True,
+            role=InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        license_ = InstituteLicenseOrderDetails.objects.filter(
+            institute=institute,
+            paid=True
+        ).order_by('-payment_date').first()
+
+        if not license_ or (license_.active and license_.end_date < timezone.now()):
+            return Response({'error': _('License expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        ins_stat = InstituteStatistics.objects.filter(institute=institute).first()
+        if ins_stat.class_count >= license_.selected_license.classroom_limit:
+            return Response({'error': _('Maximum class creation limit attained.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        serializer_ = self.get_serializer(data={
+            'institute': institute.pk,
+            'name': request.data.get('name')
+        })
+        if serializer_.is_valid():
+            serializer_.save()
+            ins_stat.class_count += 1
+            ins_stat.save()
+            return Response(serializer_.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer_.errors, status=status.HTTP_400_BAD_REQUEST)
