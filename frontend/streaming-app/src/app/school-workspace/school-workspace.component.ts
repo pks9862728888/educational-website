@@ -1,3 +1,4 @@
+import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
@@ -12,8 +13,9 @@ import { Subscription } from 'rxjs';
 })
 export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
-  // For showing sidenav toolbar
   mobileQuery: MediaQueryList;
+  currentInstituteSlug: string;
+  baseUrl: string;
   opened: boolean;
   activeLink: string;
   navbarActiveLinkSubscription: Subscription;
@@ -23,7 +25,8 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
   constructor( private router: Router,
                private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService) {
+               private inAppDataTransferService: InAppDataTransferService,
+               private instituteApiService: InstituteApiService) {
     this.mobileQuery = this.media.matchMedia('(max-width: 768px)');
     this.activeLink = 'SCHOOL_PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
@@ -32,11 +35,15 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
           this.activeLink = 'SCHOOL_PROFILE';
         } else if (val.url.includes('permissions')) {
           this.activeLink = 'SCHOOL_PERMISSIONS';
+        } else if (val.url.includes('classes')) {
+          this.activeLink = 'SCHOOL_CLASSES';
         } else if (val.url.includes('license')) {
           this.activeLink = 'LICENSE';
         }
       }
     });
+    this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
+    this.baseUrl = '/school-workspace/' + this.currentInstituteSlug;
   }
 
   ngOnInit(): void {
@@ -46,35 +53,41 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
     } else {
       this.opened = true;
     }
-
     this.showTempNamesSubscription = this.inAppDataTransferService.activeBreadcrumbLinkData$.subscribe(
       (linkName: string) => {
         this.tempBreadcrumbLinkName = linkName;
       }
     );
+    this.instituteApiService.getPaidUnexpiredLicenseDetails(sessionStorage.getItem('currentInstituteSlug')).subscribe(
+      (result: {status: string}) => {
+        sessionStorage.setItem('purchasedLicenseExists', result.status);
+      }
+    )
   }
 
   // For navigating to teacher-workspace view
   navigate(link: string) {
     if (link !== this.activeLink) {
-      this.activeLink = link;
-
-      if (this.activeLink === 'HOME') {
+      if (link === 'HOME') {
         this.router.navigate(['/home']);
-      } else if (this.activeLink === 'EXIT' || this.activeLink === 'INSTITUTES') {
+      } else if (link === 'EXIT' || link === 'INSTITUTES') {
         sessionStorage.removeItem('currentInstituteSlug');
         sessionStorage.removeItem('currentInstituteRole');
+        sessionStorage.removeItem('selectedLicenseId');
+        sessionStorage.removeItem('currentInstituteType');
+        sessionStorage.removeItem('paymentComplete');
+        sessionStorage.removeItem('purchasedLicenseExists');
         this.router.navigate(['/teacher-workspace/institutes']);
       } else {
         const instituteSlug = sessionStorage.getItem('currentInstituteSlug');
-        if (this.activeLink === 'SCHOOL_PROFILE') {
-          this.router.navigate(['/school-workspace/' + instituteSlug + '/profile']);
-        } else if (this.activeLink === 'SCHOOL_PERMISSIONS') {
-          this.router.navigate(['/school-workspace/' + instituteSlug + '/permissions']);
-        } else if (this.activeLink === 'SCHOOL_CLASSES') {
-          this.router.navigate(['/school-workspace/' + instituteSlug + '/classes']);
-        } else if (this.activeLink === 'LICENSE') {
-          this.router.navigate(['/school-workspace/' + instituteSlug + '/license']);
+        if (link === 'SCHOOL_PROFILE') {
+          this.router.navigate([this.baseUrl + '/profile']);
+        } else if (link === 'SCHOOL_PERMISSIONS') {
+          this.router.navigate([this.baseUrl + '/permissions']);
+        } else if (link === 'SCHOOL_CLASSES') {
+          this.router.navigate([this.baseUrl + '/classes']);
+        } else if (link === 'LICENSE') {
+          this.router.navigate([this.baseUrl + '/license']);
         }
       }
     }
@@ -100,6 +113,9 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.routerEventsSubscription) {
       this.routerEventsSubscription.unsubscribe();
+    }
+    if (this.showTempNamesSubscription) {
+      this.showTempNamesSubscription.unsubscribe();
     }
   }
 

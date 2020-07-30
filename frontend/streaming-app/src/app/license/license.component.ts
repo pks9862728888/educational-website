@@ -1,9 +1,8 @@
-import { INSTITUTE_TYPE, INSTITUTE_LICENSE_PLANS, BILLING_TERM_REVERSE, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
-import { Router, ActivatedRoute } from '@angular/router';
+import { INSTITUTE_LICENSE_PLANS, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
+import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { InstituteApiService } from '../services/institute-api.service';
-import { TileStyler } from '@angular/material/grid-list/tile-styler';
 import { PaidLicenseResponse, ActiveLicenseDetails, PurchasedInactiveLicenseDetails, ExpiredLicenseDetails } from './license.model';
 
 
@@ -30,15 +29,13 @@ export class LicenseComponent implements OnInit {
 
   constructor( private media: MediaMatcher,
                private router: Router,
-               private instituteApiService: InstituteApiService,
-               private activatedRoute: ActivatedRoute ) {
+               private instituteApiService: InstituteApiService) {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.fetchedLicenseDetails = false;
   }
 
   ngOnInit() {
-    sessionStorage.setItem('activeRoute', 'LICENSE');
     this.fetchLicenseDetails();
   }
 
@@ -82,7 +79,12 @@ export class LicenseComponent implements OnInit {
 
   activeLicenseExists() {
     if (this.activeLicenseDetails) {
-      return Object.keys(this.activeLicenseDetails).length !== 0;
+      const status =  Object.keys(this.activeLicenseDetails).length !== 0;
+      if (status) {
+        sessionStorage.setItem('paymentComplete', 'true');
+        sessionStorage.setItem('purchasedLicenseExists', 'true');
+      }
+      return status;
     } else {
       return false;
     }
@@ -98,7 +100,12 @@ export class LicenseComponent implements OnInit {
 
   purchasedInactiveLicenseExists() {
     if (this.purchasedInactiveLicenseDetails) {
-      return Object.keys(this.purchasedInactiveLicenseDetails).length !== 0;
+      const status =  Object.keys(this.purchasedInactiveLicenseDetails).length !== 0;
+      if (status) {
+        sessionStorage.setItem('paymentComplete', 'true');
+        sessionStorage.setItem('purchasedLicenseExists', 'true');
+      }
+      return status;
     } else {
       return false;
     }

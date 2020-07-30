@@ -44,7 +44,6 @@ export class LicenseCheckoutComponent implements OnInit {
 
   ngOnInit(): void {
     if (sessionStorage.getItem('paymentComplete')) {
-      sessionStorage.removeItem('paymentComplete');
       this.redirectToLicenseView();
     }
   }
@@ -94,6 +93,8 @@ export class LicenseCheckoutComponent implements OnInit {
             setTimeout(() => {
               this.ngZone.run(() => this.redirectToLicenseView());
             }, 2000);
+            sessionStorage.setItem('paymentComplete', 'true');
+            sessionStorage.setItem('purchasedLicenseExists', 'true');
           } else {
             this.errorText = 'Payment verification failed. You can retry payment if money was not deducted. If money was deducted please let us know.';
           }

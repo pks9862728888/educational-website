@@ -69,6 +69,9 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/get-license-purchased`;
   }
 
+  getPaidInstituteLicenseUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/check-license-exists`;
+  }
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -187,6 +190,14 @@ export class InstituteApiService {
       this.getInstituteLicensePurchasedUrl(instituteSlug),
       { headers: this.getAuthHeader() }
     );
+  }
+
+  // To get paid unexpired license details
+  getPaidUnexpiredLicenseDetails(instituteSlug: string) {
+    return this.httpClient.get(
+      this.getPaidInstituteLicenseUrl(instituteSlug),
+      { headers: this.getAuthHeader() }
+    )
   }
 
   // To load token from storage

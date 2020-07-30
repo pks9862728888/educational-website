@@ -109,7 +109,6 @@ export class TeacherProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    sessionStorage.setItem('activeRoute', 'PROFILE');
     if (sessionStorage.getItem('country')) {          // Assuming country will be set initially for all teacher
       this.email = sessionStorage.getItem('email');
       this.username = sessionStorage.getItem('username');

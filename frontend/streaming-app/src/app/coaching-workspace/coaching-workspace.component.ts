@@ -1,3 +1,4 @@
+import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
@@ -13,6 +14,8 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
 
   // For showing sidenav toolbar
   mobileQuery: MediaQueryList;
+  currentInstituteSlug: string;
+  baseUrl: string;
   opened: boolean;
   activeLink: string;
   navbarActiveLinkSubscription: Subscription;
@@ -23,8 +26,8 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
 
   constructor( private router: Router,
                private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService ) {
-
+               private inAppDataTransferService: InAppDataTransferService,
+               private instituteApiService: InstituteApiService ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
     this.activeLink = 'COACHING_PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
@@ -38,6 +41,8 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
         }
       }
     });
+    this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
+    this.baseUrl = '/coaching-workspace/' + this.currentInstituteSlug;
   }
 
   ngOnInit(): void {
@@ -47,36 +52,41 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
     } else {
       this.opened = true;
     }
-
     this.showTempNamesSubscription = this.inAppDataTransferService.activeBreadcrumbLinkData$.subscribe(
       (linkName: string) => {
         this.tempBreadcrumbLinkName = linkName;
       }
     );
+    this.instituteApiService.getPaidUnexpiredLicenseDetails(sessionStorage.getItem('currentInstituteSlug')).subscribe(
+      (result: {status: string}) => {
+        sessionStorage.setItem('purchasedLicenseExists', result.status);
+      }
+    )
   }
 
   // For navigating to teacher-workspace view
   navigate(link: string) {
     if (link !== this.activeLink) {
-      this.activeLink = link;
-
-      if (this.activeLink === 'HOME') {
+      if (link === 'HOME') {
         this.router.navigate(['/home']);
-      } else if (this.activeLink === 'EXIT') {
+      } else if (link === 'EXIT') {
         sessionStorage.setItem('activeRoute', 'INSTITUTES');
         sessionStorage.removeItem('currentInstituteSlug');
         sessionStorage.removeItem('currentInstituteRole');
+        sessionStorage.removeItem('currentInstituteType');
+        sessionStorage.removeItem('purchasedLicenseExists');
+        sessionStorage.removeItem('selectedLicenseId');
+        sessionStorage.removeItem('paymentComplete');
         this.router.navigate(['/teacher-workspace/institutes']);
       } else {
-        const instituteSlug = sessionStorage.getItem('currentInstituteSlug');
-        if (this.activeLink === 'COACHING_PROFILE') {
-          this.router.navigate(['/coaching-workspace/' + instituteSlug + '/profile']);
-        } else if (this.activeLink === 'COACHING_PERMISSIONS') {
-          this.router.navigate(['/coaching-workspace/' + instituteSlug + '/permissions']);
-        } else if (this.activeLink === 'COACHING_CLASSES') {
-          this.router.navigate(['/coaching-workspace/' + instituteSlug + '/classes']);
-        } else if (this.activeLink === 'LICENSE') {
-          this.router.navigate(['/coaching-workspace/' + instituteSlug + '/license']);
+        if (link === 'COACHING_PROFILE') {
+          this.router.navigate([this.baseUrl + '/profile']);
+        } else if (link === 'COACHING_PERMISSIONS') {
+          this.router.navigate([this.baseUrl + '/permissions']);
+        } else if (link === 'COACHING_CLASSES') {
+          this.router.navigate([this.baseUrl + '/classes']);
+        } else if (link === 'LICENSE') {
+          this.router.navigate([this.baseUrl + '/license']);
         }
       }
     }

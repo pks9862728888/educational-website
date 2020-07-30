@@ -127,8 +127,6 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // this.router.navigate(['teacher-workspace/institutes/' + 'tempView' + '/permissions']);
-    sessionStorage.setItem('activeRoute', 'INSTITUTES');
     this.instituteApiService.getTeacherAdminInstituteMinDetails().subscribe(
       (result: TeacherInstitutesMinDetailInterface[]) => {
         for (const institute of result) {
@@ -243,17 +241,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
     sessionStorage.setItem('currentInstituteSlug', instituteSlug);
     sessionStorage.setItem('currentInstituteRole', role);
     sessionStorage.setItem('currentInstituteType', type);
-
-    if (type === INSTITUTE_TYPE_REVERSE.School) {
-      sessionStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
-      this.router.navigate(['school-workspace/' + instituteSlug + '/profile']);
-    } else if (type === INSTITUTE_TYPE_REVERSE.College) {
-      sessionStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
-      this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
-    } else {
-      sessionStorage.setItem('activeRoute', 'COACHING_PROFILE');
-      this.router.navigate(['coaching-workspace/' + instituteSlug + '/profile']);
-    }
+    this.navigateToProfile(type, instituteSlug);
   }
 
   // Taking action based on whether institute is created or not
@@ -274,19 +262,20 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
       sessionStorage.setItem('currentInstituteType', event.type);
       sessionStorage.setItem('currentInstituteRole', INSTITUTE_ROLE_REVERSE['Admin']);
 
-      if (event.type === INSTITUTE_TYPE_REVERSE['School']) {
-        sessionStorage.setItem('activeRoute', 'SCHOOL_PROFILE');
-        this.router.navigate(['school-workspace/' + instituteSlug + '/profile']);
-      } else if (event.type === INSTITUTE_TYPE_REVERSE['College']) {
-        sessionStorage.setItem('activeRoute', 'COLLEGE_PROFILE');
-        this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
-      } else {
-        sessionStorage.setItem('activeRoute', 'COACHING_PROFILE');
-        this.router.navigate(['coaching-workspace/' + instituteSlug + '/profile']);
-      }
+      this.navigateToProfile(event.type, instituteSlug);
     } else {
       this.showInstituteListView = true;
       this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
+    }
+  }
+
+  navigateToProfile(type: string, instituteSlug: string) {
+    if (type === INSTITUTE_TYPE_REVERSE['School']) {
+      this.router.navigate(['school-workspace/' + instituteSlug + '/profile']);
+    } else if (type === INSTITUTE_TYPE_REVERSE['College']) {
+      this.router.navigate(['college-workspace/' + instituteSlug + '/profile']);
+    } else {
+      this.router.navigate(['coaching-workspace/' + instituteSlug + '/profile']);
     }
   }
 
@@ -339,7 +328,6 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
       (result: StatusResponse) => {
         if (result.status === 'DELETED') {
           this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute), 1);
-          // Show snackbar
           this.snackBar.openFromComponent(SnackbarComponent, {
             data: 'Institute join request declined!',
             duration: 2000

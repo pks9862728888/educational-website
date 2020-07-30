@@ -80,7 +80,6 @@ export class SchoolProfileComponent implements OnInit {
     this.inAppDataTransferService.sendActiveBreadcrumbLinkData('');
     sessionStorage.removeItem('currentInstituteSlug');
     sessionStorage.removeItem('currentInstituteRole');
-    sessionStorage.setItem('activeRoute', 'INSTITUTES');
     this.router.navigate(['/teacher-workspace/institutes']);
   }
 

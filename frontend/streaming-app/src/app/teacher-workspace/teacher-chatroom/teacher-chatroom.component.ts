@@ -9,8 +9,6 @@ export class TeacherChatroomComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
-    sessionStorage.setItem('activeRoute', 'CHATROOMS');
-  }
+  ngOnInit(): void {}
 
 }

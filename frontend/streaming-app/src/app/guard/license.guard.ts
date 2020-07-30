@@ -1,4 +1,4 @@
-import { INSTITUTE_TYPE_REVERSE } from './../constants';
+import { INSTITUTE_TYPE_REVERSE } from '../../constants';
 import { Router, CanActivate, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 import { Injectable } from '@angular/core';
 
