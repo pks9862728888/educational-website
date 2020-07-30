@@ -10,7 +10,7 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                 'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COLLEGE_PROFILE'" (click)="performAction('COLLEGE_PROFILE')">College Profile</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COLLEGE_PERMISSIONS'" (click)="performAction('COLLEGE_PERMISSIONS')">College Permissions</div>
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COLLEGE_PERMISSIONS'" (click)="performAction('COLLEGE_PERMISSIONS')" *ngIf="purchasedLicenseExists">College Permissions</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                 'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')">License</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
@@ -32,7 +32,7 @@
                         <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
                         <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COLLEGE_PROFILE'">Profile</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COLLEGE_PERMISSIONS'">Permissions</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COLLEGE_PERMISSIONS'" *ngIf="purchasedLicenseExists">Permissions</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'">License</li>
                     </ol>
                 </nav>

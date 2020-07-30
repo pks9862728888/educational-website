@@ -1,3 +1,4 @@
+import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
 import { INSTITUTE_LICENSE_PLANS, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -29,7 +30,8 @@ export class LicenseComponent implements OnInit {
 
   constructor( private media: MediaMatcher,
                private router: Router,
-               private instituteApiService: InstituteApiService) {
+               private instituteApiService: InstituteApiService,
+               private inAppDataTransferService: InAppDataTransferService) {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.fetchedLicenseDetails = false;
@@ -83,6 +85,7 @@ export class LicenseComponent implements OnInit {
       if (status) {
         sessionStorage.setItem('paymentComplete', 'true');
         sessionStorage.setItem('purchasedLicenseExists', 'true');
+        this.inAppDataTransferService.showTeacherFullInstituteView();
       }
       return status;
     } else {
@@ -104,6 +107,7 @@ export class LicenseComponent implements OnInit {
       if (status) {
         sessionStorage.setItem('paymentComplete', 'true');
         sessionStorage.setItem('purchasedLicenseExists', 'true');
+        this.inAppDataTransferService.showTeacherFullInstituteView();
       }
       return status;
     } else {

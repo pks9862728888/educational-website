@@ -10,9 +10,9 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                 'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PROFILE'" (click)="performAction('SCHOOL_PROFILE')">School Profile</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PERMISSIONS'" (click)="performAction('SCHOOL_PERMISSIONS')">School Permissions</div>
+                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PERMISSIONS'" (click)="performAction('SCHOOL_PERMISSIONS')" *ngIf="purchasedLicenseExists">School Permissions</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_CLASSES'" (click)="performAction('SCHOOL_CLASSES')">School Classes</div>
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_CLASSES'" (click)="performAction('SCHOOL_CLASSES')" *ngIf="purchasedLicenseExists">School Classes</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                 'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')">License</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
@@ -34,8 +34,8 @@
                         <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
                         <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PROFILE'">Profile</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PERMISSIONS'">Permissions</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_CLASSES'">Classes</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PERMISSIONS'" *ngIf="purchasedLicenseExists">Permissions</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_CLASSES'" *ngIf="purchasedLicenseExists">Classes</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'">License</li>
                     </ol>
                 </nav>

@@ -9,7 +9,6 @@ export class InstituteRoutingGuard implements CanActivate {
   constructor(private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    console.log('**************************');
     if(sessionStorage.getItem('purchasedLicenseExists') === 'true') {
       return true;
     } else {

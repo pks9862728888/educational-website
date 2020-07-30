@@ -1,3 +1,4 @@
+import { InAppDataTransferService } from './../../services/in-app-data-transfer.service';
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 import { WindowRefService } from './../../services/window-ref.service';
 import { PAYMENT_PORTAL_REVERSE, INSTITUTE_TYPE_REVERSE } from './../../../constants';
@@ -33,6 +34,7 @@ export class LicenseCheckoutComponent implements OnInit {
   constructor( private media: MediaMatcher,
                private router: Router,
                private instituteApiService: InstituteApiService,
+               private inAppDataTransferService: InAppDataTransferService,
                private windowRefService: WindowRefService,
                private ngZone: NgZone ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
@@ -93,6 +95,7 @@ export class LicenseCheckoutComponent implements OnInit {
             setTimeout(() => {
               this.ngZone.run(() => this.redirectToLicenseView());
             }, 2000);
+            this.inAppDataTransferService.showTeacherFullInstituteView();
             sessionStorage.setItem('paymentComplete', 'true');
             sessionStorage.setItem('purchasedLicenseExists', 'true');
           } else {

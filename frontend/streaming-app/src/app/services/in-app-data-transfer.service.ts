@@ -18,6 +18,10 @@ export class InAppDataTransferService {
   private activeSideNavView = new Subject<String>();
   activeSideNavView$ = this.activeSideNavView.asObservable();
 
+  // For updating status in case license is purchased
+  private teacherFullInstituteView = new Subject<void>();
+  teacherFullInstituteView$ = this.teacherFullInstituteView.asObservable();
+
   constructor() { }
 
   // Sends active breadcrumb sublink text
@@ -33,5 +37,10 @@ export class InAppDataTransferService {
   // Sends the active link to sidenav
   setSidenavActiveLink(link: string) {
     this.activeSideNavView.next(link);
+  }
+
+  // Sends status to show full institute view
+  showTeacherFullInstituteView() {
+    this.teacherFullInstituteView.next();
   }
 }

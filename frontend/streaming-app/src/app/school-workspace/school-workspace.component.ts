@@ -22,6 +22,8 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
   routerEventsSubscription: Subscription;
+  purchasedLicenseExists: boolean;
+  purchasedLicenseSubscription: Subscription;
 
   constructor( private router: Router,
                private media: MediaMatcher,
@@ -44,6 +46,11 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
     });
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.baseUrl = '/school-workspace/' + this.currentInstituteSlug;
+    this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherFullInstituteView$.subscribe(
+      () => {
+        this.purchasedLicenseExists = true;
+      }
+    );
   }
 
   ngOnInit(): void {
@@ -59,8 +66,14 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
       }
     );
     this.instituteApiService.getPaidUnexpiredLicenseDetails(sessionStorage.getItem('currentInstituteSlug')).subscribe(
-      (result: {status: string}) => {
-        sessionStorage.setItem('purchasedLicenseExists', result.status);
+      (result: {status: boolean}) => {
+        if (result.status === true) {
+          this.purchasedLicenseExists = true;
+          sessionStorage.setItem('purchasedLicenseExists', 'true');
+        } else {
+          sessionStorage.setItem('purchasedLicenseExists', 'false');
+          this.purchasedLicenseExists = false;
+        }
       }
     )
   }
@@ -116,6 +129,9 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
     }
     if (this.showTempNamesSubscription) {
       this.showTempNamesSubscription.unsubscribe();
+    }
+    if (this.purchasedLicenseSubscription) {
+      this.purchasedLicenseSubscription.unsubscribe();
     }
   }
 
