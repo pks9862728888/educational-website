@@ -5,6 +5,7 @@ from . import views
 app_name = 'institute'
 
 urlpatterns = [
+    # Institute license related url
     path('get-discount-coupon',
          views.GetInstituteDiscountCouponView.as_view(),
          name='get-discount-coupon'),
@@ -29,6 +30,10 @@ urlpatterns = [
     path('<slug:institute_slug>/get-license-purchased',
          views.InstituteLicenseOrderDetailsView.as_view(),
          name='get-license-purchased'),
+    path('<slug:institute_slug>/check-license-exists',
+         views.InstituteUnexpiredPaidLicenseExistsView.as_view(),
+         name='check-license-exists'),
+    # Institute related url
     path('institute-min-details-teacher-admin',
          views.InstituteMinDetailsTeacherView.as_view(),
          name="institute-min-details-teacher-admin"),

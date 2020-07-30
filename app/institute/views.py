@@ -507,6 +507,40 @@ class InstituteLicenseOrderDetailsView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class InstituteUnexpiredPaidLicenseExistsView(APIView):
+    """View for checking whether unexpired license exists"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """
+        Returns true if unexpired license exists else false.
+        Only institute permitted user can make call to this api.
+        """
+        institute = Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+        if not institute:
+            return Response({'error': 'Institute not found.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': 'Permission denied.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        order = InstituteLicenseOrderDetails.objects.filter(
+            institute=institute,
+            paid=True
+        ).order_by('-payment_date').first()
+        if not order or (order.active and order.end_date < timezone.now()):
+            return Response({'status': False}, status=status.HTTP_200_OK)
+        else:
+            return Response({'status': True}, status=status.HTTP_200_OK)
+
+
 class InstituteMinDetailsTeacherView(ListAPIView):
     """
     View for getting the min details of institute

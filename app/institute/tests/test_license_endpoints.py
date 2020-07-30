@@ -47,6 +47,52 @@ def create_teacher(email='abc@gmail.com', username='tempusername'):
     )
 
 
+def institute_license_exists_url(institute_slug):
+    return reverse("institute:check-license-exists",
+                   kwargs={'institute_slug': institute_slug})
+
+
+def create_institute_license(institute, payload):
+    """Creates and returns institute license"""
+    return models.InstituteSelectedLicense.objects.create(
+            institute=institute,
+            type=payload['type'],
+            billing=payload['billing'],
+            amount=payload['amount'],
+            discount_percent=payload['discount_percent'],
+            storage=payload['storage'],
+            no_of_admin=payload['no_of_admin'],
+            no_of_staff=payload['no_of_staff'],
+            no_of_faculty=payload['no_of_faculty'],
+            no_of_student=payload['no_of_student'],
+            video_call_max_attendees=payload[
+                'video_call_max_attendees'],
+            classroom_limit=payload['classroom_limit'],
+            department_limit=payload['department_limit'],
+            subject_limit=payload['subject_limit'],
+            scheduled_test=payload['scheduled_test'],
+            LMS_exists=payload['LMS_exists'],
+            discussion_forum=payload['discussion_forum'])
+
+
+def create_order(license_, institute):
+    """Creates and returns institute order"""
+    return models.InstituteLicenseOrderDetails.objects.create(
+        selected_license=license_,
+        institute=institute,
+        payment_gateway=models.PaymentGateway.RAZORPAY,
+        currency='INR')
+
+
+def create_coupon(superuser, expiry_date_bias, discount_rs=1000):
+    """Creates and returns institute coupon"""
+    return models.InstituteDiscountCoupon.objects.create(
+        user=superuser,
+        discount_rs=discount_rs,
+        expiry_date=timezone.now() + expiry_date_bias
+    )
+
+
 class AuthenticatedAdminTests(TestCase):
     """Tests for users with institute admin permissions"""
 
@@ -102,470 +148,365 @@ class AuthenticatedAdminTests(TestCase):
         self.client = APIClient()
         self.client.force_authenticate(self.user)
 
-    # def test_admin_get_institute_selected_license_details_success(self):
-    #     """Test that admin can get license details"""
-    #     create_institute(self.user)
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_GET_SPECIFIC_LICENSE_URL, {'id': self.license.id})
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(res.data['billing'],
-    #                      self.payload['billing'])
-    #     self.assertEqual(res.data['amount'],
-    #                      self.payload['amount'])
-    #     self.assertEqual(res.data['storage'],
-    #                      self.payload['storage'])
-    #     self.assertEqual(res.data['no_of_admin'],
-    #                      self.payload['no_of_admin'])
-    #     self.assertEqual(res.data['no_of_staff'],
-    #                      self.payload['no_of_staff'])
-    #     self.assertEqual(res.data['no_of_faculty'],
-    #                      self.payload['no_of_faculty'])
-    #     self.assertEqual(res.data['no_of_student'],
-    #                      self.payload['no_of_student'])
-    #     self.assertEqual(res.data['video_call_max_attendees'],
-    #                      self.payload['video_call_max_attendees'])
-    #     self.assertEqual(res.data['classroom_limit'],
-    #                      self.payload['classroom_limit'])
-    #     self.assertEqual(res.data['department_limit'],
-    #                      self.payload['department_limit'])
-    #     self.assertEqual(res.data['subject_limit'],
-    #                      self.payload['subject_limit'])
-    #     self.assertEqual(res.data['scheduled_test'],
-    #                      self.payload['scheduled_test'])
-    #     self.assertEqual(res.data['discussion_forum'],
-    #                      self.payload['discussion_forum'])
-    #     self.assertEqual(res.data['LMS_exists'],
-    #                      self.payload['LMS_exists'])
-    #
-    # def test_non_admin_can_not_get_institute_license_details(self):
-    #     """Test that non admin can not get license details"""
-    #     tempuser = create_teacher()
-    #     create_institute(tempuser)
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_GET_SPECIFIC_LICENSE_URL, {'id': self.license.id})
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    # def test_get_invalid_license_id_fails(self):
-    #     """Test that non admin can not get license details"""
-    #     create_institute(self.user)
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_GET_SPECIFIC_LICENSE_URL, {'id': 5})
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    def test_admin_get_institute_selected_license_details_success(self):
+        """Test that admin can get license details"""
+        create_institute(self.user)
 
-    # def test_check_valid_coupon_code_success(self):
-    #     """Test admin can check valid coupon code"""
-    #     create_institute(self.user)
-    #     coupon = models.InstituteDiscountCoupon.objects.create(
-    #         user=self.superuser,
-    #         discount_rs=1000,
-    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
-    #     )
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-    #         {'coupon_code': coupon.coupon_code}
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(res.data['discount_rs'], coupon.discount_rs)
-    #     self.assertEqual(res.data['active'], True)
-    #
-    # def test_check_valid_coupon_code_success_fails_staff(self):
-    #     """Test non admin can not check valid coupon code"""
-    #     create_institute(create_teacher())
-    #     coupon = models.InstituteDiscountCoupon.objects.create(
-    #         user=self.superuser,
-    #         discount_rs=1000,
-    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
-    #     )
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-    #         {'coupon_code': coupon.coupon_code}
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    # def test_check_invalid_coupon_code_fails(self):
-    #     """Test invalid coupon code show error"""
-    #     create_institute(self.user)
-    #     coupon = models.InstituteDiscountCoupon.objects.create(
-    #         user=self.superuser,
-    #         discount_rs=1000,
-    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
-    #     )
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-    #         {'coupon_code': 'ADBSDF'}
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    # def test_check_inactive_coupon_code_fails(self):
-    #     """Test inactive coupon code show error"""
-    #     create_institute(self.user)
-    #     coupon = models.InstituteDiscountCoupon.objects.create(
-    #         user=self.superuser,
-    #         discount_rs=1000,
-    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
-    #     )
-    #     coupon.active = False
-    #     coupon.save()
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-    #         {'coupon_code': coupon.coupon_code}
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    # def test_check_expired_coupon_code_fails(self):
-    #     """Test invalid coupon code show error"""
-    #     create_institute(self.user)
-    #     coupon = models.InstituteDiscountCoupon.objects.create(
-    #         user=self.superuser,
-    #         discount_rs=1000,
-    #         expiry_date=timezone.now() - datetime.timedelta(days=365)
-    #     )
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
-    #         {'coupon_code': coupon.coupon_code}
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    # def test_pre_payment_processing_success_no_discount_coupon_by_admin(self):
-    #     """Test saving details before payment success by admin"""
-    #     institute = create_institute(self.user)
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_SELECT_LICENSE_URL,
-    #         {
-    #             "institute_slug": institute.institute_slug,
-    #             "license_id": self.license.pk,
-    #             "coupon_code": ""
-    #         }
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(res.data['status'], 'SUCCESS')
-    #     self.assertEqual(res.data['net_amount'], self.license.amount)
-    #
-    #     lic = models.InstituteSelectedLicense.objects.filter(
-    #         institute=institute.pk
-    #     ).first()
-    #     self.assertNotEqual(lic, None)
-    #     self.assertEqual(lic.amount, self.license.amount)
-    #     self.assertEqual(lic.discount_percent,
-    #                      self.license.discount_percent)
-    #     self.assertEqual(lic.discount_coupon, None)
-    #     self.assertEqual(lic.net_amount, self.license.amount)
-    #     self.assertEqual(lic.type, self.license.type)
-    #     self.assertEqual(lic.billing, self.license.billing)
-    #     self.assertEqual(lic.storage, self.license.storage)
-    #     self.assertEqual(lic.no_of_admin,
-    #                      self.license.no_of_admin)
-    #     self.assertEqual(lic.no_of_staff,
-    #                      self.license.no_of_staff)
-    #     self.assertEqual(lic.no_of_faculty,
-    #                      self.license.no_of_faculty)
-    #     self.assertEqual(lic.no_of_student,
-    #                      self.license.no_of_student)
-    #     self.assertEqual(lic.video_call_max_attendees,
-    #                      self.license.video_call_max_attendees)
-    #     self.assertEqual(lic.classroom_limit,
-    #                      self.license.classroom_limit)
-    #     self.assertEqual(lic.department_limit,
-    #                      self.license.department_limit)
-    #     self.assertEqual(lic.subject_limit,
-    #                      self.license.subject_limit)
-    #     self.assertEqual(lic.scheduled_test,
-    #                      self.license.scheduled_test)
-    #     self.assertEqual(lic.discussion_forum,
-    #                      self.license.discussion_forum)
-    #     self.assertEqual(lic.LMS_exists,
-    #                      self.license.LMS_exists)
-    #
-    # def test_pre_payment_processing_success_with_discount_coupon_by_admin(self):
-    #     """Test saving details before payment success by admin"""
-    #     institute = create_institute(self.user)
-    #     coupon = models.InstituteDiscountCoupon.objects.create(
-    #         user=self.superuser,
-    #         discount_rs=1000,
-    #         expiry_date=timezone.now() + datetime.timedelta(days=365)
-    #     )
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_SELECT_LICENSE_URL,
-    #         {
-    #             "institute_slug": institute.institute_slug,
-    #             "license_id": self.license.pk,
-    #             "coupon_code": coupon.coupon_code
-    #         }
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(res.data['status'], 'SUCCESS')
-    #     self.assertEqual(res.data['net_amount'], max(
-    #         0, self.license.amount - coupon.discount_rs))
-    #
-    #     lic = models.InstituteSelectedLicense.objects.filter(
-    #         institute=institute
-    #     ).first()
-    #
-    #     self.assertNotEqual(lic, None)
-    #     self.assertEqual(lic.amount, self.license.amount)
-    #     self.assertEqual(
-    #         lic.discount_percent,
-    #         self.license.discount_percent)
-    #     self.assertEqual(lic.discount_coupon, coupon)
-    #     self.assertEqual(lic.net_amount, max(
-    #         0, self.license.amount - coupon.discount_rs))
-    #     self.assertEqual(lic.type,
-    #                      self.license.type)
-    #     self.assertEqual(lic.billing,
-    #                      self.license.billing)
-    #     self.assertEqual(lic.storage,
-    #                      self.license.storage)
-    #     self.assertEqual(lic.no_of_admin,
-    #                      self.license.no_of_admin)
-    #     self.assertEqual(lic.no_of_staff,
-    #                      self.license.no_of_staff)
-    #     self.assertEqual(lic.no_of_faculty,
-    #                      self.license.no_of_faculty)
-    #     self.assertEqual(lic.no_of_student,
-    #                      self.license.no_of_student)
-    #     self.assertEqual(lic.video_call_max_attendees,
-    #                      self.license.video_call_max_attendees)
-    #     self.assertEqual(lic.classroom_limit,
-    #                      self.license.classroom_limit)
-    #     self.assertEqual(lic.department_limit,
-    #                      self.license.department_limit)
-    #     self.assertEqual(lic.subject_limit,
-    #                      self.license.subject_limit)
-    #     self.assertEqual(lic.scheduled_test,
-    #                      self.license.scheduled_test)
-    #     self.assertEqual(lic.discussion_forum,
-    #                      self.license.discussion_forum)
-    #     self.assertEqual(lic.LMS_exists,
-    #                      self.license.LMS_exists)
-    #
-    #     cpn = models.InstituteDiscountCoupon.objects.filter(
-    #         coupon_code=coupon.coupon_code
-    #     ).first()
-    #     self.assertFalse(cpn.active)
-    #
-    # def test_pre_payment_processing_fails_no_discount_coupon_by_other_user(self):
-    #     """Test saving details before payment fails by other user"""
-    #     institute = create_institute(create_teacher())
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_SELECT_LICENSE_URL,
-    #         {
-    #             "institute_slug": institute.institute_slug,
-    #             "license_id": self.license.pk,
-    #             "coupon_code": ""
-    #         }
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #
-    #     lic = models.InstituteSelectedLicense.objects.filter(
-    #         institute=institute.pk
-    #     ).exists()
-    #     self.assertFalse(lic)
-    #
-    # def test_pre_payment_processing_fails_invalid_institute_id(self):
-    #     """Test saving details before payment success by admin"""
-    #     create_institute(self.user)
-    #
-    #     res = self.client.post(
-    #         INSTITUTE_SELECT_LICENSE_URL,
-    #         {
-    #             "institute_slug": "abc-asd",
-    #             "license_id": self.license.pk,
-    #             "coupon_code": ""
-    #         }
-    #     )
-    #
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #     self.assertEqual(res.data['error'], 'Invalid request.')
-    #
-    # def test_create_order_success_by_admin(self):
-    #     """Test that creating order is successful by admin"""
-    #     institute = create_institute(self.user)
-    #     lic = models.InstituteSelectedLicense.objects.create(
-    #         institute=institute,
-    #         type=self.payload['type'],
-    #         billing=self.payload['billing'],
-    #         amount=self.payload['amount'],
-    #         discount_percent=self.payload['discount_percent'],
-    #         storage=self.payload['storage'],
-    #         no_of_admin=self.payload['no_of_admin'],
-    #         no_of_staff=self.payload['no_of_staff'],
-    #         no_of_faculty=self.payload['no_of_faculty'],
-    #         no_of_student=self.payload['no_of_student'],
-    #         video_call_max_attendees=self.payload[
-    #             'video_call_max_attendees'],
-    #         classroom_limit=self.payload['classroom_limit'],
-    #         department_limit=self.payload['department_limit'],
-    #         subject_limit=self.payload['subject_limit'],
-    #         scheduled_test=self.payload['scheduled_test'],
-    #         LMS_exists=self.payload['LMS_exists'],
-    #         discussion_forum=self.payload['discussion_forum']
-    #     )
-    #     res = self.client.post(
-    #         INSTITUTE_CREATE_ORDER_URL,
-    #         {
-    #             'institute_slug': institute.institute_slug,
-    #             'payment_gateway': models.PaymentGateway.RAZORPAY,
-    #             'license_id': lic.pk
-    #         }
-    #     )
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-    #     self.assertEqual(res.data['status'], 'SUCCESS')
-    #     self.assertEqual(res.data['amount'], self.payload['amount'])
-    #     self.assertEqual(res.data['key_id'], os.environ.get('RAZORPAY_TEST_KEY_ID'))
-    #     self.assertEqual(res.data['currency'], 'INR')
-    #     self.assertEqual(res.data['email'], str(self.user))
-    #     self.assertEqual(res.data['contact'], None)
-    #     self.assertNotEqual(res.data['order_id'], None)
-    #     self.assertIn('order_details_id', res.data)
-    #
-    #     order = models.InstituteLicenseOrderDetails.objects.filter(
-    #         institute=institute
-    #     ).first()
-    #     self.assertNotEqual(order, None)
-    #     self.assertEqual(order.payment_gateway,
-    #                      models.PaymentGateway.RAZORPAY)
-    #     self.assertEqual(order.start_date, None)
-    #     self.assertEqual(order.end_date, None)
-    #     self.assertFalse(order.paid)
-    #     self.assertFalse(order.active)
-    #     self.assertEqual(res.data['order_details_id'], order.pk)
-    #
-    # def test_create_order_fails_by_other_user(self):
-    #     """Test that creating order fails by non admin"""
-    #     admin = create_teacher()
-    #     institute = create_institute(admin)
-    #     lic = models.InstituteSelectedLicense.objects.create(
-    #         institute=institute,
-    #         type=self.payload['type'],
-    #         billing=self.payload['billing'],
-    #         amount=self.payload['amount'],
-    #         discount_percent=self.payload['discount_percent'],
-    #         storage=self.payload['storage'],
-    #         no_of_admin=self.payload['no_of_admin'],
-    #         no_of_staff=self.payload['no_of_staff'],
-    #         no_of_faculty=self.payload['no_of_faculty'],
-    #         no_of_student=self.payload['no_of_student'],
-    #         video_call_max_attendees=self.payload[
-    #             'video_call_max_attendees'],
-    #         classroom_limit=self.payload['classroom_limit'],
-    #         department_limit=self.payload['department_limit'],
-    #         subject_limit=self.payload['subject_limit'],
-    #         scheduled_test=self.payload['scheduled_test'],
-    #         LMS_exists=self.payload['LMS_exists'],
-    #         discussion_forum=self.payload['discussion_forum']
-    #     )
-    #     res = self.client.post(
-    #         INSTITUTE_CREATE_ORDER_URL,
-    #         {
-    #             'institute_slug': institute.institute_slug,
-    #             'payment_gateway': models.PaymentGateway.RAZORPAY,
-    #             'license_id': lic.pk
-    #         }
-    #     )
-    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
-    #
-    #     order = models.InstituteLicenseOrderDetails.objects.filter(
-    #         institute=institute
-    #     ).first()
-    #     self.assertEqual(order, None)
-    #
-    # def test_callback_url_post_success(self):
-    #     """Test that post data into callback url success"""
-    #     institute = create_institute(self.user)
-    #     lic = models.InstituteSelectedLicense.objects.create(
-    #         institute=institute,
-    #         type=self.payload['type'],
-    #         billing=self.payload['billing'],
-    #         amount=self.payload['amount'],
-    #         discount_percent=self.payload['discount_percent'],
-    #         storage=self.payload['storage'],
-    #         no_of_admin=self.payload['no_of_admin'],
-    #         no_of_staff=self.payload['no_of_staff'],
-    #         no_of_faculty=self.payload['no_of_faculty'],
-    #         no_of_student=self.payload['no_of_student'],
-    #         video_call_max_attendees=self.payload[
-    #             'video_call_max_attendees'],
-    #         classroom_limit=self.payload['classroom_limit'],
-    #         department_limit=self.payload['department_limit'],
-    #         subject_limit=self.payload['subject_limit'],
-    #         scheduled_test=self.payload['scheduled_test'],
-    #         LMS_exists=self.payload['LMS_exists'],
-    #         discussion_forum=self.payload['discussion_forum']
-    #     )
-    #     order = models.InstituteLicenseOrderDetails.objects.create(
-    #         institute=institute,
-    #         payment_gateway=models.PaymentGateway.RAZORPAY,
-    #         selected_license=lic
-    #     )
-    #     payload = {
-    #         'razorpay_order_id': 'order_FJksdhflkshfkshfs',
-    #         'razorpay_payment_id': 'pay_FJlsjdfkljslfjljf',
-    #         'razorpay_signature': 'lkkjslfjsljfsljfsljljs'
-    #     }
-    #     res = self.client.post(
-    #         RAZORPAY_CALLBACK_URL,
-    #         {
-    #             'razorpay_order_id': payload['razorpay_order_id'],
-    #             'razorpay_payment_id': payload['razorpay_payment_id'],
-    #             'razorpay_signature': payload['razorpay_signature'],
-    #             'order_details_id': order.pk
-    #         }
-    #     )
-    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(res.data['status'], 'FAILURE')
+        res = self.client.post(
+            INSTITUTE_GET_SPECIFIC_LICENSE_URL, {'id': self.license.id})
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['billing'],
+                         self.payload['billing'])
+        self.assertEqual(res.data['amount'],
+                         self.payload['amount'])
+        self.assertEqual(res.data['storage'],
+                         self.payload['storage'])
+        self.assertEqual(res.data['no_of_admin'],
+                         self.payload['no_of_admin'])
+        self.assertEqual(res.data['no_of_staff'],
+                         self.payload['no_of_staff'])
+        self.assertEqual(res.data['no_of_faculty'],
+                         self.payload['no_of_faculty'])
+        self.assertEqual(res.data['no_of_student'],
+                         self.payload['no_of_student'])
+        self.assertEqual(res.data['video_call_max_attendees'],
+                         self.payload['video_call_max_attendees'])
+        self.assertEqual(res.data['classroom_limit'],
+                         self.payload['classroom_limit'])
+        self.assertEqual(res.data['department_limit'],
+                         self.payload['department_limit'])
+        self.assertEqual(res.data['subject_limit'],
+                         self.payload['subject_limit'])
+        self.assertEqual(res.data['scheduled_test'],
+                         self.payload['scheduled_test'])
+        self.assertEqual(res.data['discussion_forum'],
+                         self.payload['discussion_forum'])
+        self.assertEqual(res.data['LMS_exists'],
+                         self.payload['LMS_exists'])
+
+    def test_non_admin_can_not_get_institute_license_details(self):
+        """Test that non admin can not get license details"""
+        tempuser = create_teacher()
+        create_institute(tempuser)
+
+        res = self.client.post(
+            INSTITUTE_GET_SPECIFIC_LICENSE_URL, {'id': self.license.id})
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_get_invalid_license_id_fails(self):
+        """Test that non admin can not get license details"""
+        create_institute(self.user)
+
+        res = self.client.post(
+            INSTITUTE_GET_SPECIFIC_LICENSE_URL, {'id': 5})
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_check_valid_coupon_code_success(self):
+        """Test admin can check valid coupon code"""
+        create_institute(self.user)
+        coupon = models.InstituteDiscountCoupon.objects.create(
+            user=self.superuser,
+            discount_rs=1000,
+            expiry_date=timezone.now() + datetime.timedelta(days=365)
+        )
+
+        res = self.client.post(
+            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+            {'coupon_code': coupon.coupon_code}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['discount_rs'], coupon.discount_rs)
+        self.assertEqual(res.data['active'], True)
+
+    def test_check_valid_coupon_code_success_fails_staff(self):
+        """Test non admin can not check valid coupon code"""
+        create_institute(create_teacher())
+        coupon = create_coupon(self.superuser, datetime.timedelta(days=365))
+
+        res = self.client.post(
+            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+            {'coupon_code': coupon.coupon_code}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_check_invalid_coupon_code_fails(self):
+        """Test invalid coupon code show error"""
+        create_institute(self.user)
+        coupon = create_coupon(self.superuser, datetime.timedelta(days=10))
+
+        res = self.client.post(
+            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+            {'coupon_code': 'ADBSDF'}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_check_inactive_coupon_code_fails(self):
+        """Test inactive coupon code show error"""
+        create_institute(self.user)
+        coupon = create_coupon(self.superuser, datetime.timedelta(days=365))
+        coupon.active = False
+        coupon.save()
+
+        res = self.client.post(
+            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+            {'coupon_code': coupon.coupon_code}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_check_expired_coupon_code_fails(self):
+        """Test invalid coupon code show error"""
+        create_institute(self.user)
+        coupon = create_coupon(self.superuser, -1 * datetime.timedelta(days=365))
+
+        res = self.client.post(
+            INSTITUTE_DISCOUNT_COUPON_CHECK_URL,
+            {'coupon_code': coupon.coupon_code}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_pre_payment_processing_success_no_discount_coupon_by_admin(self):
+        """Test saving details before payment success by admin"""
+        institute = create_institute(self.user)
+
+        res = self.client.post(
+            INSTITUTE_SELECT_LICENSE_URL,
+            {
+                "institute_slug": institute.institute_slug,
+                "license_id": self.license.pk,
+                "coupon_code": ""
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'SUCCESS')
+        self.assertEqual(res.data['net_amount'], self.license.amount)
+
+        lic = models.InstituteSelectedLicense.objects.filter(
+            institute=institute.pk
+        ).first()
+        self.assertNotEqual(lic, None)
+        self.assertEqual(lic.amount, self.license.amount)
+        self.assertEqual(lic.discount_percent,
+                         self.license.discount_percent)
+        self.assertEqual(lic.discount_coupon, None)
+        self.assertEqual(lic.net_amount, self.license.amount)
+        self.assertEqual(lic.type, self.license.type)
+        self.assertEqual(lic.billing, self.license.billing)
+        self.assertEqual(lic.storage, self.license.storage)
+        self.assertEqual(lic.no_of_admin,
+                         self.license.no_of_admin)
+        self.assertEqual(lic.no_of_staff,
+                         self.license.no_of_staff)
+        self.assertEqual(lic.no_of_faculty,
+                         self.license.no_of_faculty)
+        self.assertEqual(lic.no_of_student,
+                         self.license.no_of_student)
+        self.assertEqual(lic.video_call_max_attendees,
+                         self.license.video_call_max_attendees)
+        self.assertEqual(lic.classroom_limit,
+                         self.license.classroom_limit)
+        self.assertEqual(lic.department_limit,
+                         self.license.department_limit)
+        self.assertEqual(lic.subject_limit,
+                         self.license.subject_limit)
+        self.assertEqual(lic.scheduled_test,
+                         self.license.scheduled_test)
+        self.assertEqual(lic.discussion_forum,
+                         self.license.discussion_forum)
+        self.assertEqual(lic.LMS_exists,
+                         self.license.LMS_exists)
+
+    def test_pre_payment_processing_success_with_discount_coupon_by_admin(self):
+        """Test saving details before payment success by admin"""
+        institute = create_institute(self.user)
+        coupon = create_coupon(self.superuser, datetime.timedelta(days=365))
+
+        res = self.client.post(
+            INSTITUTE_SELECT_LICENSE_URL,
+            {
+                "institute_slug": institute.institute_slug,
+                "license_id": self.license.pk,
+                "coupon_code": coupon.coupon_code
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'SUCCESS')
+        self.assertEqual(res.data['net_amount'], max(
+            0, self.license.amount - coupon.discount_rs))
+
+        lic = models.InstituteSelectedLicense.objects.filter(
+            institute=institute
+        ).first()
+
+        self.assertNotEqual(lic, None)
+        self.assertEqual(lic.amount, self.license.amount)
+        self.assertEqual(
+            lic.discount_percent,
+            self.license.discount_percent)
+        self.assertEqual(lic.discount_coupon, coupon)
+        self.assertEqual(lic.net_amount, max(
+            0, self.license.amount - coupon.discount_rs))
+        self.assertEqual(lic.type,
+                         self.license.type)
+        self.assertEqual(lic.billing,
+                         self.license.billing)
+        self.assertEqual(lic.storage,
+                         self.license.storage)
+        self.assertEqual(lic.no_of_admin,
+                         self.license.no_of_admin)
+        self.assertEqual(lic.no_of_staff,
+                         self.license.no_of_staff)
+        self.assertEqual(lic.no_of_faculty,
+                         self.license.no_of_faculty)
+        self.assertEqual(lic.no_of_student,
+                         self.license.no_of_student)
+        self.assertEqual(lic.video_call_max_attendees,
+                         self.license.video_call_max_attendees)
+        self.assertEqual(lic.classroom_limit,
+                         self.license.classroom_limit)
+        self.assertEqual(lic.department_limit,
+                         self.license.department_limit)
+        self.assertEqual(lic.subject_limit,
+                         self.license.subject_limit)
+        self.assertEqual(lic.scheduled_test,
+                         self.license.scheduled_test)
+        self.assertEqual(lic.discussion_forum,
+                         self.license.discussion_forum)
+        self.assertEqual(lic.LMS_exists,
+                         self.license.LMS_exists)
+
+        cpn = models.InstituteDiscountCoupon.objects.filter(
+            coupon_code=coupon.coupon_code
+        ).first()
+        self.assertFalse(cpn.active)
+
+    def test_pre_payment_processing_fails_no_discount_coupon_by_other_user(self):
+        """Test saving details before payment fails by other user"""
+        institute = create_institute(create_teacher())
+
+        res = self.client.post(
+            INSTITUTE_SELECT_LICENSE_URL,
+            {
+                "institute_slug": institute.institute_slug,
+                "license_id": self.license.pk,
+                "coupon_code": ""
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+        lic = models.InstituteSelectedLicense.objects.filter(
+            institute=institute.pk
+        ).exists()
+        self.assertFalse(lic)
+
+    def test_pre_payment_processing_fails_invalid_institute_id(self):
+        """Test saving details before payment success by admin"""
+        create_institute(self.user)
+
+        res = self.client.post(
+            INSTITUTE_SELECT_LICENSE_URL,
+            {
+                "institute_slug": "abc-asd",
+                "license_id": self.license.pk,
+                "coupon_code": ""
+            }
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Invalid request.')
+
+    def test_create_order_success_by_admin(self):
+        """Test that creating order is successful by admin"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        res = self.client.post(
+            INSTITUTE_CREATE_ORDER_URL,
+            {
+                'institute_slug': institute.institute_slug,
+                'payment_gateway': models.PaymentGateway.RAZORPAY,
+                'license_id': lic.pk
+            }
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['status'], 'SUCCESS')
+        self.assertEqual(res.data['amount'], self.payload['amount'])
+        self.assertEqual(res.data['key_id'], os.environ.get('RAZORPAY_TEST_KEY_ID'))
+        self.assertEqual(res.data['currency'], 'INR')
+        self.assertEqual(res.data['email'], str(self.user))
+        self.assertEqual(res.data['contact'], 'None')
+        self.assertNotEqual(res.data['order_id'], 'None')
+        self.assertIn('order_details_id', res.data)
+
+        order = models.InstituteLicenseOrderDetails.objects.filter(
+            institute=institute
+        ).first()
+        self.assertNotEqual(order, None)
+        self.assertEqual(order.payment_gateway,
+                         models.PaymentGateway.RAZORPAY)
+        self.assertEqual(order.start_date, None)
+        self.assertEqual(order.end_date, None)
+        self.assertFalse(order.paid)
+        self.assertFalse(order.active)
+        self.assertEqual(res.data['order_details_id'], order.pk)
+
+    def test_create_order_fails_by_other_user(self):
+        """Test that creating order fails by non admin"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        res = self.client.post(
+            INSTITUTE_CREATE_ORDER_URL,
+            {
+                'institute_slug': institute.institute_slug,
+                'payment_gateway': models.PaymentGateway.RAZORPAY,
+                'license_id': lic.pk
+            }
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Insufficient permission.')
+
+        order = models.InstituteLicenseOrderDetails.objects.filter(
+            institute=institute
+        ).first()
+        self.assertEqual(order, None)
+
+    def test_callback_url_post_success(self):
+        """Test that post data into callback url success"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        payload = {
+            'razorpay_order_id': 'order_FJksdhflkshfkshfs',
+            'razorpay_payment_id': 'pay_FJlsjdfkljslfjljf',
+            'razorpay_signature': 'lkkjslfjsljfsljfsljljs'
+        }
+        res = self.client.post(
+            RAZORPAY_CALLBACK_URL,
+            {
+                'razorpay_order_id': payload['razorpay_order_id'],
+                'razorpay_payment_id': payload['razorpay_payment_id'],
+                'razorpay_signature': payload['razorpay_signature'],
+                'order_details_id': order.pk
+            }
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'FAILURE')
 
     def test_get_active_institute_license_details_success_by_admin(self):
         """Test that get active institute license successful by admin"""
         institute = create_institute(self.user)
-        lic = models.InstituteSelectedLicense.objects.create(
-            institute=institute,
-            type=self.payload['type'],
-            billing=self.payload['billing'],
-            amount=self.payload['amount'],
-            discount_percent=self.payload['discount_percent'],
-            storage=self.payload['storage'],
-            no_of_admin=self.payload['no_of_admin'],
-            no_of_staff=self.payload['no_of_staff'],
-            no_of_faculty=self.payload['no_of_faculty'],
-            no_of_student=self.payload['no_of_student'],
-            video_call_max_attendees=self.payload[
-                'video_call_max_attendees'],
-            classroom_limit=self.payload['classroom_limit'],
-            department_limit=self.payload['department_limit'],
-            subject_limit=self.payload['subject_limit'],
-            scheduled_test=self.payload['scheduled_test'],
-            LMS_exists=self.payload['LMS_exists'],
-            discussion_forum=self.payload['discussion_forum']
-        )
-        order = models.InstituteLicenseOrderDetails.objects.create(
-            selected_license=lic,
-            institute=institute,
-            payment_gateway=models.PaymentGateway.RAZORPAY,
-            currency='INR'
-        )
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
         order.paid = True
         order.active = True
         order.end_date = timezone.now() + datetime.timedelta(
@@ -643,32 +584,8 @@ class AuthenticatedAdminTests(TestCase):
     def test_get_inactive_institute_license_details_success_by_admin(self):
         """Test that get inactive institute license successful by admin"""
         institute = create_institute(self.user)
-        lic = models.InstituteSelectedLicense.objects.create(
-            institute=institute,
-            type=self.payload['type'],
-            billing=self.payload['billing'],
-            amount=self.payload['amount'],
-            discount_percent=self.payload['discount_percent'],
-            storage=self.payload['storage'],
-            no_of_admin=self.payload['no_of_admin'],
-            no_of_staff=self.payload['no_of_staff'],
-            no_of_faculty=self.payload['no_of_faculty'],
-            no_of_student=self.payload['no_of_student'],
-            video_call_max_attendees=self.payload[
-                'video_call_max_attendees'],
-            classroom_limit=self.payload['classroom_limit'],
-            department_limit=self.payload['department_limit'],
-            subject_limit=self.payload['subject_limit'],
-            scheduled_test=self.payload['scheduled_test'],
-            LMS_exists=self.payload['LMS_exists'],
-            discussion_forum=self.payload['discussion_forum']
-        )
-        order = models.InstituteLicenseOrderDetails.objects.create(
-            selected_license=lic,
-            institute=institute,
-            payment_gateway=models.PaymentGateway.RAZORPAY,
-            currency='INR'
-        )
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
         order.paid = True
         order.payment_date = timezone.now()
         order.save()
@@ -739,32 +656,8 @@ class AuthenticatedAdminTests(TestCase):
     def test_get_expired_institute_license_details_success_by_admin(self):
         """Test that get expired institute license successful by admin"""
         institute = create_institute(self.user)
-        lic = models.InstituteSelectedLicense.objects.create(
-            institute=institute,
-            type=self.payload['type'],
-            billing=self.payload['billing'],
-            amount=self.payload['amount'],
-            discount_percent=self.payload['discount_percent'],
-            storage=self.payload['storage'],
-            no_of_admin=self.payload['no_of_admin'],
-            no_of_staff=self.payload['no_of_staff'],
-            no_of_faculty=self.payload['no_of_faculty'],
-            no_of_student=self.payload['no_of_student'],
-            video_call_max_attendees=self.payload[
-                'video_call_max_attendees'],
-            classroom_limit=self.payload['classroom_limit'],
-            department_limit=self.payload['department_limit'],
-            subject_limit=self.payload['subject_limit'],
-            scheduled_test=self.payload['scheduled_test'],
-            LMS_exists=self.payload['LMS_exists'],
-            discussion_forum=self.payload['discussion_forum']
-        )
-        order = models.InstituteLicenseOrderDetails.objects.create(
-            selected_license=lic,
-            institute=institute,
-            payment_gateway=models.PaymentGateway.RAZORPAY,
-            currency='INR'
-        )
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
         order.paid = True
         order.payment_date = timezone.now()
         order.start_date = timezone.now() - datetime.timedelta(
@@ -844,26 +737,7 @@ class AuthenticatedAdminTests(TestCase):
     def test_get_institute_license_details_success_by_admin(self):
         """Test that get institute license successful by admin"""
         institute = create_institute(self.user)
-        lic = models.InstituteSelectedLicense.objects.create(
-            institute=institute,
-            type=self.payload['type'],
-            billing=self.payload['billing'],
-            amount=self.payload['amount'],
-            discount_percent=self.payload['discount_percent'],
-            storage=self.payload['storage'],
-            no_of_admin=self.payload['no_of_admin'],
-            no_of_staff=self.payload['no_of_staff'],
-            no_of_faculty=self.payload['no_of_faculty'],
-            no_of_student=self.payload['no_of_student'],
-            video_call_max_attendees=self.payload[
-                'video_call_max_attendees'],
-            classroom_limit=self.payload['classroom_limit'],
-            department_limit=self.payload['department_limit'],
-            subject_limit=self.payload['subject_limit'],
-            scheduled_test=self.payload['scheduled_test'],
-            LMS_exists=self.payload['LMS_exists'],
-            discussion_forum=self.payload['discussion_forum']
-        )
+        create_institute_license(institute, self.payload)
         res = self.client.get(
             institute_license_order_get_url(
                 institute.institute_slug)
@@ -881,7 +755,59 @@ class AuthenticatedAdminTests(TestCase):
         """Test that get expired institute license fails for non admin"""
         admin = create_teacher()
         institute = create_institute(admin)
-        lic = models.InstituteSelectedLicense.objects.create(
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.start_date = timezone.now() - datetime.timedelta(
+            days=364)
+        order.end_date = timezone.now() - datetime.timedelta(
+            days=1)
+        order.save()
+        res = self.client.get(
+            institute_license_order_get_url(
+                institute.institute_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Insufficient permission.')
+
+    def test_institute_paid_unexpired_license_returns_true(self):
+        """Test that active institute license exists"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
+
+        res = self.client.get(
+            institute_license_exists_url(institute.institute_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], True)
+
+    def test_institute_paid_inactive_license_returns_false(self):
+        """Test that expired institute license returns false"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.active = True
+        order.end_date = timezone.now() - datetime.timedelta(days=10)
+        order.save()
+
+        res = self.client.get(
+            institute_license_exists_url(institute.institute_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], False)
+
+    def test_institute_paid_active_license_returns_true(self):
+        """Test that active license among expired license returns true"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        lic2 = models.InstituteSelectedLicense.objects.create(
             institute=institute,
             type=self.payload['type'],
             billing=self.payload['billing'],
@@ -901,22 +827,40 @@ class AuthenticatedAdminTests(TestCase):
             LMS_exists=self.payload['LMS_exists'],
             discussion_forum=self.payload['discussion_forum']
         )
-        order = models.InstituteLicenseOrderDetails.objects.create(
-            selected_license=lic,
-            institute=institute,
-            payment_gateway=models.PaymentGateway.RAZORPAY,
-            currency='INR'
-        )
+        order = create_order(lic, institute)
         order.paid = True
-        order.start_date = timezone.now() - datetime.timedelta(
-            days=364)
-        order.end_date = timezone.now() - datetime.timedelta(
-            days=1)
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() - datetime.timedelta(days=10)
         order.save()
-        res = self.client.get(
-            institute_license_order_get_url(
-                institute.institute_slug)
-        )
+        order = create_order(lic2, institute)
+        order.paid = True
+        order.active = True
+        order.payment_date = timezone.now() + datetime.timedelta(days=1)
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
 
+        res = self.client.get(
+            institute_license_exists_url(institute.institute_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], True)
+
+    def test_no_license_returns_false(self):
+        """Test that no purchased license returns false"""
+        institute = create_institute(self.user)
+        res = self.client.get(
+            institute_license_exists_url(institute.institute_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], False)
+
+    def test_non_user_license_exists_permission_denied(self):
+        """Test that non existing license returns false"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        res = self.client.get(
+            institute_license_exists_url(institute.institute_slug)
+        )
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
+        self.assertEqual(res.data['error'], 'Permission denied.')
