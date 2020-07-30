@@ -149,6 +149,12 @@ class CustomRazorpayCallback(admin.ModelAdmin):
     search_fields = ['razorpay_order_id', 'razorpay_payment_id']
 
 
+class CustomRazorpayWebhookCallback(admin.ModelAdmin):
+    model = models.RazorpayWebHookCallback
+    list_display = ['order_id', 'razorpay_payment_id']
+    search_fields = ['order_id', 'razorpay_payment_id']
+
+
 class CustomInstitute(admin.ModelAdmin):
     model = models.InstituteLicense
     list_display = ['name', 'institute_category', 'type']
@@ -244,6 +250,8 @@ admin.site.register(models.InstituteDiscountCoupon,
                     CustomInstituteDiscountCoupon)
 admin.site.register(models.RazorpayCallback,
                     CustomRazorpayCallback)
+admin.site.register(models.RazorpayWebHookCallback,
+                    CustomRazorpayWebhookCallback)
 admin.site.register(models.SystemMessage, CustomSystemMessages)
 admin.site.register(models.UserProfile, CustomUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)

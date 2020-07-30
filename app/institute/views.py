@@ -20,7 +20,7 @@ from core.models import Institute, InstituteRole,\
     InstitutePermission, InstituteLicense, Billing,\
     InstituteDiscountCoupon, InstituteSelectedLicense,\
     InstituteLicenseOrderDetails, PaymentGateway,\
-    RazorpayCallback
+    RazorpayCallback, RazorpayWebHookCallback
 
 
 class IsTeacher(permissions.BasePermission):
@@ -351,19 +351,22 @@ class RazorpayPaymentCallbackView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            callback_data = RazorpayCallback.objects.create(
+            order = InstituteLicenseOrderDetails.objects.filter(pk=order_details_id).first()
+            if not order:
+                return Response({
+                    'error': _('Order not found. If payment is successful it will be verified automatically.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if order.paid:
+                return Response({'status': 'SUCCESS'}, status=status.HTTP_200_OK)
+
+            RazorpayCallback.objects.create(
                 razorpay_order_id=params_dict['razorpay_order_id'],
                 razorpay_payment_id=params_dict['razorpay_payment_id'],
                 razorpay_signature=params_dict['razorpay_signature'],
-                institute_license_order_details=InstituteLicenseOrderDetails.objects.filter(
-                    pk=order_details_id
-                ).first())
+                institute_license_order_details=order)
 
             try:
                 client.utility.verify_payment_signature(params_dict)
-                order = InstituteLicenseOrderDetails.objects.filter(
-                    pk=callback_data.institute_license_order_details.id
-                ).first()
                 order.paid = True
                 order.payment_date = timezone.now()
                 order.save()
@@ -375,6 +378,38 @@ class RazorpayPaymentCallbackView(APIView):
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RazorpayWebhookCallbackView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        request_body = request.body.decode('utf-8')
+        try:
+            razorpay_order_id = request.data['payload']['payment']['entity']['order_id']
+            razorpay_payment_id = request.data['payload']['payment']['entity']['id']
+            order = InstituteLicenseOrderDetails.objects.filter(order_id=razorpay_order_id).first()
+            if not order:
+                return Response({'status': 'Order does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+            if order.paid:
+                return Response({'status': 'ok'}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'status': 'failed'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            client.utility.verify_webhook_signature(
+                request_body,
+                request.META.get('HTTP_X_RAZORPAY_SIGNATURE'),
+                os.environ.get('RAZORPAY_WEBHOOK_SECRET'))
+            order.paid = True
+            order.payment_date = timezone.now()
+            order.save()
+            RazorpayWebHookCallback.objects.create(
+                order_id=razorpay_order_id,
+                razorpay_payment_id=razorpay_payment_id
+            )
+            return Response({'status': 'ok'}, status=status.HTTP_200_OK)
+        except SignatureVerificationError:
+            return Response({'status': 'failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InstituteLicenseOrderDetailsView(APIView):
@@ -470,24 +505,6 @@ class InstituteLicenseOrderDetailsView(APIView):
             }
 
         return Response(response, status=status.HTTP_200_OK)
-
-
-class RazorpayWebhookCallbackView(APIView):
-
-    def post(self, request, *args, **kwargs):
-        webhook_body = request.data
-        webhook_signature = request.META.get('HTTP_X_RAZORPAY_SIGNATURE')
-        webhook_secret = os.environ.get('RAZORPAY_WEBHOOK_SECRET')
-
-        try:
-            client.utility.verify_webhook_signature(webhook_body, webhook_signature, webhook_secret)
-            razorpay_order_id = request.data['payload']['payment']['entity']['order_id']
-            razorpay_payment_id = request.data['payload']['payment']['entity']['id']
-            print(razorpay_order_id)
-            print(razorpay_payment_id)
-            return Response({'status': 'ok'}, status=status.HTTP_200_OK)
-        except SignatureVerificationError:
-            return Response({'status': 'failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InstituteMinDetailsTeacherView(ListAPIView):

@@ -742,6 +742,16 @@ class RazorpayCallback(models.Model):
         related_name='institute_license_order_details')
 
 
+class RazorpayWebHookCallback(models.Model):
+    """Stores Razorpay webhook callback credentials"""
+    order_id = models.CharField(
+        _('Razorpay order id'), max_length=100,
+        blank=False, null=False)
+    razorpay_payment_id = models.CharField(
+        _('Razorpay payment id'), max_length=100,
+        blank=False, null=False)
+
+
 class ProfilePictures(models.Model):
     """Creates profile pictures model to store profile pictures"""
     user = models.ForeignKey(
