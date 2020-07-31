@@ -6,6 +6,7 @@ from unittest.mock import patch
 from django.db import IntegrityError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from core import models
 from django.core.exceptions import PermissionDenied
@@ -56,6 +57,28 @@ def create_class(institute, name='temp class'):
         institute=institute,
         name=name
     )
+
+
+def create_invite(institute, inviter, invitee, role):
+    """Creates and returns institute invite permission"""
+    return models.InstitutePermission.objects.create(
+        institute=institute,
+        inviter=inviter,
+        invitee=invitee,
+        role=role
+    )
+
+
+def accept_invite(institute, invitee, role):
+    """Accepts the permission"""
+    role = models.InstitutePermission.objects.filter(
+        institute=institute,
+        invitee=invitee,
+        role=role
+    ).first()
+    role.active = True
+    role.request_accepted_on = timezone.now()
+    role.save()
 
 
 # class InstituteModelTests(TestCase):
@@ -971,78 +994,128 @@ def create_class(institute, name='temp class'):
 #         self.assertEqual(res1.name, self.payload['name'].lower())
 #
 #
-class InstituteSectionModel(TestCase):
-    """Tests for section model"""
+# class InstituteSectionModel(TestCase):
+#     """Tests for section model"""
+#
+#     def setUp(self):
+#         self.user = get_user_model().objects.create_user(
+#             email='tempuser@gmail.com',
+#             username='usertempname',
+#             password='temppassword'
+#         )
+#         self.user.is_teacher = True
+#         self.user.save()
+#         self.payload = {'name': 'Temp subject'}
+#
+#     def test_section_creation_success(self):
+#         """Test that section creation is successful"""
+#         institute = create_institute(self.user)
+#         class_ = create_class(institute)
+#         res = models.InstituteSection.objects.create(
+#             section_class=class_,
+#             name=self.payload['name'])
+#         self.assertEqual(res.section_class.institute, institute)
+#         self.assertEqual(res.section_class, class_)
+#         self.assertEqual(res.name, self.payload['name'].lower())
+#
+#     def test_class_required(self):
+#         """Test that class is required for section creation"""
+#         with self.assertRaises(IntegrityError):
+#             models.InstituteSection.objects.create(
+#                 name=self.payload['name']
+#             )
+#
+#     def test_name_required(self):
+#         """Test that name is required for section creation"""
+#         institute = create_institute(self.user)
+#         section_class = create_class(institute)
+#         with self.assertRaises(ValueError):
+#             models.InstituteSection.objects.create(
+#                 section_class=section_class)
+#
+#     def test_name_can_not_be_blank(self):
+#         """Test that section name can not be blank"""
+#         institute = create_institute(self.user)
+#         section_class = create_class(institute)
+#         payload = {'name': '   '}
+#         with self.assertRaises(ValueError):
+#             models.InstituteSection.objects.create(
+#                 section_class=section_class,
+#                 name=payload['name']
+#             )
+#
+#     def test_duplicate_section_creation_for_same_class_fails(self):
+#         """Test that duplicate section for same class can not be done"""
+#         institute = create_institute(self.user)
+#         section_class = create_class(institute)
+#         models.InstituteSection.objects.create(
+#             section_class=section_class,
+#             name=self.payload['name'])
+#         with self.assertRaises(IntegrityError):
+#             models.InstituteSection.objects.create(
+#                 section_class=section_class,
+#                 name=self.payload['name'])
+#
+#     def test_different_class_can_have_same_section(self):
+#         """Test that different class can have same section"""
+#         institute = create_institute(self.user)
+#         section_class = create_class(institute)
+#         class_1 = create_class(institute, 'class 1')
+#         res = models.InstituteSection.objects.create(
+#             section_class=section_class,
+#             name=self.payload['name'])
+#         res1 = models.InstituteSection.objects.create(
+#             section_class=class_1,
+#             name=self.payload['name'])
+#         self.assertEqual(res.name, self.payload['name'].lower())
+#         self.assertEqual(res1.name, self.payload['name'].lower())
+
+
+class InstituteClassPermissionTests(TestCase):
+    """
+    Tests for institute class permission model.
+    Only Admin can add Staff / Admin
+    """
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            email='tempuser@gmail.com',
-            username='usertempname',
-            password='temppassword'
+            email='tempuser@tgmail.com',
+            password='tempoassdfsword',
+            username='tempusernamesdfs'
         )
         self.user.is_teacher = True
         self.user.save()
-        self.payload = {'name': 'Temp subject'}
 
-    def test_section_creation_success(self):
-        """Test that section creation is successful"""
+    def test_add_staff_to_class_success_by_admin(self):
+        """Test that admin can add staff to class"""
         institute = create_institute(self.user)
+        staff = create_teacher()
+        create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
         class_ = create_class(institute)
-        res = models.InstituteSection.objects.create(
-            section_class=class_,
-            name=self.payload['name'])
-        self.assertEqual(res.section_class.institute, institute)
-        self.assertEqual(res.section_class, class_)
-        self.assertEqual(res.name, self.payload['name'].lower())
 
-    def test_class_required(self):
-        """Test that class is required for section creation"""
-        with self.assertRaises(IntegrityError):
-            models.InstituteSection.objects.create(
-                name=self.payload['name']
-            )
+        res = models.InstituteClassPermission.objects.create(
+            inviter=self.user,
+            invitee=staff,
+            to=class_
+        )
+        self.assertEqual(res.inviter, self.user)
+        self.assertEqual(res.invitee, staff)
+        self.assertEqual(res.to, class_)
 
-    def test_name_required(self):
-        """Test that name is required for section creation"""
+    def test_add_admin_to_class_success_by_admin(self):
+        """Test that admin can add admin to class"""
         institute = create_institute(self.user)
-        section_class = create_class(institute)
-        with self.assertRaises(ValueError):
-            models.InstituteSection.objects.create(
-                section_class=section_class)
+        admin = create_teacher()
+        create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
+        accept_invite(institute, admin, models.InstituteRole.ADMIN)
+        class_ = create_class(institute)
 
-    def test_name_can_not_be_blank(self):
-        """Test that section name can not be blank"""
-        institute = create_institute(self.user)
-        section_class = create_class(institute)
-        payload = {'name': '   '}
-        with self.assertRaises(ValueError):
-            models.InstituteSection.objects.create(
-                section_class=section_class,
-                name=payload['name']
-            )
-
-    def test_duplicate_section_creation_for_same_class_fails(self):
-        """Test that duplicate section for same class can not be done"""
-        institute = create_institute(self.user)
-        section_class = create_class(institute)
-        models.InstituteSection.objects.create(
-            section_class=section_class,
-            name=self.payload['name'])
-        with self.assertRaises(IntegrityError):
-            models.InstituteSection.objects.create(
-                section_class=section_class,
-                name=self.payload['name'])
-
-    def test_different_class_can_have_same_section(self):
-        """Test that different class can have same section"""
-        institute = create_institute(self.user)
-        section_class = create_class(institute)
-        class_1 = create_class(institute, 'class 1')
-        res = models.InstituteSection.objects.create(
-            section_class=section_class,
-            name=self.payload['name'])
-        res1 = models.InstituteSection.objects.create(
-            section_class=class_1,
-            name=self.payload['name'])
-        self.assertEqual(res.name, self.payload['name'].lower())
-        self.assertEqual(res1.name, self.payload['name'].lower())
+        res = models.InstituteClassPermission.objects.create(
+            inviter=self.user,
+            invitee=admin,
+            to=class_
+        )
+        self.assertEqual(res.inviter, self.user)
+        self.assertEqual(res.invitee, admin)
+        self.assertEqual(res.to, class_)

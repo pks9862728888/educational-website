@@ -1167,3 +1167,22 @@ class InstituteSection(models.Model):
 def add_section_slug(instance, *args, **kwargs):
     if not instance.section_slug:
         instance.section_slug = unique_slug_generator_for_section(instance)
+
+
+class InstituteClassPermission(models.Model):
+    """Model to store staff/admin assigned to class by admin"""
+    invitee = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='perm_class_invitee')
+    inviter = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True)
+    to = models.ForeignKey(
+        InstituteClass, on_delete=models.CASCADE,
+        related_name='perm_class_institute')
+    created_date = models.DateTimeField(
+        _('Created On'), default=timezone.now, editable=False)
+
+    def __str__(self):
+        return str(self.invitee)
+
+    class Meta:
+        unique_together = ('to', 'invitee')

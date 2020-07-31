@@ -90,39 +90,39 @@ def accept_invite(institute, invitee, role):
     role.save()
 
 
-# class SchoolCollegeAuthenticatedTeacherTests(TestCase):
-#     """Tests related to creation and providing permission to class"""
-#
-#     def setUp(self):
-#         self.user = get_user_model().objects.create(
-#             email='testuser@gmail.com',
-#             username='testusername',
-#             password='testpassword'
-#         )
-#         self.user.is_teacher = True
-#         self.user.save()
-#
-#         self.client = APIClient()
-#         self.client.force_authenticate(self.user)
-#         self.payload = {
-#             'type': models.InstituteLicensePlans.BUSINESS,
-#             'billing': models.Billing.MONTHLY,
-#             'amount': 2100,
-#             'discount_percent': 0.0,
-#             'storage': 100,
-#             'no_of_admin': 1,
-#             'no_of_staff': 1,
-#             'no_of_faculty': 1,
-#             'no_of_student': 200,
-#             'video_call_max_attendees': 100,
-#             'classroom_limit': 1,
-#             'department_limit': 0,
-#             'subject_limit': 1,
-#             'scheduled_test': True,
-#             'discussion_forum': models.DiscussionForumBar.ONE_PER_SUBJECT,
-#             'LMS_exists': True
-#         }
-#
+class SchoolCollegeAuthenticatedTeacherTests(TestCase):
+    """Tests related to creation and providing permission to class"""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create(
+            email='testuser@gmail.com',
+            username='testusername',
+            password='testpassword'
+        )
+        self.user.is_teacher = True
+        self.user.save()
+
+        self.client = APIClient()
+        self.client.force_authenticate(self.user)
+        self.payload = {
+            'type': models.InstituteLicensePlans.BUSINESS,
+            'billing': models.Billing.MONTHLY,
+            'amount': 2100,
+            'discount_percent': 0.0,
+            'storage': 100,
+            'no_of_admin': 1,
+            'no_of_staff': 1,
+            'no_of_faculty': 1,
+            'no_of_student': 200,
+            'video_call_max_attendees': 100,
+            'classroom_limit': 1,
+            'department_limit': 0,
+            'subject_limit': 1,
+            'scheduled_test': True,
+            'discussion_forum': models.DiscussionForumBar.ONE_PER_SUBJECT,
+            'LMS_exists': True
+        }
+
 #     def test_create_class_success_by_admin_after_purchasing_license(self):
 #         """Test that class creation is successful by admin user after license is purchased"""
 #         institute = create_institute(self.user)
