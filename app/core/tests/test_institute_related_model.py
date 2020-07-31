@@ -860,139 +860,189 @@ def create_class(institute, name='temp class'):
 #         self.assertEqual(res.class_count, 1)
 #         self.assertEqual(res.section_count, 1)
 #         self.assertEqual(res.storage_count, 1)
-
-
-class InstituteSubjectModelTests(TestCase):
-    """Tests related to institute subject related model"""
+#
+#
+# class InstituteSubjectModelTests(TestCase):
+#     """Tests related to institute subject related model"""
+#
+#     def setUp(self):
+#         self.user = get_user_model().objects.create_user(
+#             email='tempuserna@gmail.com',
+#             password='temppass',
+#             username='teampusername'
+#         )
+#         self.user.is_teacher = True
+#         self.user.save()
+#         self.payload = {
+#             'name': 'Temp subject',
+#             'type': models.InstituteSubjectType.MANDATORY
+#         }
+#
+#     def test_subject_creation_success(self):
+#         """Test that subject creation is success"""
+#         institute = create_institute(self.user)
+#         subject_class = create_class(institute)
+#         res = models.InstituteSubject.objects.create(
+#             subject_class=subject_class,
+#             name=self.payload['name'],
+#             type=self.payload['type']
+#         )
+#         self.assertEqual(res.subject_class.institute, institute)
+#         self.assertEqual(res.subject_class, subject_class)
+#         self.assertEqual(res.name, self.payload['name'].lower())
+#         self.assertEqual(res.type, self.payload['type'])
+#
+#     def test_class_required(self):
+#         """Test that class is required for subject creation"""
+#         institute = create_institute(self.user)
+#         with self.assertRaises(IntegrityError):
+#             models.InstituteSubject.objects.create(
+#                 name=self.payload['name'],
+#                 type=self.payload['type']
+#             )
+#
+#     def test_name_required(self):
+#         """Test that name is required for subject creation"""
+#         institute = create_institute(self.user)
+#         subject_class = create_class(institute)
+#         with self.assertRaises(ValueError):
+#             models.InstituteSubject.objects.create(
+#                 subject_class=subject_class,
+#                 type=self.payload['type']
+#             )
+#
+#     def test_type_required(self):
+#         """Test that type is required for subject creation"""
+#         institute = create_institute(self.user)
+#         subject_class = create_class(institute)
+#         with self.assertRaises(ValueError):
+#             models.InstituteSubject.objects.create(
+#                 subject_class=subject_class,
+#                 name=self.payload['name']
+#             )
+#
+#     def test_name_can_not_be_blank(self):
+#         """Test that class name can not be blank"""
+#         institute = create_institute(self.user)
+#         subject_class = create_class(institute)
+#         payload = {
+#             'name': '   ',
+#             'type': models.InstituteSubjectType.MANDATORY
+#         }
+#         with self.assertRaises(ValueError):
+#             models.InstituteSubject.objects.create(
+#                 subject_class=subject_class,
+#                 name=payload['name'],
+#                 type=payload['type']
+#             )
+#
+#     def test_duplicate_subject_creation_for_same_class_fails(self):
+#         """Test that duplicate class for same subject can not be done"""
+#         institute = create_institute(self.user)
+#         subject_class = create_class(institute)
+#         models.InstituteSubject.objects.create(
+#             subject_class=subject_class,
+#             name=self.payload['name'],
+#             type=self.payload['type']
+#         )
+#         with self.assertRaises(IntegrityError):
+#             models.InstituteSubject.objects.create(
+#                 subject_class=subject_class,
+#                 name=self.payload['name'],
+#                 type=self.payload['type']
+#             )
+#
+#     def test_different_class_can_have_same_subject(self):
+#         """Test that different class can contain same subject"""
+#         institute = create_institute(self.user)
+#         subject_class = create_class(institute)
+#         class_1 = create_class(institute, 'class 1')
+#         res = models.InstituteSubject.objects.create(
+#             subject_class=subject_class,
+#             name=self.payload['name'],
+#             type=self.payload['type']
+#         )
+#         res1 = models.InstituteSubject.objects.create(
+#             subject_class=class_1,
+#             name=self.payload['name'],
+#             type=self.payload['type']
+#         )
+#         self.assertEqual(res.name, self.payload['name'].lower())
+#         self.assertEqual(res1.name, self.payload['name'].lower())
+#
+#
+class InstituteSectionModel(TestCase):
+    """Tests for section model"""
 
     def setUp(self):
         self.user = get_user_model().objects.create_user(
-            email='tempuserna@gmail.com',
-            password='temppass',
-            username='teampusername'
+            email='tempuser@gmail.com',
+            username='usertempname',
+            password='temppassword'
         )
         self.user.is_teacher = True
         self.user.save()
+        self.payload = {'name': 'Temp subject'}
 
-    def test_subject_creation_success(self):
-        """Test that subject creation is success"""
+    def test_section_creation_success(self):
+        """Test that section creation is successful"""
         institute = create_institute(self.user)
-        institute_class = create_class(institute)
-
-        payload = {
-            'name': 'Temp subject',
-            'type': models.InstituteSubjectType.MANDATORY
-        }
-        res = models.InstituteSubject.objects.create(
-            institute_class=institute_class,
-            name=payload['name'],
-            type=payload['type']
-        )
-        self.assertEqual(res.institute_class.institute, institute)
-        self.assertEqual(res.institute_class, institute_class)
-        self.assertEqual(res.name, payload['name'].lower())
-        self.assertEqual(res.type, payload['type'])
+        class_ = create_class(institute)
+        res = models.InstituteSection.objects.create(
+            section_class=class_,
+            name=self.payload['name'])
+        self.assertEqual(res.section_class.institute, institute)
+        self.assertEqual(res.section_class, class_)
+        self.assertEqual(res.name, self.payload['name'].lower())
 
     def test_class_required(self):
-        """Test that class is required for subject creation"""
-        institute = create_institute(self.user)
-
-        payload = {
-            'name': 'Temp subject',
-            'type': models.InstituteSubjectType.MANDATORY
-        }
+        """Test that class is required for section creation"""
         with self.assertRaises(IntegrityError):
-            models.InstituteSubject.objects.create(
-                name=payload['name'],
-                type=payload['type']
+            models.InstituteSection.objects.create(
+                name=self.payload['name']
             )
 
     def test_name_required(self):
-        """Test that name is required for subject creation"""
+        """Test that name is required for section creation"""
         institute = create_institute(self.user)
-        institute_class = create_class(institute)
-
-        payload = {
-            'name': 'Temp class',
-            'type': models.InstituteSubjectType.MANDATORY
-        }
+        section_class = create_class(institute)
         with self.assertRaises(ValueError):
-            models.InstituteSubject.objects.create(
-                institute_class=institute_class,
-                type=payload['type']
-            )
+            models.InstituteSection.objects.create(
+                section_class=section_class)
 
-    def test_type_required(self):
-        """Test that type is required for subject creation"""
+    def test_name_can_not_be_blank(self):
+        """Test that section name can not be blank"""
         institute = create_institute(self.user)
-        institute_class = create_class(institute)
-
-        payload = {
-            'name': 'Temp subject',
-            'type': models.InstituteSubjectType.MANDATORY
-        }
+        section_class = create_class(institute)
+        payload = {'name': '   '}
         with self.assertRaises(ValueError):
-            models.InstituteSubject.objects.create(
-                institute_class=institute_class,
+            models.InstituteSection.objects.create(
+                section_class=section_class,
                 name=payload['name']
             )
 
-    def test_name_can_not_be_blank(self):
-        """Test that class name can not be blank"""
+    def test_duplicate_section_creation_for_same_class_fails(self):
+        """Test that duplicate section for same class can not be done"""
         institute = create_institute(self.user)
-        institute_class = create_class(institute)
-
-        payload = {
-            'name': '   ',
-            'type': models.InstituteSubjectType.MANDATORY
-        }
-        with self.assertRaises(ValueError):
-            models.InstituteSubject.objects.create(
-                institute_class=institute_class,
-                name=payload['name'],
-                type=payload['type']
-            )
-
-    def test_duplicate_subject_creation_for_same_class_fails(self):
-        """Test that duplicate class for same subject can not be done"""
-        institute = create_institute(self.user)
-        institute_class = create_class(institute)
-
-        payload = {
-            'name': 'asdfg',
-            'type': models.InstituteSubjectType.MANDATORY
-        }
-        models.InstituteSubject.objects.create(
-            institute_class=institute_class,
-            name=payload['name'],
-            type=payload['type']
-        )
+        section_class = create_class(institute)
+        models.InstituteSection.objects.create(
+            section_class=section_class,
+            name=self.payload['name'])
         with self.assertRaises(IntegrityError):
-            models.InstituteSubject.objects.create(
-                institute_class=institute_class,
-                name=payload['name'],
-                type=payload['type']
-            )
+            models.InstituteSection.objects.create(
+                section_class=section_class,
+                name=self.payload['name'])
 
-    def test_different_class_can_have_same_subject(self):
-        """Test that duplicate class for same subject can not be done"""
+    def test_different_class_can_have_same_section(self):
+        """Test that different class can have same section"""
         institute = create_institute(self.user)
-        institute_class = create_class(institute)
+        section_class = create_class(institute)
         class_1 = create_class(institute, 'class 1')
-
-        payload = {
-            'name': 'asdfg',
-            'type': models.InstituteSubjectType.MANDATORY
-        }
-        res = models.InstituteSubject.objects.create(
-            institute_class=institute_class,
-            name=payload['name'],
-            type=payload['type']
-        )
-        res1 = models.InstituteSubject.objects.create(
-            institute_class=class_1,
-            name=payload['name'],
-            type=payload['type']
-        )
-        self.assertEqual(res.name, payload['name'])
-        self.assertEqual(res1.name, payload['name'])
+        res = models.InstituteSection.objects.create(
+            section_class=section_class,
+            name=self.payload['name'])
+        res1 = models.InstituteSection.objects.create(
+            section_class=class_1,
+            name=self.payload['name'])
+        self.assertEqual(res.name, self.payload['name'].lower())
+        self.assertEqual(res1.name, self.payload['name'].lower())

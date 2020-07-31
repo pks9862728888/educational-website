@@ -304,26 +304,41 @@ def create_order_receipt(instance):
         order_receipt = 'order_rcptidins' + random_string_generator(size=10)
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(order_receipt=order_receipt).exists()
-
         if not qs_exists:
             break
     return order_receipt
 
 
-def unique_slug_generator_for_class(instance, new_slug=None):
-    """Generates a unique slug for institute"""
-    if new_slug is not None:
-        slug = new_slug
-    else:
-        slug = slugify(instance.name)
+def unique_slug_generator_for_class(instance):
+    """Generates a unique slug for class"""
+    while True:
+        slug = f'{slugify(instance.name)}-{random_string_generator(size=8)}'
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(class_slug=slug).exists()
+        if not qs_exists:
+            break
+    return slug
 
-    k_class = instance.__class__
-    qs_exists = k_class.objects.filter(class_slug=slug).exists()
 
-    if qs_exists:
-        new_slug = f'{slug}-{random_string_generator(size=6)}'
-        return unique_slug_generator_for_class(
-            instance, new_slug=new_slug)
+def unique_slug_generator_for_subject(instance):
+    """Generates unique slug for subject"""
+    while True:
+        slug = f'{slugify(instance.name)}-{random_string_generator(size=8)}'
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(subject_slug=slug).exists()
+        if not qs_exists:
+            break
+    return slug
+
+
+def unique_slug_generator_for_section(instance):
+    """Generates unique slug for section"""
+    while True:
+        slug = f'{slugify(instance.name)}-{random_string_generator(size=8)}'
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(section_slug=slug).exists()
+        if not qs_exists:
+            break
     return slug
 
 
@@ -1057,7 +1072,7 @@ class InstituteClass(models.Model):
     name = models.CharField(
         _('Name'), max_length=40, blank=False, null=False)
     class_slug = models.CharField(
-        _('Class slug'), max_length=60, blank=True, null=True)
+        _('Class slug'), max_length=50, blank=True, null=True)
     created_date = models.DateTimeField(
         _('Created Date'), default=timezone.now, editable=False)
 
@@ -1087,8 +1102,8 @@ def institute_class_slug_generator(sender, instance, *args, **kwargs):
 
 class InstituteSubject(models.Model):
     """Creates model to store institute subject"""
-    institute_class = models.ForeignKey(
-        InstituteClass, on_delete=models.CASCADE, related_name='institute_class')
+    subject_class = models.ForeignKey(
+        InstituteClass, on_delete=models.CASCADE, related_name='subject_class')
     name = models.CharField(
         _('Subject Name'), max_length=50, blank=False, null=False)
     type = models.CharField(
@@ -1097,6 +1112,8 @@ class InstituteSubject(models.Model):
         choices=InstituteSubjectType.SUBJECT_TYPE_IN_INSTITUTE_SUBJECTS,
         blank=False,
         null=False)
+    subject_slug = models.CharField(
+        _('Subject Slug'), max_length=60, blank=True, null=False, unique=True)
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower().strip()
@@ -1110,7 +1127,43 @@ class InstituteSubject(models.Model):
         super(InstituteSubject, self).save(*args, **kwargs)
 
     class Meta:
-        unique_together = ('institute_class', 'name')
+        unique_together = ('subject_class', 'name')
 
     def __str__(self):
         return self.name
+
+
+@receiver(pre_save, sender=InstituteSubject)
+def add_subject_slug(instance, *args, **kwargs):
+    if not instance.subject_slug:
+        instance.subject_slug = unique_slug_generator_for_subject(instance)
+
+
+class InstituteSection(models.Model):
+    """Creates model to store institute section"""
+    section_class = models.ForeignKey(
+        InstituteClass, on_delete=models.CASCADE, related_name='section_class')
+    name = models.CharField(
+        _('Section Name'), max_length=50, blank=False, null=False)
+    section_slug = models.CharField(
+        _('Section Slug'), max_length=60, blank=True, null=False, unique=True)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower().strip()
+
+        if not self.name:
+            raise ValueError({'error': _('Section name can not be blank.')})
+
+        super(InstituteSection, self).save(*args, **kwargs)
+
+    class Meta:
+        unique_together = ('section_class', 'name')
+
+    def __str__(self):
+        return self.name
+
+
+@receiver(pre_save, sender=InstituteSection)
+def add_section_slug(instance, *args, **kwargs):
+    if not instance.section_slug:
+        instance.section_slug = unique_slug_generator_for_section(instance)

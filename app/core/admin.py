@@ -248,17 +248,17 @@ class CustomInstitutePermission(admin.ModelAdmin):
         return obj.invitee.email
 
 
-class CustomInstituteSubject(admin.ModelAdmin):
-    model = models.InstituteSubject
-    list_display = ['name', 'institute_class', 'type']
-    search_fields = ['name', 'institute_class', 'type']
-    list_filter = ['type']
-
-
 class CustomInstituteClass(admin.ModelAdmin):
     model = models.InstituteClass
     list_display = ['name', 'institute', 'created_date']
     search_fields = ['name', 'institute']
+
+
+# class CustomInstituteSubject(admin.ModelAdmin):
+#     model = models.InstituteSubject
+#     list_display = ['name', 'type']
+#     search_fields = ['name', 'type']
+#     list_filter = ['type']
 
 
 admin.site.register(models.User, CustomUserAdmin)
@@ -283,4 +283,5 @@ admin.site.register(models.InstituteLogo, CustomInstituteLogo)
 admin.site.register(models.InstituteBanner, CustomInstituteBanner)
 admin.site.register(models.InstitutePermission, CustomInstitutePermission)
 admin.site.register(models.InstituteClass, CustomInstituteClass)
-admin.site.register(models.InstituteSubject, CustomInstituteSubject)
+admin.site.register(models.InstituteSubject)
+admin.site.register(models.InstituteSection)
