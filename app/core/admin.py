@@ -250,7 +250,7 @@ class CustomInstitutePermission(admin.ModelAdmin):
 
 class CustomInstituteClass(admin.ModelAdmin):
     model = models.InstituteClass
-    list_display = ['name', 'class_institute', 'created_date']
+    list_display = ['name', 'class_institute', 'created_on']
     search_fields = ['name', 'class_institute']
 
 

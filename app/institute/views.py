@@ -16,12 +16,23 @@ from rest_framework.response import Response
 from . import serializer
 from app.settings import client
 
-from core.models import Institute, InstituteRole,\
-    InstitutePermission, InstituteLicense, Billing,\
-    InstituteDiscountCoupon, InstituteSelectedLicense,\
-    InstituteLicenseOrderDetails, PaymentGateway,\
-    RazorpayCallback, RazorpayWebHookCallback,\
-    InstituteStatistics
+from core import models
+
+
+def has_paid_unexpired_license(institute):
+    """
+    Returns order if institute has unexpired institute license,
+    else returns None
+    """
+    order = models.InstituteLicenseOrderDetails.objects.filter(
+        institute=institute,
+        paid=True
+    ).first()
+
+    if not order or (order.active and order.end_date < timezone.now()):
+        return None
+    else:
+        return order
 
 
 class IsTeacher(permissions.BasePermission):
@@ -44,9 +55,9 @@ class GetInstituteDiscountCouponView(APIView):
 
     def post(self, request, *args, **kwargs):
         """Used for getting discount coupon details"""
-        if not InstitutePermission.objects.filter(
+        if not models.InstitutePermission.objects.filter(
             invitee=self.request.user.pk,
-            role=InstituteRole.ADMIN
+            role=models.InstituteRole.ADMIN
         ).exists():
             return Response({'error': _('Invalid permission')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -57,7 +68,7 @@ class GetInstituteDiscountCouponView(APIView):
             return Response({'error': _('Coupon code is required.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        coupon = InstituteDiscountCoupon.objects.filter(
+        coupon = models.InstituteDiscountCoupon.objects.filter(
             coupon_code=coupon_code
         ).first()
 
@@ -87,11 +98,11 @@ class InstituteLicenseListView(ListAPIView):
 
     def get(self, *args, **kwargs):
         """Used for formatting and sending structured data"""
-        licenses = InstituteLicense.objects.all()
+        licenses = models.InstituteLicense.objects.all()
         monthly_license = licenses.filter(
-            billing=Billing.MONTHLY).order_by('type')
+            billing=models.Billing.MONTHLY).order_by('type')
         yearly_license = licenses.filter(
-            billing=Billing.ANNUALLY).order_by('type')
+            billing=models.Billing.ANNUALLY).order_by('type')
 
         monthly_license_list = []
         yearly_license_list = []
@@ -126,14 +137,14 @@ class InstituteLicenseDetailView(APIView):
         if not id_:
             return Response({'error': _('Id is required.')})
 
-        if not InstitutePermission.objects.filter(
+        if not models.InstitutePermission.objects.filter(
             invitee=self.request.user.pk,
-            role=InstituteRole.ADMIN
+            role=models.InstituteRole.ADMIN
         ).exists():
             return Response({'error': 'Unauthorized request.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = InstituteLicense.objects.filter(pk=id_).values()
+        license_ = models.InstituteLicense.objects.filter(pk=id_).values()
 
         if license_:
             return Response(license_[0], status=status.HTTP_200_OK)
@@ -163,24 +174,24 @@ class InstituteSelectLicenseView(APIView):
             return Response(
                 errors, status=status.HTTP_400_BAD_REQUEST)
 
-        institute = Institute.objects.filter(
+        institute = models.Institute.objects.filter(
             institute_slug=institute_slug
         ).first()
         if not institute:
             return Response({'error': _('Invalid request.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not InstitutePermission.objects.filter(
+        if not models.InstitutePermission.objects.filter(
             institute=institute.pk,
             invitee=self.request.user.pk,
             active=True,
-            role=InstituteRole.ADMIN
+            role=models.InstituteRole.ADMIN
         ):
             return Response({'error': _('Insufficient permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
         coupon = None
         if coupon_code:
-            coupon = InstituteDiscountCoupon.objects.filter(
+            coupon = models.InstituteDiscountCoupon.objects.filter(
                 coupon_code=coupon_code
             ).first()
 
@@ -191,7 +202,7 @@ class InstituteSelectLicenseView(APIView):
                 return Response({'coupon_code': _('Coupon expired.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = InstituteLicense.objects.filter(
+        license_ = models.InstituteLicense.objects.filter(
             pk=license_id
         ).first()
         if not license_:
@@ -199,7 +210,7 @@ class InstituteSelectLicenseView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            sel_lic = InstituteSelectedLicense.objects.create(
+            sel_lic = models.InstituteSelectedLicense.objects.create(
                 institute=institute,
                 type=license_.type,
                 billing=license_.billing,
@@ -254,34 +265,34 @@ class InstituteCreateOrderView(APIView):
             return Response(
                 errors, status=status.HTTP_400_BAD_REQUEST)
 
-        institute = Institute.objects.filter(
+        institute = models.Institute.objects.filter(
             institute_slug=institute_slug
         ).first()
         if not institute:
             return Response({'error': _('Invalid request.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not InstitutePermission.objects.filter(
+        if not models.InstitutePermission.objects.filter(
                 institute=institute.pk,
                 invitee=self.request.user.pk,
                 active=True,
-                role=InstituteRole.ADMIN
+                role=models.InstituteRole.ADMIN
         ):
             return Response({'error': _('Insufficient permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = InstituteSelectedLicense.objects.filter(
+        license_ = models.InstituteSelectedLicense.objects.filter(
             pk=license_id
         ).first()
         if not license_:
             return Response({'error': _('Selected license not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if payment_gateway != PaymentGateway.RAZORPAY:
+        if payment_gateway != models.PaymentGateway.RAZORPAY:
             return Response({'error': _('Payment gateway not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        prev_order = InstituteLicenseOrderDetails.objects.filter(
+        prev_order = models.InstituteLicenseOrderDetails.objects.filter(
             institute=institute,
             selected_license=license_
         ).first()
@@ -303,7 +314,7 @@ class InstituteCreateOrderView(APIView):
                 status=status.HTTP_201_CREATED)
 
         try:
-            order = InstituteLicenseOrderDetails.objects.create(
+            order = models.InstituteLicenseOrderDetails.objects.create(
                 institute=institute,
                 payment_gateway=payment_gateway,
                 selected_license=license_
@@ -352,7 +363,7 @@ class RazorpayPaymentCallbackView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            order = InstituteLicenseOrderDetails.objects.filter(pk=order_details_id).first()
+            order = models.InstituteLicenseOrderDetails.objects.filter(pk=order_details_id).first()
             if not order:
                 return Response({
                     'error': _('Order not found. If payment is successful it will be verified automatically.')},
@@ -360,7 +371,7 @@ class RazorpayPaymentCallbackView(APIView):
             if order.paid:
                 return Response({'status': 'SUCCESS'}, status=status.HTTP_200_OK)
 
-            RazorpayCallback.objects.create(
+            models.RazorpayCallback.objects.create(
                 razorpay_order_id=params_dict['razorpay_order_id'],
                 razorpay_payment_id=params_dict['razorpay_payment_id'],
                 razorpay_signature=params_dict['razorpay_signature'],
@@ -388,7 +399,7 @@ class RazorpayWebhookCallbackView(APIView):
         try:
             razorpay_order_id = request.data['payload']['payment']['entity']['order_id']
             razorpay_payment_id = request.data['payload']['payment']['entity']['id']
-            order = InstituteLicenseOrderDetails.objects.filter(order_id=razorpay_order_id).first()
+            order = models.InstituteLicenseOrderDetails.objects.filter(order_id=razorpay_order_id).first()
             if not order:
                 return Response({'status': 'Order does not exist'}, status=status.HTTP_400_BAD_REQUEST)
             if order.paid:
@@ -404,7 +415,7 @@ class RazorpayWebhookCallbackView(APIView):
             order.paid = True
             order.payment_date = timezone.now()
             order.save()
-            RazorpayWebHookCallback.objects.create(
+            models.RazorpayWebHookCallback.objects.create(
                 order_id=razorpay_order_id,
                 razorpay_payment_id=razorpay_payment_id
             )
@@ -443,7 +454,7 @@ class InstituteLicenseOrderDetailsView(APIView):
         View for getting active_license, expired_license
         and purchased_inactive_license details by admin.
         """
-        institute = Institute.objects.filter(
+        institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
 
@@ -451,16 +462,16 @@ class InstituteLicenseOrderDetailsView(APIView):
             return Response({'error': _('Invalid institute.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not InstitutePermission.objects.filter(
+        if not models.InstitutePermission.objects.filter(
             institute=institute,
             invitee=self.request.user,
             active=True,
-            role=InstituteRole.ADMIN
+            role=models.InstituteRole.ADMIN
         ).exists():
             return Response({'error': _('Insufficient permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        orders = InstituteLicenseOrderDetails.objects.filter(
+        orders = models.InstituteLicenseOrderDetails.objects.filter(
             institute=institute,
             paid=True
         )
@@ -518,21 +529,21 @@ class InstituteUnexpiredPaidLicenseExistsView(APIView):
         Returns true if unexpired license exists else false.
         Only institute permitted user can make call to this api.
         """
-        institute = Institute.objects.filter(
+        institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
         if not institute:
             return Response({'error': 'Institute not found.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not InstitutePermission.objects.filter(
+        if not models.InstitutePermission.objects.filter(
             institute=institute,
             invitee=self.request.user
         ).exists():
             return Response({'error': 'Permission denied.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        order = InstituteLicenseOrderDetails.objects.filter(
+        order = models.InstituteLicenseOrderDetails.objects.filter(
             institute=institute,
             paid=True
         ).order_by('-payment_date').first()
@@ -550,7 +561,7 @@ class InstituteMinDetailsTeacherView(ListAPIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, IsTeacher)
     serializer_class = serializer.InstituteMinDetailsSerializer
-    queryset = Institute.objects.all()
+    queryset = models.Institute.objects.all()
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
@@ -573,7 +584,7 @@ class InstituteJoinedMinDetailsTeacherView(ListAPIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, IsTeacher)
     serializer_class = serializer.InstitutesJoinedMinDetailsTeacher
-    queryset = Institute.objects.all()
+    queryset = models.Institute.objects.all()
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -599,7 +610,7 @@ class InstitutePendingInviteMinDetailsTeacherView(ListAPIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, IsTeacher)
     serializer_class = serializer.InstitutePendingInviteMinDetailsSerializer
-    queryset = Institute.objects.all()
+    queryset = models.Institute.objects.all()
 
     def get_queryset(self):
         return self.queryset.filter(
@@ -663,7 +674,7 @@ class InstituteFullDetailsView(RetrieveAPIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, IsTeacher)
     serializer_class = serializer.InstituteFullDetailsSerializer
-    queryset = Institute.objects.all()
+    queryset = models.Institute.objects.all()
     lookup_field = 'institute_slug'
 
     def get_serializer(self, *args, **kwargs):
@@ -686,7 +697,7 @@ class InstituteProvidePermissionView(APIView):
 
     def post(self, request, *args, **kwargs):
         """Method to provide permission on post request"""
-        institute = Institute.objects.filter(
+        institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')).first()
 
         if not institute:
@@ -700,7 +711,7 @@ class InstituteProvidePermissionView(APIView):
 
         if not role:
             errors['role'] = _('This field is required.')
-        elif role not in [InstituteRole.STAFF, InstituteRole.FACULTY, InstituteRole.ADMIN]:
+        elif role not in [models.InstituteRole.STAFF, models.InstituteRole.FACULTY, models.InstituteRole.ADMIN]:
             errors['role'] = _('Invalid role.')
 
         if not invitee_email:
@@ -718,58 +729,58 @@ class InstituteProvidePermissionView(APIView):
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
         inviter = self.request.user
-        inviter_perm = InstitutePermission.objects.filter(
+        inviter_perm = models.InstitutePermission.objects.filter(
             institute=institute,
             invitee=inviter,
             active=True
         ).first()
 
         # For assigning admin or staff role
-        if role == InstituteRole.ADMIN or role == InstituteRole.STAFF:
+        if role == models.InstituteRole.ADMIN or role == models.InstituteRole.STAFF:
             if not inviter_perm or \
-                    inviter_perm.role != InstituteRole.ADMIN:
+                    inviter_perm.role != models.InstituteRole.ADMIN:
                 return Response({'error': _('Insufficient permission.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            existing_invite = InstitutePermission.objects.filter(
+            existing_invite = models.InstitutePermission.objects.filter(
                 institute=institute,
                 invitee=invitee
             ).first()
 
-            if existing_invite and role == InstituteRole.ADMIN:
-                if existing_invite.role == InstituteRole.ADMIN and not existing_invite.active:
+            if existing_invite and role == models.InstituteRole.ADMIN:
+                if existing_invite.role == models.InstituteRole.ADMIN and not existing_invite.active:
                     return Response({'invitee': _('User already invited.')},
                                     status=status.HTTP_400_BAD_REQUEST)
-                if existing_invite.role == InstituteRole.ADMIN and existing_invite.active:
+                if existing_invite.role == models.InstituteRole.ADMIN and existing_invite.active:
                     msg = _('User already has admin permission.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.STAFF:
+                elif existing_invite.role == models.InstituteRole.STAFF:
                     msg = _('Remove staff permission and try again.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.FACULTY:
+                elif existing_invite.role == models.InstituteRole.FACULTY:
                     msg = _('Remove faculty permission and try again.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-            elif existing_invite and role == InstituteRole.STAFF:
-                if existing_invite.role == InstituteRole.STAFF and not existing_invite.active:
+            elif existing_invite and role == models.InstituteRole.STAFF:
+                if existing_invite.role == models.InstituteRole.STAFF and not existing_invite.active:
                     msg = _('User already invited.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.STAFF and existing_invite.active:
+                elif existing_invite.role == models.InstituteRole.STAFF and existing_invite.active:
                     msg = _('User already has staff permission.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.ADMIN and existing_invite.active:
+                elif existing_invite.role == models.InstituteRole.ADMIN and existing_invite.active:
                     msg = _('Unauthorised. User is admin.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.ADMIN and not existing_invite.active:
+                elif existing_invite.role == models.InstituteRole.ADMIN and not existing_invite.active:
                     msg = _('Unauthorised. User was requested to be admin.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.FACULTY:
+                elif existing_invite.role == models.InstituteRole.FACULTY:
                     msg = _('Remove faculty permission and try again.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
@@ -801,37 +812,37 @@ class InstituteProvidePermissionView(APIView):
                 return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # For assigning faculty role
-        elif role == InstituteRole.FACULTY:
+        elif role == models.InstituteRole.FACULTY:
             if not inviter_perm or \
-                    inviter_perm.role == InstituteRole.FACULTY:
+                    inviter_perm.role == models.InstituteRole.FACULTY:
                 return Response({'error': _('Insufficient permission.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            existing_invite = InstitutePermission.objects.filter(
+            existing_invite = models.InstitutePermission.objects.filter(
                 institute=institute,
                 invitee=invitee
             ).first()
 
             if existing_invite:
-                if existing_invite.role == InstituteRole.FACULTY and not existing_invite.active:
+                if existing_invite.role == models.InstituteRole.FACULTY and not existing_invite.active:
                     return Response({'invitee': _('User already invited.')},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.FACULTY and existing_invite.active:
+                elif existing_invite.role == models.InstituteRole.FACULTY and existing_invite.active:
                     return Response({'invitee': _('User is already a faculty.')},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.ADMIN and not existing_invite.active:
+                elif existing_invite.role == models.InstituteRole.ADMIN and not existing_invite.active:
                     msg = _('Unauthorized. User is already requested for admin role.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.ADMIN and existing_invite.active:
+                elif existing_invite.role == models.InstituteRole.ADMIN and existing_invite.active:
                     msg = _('Unauthorized. User has admin permissions.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.STAFF and not existing_invite.active:
+                elif existing_invite.role == models.InstituteRole.STAFF and not existing_invite.active:
                     msg = _('Unauthorized. User is already requested for staff role.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
-                elif existing_invite.role == InstituteRole.STAFF and existing_invite.active:
+                elif existing_invite.role == models.InstituteRole.STAFF and existing_invite.active:
                     msg = _('Unauthorized. User has staff permissions.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
@@ -871,7 +882,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
 
     def post(self, request, *args, **kwargs):
         """Method to accept or delete permission on post request"""
-        institute = Institute.objects.filter(
+        institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
 
@@ -892,7 +903,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
 
         if operation.upper() == 'ACCEPT':
             invitee = self.request.user
-            invitation = InstitutePermission.objects.filter(
+            invitation = models.InstitutePermission.objects.filter(
                 institute=institute,
                 invitee=invitee
             ).first()
@@ -930,7 +941,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
 
-                invitation = InstitutePermission.objects.filter(
+                invitation = models.InstitutePermission.objects.filter(
                     institute=institute,
                     invitee=invitee
                 ).first()
@@ -940,7 +951,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
                     return Response({'error': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
 
-                inviter = InstitutePermission.objects.filter(
+                inviter = models.InstitutePermission.objects.filter(
                     institute=institute,
                     invitee=self.request.user,
                     active=True
@@ -959,7 +970,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
                 # Admin can delete staff and faculty permission
                 # Staff can only add faculty but not delete
                 # Faculty can neither add nor delete
-                if inviter.role != InstituteRole.ADMIN or\
+                if inviter.role != models.InstituteRole.ADMIN or\
                         invitation.active and inviter.role == invitation.role:
                     return Response({'error': _('Permission denied.')},
                                     status=status.HTTP_400_BAD_REQUEST)
@@ -975,7 +986,7 @@ class InstitutePermissionAcceptDeleteView(APIView):
 
             # Invitee is trying to delete join request
             else:
-                invitation = InstitutePermission.objects.filter(
+                invitation = models.InstitutePermission.objects.filter(
                     institute=institute,
                     invitee=self.request.user
                 ).first()
@@ -1021,7 +1032,7 @@ class InstitutePermittedUserListView(APIView):
     def get(self, *args, **kwargs):
         """Post request to get permitted user of institute"""
         errors = {}
-        institute = Institute.objects.filter(
+        institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
         if not institute:
@@ -1035,7 +1046,7 @@ class InstitutePermittedUserListView(APIView):
             return Response({'error': _('Invalid credentials.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        has_perm = InstitutePermission.objects.filter(
+        has_perm = models.InstitutePermission.objects.filter(
             institute=institute,
             invitee=self.request.user,
             active=True
@@ -1046,9 +1057,9 @@ class InstitutePermittedUserListView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         if role == 'ADMIN':
-            permitted_user_invitations = InstitutePermission.objects.filter(
+            permitted_user_invitations = models.InstitutePermission.objects.filter(
                 institute=institute,
-                role=InstituteRole.ADMIN
+                role=models.InstituteRole.ADMIN
             )
             response_data = {
                 'active_admin_list': self._format_data(
@@ -1058,9 +1069,9 @@ class InstitutePermittedUserListView(APIView):
             }
             return Response(response_data, status=status.HTTP_200_OK)
         elif role == 'STAFF':
-            permitted_user_invitations = InstitutePermission.objects.filter(
+            permitted_user_invitations = models.InstitutePermission.objects.filter(
                 institute=institute,
-                role=InstituteRole.STAFF
+                role=models.InstituteRole.STAFF
             )
             response_data = {
                 'active_staff_list': self._format_data(
@@ -1070,9 +1081,9 @@ class InstitutePermittedUserListView(APIView):
             }
             return Response(response_data, status=status.HTTP_200_OK)
         elif role == 'FACULTY':
-            permitted_user_invitations = InstitutePermission.objects.filter(
+            permitted_user_invitations = models.InstitutePermission.objects.filter(
                 institute=institute,
-                role=InstituteRole.FACULTY
+                role=models.InstituteRole.FACULTY
             )
             response_data = {
                 'active_faculty_list': self._format_data(
@@ -1083,14 +1094,14 @@ class InstitutePermittedUserListView(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
 
 
-class CreateInstituteClassView(CreateAPIView):
+class CreateClassView(CreateAPIView):
     """View to creating institute class"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher,)
     serializer_class = serializer.InstituteClassSerializer
 
     def create(self, request, *args, **kwargs):
-        institute = Institute.objects.filter(
+        institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
 
@@ -1098,16 +1109,16 @@ class CreateInstituteClassView(CreateAPIView):
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not InstitutePermission.objects.filter(
+        if not models.InstitutePermission.objects.filter(
             institute=institute,
             invitee=self.request.user,
             active=True,
-            role=InstituteRole.ADMIN
+            role=models.InstituteRole.ADMIN
         ).exists():
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = InstituteLicenseOrderDetails.objects.filter(
+        license_ = models.InstituteLicenseOrderDetails.objects.filter(
             institute=institute,
             paid=True
         ).order_by('-payment_date').first()
@@ -1116,7 +1127,7 @@ class CreateInstituteClassView(CreateAPIView):
             return Response({'error': _('License expired or not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        ins_stat = InstituteStatistics.objects.filter(institute=institute).first()
+        ins_stat = models.InstituteStatistics.objects.filter(institute=institute).first()
         if ins_stat.class_count >= license_.selected_license.classroom_limit:
             return Response({'error': _('Maximum class creation limit attained.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -1132,3 +1143,38 @@ class CreateInstituteClassView(CreateAPIView):
             return Response(serializer_.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer_.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ListAllClassView(ListAPIView):
+    """View for listing all classes"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher,)
+    serializer_class = serializer.InstituteClassSerializer
+    queryset = models.InstituteClass.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Invalid Institute.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=self.request.user,
+            active=True
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not has_paid_unexpired_license(institute):
+            return Response({'error': _('License expired or not purchased.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = self.queryset.filter(
+            class_institute=institute
+        ).order_by('created_on')
+        serializer_ = self.get_serializer(queryset, many=True)
+        return Response(serializer_.data, status=status.HTTP_200_OK)

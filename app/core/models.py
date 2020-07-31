@@ -1073,8 +1073,8 @@ class InstituteClass(models.Model):
         _('Name'), max_length=40, blank=False, null=False)
     class_slug = models.CharField(
         _('Class slug'), max_length=50, blank=True, null=True)
-    created_date = models.DateTimeField(
-        _('Created Date'), default=timezone.now, editable=False)
+    created_on = models.DateTimeField(
+        _('Created On'), default=timezone.now, editable=False)
 
     class Meta:
         unique_together = ('class_institute', 'name')

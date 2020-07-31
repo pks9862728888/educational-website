@@ -61,6 +61,9 @@ urlpatterns = [
          name="pending-institute-invites-teacher"),
     # Institute class
     path('<slug:institute_slug>/create-class',
-         views.CreateInstituteClassView.as_view(),
-         name='create-class')
+         views.CreateClassView.as_view(),
+         name='create-class'),
+    path('<slug:institute_slug>/list-all-class',
+         views.ListAllClassView.as_view(),
+         name='list-all-class')
 ]
