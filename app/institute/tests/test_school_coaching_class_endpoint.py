@@ -11,6 +11,9 @@ from rest_framework.test import APIClient
 from core import models
 
 
+# INSTITUTE_ADD_CLASS_PERMISSION = reverse('institute:add-class-permission')
+
+
 def get_institute_create_class_url(institute_slug):
     return reverse("institute:create-class",
                    kwargs={'institute_slug': institute_slug})
@@ -68,6 +71,13 @@ def create_order(license_, institute):
         currency='INR')
 
 
+def create_class(institute, name='temp class'):
+    """Creates and returns class"""
+    return models.InstittuteClass.objects.create(
+        institute=institute,
+        name=name)
+
+
 def create_invite(institute, inviter, invitee, role):
     """Creates and returns institute invite permission"""
     return models.InstitutePermission.objects.create(
@@ -123,85 +133,101 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
             'LMS_exists': True
         }
 
-#     def test_create_class_success_by_admin_after_purchasing_license(self):
-#         """Test that class creation is successful by admin user after license is purchased"""
-#         institute = create_institute(self.user)
-#         lic_ = create_institute_license(institute, self.payload)
-#         order = create_order(lic_, institute)
-#         order.paid = True
-#         order.save()
-#
-#         payload = {
-#             'name': 'Temp institute'
-#         }
-#         res = self.client.post(
-#             get_institute_create_class_url(institute.institute_slug),
-#             {'name': payload['name']})
-#
-#         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-#         self.assertEqual(res.data['name'], payload['name'].lower())
-#         ins = models.InstituteStatistics.objects.filter(institute=institute).first()
-#         self.assertEqual(ins.class_count, 1)
-#
-#     def test_class_creation_by_staff_fails(self):
-#         """Test that only admin can create class"""
-#         admin = create_teacher()
-#         institute = create_institute(admin)
-#         lic_ = create_institute_license(institute, self.payload)
-#         order = create_order(lic_, institute)
-#         order.paid = True
-#         order.save()
-#         create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
-#         accept_invite(institute, self.user, models.InstituteRole.STAFF)
-#
-#         payload = {
-#             'name': 'Temp institute'
-#         }
-#         res = self.client.post(
-#             get_institute_create_class_url(institute.institute_slug),
-#             {'name': payload['name']})
-#
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#
-#     def test_class_creation_by_faculty_fails(self):
-#         """Test that only admin can create class"""
-#         admin = create_teacher()
-#         institute = create_institute(admin)
-#         lic_ = create_institute_license(institute, self.payload)
-#         order = create_order(lic_, institute)
-#         order.paid = True
-#         order.save()
-#         create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
-#         accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-#
-#         payload = {
-#             'name': 'Temp institute'
-#         }
-#         res = self.client.post(
-#             get_institute_create_class_url(institute.institute_slug),
-#             {'name': payload['name']})
-#
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#
-#     def test_create_class_limit_exceed_fails(self):
-#         """Test that can only create class within limit is allowed"""
-#         institute = create_institute(self.user)
-#         lic_ = create_institute_license(institute, self.payload)
-#         order = create_order(lic_, institute)
-#         order.paid = True
-#         order.save()
-#
-#         payload = {
-#             'name': 'Temp institute'
-#         }
-#         self.client.post(
-#             get_institute_create_class_url(institute.institute_slug),
-#             {'name': payload['name']})
-#         res = res = self.client.post(
-#             get_institute_create_class_url(institute.institute_slug),
-#             {'name': 'Temp class X'})
-#
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Maximum class creation limit attained.')
+    def test_create_class_success_by_admin_after_purchasing_license(self):
+        """Test that class creation is successful by admin user after license is purchased"""
+        institute = create_institute(self.user)
+        lic_ = create_institute_license(institute, self.payload)
+        order = create_order(lic_, institute)
+        order.paid = True
+        order.save()
+
+        payload = {
+            'name': 'Temp institute'
+        }
+        res = self.client.post(
+            get_institute_create_class_url(institute.institute_slug),
+            {'name': payload['name']})
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['name'], payload['name'].lower())
+        ins = models.InstituteStatistics.objects.filter(institute=institute).first()
+        self.assertEqual(ins.class_count, 1)
+
+    def test_class_creation_by_staff_fails(self):
+        """Test that only admin can create class"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic_ = create_institute_license(institute, self.payload)
+        order = create_order(lic_, institute)
+        order.paid = True
+        order.save()
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+
+        payload = {
+            'name': 'Temp institute'
+        }
+        res = self.client.post(
+            get_institute_create_class_url(institute.institute_slug),
+            {'name': payload['name']})
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_class_creation_by_faculty_fails(self):
+        """Test that only admin can create class"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic_ = create_institute_license(institute, self.payload)
+        order = create_order(lic_, institute)
+        order.paid = True
+        order.save()
+        create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
+        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+
+        payload = {
+            'name': 'Temp institute'
+        }
+        res = self.client.post(
+            get_institute_create_class_url(institute.institute_slug),
+            {'name': payload['name']})
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_create_class_limit_exceed_fails(self):
+        """Test that can only create class within limit is allowed"""
+        institute = create_institute(self.user)
+        lic_ = create_institute_license(institute, self.payload)
+        order = create_order(lic_, institute)
+        order.paid = True
+        order.save()
+
+        payload = {
+            'name': 'Temp institute'
+        }
+        self.client.post(
+            get_institute_create_class_url(institute.institute_slug),
+            {'name': payload['name']})
+        res = res = self.client.post(
+            get_institute_create_class_url(institute.institute_slug),
+            {'name': 'Temp class X'})
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Maximum class creation limit attained.')
+
+    # def test_add_admin_to_class_success_after_buying_license(self):
+    #     """Test that admin can add admin to class"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     admin = create_teacher()
+    #     create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
+    #     accept_invite(institute, admin, models.InstittuteRole.ADMIN)
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_ADD_CLASS_PERMISSION,
+    #         {'invitee': str(admin), 'class': class_.pk}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)

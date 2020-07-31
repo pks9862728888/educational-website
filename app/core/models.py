@@ -1066,8 +1066,8 @@ def institute_is_created(sender, instance, created, **kwargs):
 
 class InstituteClass(models.Model):
     """Creates model to store institute classes"""
-    institute = models.ForeignKey(
-        'Institute', related_name='institute_classes',
+    class_institute = models.ForeignKey(
+        'Institute', related_name='class_institute',
         on_delete=models.CASCADE)
     name = models.CharField(
         _('Name'), max_length=40, blank=False, null=False)
@@ -1077,7 +1077,7 @@ class InstituteClass(models.Model):
         _('Created Date'), default=timezone.now, editable=False)
 
     class Meta:
-        unique_together = ('institute', 'name')
+        unique_together = ('class_institute', 'name')
 
     def save(self, *args, **kwargs):
         if self.name:

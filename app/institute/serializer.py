@@ -397,5 +397,5 @@ class InstituteClassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InstituteClass
-        fields = ('id', 'institute', 'name', 'class_slug')
+        fields = ('id', 'class_institute', 'name', 'class_slug')
         read_only_fields = ('id', 'class_slug')

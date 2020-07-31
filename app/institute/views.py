@@ -1122,7 +1122,7 @@ class CreateInstituteClassView(CreateAPIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         serializer_ = self.get_serializer(data={
-            'institute': institute.pk,
+            'class_institute': institute.pk,
             'name': request.data.get('name')
         })
         if serializer_.is_valid():
