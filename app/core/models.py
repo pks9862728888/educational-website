@@ -176,6 +176,16 @@ class InstituteRole:
     ]
 
 
+class InstituteSubjectType:
+    OPTIONAL = 'O'
+    MANDATORY = 'M'
+
+    SUBJECT_TYPE_IN_INSTITUTE_SUBJECTS = [
+        (OPTIONAL, _(u'OPTIONAL')),
+        (MANDATORY, _(u'MANDATORY'))
+    ]
+
+
 class Billing:
     MONTHLY = 'M'
     ANNUALLY = 'A'
@@ -1073,3 +1083,34 @@ def institute_class_slug_generator(sender, instance, *args, **kwargs):
     if not instance.class_slug:
         slug = unique_slug_generator_for_class(instance)
         instance.class_slug = slug
+
+
+class InstituteSubject(models.Model):
+    """Creates model to store institute subject"""
+    institute_class = models.ForeignKey(
+        InstituteClass, on_delete=models.CASCADE, related_name='institute_class')
+    name = models.CharField(
+        _('Subject Name'), max_length=50, blank=False, null=False)
+    type = models.CharField(
+        _('Subject Type'),
+        max_length=1,
+        choices=InstituteSubjectType.SUBJECT_TYPE_IN_INSTITUTE_SUBJECTS,
+        blank=False,
+        null=False)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower().strip()
+
+        if not self.name:
+            raise ValueError({'error': _('Subject name can not be blank.')})
+
+        if not self.type:
+            raise ValueError({'error': _('Subject type is required.')})
+
+        super(InstituteSubject, self).save(*args, **kwargs)
+
+    class Meta:
+        unique_together = ('institute_class', 'name')
+
+    def __str__(self):
+        return self.name
