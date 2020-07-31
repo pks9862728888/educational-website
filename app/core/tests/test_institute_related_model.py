@@ -59,6 +59,16 @@ def create_class(institute, name='temp class'):
     )
 
 
+def create_subject(class_, name='temp class',
+                   type_=models.InstituteSubjectType.MANDATORY):
+    """Creates and returns a subject"""
+    return models.InstituteSubject.objects.create(
+        subject_class=class_,
+        name=name,
+        type=type_
+    )
+
+
 def create_invite(institute, inviter, invitee, role):
     """Creates and returns institute invite permission"""
     return models.InstitutePermission.objects.create(
@@ -1071,10 +1081,60 @@ def accept_invite(institute, invitee, role):
 #         self.assertEqual(res1.name, self.payload['name'].lower())
 
 
-class InstituteClassPermissionTests(TestCase):
+# class InstituteClassPermissionTests(TestCase):
+#     """
+#     Tests for institute class permission model.
+#     Only Admin can add Staff / Admin
+#     """
+#
+#     def setUp(self):
+#         self.user = get_user_model().objects.create_user(
+#             email='tempuser@tgmail.com',
+#             password='tempoassdfsword',
+#             username='tempusernamesdfs'
+#         )
+#         self.user.is_teacher = True
+#         self.user.save()
+#
+#     def test_add_staff_to_class_success_by_admin(self):
+#         """Test that admin can add staff to class"""
+#         institute = create_institute(self.user)
+#         staff = create_teacher()
+#         create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+#         accept_invite(institute, staff, models.InstituteRole.STAFF)
+#         class_ = create_class(institute)
+#
+#         res = models.InstituteClassPermission.objects.create(
+#             inviter=self.user,
+#             invitee=staff,
+#             to=class_
+#         )
+#         self.assertEqual(res.inviter, self.user)
+#         self.assertEqual(res.invitee, staff)
+#         self.assertEqual(res.to, class_)
+#
+#     def test_add_admin_to_class_success_by_admin(self):
+#         """Test that admin can add admin to class"""
+#         institute = create_institute(self.user)
+#         admin = create_teacher()
+#         create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
+#         accept_invite(institute, admin, models.InstituteRole.ADMIN)
+#         class_ = create_class(institute)
+#
+#         res = models.InstituteClassPermission.objects.create(
+#             inviter=self.user,
+#             invitee=admin,
+#             to=class_
+#         )
+#         self.assertEqual(res.inviter, self.user)
+#         self.assertEqual(res.invitee, admin)
+#         self.assertEqual(res.to, class_)
+
+
+class InstituteSubjectPermissionTests(TestCase):
     """
-    Tests for institute class permission model.
-    Only Admin can add Staff / Admin
+    Tests for institute subject permission model.
+    Only Admin/Staff can add Staff / Admin / Faculty
     """
 
     def setUp(self):
@@ -1093,15 +1153,16 @@ class InstituteClassPermissionTests(TestCase):
         create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
         accept_invite(institute, staff, models.InstituteRole.STAFF)
         class_ = create_class(institute)
+        subject = create_subject(class_)
 
-        res = models.InstituteClassPermission.objects.create(
+        res = models.InstituteSubjectPermission.objects.create(
             inviter=self.user,
             invitee=staff,
-            to=class_
+            to=subject
         )
         self.assertEqual(res.inviter, self.user)
         self.assertEqual(res.invitee, staff)
-        self.assertEqual(res.to, class_)
+        self.assertEqual(res.to, subject)
 
     def test_add_admin_to_class_success_by_admin(self):
         """Test that admin can add admin to class"""
@@ -1110,12 +1171,13 @@ class InstituteClassPermissionTests(TestCase):
         create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
         accept_invite(institute, admin, models.InstituteRole.ADMIN)
         class_ = create_class(institute)
+        subject = create_subject(class_)
 
-        res = models.InstituteClassPermission.objects.create(
+        res = models.InstituteSubjectPermission.objects.create(
             inviter=self.user,
             invitee=admin,
-            to=class_
+            to=subject
         )
         self.assertEqual(res.inviter, self.user)
         self.assertEqual(res.invitee, admin)
-        self.assertEqual(res.to, class_)
+        self.assertEqual(res.to, subject)

@@ -1172,13 +1172,36 @@ def add_section_slug(instance, *args, **kwargs):
 class InstituteClassPermission(models.Model):
     """Model to store staff/admin assigned to class by admin"""
     invitee = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='perm_class_invitee')
+        User, on_delete=models.CASCADE,
+        related_name='perm_class_invitee')
     inviter = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True)
+        User, on_delete=models.SET_NULL, null=True,
+        related_name='perm_class_inviter')
     to = models.ForeignKey(
         InstituteClass, on_delete=models.CASCADE,
         related_name='perm_class_institute')
-    created_date = models.DateTimeField(
+    created_on = models.DateTimeField(
+        _('Created On'), default=timezone.now, editable=False)
+
+    def __str__(self):
+        return str(self.invitee)
+
+    class Meta:
+        unique_together = ('to', 'invitee')
+
+
+class InstituteSubjectPermission(models.Model):
+    """Model to store staff/admin/faculty assigned to class by admin/staff"""
+    invitee = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='perm_subject_invitee')
+    inviter = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True,
+        related_name='perm_subject_inviter')
+    to = models.ForeignKey(
+        InstituteSubject, on_delete=models.CASCADE,
+        related_name='perm_subject_institute')
+    created_on = models.DateTimeField(
         _('Created On'), default=timezone.now, editable=False)
 
     def __str__(self):
