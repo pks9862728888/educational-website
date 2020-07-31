@@ -69,6 +69,14 @@ def create_subject(class_, name='temp class',
     )
 
 
+def create_section(class_, name='temp class'):
+    """Creates and returns a section"""
+    return models.InstituteSection.objects.create(
+        section_class=class_,
+        name=name
+    )
+
+
 def create_invite(institute, inviter, invitee, role):
     """Creates and returns institute invite permission"""
     return models.InstitutePermission.objects.create(
@@ -1129,12 +1137,82 @@ def accept_invite(institute, invitee, role):
 #         self.assertEqual(res.inviter, self.user)
 #         self.assertEqual(res.invitee, admin)
 #         self.assertEqual(res.to, class_)
+#
+#
+# class InstituteSubjectPermissionTests(TestCase):
+#     """
+#     Tests for institute subject permission model.
+#     Only Admin/Staff can add Staff / Admin / Faculty
+#     """
+#
+#     def setUp(self):
+#         self.user = get_user_model().objects.create_user(
+#             email='tempuser@tgmail.com',
+#             password='tempoassdfsword',
+#             username='tempusernamesdfs'
+#         )
+#         self.user.is_teacher = True
+#         self.user.save()
+#
+#     def test_add_staff_to_subject_success_by_admin(self):
+#         """Test that admin can add staff to subject"""
+#         institute = create_institute(self.user)
+#         staff = create_teacher()
+#         create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+#         accept_invite(institute, staff, models.InstituteRole.STAFF)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         res = models.InstituteSubjectPermission.objects.create(
+#             inviter=self.user,
+#             invitee=staff,
+#             to=subject
+#         )
+#         self.assertEqual(res.inviter, self.user)
+#         self.assertEqual(res.invitee, staff)
+#         self.assertEqual(res.to, subject)
+#
+#     def test_add_admin_to_subject_success_by_admin(self):
+#         """Test that admin can add admin to subject"""
+#         institute = create_institute(self.user)
+#         admin = create_teacher()
+#         create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
+#         accept_invite(institute, admin, models.InstituteRole.ADMIN)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         res = models.InstituteSubjectPermission.objects.create(
+#             inviter=self.user,
+#             invitee=admin,
+#             to=subject
+#         )
+#         self.assertEqual(res.inviter, self.user)
+#         self.assertEqual(res.invitee, admin)
+#         self.assertEqual(res.to, subject)
+#
+#     def test_add_faculty_to_subject_success_by_admin(self):
+#         """Test that admin can add faculty to subject"""
+#         institute = create_institute(self.user)
+#         faculty = create_teacher()
+#         create_invite(institute, self.user, faculty, models.InstituteRole.FACULTY)
+#         accept_invite(institute, faculty, models.InstituteRole.FACULTY)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         res = models.InstituteSubjectPermission.objects.create(
+#             inviter=self.user,
+#             invitee=faculty,
+#             to=subject
+#         )
+#         self.assertEqual(res.inviter, self.user)
+#         self.assertEqual(res.invitee, faculty)
+#         self.assertEqual(res.to, subject)
 
 
-class InstituteSubjectPermissionTests(TestCase):
+class InstituteSectionPermissionTests(TestCase):
     """
-    Tests for institute subject permission model.
-    Only Admin/Staff can add Staff / Admin / Faculty
+    Tests for institute section permission model.
+    Only Admin/Staff can add Staff / Admin
     """
 
     def setUp(self):
@@ -1146,38 +1224,38 @@ class InstituteSubjectPermissionTests(TestCase):
         self.user.is_teacher = True
         self.user.save()
 
-    def test_add_staff_to_class_success_by_admin(self):
-        """Test that admin can add staff to class"""
+    def test_add_staff_to_section_success_by_admin(self):
+        """Test that admin can add staff to section"""
         institute = create_institute(self.user)
         staff = create_teacher()
         create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
         accept_invite(institute, staff, models.InstituteRole.STAFF)
         class_ = create_class(institute)
-        subject = create_subject(class_)
+        section = create_section(class_)
 
-        res = models.InstituteSubjectPermission.objects.create(
+        res = models.InstituteSectionPermission.objects.create(
             inviter=self.user,
             invitee=staff,
-            to=subject
+            to=section
         )
         self.assertEqual(res.inviter, self.user)
         self.assertEqual(res.invitee, staff)
-        self.assertEqual(res.to, subject)
+        self.assertEqual(res.to, section)
 
-    def test_add_admin_to_class_success_by_admin(self):
-        """Test that admin can add admin to class"""
+    def test_add_admin_to_section_success_by_admin(self):
+        """Test that admin can add admin to section"""
         institute = create_institute(self.user)
         admin = create_teacher()
         create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
         accept_invite(institute, admin, models.InstituteRole.ADMIN)
         class_ = create_class(institute)
-        subject = create_subject(class_)
+        section = create_section(class_)
 
-        res = models.InstituteSubjectPermission.objects.create(
+        res = models.InstituteSectionPermission.objects.create(
             inviter=self.user,
             invitee=admin,
-            to=subject
+            to=section
         )
         self.assertEqual(res.inviter, self.user)
         self.assertEqual(res.invitee, admin)
-        self.assertEqual(res.to, subject)
+        self.assertEqual(res.to, section)

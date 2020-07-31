@@ -1209,3 +1209,24 @@ class InstituteSubjectPermission(models.Model):
 
     class Meta:
         unique_together = ('to', 'invitee')
+
+
+class InstituteSectionPermission(models.Model):
+    """Model to store staff/admin assigned to section by admin"""
+    invitee = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='perm_section_invitee')
+    inviter = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True,
+        related_name='perm_section_inviter')
+    to = models.ForeignKey(
+        InstituteSection, on_delete=models.CASCADE,
+        related_name='perm_section_institute')
+    created_on = models.DateTimeField(
+        _('Created On'), default=timezone.now, editable=False)
+
+    def __str__(self):
+        return str(self.invitee)
+
+    class Meta:
+        unique_together = ('to', 'invitee')
