@@ -1,9 +1,10 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { UiService } from './../../services/ui.service';
+import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ApiService } from '../../services/api.service';
 import { GENDER, COUNTRY, LANGUAGE, LANGUAGE_REVERSE, GENDER_REVERSE, COUNTRY_REVERSE } from '../../../constants';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { UploadProfilePictureComponent } from './upload-profile-picture/upload-profile-picture.component';
 import { ChooseFromExistingComponent } from './choose-from-existing/choose-from-existing.component';
@@ -37,24 +38,6 @@ interface DeletedCurrentPictureResponse {
   deleted: boolean;
   class_profile_picture_deleted: boolean;
   public_profile_picture_deleted: boolean;
-}
-
-// For showing snackbar
-@Component({
-  template: `
-    <div class="snackbar-text">
-      {{ this.message }}
-    </div>
-  `,
-  styles: [`
-    .snackbar-text {
-      color: yellow;
-      text-align: center;
-    }
-  `]
-})
-export class SnackbarComponent {
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public message: string) { }
 }
 
 @Component({
@@ -101,6 +84,7 @@ export class TeacherProfileComponent implements OnInit {
 
   constructor( private media: MediaMatcher,
                private apiService: ApiService,
+               private uiService: UiService,
                private formBuilder: FormBuilder,
                private snackBar: MatSnackBar,
                private dialog: MatDialog ) {
@@ -109,95 +93,77 @@ export class TeacherProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (sessionStorage.getItem('country')) {          // Assuming country will be set initially for all teacher
-      this.email = sessionStorage.getItem('email');
-      this.username = sessionStorage.getItem('username');
-      this.createdDate = sessionStorage.getItem('created_date');
-      this.country = sessionStorage.getItem('country');
-      this.dateOfBirth = sessionStorage.getItem('date_of_birth');
-      this.firstName = sessionStorage.getItem('first_name');
-      this.lastName = sessionStorage.getItem('last_name');
-      this.gender = sessionStorage.getItem('gender');
-      this.phone = sessionStorage.getItem('phone');
-      this.primaryLanguage = sessionStorage.getItem('primary_language');
-      this.secondaryLanguage = sessionStorage.getItem('secondary_language');
-      this.tertiaryLanguage = sessionStorage.getItem('tertiary_language');
-      this.classProfilePicture = sessionStorage.getItem('class_profile_picture');
-      this.classProfilePictureUploadedOn = sessionStorage.getItem('class_profile_picture_uploaded_on');
+    this.apiService.getTeacherProfile().subscribe(
+      (result: TeacherProfileDetails) => {
+        // Setting data in session storage and local variable
+        sessionStorage.setItem('user_id', JSON.stringify(result.id));
+        this.email = result.email;
+        sessionStorage.setItem('email', result.email);
+        this.username = result.username;
+        sessionStorage.setItem('username', result.username);
 
-    } else {                                         // This will only be requested for first run
-      this.apiService.getTeacherProfile().subscribe(
-        (result: TeacherProfileDetails) => {
-          // Setting data in session storage and local variable
-          sessionStorage.setItem('user_id', JSON.stringify(result.id));
-          this.email = result.email;
-          sessionStorage.setItem('email', result.email);
-          this.username = result.username;
-          sessionStorage.setItem('username', result.username);
+        this.createdDate = result.created_date;
+        sessionStorage.setItem('created_date', result.created_date);
 
-          this.createdDate = result.created_date;
-          sessionStorage.setItem('created_date', result.created_date);
+        if (result.user_profile.country) {
+          this.country = COUNTRY[result.user_profile.country];
+          sessionStorage.setItem('country', this.country);
+        }
 
-          if (result.user_profile.country) {
-            this.country = COUNTRY[result.user_profile.country];
-            sessionStorage.setItem('country', this.country);
-          }
+        if (result.user_profile.date_of_birth) {
+          this.dateOfBirth = result.user_profile.date_of_birth;
+          sessionStorage.setItem('date_of_birth', result.user_profile.date_of_birth);
+        }
 
-          if (result.user_profile.date_of_birth) {
-            this.dateOfBirth = result.user_profile.date_of_birth;
-            sessionStorage.setItem('date_of_birth', result.user_profile.date_of_birth);
-          }
+        if (result.user_profile.first_name) {
+          this.firstName = result.user_profile.first_name;
+          sessionStorage.setItem('first_name', result.user_profile.first_name);
+        }
 
-          if (result.user_profile.first_name) {
-            this.firstName = result.user_profile.first_name;
-            sessionStorage.setItem('first_name', result.user_profile.first_name);
-          }
+        if (result.user_profile.last_name) {
+          this.lastName = result.user_profile.last_name;
+          sessionStorage.setItem('last_name', result.user_profile.last_name);
+        }
 
-          if (result.user_profile.last_name) {
-            this.lastName = result.user_profile.last_name;
-            sessionStorage.setItem('last_name', result.user_profile.last_name);
-          }
+        if (result.user_profile.gender) {
+          this.gender = GENDER[result.user_profile.gender];
+          sessionStorage.setItem('gender', this.gender);
+        }
 
-          if (result.user_profile.gender) {
-            this.gender = GENDER[result.user_profile.gender];
-            sessionStorage.setItem('gender', this.gender);
-          }
+        if (result.user_profile.phone) {
+          this.phone = result.user_profile.phone;
+          sessionStorage.setItem('phone', result.user_profile.phone);
+        }
 
-          if (result.user_profile.phone) {
-            this.phone = result.user_profile.phone;
-            sessionStorage.setItem('phone', result.user_profile.phone);
-          }
+        this.primaryLanguage = LANGUAGE[result.user_profile.primary_language];
+        sessionStorage.setItem('primary_language', this.primaryLanguage);
 
-          this.primaryLanguage = LANGUAGE[result.user_profile.primary_language];
-          sessionStorage.setItem('primary_language', this.primaryLanguage);
+        if (result.user_profile.secondary_language) {
+          this.secondaryLanguage = LANGUAGE[result.user_profile.secondary_language];
+          sessionStorage.setItem('secondary_language', this.secondaryLanguage);
+        }
 
-          if (result.user_profile.secondary_language) {
-            this.secondaryLanguage = LANGUAGE[result.user_profile.secondary_language];
-            sessionStorage.setItem('secondary_language', this.secondaryLanguage);
-          }
+        if (result.user_profile.tertiary_language) {
+          this.tertiaryLanguage = LANGUAGE[result.user_profile.tertiary_language];
+          sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
+        }
 
-          if (result.user_profile.tertiary_language) {
-            this.tertiaryLanguage = LANGUAGE[result.user_profile.tertiary_language];
-            sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
-          }
+        if (result.profile_pictures.class_profile_picture === true) {
+          this.classProfilePicture = result.profile_pictures.image;
+          this.classProfilePictureUploadedOn = result.profile_pictures.uploaded_on;
+          sessionStorage.setItem('class_profile_picture_id', JSON.stringify(result.profile_pictures.id));
+          sessionStorage.setItem('class_profile_picture', this.classProfilePicture);
+          sessionStorage.setItem('class_profile_picture_uploaded_on', this.classProfilePictureUploadedOn);
+        }
 
-          if (result.profile_pictures.class_profile_picture === true) {
-            this.classProfilePicture = result.profile_pictures.image;
-            this.classProfilePictureUploadedOn = result.profile_pictures.uploaded_on;
-            sessionStorage.setItem('class_profile_picture_id', JSON.stringify(result.profile_pictures.id));
-            sessionStorage.setItem('class_profile_picture', this.classProfilePicture);
-            sessionStorage.setItem('class_profile_picture_uploaded_on', this.classProfilePictureUploadedOn);
-          }
-
-          if (result.profile_pictures.public_profile_picture === true) {
-            sessionStorage.setItem('public_profile_picture_id', JSON.stringify(result.profile_pictures.id));
-            sessionStorage.setItem('public_profile_picture', result.profile_pictures.image);
-            sessionStorage.setItem('public_profile_picture_uploaded_on', result.profile_pictures.uploaded_on);
-          }
-        },
-        errors => {}
-      );
-    }
+        if (result.profile_pictures.public_profile_picture === true) {
+          sessionStorage.setItem('public_profile_picture_id', JSON.stringify(result.profile_pictures.id));
+          sessionStorage.setItem('public_profile_picture', result.profile_pictures.image);
+          sessionStorage.setItem('public_profile_picture_uploaded_on', result.profile_pictures.uploaded_on);
+        }
+      },
+      errors => {}
+    );
 
     // For getting the total number of profile picture count from server
     this.apiService.getProfilePictureCount().subscribe(
@@ -301,12 +267,7 @@ export class TeacherProfileComponent implements OnInit {
 
         this.tertiaryLanguage = LANGUAGE[result.user_profile.tertiary_language];
         sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
-
-        // Displaying appropriate message
-        this.snackBar.openFromComponent(SnackbarComponent, {
-          data: 'Profile details updated successfully!',
-          duration: 2000
-        });
+        this.uiService.showSnackBar('Profile details updated successfully!', 2000);
 
         // Closing edit view
         this.editProfile = !this.editProfile;
@@ -338,11 +299,7 @@ export class TeacherProfileComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       // status is true if profile picture is successfully uploaded else false
       if (result.status) {
-        // Show snackbar
-        this.snackBar.openFromComponent(SnackbarComponent, {
-          data: 'Profile picture uploaded successfully!',
-          duration: 2000
-        });
+        this.uiService.showSnackBar('Profile picture uploaded successfully!', 2000);
 
         // Update the appropriate control variables
         if (result.classProfilePictureChanged) {
@@ -381,20 +338,11 @@ export class TeacherProfileComponent implements OnInit {
           this.profilePictureCount -= 1;
           this.editProfilePicture = false;
         }
-
-        // Show snackbar
-        this.snackBar.openFromComponent(SnackbarComponent, {
-          data: 'Successfully deleted current profile picture.',
-          duration: 2000
-        });
+        this.uiService.showSnackBar('Successfully deleted current profile picture.', 2000);
       },
       error => {
         if (error.error.deleted === false) {
-          // Show snackbar
-          this.snackBar.openFromComponent(SnackbarComponent, {
-            data: 'Internal server error. Unable to delete picture.',
-            duration: 2000
-          });
+          this.uiService.showSnackBar('Internal server error. Unable to delete picture.', 2000);
           console.error(error.message);
         }
 
@@ -431,12 +379,7 @@ export class TeacherProfileComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       // status is true if profile picture is successfully uploaded else false
       if (result.status) {
-        // Show snackbar
-        this.snackBar.openFromComponent(SnackbarComponent, {
-          data: 'Profile picture changed successfully!',
-          duration: 2000
-        });
-
+        this.uiService.showSnackBar('Profile picture changed successfully!', 2000);
         // Update the appropriate control variables
         if (result.classProfilePictureChanged) {
           this.classProfilePicture = sessionStorage.getItem('class_profile_picture');

@@ -1,3 +1,5 @@
+import { SnackbarComponent } from './teacher-institute/teacher-institute.component';
+import { UiService } from './../services/ui.service';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -35,9 +37,11 @@ import { InAppDataTransferService } from '../services/in-app-data-transfer.servi
   ],
   providers: [
     ApiService,
+    UiService,
     InAppDataTransferService,
     {provide: DateAdapter, useClass: AppDateAdapter},
     {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
-  ]
+  ],
+  entryComponents: [SnackbarComponent]
 })
 export class TeacherWorkspaceModule { }
