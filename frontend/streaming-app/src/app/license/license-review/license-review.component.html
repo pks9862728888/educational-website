@@ -2,35 +2,8 @@
     <mat-card class="parent-container">
         <h3><strong>Review Your License:</strong></h3>
         <hr class="top-separator">
-
-        <div *ngIf="!selectedLicense && !retryGetLicenseDetails">
-            <div class="d-flex justify-content-center">
-                <mat-progress-spinner mode="indeterminate" [diameter]="60"></mat-progress-spinner>
-            </div>
-            <div class="d-flex justify-content-center">
-                <h3>Fetching License Details...</h3>
-            </div>
-        </div>
-        <div *ngIf="retryGetLicenseDetails" class="center-retry-text">
-            <div class="align-horizontally-center">
-                <div class="d-flex justify-content-center">
-                    <h3 *ngIf="!mobileQuery.matches">Unable To Fetch License Details.</h3>
-                    <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Unable To Fetch License Details.</p>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <h3 *ngIf="!mobileQuery.matches">Please check your internet connectivity.</h3>
-                    <p *ngIf="mobileQuery.matches" class="margin-bottom-03">Please check your internet connectivity.</p>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <h3 *ngIf="!mobileQuery.matches">If problem persists, let us know :)</h3>
-                    <p *ngIf="mobileQuery.matches" class="margin-bottom-03">If problem persists, let us know :)</p>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <button mat-flat-button class="green-button rounded-button" (click)="getLicenseDetails()">Retry</button>
-                </div>
-            </div>
-        </div>
-
+        <app-ui-loading *ngIf="!selectedLicense && !retryGetLicenseDetails" [actionText]="loadingText"></app-ui-loading>
+        <app-ui-reload *ngIf="retryGetLicenseDetails" [errorText]="retryGetLicenseDetailsText" (retryEvent)="getLicenseDetails()"></app-ui-reload>
         <div class="row main-content-row" *ngIf="selectedLicense">
             <div class="col-sm-6 col-md-4">
                 <mat-card class="choose-plan-container">
@@ -255,14 +228,7 @@
                         </div>
                     </div>
                     <hr class="mid-separator" />
-                    <div class="col-12 error-text" *ngIf="purchaseError">
-                        <div class="d-flex justify-content-between">
-                            <h3 class="coupon-error-text">{{ purchaseError }}</h3>
-                            <div>
-                                <mat-icon class="highlight-icon" (click)="hidePurchaseError()">highlight_off</mat-icon>
-                            </div>
-                        </div>
-                    </div>
+                    <app-ui-error-text *ngIf="purchaseError" [errorText]="purchaseError" (closeErrorTextEvent)="hidePurchaseError()"></app-ui-error-text>
                     <hr class="purchase-error-separator" *ngIf="purchaseError" />
                     <div class="purchase-button">
                         <div *ngIf="showPurchasingIndicator" class="d-flex">

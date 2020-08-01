@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
-import { INSTITUTE_LICENSE_PLANS, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE, purchasedLicenseExists } from './../../constants';
+import { INSTITUTE_LICENSE_PLANS, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE, purchasedLicenseExists, paymentComplete } from './../../constants';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -25,6 +25,7 @@ export class LicenseComponent implements OnInit, OnDestroy {
   expiredLicenseDetails: ExpiredLicenseDetails;
   purchasedInactiveLicenseDetails: PurchasedInactiveLicenseDetails;
   UNLIMITED = UNLIMITED;
+  fetchLicenseText = 'Fetching Institute License Details...';
 
   // For controlling expansion panel
   licenseStep: number;
@@ -37,7 +38,11 @@ export class LicenseComponent implements OnInit, OnDestroy {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.fetchedLicenseDetails = false;
-    this.canPurchaseAnotherLicense = true;
+    if (!(sessionStorage.getItem(paymentComplete) === 'false')) {
+      this.canPurchaseAnotherLicense = true;
+    } else {
+      this.canPurchaseAnotherLicense = false;
+    }
   }
 
   ngOnInit() {
@@ -73,10 +78,6 @@ export class LicenseComponent implements OnInit, OnDestroy {
 
   setLicenseStep(step: number) {
     this.licenseStep = step;
-  }
-
-  retryClicked() {
-    this.fetchLicenseDetails();
   }
 
   closeErrorTextClicked() {
@@ -122,13 +123,7 @@ export class LicenseComponent implements OnInit, OnDestroy {
   }
 
   purchaseLicense() {
-    if (sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['School']) {
-      this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + '/license/purchase']);
-    } else if (sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['College']) {
-      this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + '/license/purchase']);
-    } else if (sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['Coaching']) {
-      this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + '/license/purchase']);
-    }
+    this.router.navigate([window.location.pathname + '/purchase']);
   }
 
   ngOnDestroy() {}

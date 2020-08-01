@@ -101,9 +101,14 @@ export class LicenseCheckoutComponent implements OnInit {
         errors => {
           this.verifyPaymentIndicator = false;
           if (errors.error) {
-            this.errorText = errors.error;
+            if (errors.error.error) {
+              this.errorText = errors.error.error;
+            } else {
+              this.errorText = 'Payment verification error. If payment was successful, then we will verify it automatically after sometime.';
+            }
+          } else {
+            this.errorText = 'Payment verification error. If payment was successful, then we will verify it automatically after sometime.';
           }
-          this.errorText = 'Payment verification error. If payment was successful, then we will verify it automatically after sometime.'
           this.retryVerification = true;
         }
       )

@@ -16,21 +16,14 @@
             <p *ngIf="mobileQuery.matches">Choose to make payment of &#8377; {{ netPayableAmount | number}}</p>
             <div *ngIf="initiatingPaymentIndicator" class="progress-indicator">
                 <mat-spinner mode="indeterminate" [diameter]="30" class="margin-right-05"></mat-spinner>
-                <h3 class="wait-line-height">Creating order...</h3>&nbsp;
+                <h3 class="wait-line-height">Creating order. Please wait...</h3>&nbsp;
             </div>
         </div>
-        <div class="row" *ngIf="errorText">
-            <div class="col-12 error-text">
-                <div class="d-flex justify-content-between">
-                    <h3 class="coupon-error-text">{{ errorText }}</h3>
-                    <div>
-                        <mat-icon class="highlight-icon" (click)="hideErrorText()">highlight_off</mat-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <button mat-flat-button *ngIf="retryVerification" class="green-button retry-verification" (click)="retryVerificationClicked()">Retry Verification</button>
-            </div>
+        <div *ngIf="errorText" class="error-text-margin">
+            <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="hideErrorText()"></app-ui-error-text>
+        </div>
+        <div class="row" *ngIf="retryVerification">
+            <button mat-flat-button class="green-button retry-verification" (click)="retryVerificationClicked()">Retry Verification</button>
         </div>
         <div class="row" *ngIf="successText">
             <div class="col-12 success-text">

@@ -16,7 +16,9 @@ import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 export class LicenseReviewComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
+  loadingText = 'Fetching License Details...';
   retryGetLicenseDetails: boolean;
+  retryGetLicenseDetailsText = 'Unable to fetch license details...';
   selectedLicense: LicenseDetails;
   selectedLicenseId: string;
   currentInstituteType: string;
@@ -170,6 +172,8 @@ export class LicenseReviewComponent implements OnInit {
             this.couponApplied = null;
             this.couponError = this.couponCode + ': ' + this.purchaseError;
             this.couponCode = null;
+          } else {
+            this.purchaseError = 'Unable to purchase at the moment. Please let us know.';
           }
         } else {
           this.purchaseError = 'Unable to purchase at the moment. Please let us know.';

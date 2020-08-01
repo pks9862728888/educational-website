@@ -1,19 +1,20 @@
 <section>
     <mat-card class="parent-container">
-        <div class="heading">
-            <h1 *ngIf="!mobileQuery.matches">Choose a License:</h1>
-            <h2 *ngIf="mobileQuery.matches">Choose a License:</h2>
-        </div>
-        <div class="width-100">
-            <div>
-                <div class="row">
-                    <div class="col billing-term monthly" [class.active-term]="activeBilling === 'MONTHLY'" (click)="changeBillingTerm('MONTHLY')">Monthly</div>
-                    <div class="col billing-term yearly" [class.active-term]="activeBilling === 'YEARLY'" (click)="changeBillingTerm('YEARLY')">Yearly</div>
+        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
+        <app-ui-reload *ngIf="showLoadingError" [errorText]="loadingErrorText" (retryEvent)="reloadLicensePlans()"></app-ui-reload>
+        <section *ngIf="!showLoadingIndicator && !showLoadingError">
+            <div class="heading">
+                <h1 *ngIf="!mobileQuery.matches">Choose a License:</h1>
+                <h2 *ngIf="mobileQuery.matches">Choose a License:</h2>
+            </div>
+            <div class="width-100">
+                <div>
+                    <div class="row">
+                        <div class="col billing-term monthly" [class.active-term]="activeBilling === 'MONTHLY'" (click)="changeBillingTerm('MONTHLY')">Monthly</div>
+                        <div class="col billing-term yearly" [class.active-term]="activeBilling === 'YEARLY'" (click)="changeBillingTerm('YEARLY')">Yearly</div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <section>
             <div class="width-100">
                 <div [ngClass]="{'plan-container': !mobileQuery.matches, 'col-12': mobileQuery.matches}">
                     <div class="row">

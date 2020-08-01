@@ -8,16 +8,9 @@
             </div>
         </div>
         <hr class="top-separator" />
-        <div *ngIf="fetchActiveLicenseIndicator" class="loading">
-            <div class="width-100">
-                <div class="progress-spinner-center">
-                    <mat-progress-spinner mode="indeterminate" [diameter]="70"></mat-progress-spinner>
-                </div>
-                <h3 class="text-center">Fetching Institute License Details...</h3>
-            </div>
-        </div>
+        <app-ui-loading *ngIf="fetchActiveLicenseIndicator" [actionText]="fetchLicenseText"></app-ui-loading>
         <app-ui-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorTextClicked()"></app-ui-error-text>
-        <app-ui-reload *ngIf="reloadErrorText" [errorText]="reloadErrorText" (retryEvent)="retryClicked()"></app-ui-reload>
+        <app-ui-reload *ngIf="reloadErrorText" [errorText]="reloadErrorText" (retryEvent)="fetchLicenseDetails()"></app-ui-reload>
         <section *ngIf="fetchedLicenseDetails">
             <section class="margin-bottom-07">
                 <h3 class="margin-bottom-03">Active License: <span *ngIf="!activeLicenseExists()">None</span></h3>

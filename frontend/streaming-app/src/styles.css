@@ -67,6 +67,7 @@ button.active:focus {
     border-radius: 5px;
     height: calc(100vh / 2);
     margin-top: 1rem;
+    margin-bottom: 1rem;
     display: flex;
     align-items: center;
 }

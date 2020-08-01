@@ -23,26 +23,12 @@ hr {
     margin-top: 0.5rem;
 }
 
-.highlight-icon {
-    color: rgb(187, 134, 252);
-    cursor: pointer;
-    padding-top: 0.2rem;
-}
-
-.coupon-error-text {
-    padding-top: 0.1rem;
-}
-
 .wait-line-height {
     line-height: 30px;
 }
 
 .full-width-button {
     width: 100%;
-}
-
-.retry-verification {
-    margin-top: 1.5rem;
 }
 
 .green-button:disabled {
@@ -69,4 +55,8 @@ hr {
 
 .margin-right-05 {
     margin-right: 0.5rem;
+}
+
+.error-text-margin {
+    margin: 0.7rem 0;
 }

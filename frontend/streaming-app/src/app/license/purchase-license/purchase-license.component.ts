@@ -13,6 +13,10 @@ import { INSTITUTE_TYPE_REVERSE, DISCUSSION_FORUM_PER_ATTENDEES, BILLING_TERM, I
 export class PurchaseLicenseComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
+  showLoadingIndicator: boolean;
+  loadingText = 'Loading Institute License Plans...';
+  showLoadingError: boolean;
+  loadingErrorText = 'Unable to load License plans...';
 
   // For controlling billing term
   activeBilling = 'MONTHLY';
@@ -29,13 +33,28 @@ export class PurchaseLicenseComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.getInstituteLicenseList();
+  }
+
+  getInstituteLicenseList() {
+    this.showLoadingIndicator = true;
+    this.showLoadingError = false;
     this.instituteApiService.getInstituteLicenseList().subscribe(
       (result: InstituteLicenseList) => {
+        this.showLoadingIndicator = false;
         this.monthlyLicensePlans = result.monthly_license;
         this.yearlyLicensePlans = result.yearly_license;
         this.currentActiveLicensePlans = this.monthlyLicensePlans;
+      },
+      errors => {
+        this.showLoadingIndicator = false;
+        this.showLoadingError = true;
       }
     );
+  }
+
+  reloadLicensePlans() {
+    this.getInstituteLicenseList();
   }
 
   changeBillingTerm(term: string) {

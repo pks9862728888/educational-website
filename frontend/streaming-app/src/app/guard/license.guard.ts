@@ -32,7 +32,6 @@ export class PurchaseLicenseGuard implements CanActivate {
         sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE['Admin']) {
       return true;
     } else {
-        console.log('here');
         const pathName = state.url;
         let path = '';
         if (pathName.includes('purchase')) {
