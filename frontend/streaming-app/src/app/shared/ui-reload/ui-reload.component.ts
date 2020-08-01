@@ -2,11 +2,11 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'app-reload',
-  templateUrl: './reload.component.html',
-  styleUrls: ['./reload.component.css']
+  selector: 'app-ui-reload',
+  templateUrl: './ui-reload.component.html',
+  styleUrls: ['./ui-reload.component.css']
 })
-export class ReloadComponent implements OnInit {
+export class UiReloadComponent implements OnInit {
 
   mobileQuery: MediaQueryList;
 

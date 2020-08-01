@@ -16,8 +16,8 @@
                 <h3 class="text-center">Fetching Institute License Details...</h3>
             </div>
         </div>
-        <app-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorTextClicked()"></app-error-text>
-        <app-reload *ngIf="reloadErrorText" [errorText]="reloadErrorText" (retryEvent)="retryClicked()"></app-reload>
+        <app-ui-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorTextClicked()"></app-ui-error-text>
+        <app-ui-reload *ngIf="reloadErrorText" [errorText]="reloadErrorText" (retryEvent)="retryClicked()"></app-ui-reload>
         <section *ngIf="fetchedLicenseDetails">
             <section class="margin-bottom-07">
                 <h3 class="margin-bottom-03">Active License: <span *ngIf="!activeLicenseExists()">None</span></h3>

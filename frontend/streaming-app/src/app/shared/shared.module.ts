@@ -1,20 +1,20 @@
 import { MaterialSharedModule } from './material.shared.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReloadComponent } from './reload/reload.component';
-import { ErrorTextComponent } from './error-text/error-text.component';
+import { UiReloadComponent } from '../shared/ui-reload/ui-reload.component';
+import { UiErrorTextComponent } from './ui-error-text/ui-error-text.component';
 
 
 
 @NgModule({
-  declarations: [ReloadComponent, ErrorTextComponent],
+  declarations: [UiReloadComponent, UiErrorTextComponent],
   imports: [
     CommonModule,
     MaterialSharedModule
   ],
   exports: [
-    ReloadComponent,
-    ErrorTextComponent
+    UiReloadComponent,
+    UiErrorTextComponent
   ]
 })
 export class SharedModule { }
