@@ -14,7 +14,7 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                 'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_CLASSES'" (click)="performAction('SCHOOL_CLASSES')" *ngIf="purchasedLicenseExists">School Classes</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')">License</div>
+                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')" *ngIf="userIsAdmin()">License</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
                                 'sidenav-content-more-padding': !mobileQuery.matches}" (click)="performAction('EXIT')">Exit</div>
             </mat-nav-list>
@@ -36,7 +36,7 @@
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PROFILE'">Profile</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PERMISSIONS'" *ngIf="purchasedLicenseExists">Permissions</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_CLASSES'" *ngIf="purchasedLicenseExists">Classes</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'">License</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'" *ngIf="userIsAdmin()">License</li>
                     </ol>
                 </nav>
 

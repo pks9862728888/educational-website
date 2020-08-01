@@ -44,11 +44,7 @@ export class LicenseCheckoutComponent implements OnInit {
     this.netPayableAmount = sessionStorage.getItem('netPayableAmount');
   }
 
-  ngOnInit(): void {
-    if (sessionStorage.getItem('paymentComplete')) {
-      this.redirectToLicenseView();
-    }
-  }
+  ngOnInit(): void {}
 
   createOrder(paymentPortalName: string) {
     this.paymentPortalName = paymentPortalName;

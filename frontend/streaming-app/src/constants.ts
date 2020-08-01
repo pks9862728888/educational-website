@@ -1,6 +1,16 @@
 export const authTokenName = 'auth-token-edu-website';
 export const UNLIMITED = 99999;
 
+// For institutes
+export const currentInstituteRole = 'currentInstituteRole';
+export const currentInstituteSlug = 'currentInstituteSlug';
+export const currentInstituteType = 'currentInstituteType';
+
+// For license
+export const selectedLicenseId = 'selectedLicenseId';
+export const purchasedLicenseExists = 'purchasedLicenseExists';
+export const paymentComplete = 'paymentComplete';
+
 export const COUNTRY = {
     IN: 'India',
     US: 'USA'

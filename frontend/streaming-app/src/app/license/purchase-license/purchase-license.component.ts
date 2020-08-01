@@ -82,7 +82,7 @@ export class PurchaseLicenseComponent implements OnInit {
   selectedLicense(id: string) {
     sessionStorage.setItem('selectedLicenseId', id);
     this.router.navigate(
-      ['/school-workspace/' + sessionStorage.getItem('currentInstituteSlug') + '/license/review'])
+      ['/school-workspace/' + sessionStorage.getItem('currentInstituteSlug') + '/license/review']);
   }
 
   isDiscountPresent(discount: number) {

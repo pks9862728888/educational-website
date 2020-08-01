@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
-import { INSTITUTE_LICENSE_PLANS, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE } from './../../constants';
+import { INSTITUTE_LICENSE_PLANS, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE, purchasedLicenseExists } from './../../constants';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -86,9 +86,9 @@ export class LicenseComponent implements OnInit, OnDestroy {
   activeLicenseExists() {
     const status =  Object.keys(this.activeLicenseDetails).length !== 0;
     if (status) {
-      sessionStorage.setItem('paymentComplete', 'true');
-      sessionStorage.setItem('purchasedLicenseExists', 'true');
       this.inAppDataTransferService.showTeacherFullInstituteView();
+    } else {
+      sessionStorage.setItem(purchasedLicenseExists, 'false');
     }
     return status;
   }
@@ -100,10 +100,11 @@ export class LicenseComponent implements OnInit, OnDestroy {
   purchasedInactiveLicenseExists() {
     const status =  Object.keys(this.purchasedInactiveLicenseDetails).length !== 0;
     if (status) {
-      sessionStorage.setItem('paymentComplete', 'true');
-      sessionStorage.setItem('purchasedLicenseExists', 'true');
+      sessionStorage.setItem(purchasedLicenseExists, 'true');
       this.inAppDataTransferService.showTeacherFullInstituteView();
       this.canPurchaseAnotherLicense = false;
+    } else {
+      sessionStorage.setItem(purchasedLicenseExists, 'false');
     }
     return status;
 }

@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { UNLIMITED, INSTITUTE_TYPE_REVERSE, DISCUSSION_FORUM_PER_ATTENDEES, BILLING_TERM, BILLING_TERM_REVERSE } from './../../../constants';
+import { UNLIMITED, INSTITUTE_TYPE_REVERSE, DISCUSSION_FORUM_PER_ATTENDEES, BILLING_TERM, BILLING_TERM_REVERSE, currentInstituteType, currentInstituteSlug, selectedLicenseId } from './../../../constants';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { LicenseDetails, InstituteDiscountCouponDetailsResponse, InstituteLicenseSelectedResponse } from './../license.model';
@@ -39,7 +39,7 @@ export class LicenseReviewComponent implements OnInit {
                private formBuilder: FormBuilder,
                private router: Router ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
-    this.selectedLicenseId = sessionStorage.getItem('selectedLicenseId');
+    this.selectedLicenseId = sessionStorage.getItem(selectedLicenseId);
   }
 
   ngOnInit(): void {
@@ -47,8 +47,8 @@ export class LicenseReviewComponent implements OnInit {
     this.couponCodeForm = this.formBuilder.group({
       coupon_code: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
     });
-    this.currentInstituteType = sessionStorage.getItem('currentInstituteType');
-    this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
+    this.currentInstituteType = sessionStorage.getItem(currentInstituteType);
+    this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
   }
 
   getLicenseDetails() {
@@ -128,17 +128,8 @@ export class LicenseReviewComponent implements OnInit {
 
   changeLicense() {
     sessionStorage.removeItem('selectedLicenseId');
-    this.navigateToWorkspace('/license');
-  }
-
-  navigateToWorkspace(path: string) {
-    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['School']) {
-      this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + path]);
-    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['Coaching']) {
-      this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + path]);
-    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['College']) {
-      this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + path]);
-    }
+    const pathName = window.location.pathname;
+    this.router.navigate([pathName.slice(0, pathName.lastIndexOf('review')) + 'purchase']);
   }
 
   hideCouponError() {
@@ -162,7 +153,8 @@ export class LicenseReviewComponent implements OnInit {
         if (result.status === 'SUCCESS') {
           sessionStorage.setItem('netPayableAmount', result.net_amount);
           sessionStorage.setItem('selectedLicensePlanId', result.selected_license_id);
-          this.navigateToWorkspace('/license/checkout');
+          const pathName = window.location.pathname;
+          this.router.navigate([pathName.slice(0, pathName.lastIndexOf('review')) + 'checkout']);
         }
       },
       errors => {

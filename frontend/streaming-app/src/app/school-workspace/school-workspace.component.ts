@@ -1,3 +1,4 @@
+import { currentInstituteSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE } from './../../constants';
 import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -15,6 +16,7 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
   mobileQuery: MediaQueryList;
   currentInstituteSlug: string;
+  currentInstituteRole: string;
   baseUrl: string;
   opened: boolean;
   activeLink: string;
@@ -44,7 +46,8 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
+    this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
+    this.currentInstituteRole = sessionStorage.getItem(currentInstituteRole);
     this.baseUrl = '/school-workspace/' + this.currentInstituteSlug;
     this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherFullInstituteView$.subscribe(
       () => {
@@ -117,6 +120,14 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
   tempBreadCrumbNameExists() {
     if (this.tempBreadcrumbLinkName) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  userIsAdmin() {
+    if (this.currentInstituteRole == INSTITUTE_ROLE_REVERSE['Admin']) {
       return true;
     } else {
       return false;
