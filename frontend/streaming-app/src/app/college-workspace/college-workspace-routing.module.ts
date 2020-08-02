@@ -1,8 +1,8 @@
+import { PermissionsComponent } from './../shared/permissions/permissions.component';
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { LicenseComponent } from '../license/license.component';
 import { CollegeProfileComponent } from './college-profile/college-profile.component';
-import { CollegePermissionsComponent } from './college-permissions/college-permissions.component';
 import { CollegeWorkspaceComponent } from './college-workspace.component';
 
 
@@ -13,7 +13,7 @@ const routes: Routes = [
     component: CollegeWorkspaceComponent,
     children: [
       { path: ':name/profile', component: CollegeProfileComponent },
-      { path: ':name/permissions', component: CollegePermissionsComponent },
+      { path: ':name/permissions', component: PermissionsComponent },
       { path: ':name/license', component: LicenseComponent }
     ],
   }
@@ -29,5 +29,4 @@ export class CollegeWorkspaceRoutingModule {}
 export const collegeWorkspaceRoutingComponents = [
   CollegeWorkspaceComponent,
   CollegeProfileComponent,
-  CollegePermissionsComponent,
 ];

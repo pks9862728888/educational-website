@@ -1,10 +1,10 @@
+import { PermissionsComponent } from './../shared/permissions/permissions.component';
 import { NgModule } from '@angular/core';
 import { InstituteRoutingGuard } from './../guard/institute.guard';
 import { PurchaseLicenseGuard, LicenseGuard } from '../guard/license.guard';
 import { RouterModule, Routes } from '@angular/router';
 import { SchoolWorkspaceComponent } from './school-workspace.component';
 import { SchoolProfileComponent } from './school-profile/school-profile.component';
-import { SchoolPermissionsComponent } from './school-permissions/school-permissions.component';
 import { LicenseComponent } from '../license/license.component';
 import { LicenseCheckoutComponent } from '../license/license-checkout/license-checkout.component';
 import { LicenseReviewComponent } from './../license/license-review/license-review.component';
@@ -17,7 +17,7 @@ const routes: Routes = [
     component: SchoolWorkspaceComponent,
     children: [
       { path: ':name/profile', component: SchoolProfileComponent },
-      { path: ':name/permissions', component: SchoolPermissionsComponent, canActivate: [InstituteRoutingGuard]},
+      { path: ':name/permissions', component: PermissionsComponent, canActivate: [InstituteRoutingGuard]},
       { path: ':name/classes', component: ClassComponent, canActivate: [InstituteRoutingGuard]},
       { path: ':name/license', component: LicenseComponent, canActivate: [LicenseGuard] },
       { path: ':name/license/purchase', component: PurchaseLicenseComponent, canActivate: [PurchaseLicenseGuard]},
@@ -41,6 +41,5 @@ export class SchoolWorkspaceRoutingModule {}
 
 export const schoolWorkspaceRoutingComponents = [
   SchoolWorkspaceComponent,
-  SchoolProfileComponent,
-  SchoolPermissionsComponent
+  SchoolProfileComponent
 ];
