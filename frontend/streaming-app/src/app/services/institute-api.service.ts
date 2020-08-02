@@ -42,6 +42,8 @@ export class InstituteApiService {
   instituteJoinedDetailUrl = `${this.instituteBaseUrl}joined-institutes-teacher`;
   institutePendingInvitesUrl = `${this.instituteBaseUrl}pending-institute-invites-teacher`;
   instituteCreateUrl = `${this.instituteBaseUrl}create`;
+
+  // Insitute license related urls
   instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
   instituteSelectedLicenseDetail = `${this.instituteBaseUrl}institute-license-detail`;
   instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
@@ -71,6 +73,14 @@ export class InstituteApiService {
 
   getPaidInstituteLicenseUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/check-license-exists`;
+  }
+
+  getInstituteClassListUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/list-all-class`;
+  }
+
+  createInstituteClassUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/create-class`;
   }
 
   constructor( private cookieService: CookieService,
@@ -196,6 +206,23 @@ export class InstituteApiService {
   getPaidUnexpiredLicenseDetails(instituteSlug: string) {
     return this.httpClient.get(
       this.getPaidInstituteLicenseUrl(instituteSlug),
+      { headers: this.getAuthHeader() }
+    )
+  }
+
+  // To get all institute class list
+  getInstituteClassList(instituteSlug: string) {
+    return this.httpClient.get(
+      this.getInstituteClassListUrl(instituteSlug),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  // To create class
+  createInstituteClass(instituteSlug: string, name: string) {
+    return this.httpClient.post(
+      this.createInstituteClassUrl(instituteSlug),
+      { 'name': name },
       { headers: this.getAuthHeader() }
     )
   }

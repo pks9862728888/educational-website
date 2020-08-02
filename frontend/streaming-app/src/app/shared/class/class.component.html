@@ -1,0 +1,113 @@
+<mat-card class="component-body">
+    <section class="padding-bottom-07 text-color">
+        <div class="d-flex justify-content-between" [ngClass]="{'header-mb': mobileQuery.matches, 'header': !mobileQuery.matches}">
+            <div>
+                <h3 [ngClass]="{'header-text': !mobileQuery.matches}">Classes:</h3>
+            </div>
+            <div>
+                <form class="form-inline" *ngIf="!mobileQuery.matches" [formGroup]="createClassForm">
+                    <div class="form-group mx-sm-3 mb-2">
+                        <label for="name" class="sr-only">Class Name</label>
+                        <input type="text" formControlName="name" class="form-control" id="name" maxlength="40" placeholder="Class Name" required/>
+                    </div>
+                    <button type="submit" *ngIf="!createClassIndicator" [disabled]="createClassForm.invalid" mat-flat-button class="green-button mb-2" (click)="createClass()">Create Class</button>
+                    <mat-progress-spinner *ngIf="createClassIndicator" [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
+                </form>
+                <mat-icon *ngIf="mobileQuery.matches" [ngClass]="{'add-class': mobileQuery.matches}">
+                    <span *ngIf="!showCreateClassFormMb" (click)="showCreateClassFormMobile()">add_box</span>
+                    <span *ngIf="showCreateClassFormMb" (click)="hideCreateClassFormMobile()">clear</span>
+                </mat-icon>
+            </div>
+        </div>
+        <hr class="top-separator" />
+        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
+        <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getClassList()"></app-ui-reload>
+        <div class="margin-bottom-1">
+            <app-ui-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+        </div>
+        <div class="margin-bottom-1">
+            <app-ui-success-text *ngIf="successText" [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
+        </div>
+        <section *ngIf="mobileQuery.matches && showCreateClassFormMb" class="margin-bottom-1">
+            <div class="row">
+                <div class="col-12">
+                    <form class="input-group" [formGroup]="createClassForm">
+                        <input type="email" formControlName="name" maxlength="40" class="form-control search-color" placeholder="Enter Class Name" aria-label="Create class">
+                        <div class="input-group-append">
+                            <button mat-flat-button [disabled]="createClassForm.invalid || createClassIndicator" (click)="this.createClass()" class="btn" class="create-button-mb" type="submit">Create</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="create-class-spinner-mb" *ngIf="createClassIndicator">
+                    <mat-progress-spinner [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
+                    <p class="line-height">Creating class...</p>
+                </div>
+            </div>
+        </section>
+        <mat-accordion *ngIf="!showLoadingIndicator && !showReloadError && !isClassesListEmpty()">
+            <mat-expansion-panel class="text-color" *ngFor="let class of this.classList" [expanded]="this.classStep === class.id" (opened)="setClassStep(class.id)">
+                <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
+                    <mat-panel-title>
+                        <div class="col-sm-8 col-md-6 col-lg-4">
+                            <h3 class="text-color" *ngIf="!this.mobileQuery.matches">{{ class.name | titlecase}}</h3>
+                            <p class="text-color" *ngIf="this.mobileQuery.matches">{{ class.name | titlecase}}</p>
+                        </div>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <hr class="invite-top-separator" />
+                <div class="row invite-body" *ngIf="this.mobileQuery.matches ">
+                    <div class="col-12">
+                        <div class="row invite-details">
+                            <div class="col">
+                                <p>Role:</p>
+                            </div>
+                            <div class="col">
+                                <p>Faculty</p>
+                            </div>
+                        </div>
+                        <div class="row invite-details">
+                            <div class="col">
+                                <p>Active Faculty:</p>
+                            </div>
+                            <div class="col">
+                                <p>False</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row invite-body" *ngIf="!this.mobileQuery.matches">
+                    <div class="col-12 ">
+                        <div class="row invite-details ">
+                            <div class="col">
+                                <h3>Invited By:</h3>
+                            </div>
+                            <div class="col">
+                                <h3>asdfgm</h3>
+                            </div>
+                        </div>
+                        <div class="row invite-details">
+                            <div class="col">
+                                <h3>Requested on:</h3>
+                            </div>
+                            <div class="col">
+                                <h3>asdfgh</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="invite-bottom-separator" />
+                <div class="col">
+                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                        <button mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                        <button mat-button class="green-button">Send Message</button>
+                    </div>
+                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                        <mat-icon class="red-color margin-right-1">delete_forever</mat-icon>
+                        <mat-icon class="yellow-color">email</mat-icon>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </section>
+</mat-card>
