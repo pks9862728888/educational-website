@@ -734,6 +734,26 @@ class InstituteProvidePermissionView(APIView):
             invitee=inviter,
             active=True
         ).first()
+        license_ = has_paid_unexpired_license(institute)
+
+        if not license_:
+            return Response({'error': _('License expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        stat = models.InstituteStatistics.objects.filter(institute=institute).first()
+
+        if role == models.InstituteRole.STAFF:
+            if stat.no_of_staffs >= license_.selected_license.no_of_staff:
+                return Response({'error': _('Max no of staffs already invited.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+        elif role == models.InstituteRole.FACULTY:
+            if stat.no_of_faculties >= license_.selected_license.no_of_faculty:
+                return Response({'error': _('Max no of faculties already invited.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+        elif role == models.InstituteRole.ADMIN:
+            if stat.no_of_admins >= license_.selected_license.no_of_admin:
+                return Response({'error': _('Max no of admins already invited.')},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         # For assigning admin or staff role
         if role == models.InstituteRole.ADMIN or role == models.InstituteRole.STAFF:
@@ -803,6 +823,11 @@ class InstituteProvidePermissionView(APIView):
                         'inviter': str(self.request.user),
                         'requested_on': saved_data.request_date
                     }
+                    if role == models.InstituteRole.ADMIN:
+                        stat.no_of_admins += 1
+                    else:
+                        stat.no_of_staffs += 1
+                    stat.save()
                     return Response(response, status=status.HTTP_200_OK)
                 except Exception:
                     msg = _('Internal server error. Please contact Eduweb')
@@ -831,7 +856,7 @@ class InstituteProvidePermissionView(APIView):
                     return Response({'invitee': _('User is already a faculty.')},
                                     status=status.HTTP_400_BAD_REQUEST)
                 elif existing_invite.role == models.InstituteRole.ADMIN and not existing_invite.active:
-                    msg = _('Unauthorized. User is already requested for admin role.')
+                    msg = _('Unauthorized. User was already requested for admin role.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
                 elif existing_invite.role == models.InstituteRole.ADMIN and existing_invite.active:
@@ -839,7 +864,7 @@ class InstituteProvidePermissionView(APIView):
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
                 elif existing_invite.role == models.InstituteRole.STAFF and not existing_invite.active:
-                    msg = _('Unauthorized. User is already requested for staff role.')
+                    msg = _('Unauthorized. User was already requested for staff role.')
                     return Response({'invitee': msg},
                                     status=status.HTTP_400_BAD_REQUEST)
                 elif existing_invite.role == models.InstituteRole.STAFF and existing_invite.active:
@@ -866,6 +891,8 @@ class InstituteProvidePermissionView(APIView):
                         'inviter': str(self.request.user),
                         'requested_on': saved_data.request_date
                     }
+                    stat.no_of_faculties += 1
+                    stat.save()
                     return Response(response, status=status.HTTP_200_OK)
                 except Exception:
                     msg = _('Internal server error. Please contact Eduweb')
@@ -976,7 +1003,18 @@ class InstitutePermissionAcceptDeleteView(APIView):
                                     status=status.HTTP_400_BAD_REQUEST)
 
                 try:
+                    role = invitation.role
                     invitation.delete()
+                    stat = models.InstituteStatistics.objects.filter(
+                        institute=institute
+                    ).first()
+                    if role == models.InstituteRole.FACULTY:
+                        stat.no_of_faculties -= 1
+                    elif role == models.InstituteRole.STAFF:
+                        stat.no_of_staffs -= 1
+                    elif role == models.InstituteRole.ADMIN:
+                        stat.no_of_admins -= 1
+                    stat.save()
                     return Response({'status': 'DELETED'},
                                     status=status.HTTP_200_OK)
                 except Exception:
@@ -998,7 +1036,18 @@ class InstitutePermissionAcceptDeleteView(APIView):
 
                 # Deleting invitation
                 try:
+                    role = invitation.role
                     invitation.delete()
+                    stat = models.InstituteStatistics.objects.filter(
+                        institute=institute
+                    ).first()
+                    if role == models.InstituteRole.FACULTY:
+                        stat.no_of_faculties -= 1
+                    elif role == models.InstituteRole.STAFF:
+                        stat.no_of_staffs -= 1
+                    elif role == models.InstituteRole.ADMIN:
+                        stat.no_of_admins -= 1
+                    stat.save()
                     return Response({'status': 'DELETED'},
                                     status=status.HTTP_200_OK)
                 except Exception:

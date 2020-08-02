@@ -55,57 +55,34 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <hr class="invite-top-separator" />
-                <div class="row invite-body" *ngIf="this.mobileQuery.matches ">
-                    <div class="col-12">
-                        <div class="row invite-details">
-                            <div class="col">
-                                <p>Role:</p>
-                            </div>
-                            <div class="col">
-                                <p>Faculty</p>
-                            </div>
-                        </div>
-                        <div class="row invite-details">
-                            <div class="col">
-                                <p>Active Faculty:</p>
-                            </div>
-                            <div class="col">
-                                <p>False</p>
-                            </div>
-                        </div>
+                <div class="row invite-body">
+                    <div class="col-12 margin-bottom-05">
+                        <h3 *ngIf="!mobileQuery.matches">Class Incharges:</h3>
+                        <p *ngIf="mobileQuery.matches">Class Incharges:</p>
                     </div>
-                </div>
-
-                <div class="row invite-body" *ngIf="!this.mobileQuery.matches">
-                    <div class="col-12 ">
-                        <div class="row invite-details ">
-                            <div class="col">
-                                <h3>Invited By:</h3>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h3 *ngIf="!mobileQuery.matches">1. Deepak Bharman</h3>
+                                <p *ngIf="mobileQuery.matches">1. Deepak Bharman</p>
                             </div>
-                            <div class="col">
-                                <h3>asdfgm</h3>
-                            </div>
-                        </div>
-                        <div class="row invite-details">
-                            <div class="col">
-                                <h3>Requested on:</h3>
-                            </div>
-                            <div class="col">
-                                <h3>asdfgh</h3>
+                            <div>
+                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mobileQuery.matches, 'cta-icon-mb': mobileQuery.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'">message</mat-icon>
+                                <mat-icon class="incharge-icon green-icon" [ngClass]="{'cta-icon': !mobileQuery.matches, 'cta-icon-mb': mobileQuery.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
                             </div>
                         </div>
                     </div>
                 </div>
                 <hr class="invite-bottom-separator" />
                 <div class="col">
-                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
-                        <button mat-button class="red-button margin-right-1">Cancel Invitation</button>
-                        <button mat-button class="green-button">Send Message</button>
+                    <div class="action-row">
+                        <button mat-raised-button class="red-button margin-right-1">Delete</button>
+                        <button mat-flat-button class="green-button">Open</button>
                     </div>
-                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                    <!-- <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
                         <mat-icon class="red-color margin-right-1">delete_forever</mat-icon>
                         <mat-icon class="yellow-color">email</mat-icon>
-                    </div>
+                    </div> -->
                 </div>
             </mat-expansion-panel>
         </mat-accordion>

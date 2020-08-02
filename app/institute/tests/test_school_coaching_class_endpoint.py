@@ -251,19 +251,19 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     self.assertEqual(len(res.data), 1)
     #     self.assertEqual(res.data[0]['name'], class_.name)
     #     self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
-
-    def test_get_all_class_fails_by_unpermitted_user(self):
-        """Test list all class fails by unpermitted user"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        create_class(institute)
-        res = self.client.get(
-            get_institute_list_class_url(institute.institute_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_get_all_class_fails_by_unpermitted_user(self):
+    #     """Test list all class fails by unpermitted user"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     create_class(institute)
+    #     res = self.client.get(
+    #         get_institute_list_class_url(institute.institute_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')

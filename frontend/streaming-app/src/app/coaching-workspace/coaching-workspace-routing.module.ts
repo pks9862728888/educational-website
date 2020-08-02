@@ -1,8 +1,8 @@
+import { PermissionsComponent } from './../shared/permissions/permissions.component';
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { LicenseComponent } from '../license/license.component';
 import { CoachingProfileComponent } from './coaching-profile/coaching-profile.component';
-import { CoachingPermissionsComponent } from './coaching-permissions/coaching-permissions.component';
 import { CoachingWorkspaceComponent } from './coaching-workspace.component';
 
 
@@ -13,7 +13,7 @@ const routes: Routes = [
     component: CoachingWorkspaceComponent,
     children: [
       { path: ':name/profile', component: CoachingProfileComponent },
-      { path: ':name/permissions', component: CoachingPermissionsComponent },
+      { path: ':name/permissions', component: PermissionsComponent },
       { path: ':name/license', component: LicenseComponent }
     ],
   }
@@ -28,6 +28,5 @@ export class CoachingWorkspaceRoutingModule {}
 
 export const coachingWorkspaceRoutingComponents = [
   CoachingWorkspaceComponent,
-  CoachingProfileComponent,
-  CoachingPermissionsComponent,
+  CoachingProfileComponent
 ];

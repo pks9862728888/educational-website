@@ -1,48 +1,17 @@
+import { UserActiveInviteMinDetails, UserPendingInviteMinDetails, InstituteAdminListResponse, InstituteStaffListResponse, InstituteFacultyListResponse } from './../../models/permission.model';
 import { Component, OnInit } from '@angular/core';
-import { MediaMatcher } from '@angular/cdk/layout';
-import { InstituteApiService } from '../../services/institute-api.service';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { INSTITUTE_ROLE_REVERSE } from 'src/constants';
-import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
+import { Validators, FormGroup, FormBuilder } from '@angular/forms';
+import { InstituteApiService } from 'src/app/services/institute-api.service';
+import { MediaMatcher } from '@angular/cdk/layout';
 
-interface BaseInvitation {
-  email: string;
-  image: string;
-  invitation_id: number;
-  invitee_id: number;
-  inviter: string;
-}
-
-interface UserActiveInviteMinDetails extends BaseInvitation {
-  request_accepted_on: string;
-}
-
-interface UserPendingInviteMinDetails extends BaseInvitation{
-  requested_on: string;
-}
-
-interface InstituteAdminListResponse {
-  active_admin_list: UserActiveInviteMinDetails[];
-  pending_admin_invites: UserPendingInviteMinDetails[];
-}
-
-interface InstituteStaffListResponse {
-  active_staff_list: UserActiveInviteMinDetails[];
-  pending_staff_invites: UserPendingInviteMinDetails[];
-}
-
-interface InstituteFacultyListResponse {
-  active_faculty_list: UserActiveInviteMinDetails[];
-  pending_faculty_invites: UserPendingInviteMinDetails[];
-}
 
 @Component({
-  selector: 'app-coaching-permissions',
-  templateUrl: './coaching-permissions.component.html',
-  styleUrls: ['./coaching-permissions.component.css']
+  selector: 'app-permissions',
+  templateUrl: './permissions.component.html',
+  styleUrls: ['./permissions.component.css']
 })
-export class CoachingPermissionsComponent implements OnInit {
-
+export class PermissionsComponent implements OnInit {
   mobileQuery: MediaQueryList;
 
   // For storing opened expansion panel
@@ -71,8 +40,7 @@ export class CoachingPermissionsComponent implements OnInit {
 
   constructor( private media: MediaMatcher,
                private instituteApiService: InstituteApiService,
-               private formBuilder: FormBuilder,
-               private inAppDataTransferService: InAppDataTransferService ) {
+               private formBuilder: FormBuilder ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
@@ -254,5 +222,6 @@ export class CoachingPermissionsComponent implements OnInit {
   isInactiveFacultyListEmpty() {
     return this.inactiveFacultyList.length === 0;
   }
+
 
 }
