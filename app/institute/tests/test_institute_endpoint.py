@@ -616,723 +616,723 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 #         self.assertIn('institute_logo', res.data)
 #         self.assertIn('institute_banner', res.data)
 #
-    def test_invite_admin_fails_no_license(self):
-        """Test that can not invite without license"""
-        institute = create_institute(self.user)
-        teacher = create_teacher()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'License expired or not found.')
-        self.assertEqual(models.InstituteStatistics.objects.filter(
-            institute=institute).first().no_of_admins, 1)
-
-    def test_invite_admin_success_by_owner_admin(self):
-        """Invite success by owner admin"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['email'], str(teacher))
-        self.assertEqual(res.data['inviter'], str(self.user))
-        self.assertIn('invitation_id', res.data)
-        self.assertEqual(res.data['invitee_id'], teacher.pk)
-        self.assertIn('requested_on', res.data)
-        self.assertEqual(res.data['image'], None)
-        self.assertTrue(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.ADMIN,
-            active=False
-        ).exists())
-        self.assertEqual(models.InstituteStatistics.objects.filter(
-            institute=institute).first().no_of_admins, 2)
-
-    def test_invite_admin_success_by_active_admin(self):
-        """Invite success by active admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        perm = models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.ADMIN
-        )
-        perm.active = True
-        perm.save()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['email'], str(teacher))
-        self.assertEqual(res.data['inviter'], str(self.user))
-        self.assertIn('invitation_id', res.data)
-        self.assertEqual(res.data['invitee_id'], teacher.pk)
-        self.assertIn('requested_on', res.data)
-        self.assertEqual(res.data['image'], None)
-        self.assertTrue(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.ADMIN,
-            active=False
-        ).exists())
-        self.assertEqual(models.InstituteStatistics.objects.filter(
-            institute=institute).first().no_of_admins, 2)
-
-    def test_invite_admin_fails_by_inactive_admin(self):
-        """Invite fails by inactive admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.ADMIN
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.ADMIN,
-            active=False
-        ).exists())
-
-    def test_invite_admin_fails_by_non_admin(self):
-        """Invite fails by non admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.ADMIN,
-            active=False
-        ).exists())
-
-    def test_duplicate_invite_admin_fails(self):
-        """Re-inviting user as admin fails"""
-        institute = create_institute(self.user)
-        teacher = create_teacher()
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.ADMIN
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['invitee'], 'User already invited.')
-        self.assertEqual(len(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.ADMIN,
-            active=False
-        )), 1)
-
-    def test_invite_student_as_admin_fails(self):
-        """Invite fails for providing admin permission to student"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        student = create_student()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.ADMIN, 'invitee': str(student)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['invitee'],
-                         'Only teacher user can be assigned special roles.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=student,
-            role=models.InstituteRole.ADMIN,
-            active=False
-        ))
-
-    def test_invite_role_invitee_required(self):
-        """Invite fails if role and invitee are not provided"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-
-        res = self.client.post(get_invite_url(institute.institute_slug), {})
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['role'], 'This field is required.')
-        self.assertEqual(res.data['invitee'], 'This field is required.')
-
-    def test_invite_fails_for_wrong_invitee(self):
-        """Invite fails if invitee does not exist"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.ADMIN, 'invitee': 'abcddf@gmail.com'}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['invitee'], 'This user does not exist.')
-
-    def test_invite_staff_success_by_owner_admin(self):
-        """Invite success by owner admin"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['email'], str(teacher))
-        self.assertEqual(res.data['inviter'], str(self.user))
-        self.assertIn('invitation_id', res.data)
-        self.assertEqual(res.data['invitee_id'], teacher.pk)
-        self.assertIn('requested_on', res.data)
-        self.assertEqual(res.data['image'], None)
-        self.assertTrue(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ).exists())
-
-    def test_invite_staff_success_by_active_admin(self):
-        """Invite success by active admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        staff = create_teacher()
-        perm = models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.ADMIN
-        )
-        perm.active = True
-        perm.save()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.STAFF, 'invitee': str(staff)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['email'], str(staff))
-        self.assertEqual(res.data['inviter'], str(self.user))
-        self.assertIn('invitation_id', res.data)
-        self.assertEqual(res.data['invitee_id'], staff.pk)
-        self.assertIn('requested_on', res.data)
-        self.assertEqual(res.data['image'], None)
-        self.assertTrue(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=staff,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ).exists())
-
-    def test_invite_staff_fails_by_inactive_admin(self):
-        """Invite fails by inactive admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.ADMIN
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ).exists())
-
-    def test_invite_staff_fails_by_non_admin(self):
-        """Invite fails by non admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        staff = create_teacher()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.STAFF, 'invitee': str(staff)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=staff,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ).exists())
-
-    def test_invite_staff_fails_by_inactive_staff(self):
-        """Invite fails by inactive staff"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.STAFF
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ).exists())
-
-    def test_invite_staff_fails_by_active_staff(self):
-        """Invite fails by active staff"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        perm = models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.STAFF
-        )
-        perm.active = True
-        perm.save()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ).exists())
-
-    def test_duplicate_invite_staff_fails(self):
-        """Invite fails for multiple invite for staff role"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.STAFF
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['invitee'], 'User already invited.')
-        self.assertEqual(len(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.STAFF,
-            active=False
-        )), 1)
-
-    def test_invite_student_as_staff_fails(self):
-        """Invite fails if student user are invited as staff"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        student = create_student()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.STAFF, 'invitee': str(student)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['invitee'],
-                         'Only teacher user can be assigned special roles.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=student,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ))
-
-    def test_invite_faculty_success_by_owner_admin(self):
-        """Invite success by owner admin"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['email'], str(teacher))
-        self.assertEqual(res.data['inviter'], str(self.user))
-        self.assertIn('invitation_id', res.data)
-        self.assertEqual(res.data['invitee_id'], teacher.pk)
-        self.assertIn('requested_on', res.data)
-        self.assertEqual(res.data['image'], None)
-        self.assertTrue(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.FACULTY,
-            active=False
-        ).exists())
-
-    def test_invite_faculty_success_by_active_admin(self):
-        """Invite success by active admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        faculty = create_teacher()
-        perm = models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.ADMIN
-        )
-        perm.active = True
-        perm.save()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(faculty)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['email'], str(faculty))
-        self.assertEqual(res.data['inviter'], str(self.user))
-        self.assertIn('invitation_id', res.data)
-        self.assertEqual(res.data['invitee_id'], faculty.pk)
-        self.assertIn('requested_on', res.data)
-        self.assertEqual(res.data['image'], None)
-        self.assertTrue(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=faculty,
-            role=models.InstituteRole.FACULTY,
-            active=False
-        ).exists())
-
-    def test_invite_faculty_fails_by_inactive_admin(self):
-        """Invite fails by inactive admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.ADMIN
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ).exists())
-
-    def test_invite_faculty_fails_by_inactive_staff(self):
-        """Invite fails by inactive staff"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.STAFF
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.STAFF,
-            active=False
-        ).exists())
-
-    def test_invite_faculty_success_by_active_staff(self):
-        """Invite success by active staff"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        faculty = create_teacher()
-        perm = models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=admin,
-            invitee=self.user,
-            role=models.InstituteRole.STAFF
-        )
-        perm.active = True
-        perm.save()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(faculty)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['email'], str(faculty))
-        self.assertEqual(res.data['inviter'], str(self.user))
-        self.assertIn('invitation_id', res.data)
-        self.assertEqual(res.data['invitee_id'], faculty.pk)
-        self.assertIn('requested_on', res.data)
-        self.assertEqual(res.data['image'], None)
-        self.assertTrue(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=faculty,
-            role=models.InstituteRole.FACULTY,
-            active=False
-        ).exists())
-
-    def test_invite_faculty_fails_by_non_admin(self):
-        """Invite fails by non admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        faculty = create_teacher()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(faculty)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=faculty,
-            role=models.InstituteRole.FACULTY,
-            active=False
-        ).exists())
-
-    def test_duplicate_invite_faculty_fails(self):
-        """Invite fails for multiple invite for faculty role"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.FACULTY
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['invitee'], 'User already invited.')
-        self.assertEqual(len(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.FACULTY,
-            active=False
-        )), 1)
-
-    def test_invite_student_as_faculty_fails(self):
-        """Invite fails if student user are invited as faculty"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        student = create_student()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(student)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['invitee'],
-                         'Only teacher user can be assigned special roles.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=student,
-            role=models.InstituteRole.FACULTY,
-            active=False
-        ))
-
-    def test_invite_faculty_fails_by_inactive_faculty(self):
-        """Invite fails if inactive faculty tries to invite faculty"""
-        owner = create_teacher('ownersd@gmail.com', 'owenerfd')
-        institute = create_institute(owner)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=owner,
-            invitee=self.user,
-            role=models.InstituteRole.FACULTY
-        )
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.FACULTY,
-            active=False
-        ))
-
-    def test_invite_faculty_fails_by_active_faculty(self):
-        """Invite fails if active faculty tries to invite faculty"""
-        owner = create_teacher('ownersd@gmail.com', 'owenerfd')
-        institute = create_institute(owner)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        teacher = create_teacher()
-        role = models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=owner,
-            invitee=self.user,
-            role=models.InstituteRole.FACULTY
-        )
-        role.active = True
-        role.save()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Insufficient permission.')
-        self.assertFalse(models.InstitutePermission.objects.filter(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.FACULTY,
-            active=False
-        ))
-
-    def test_invite_fails_invalid_role(self):
-        """Invite fails by non admin"""
-        admin = create_teacher('admindf@gmail.com', 'adminsdf')
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        staff = create_teacher()
-
-        res = self.client.post(
-            get_invite_url(institute.institute_slug),
-            {'role': 'B', 'invitee': str(staff)}
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['role'], 'Invalid role.')
-
+    # def test_invite_admin_fails_no_license(self):
+    #     """Test that can not invite without license"""
+    #     institute = create_institute(self.user)
+    #     teacher = create_teacher()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'License expired or not found.')
+    #     self.assertEqual(models.InstituteStatistics.objects.filter(
+    #         institute=institute).first().no_of_admins, 1)
+    #
+    # def test_invite_admin_success_by_owner_admin(self):
+    #     """Invite success by owner admin"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['email'], str(teacher))
+    #     self.assertEqual(res.data['inviter'], str(self.user))
+    #     self.assertIn('invitation_id', res.data)
+    #     self.assertEqual(res.data['invitee_id'], teacher.pk)
+    #     self.assertIn('requested_on', res.data)
+    #     self.assertEqual(res.data['image'], None)
+    #     self.assertTrue(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.ADMIN,
+    #         active=False
+    #     ).exists())
+    #     self.assertEqual(models.InstituteStatistics.objects.filter(
+    #         institute=institute).first().no_of_admins, 2)
+    #
+    # def test_invite_admin_success_by_active_admin(self):
+    #     """Invite success by active admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     perm = models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.ADMIN
+    #     )
+    #     perm.active = True
+    #     perm.save()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['email'], str(teacher))
+    #     self.assertEqual(res.data['inviter'], str(self.user))
+    #     self.assertIn('invitation_id', res.data)
+    #     self.assertEqual(res.data['invitee_id'], teacher.pk)
+    #     self.assertIn('requested_on', res.data)
+    #     self.assertEqual(res.data['image'], None)
+    #     self.assertTrue(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.ADMIN,
+    #         active=False
+    #     ).exists())
+    #     self.assertEqual(models.InstituteStatistics.objects.filter(
+    #         institute=institute).first().no_of_admins, 2)
+    #
+    # def test_invite_admin_fails_by_inactive_admin(self):
+    #     """Invite fails by inactive admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.ADMIN
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.ADMIN,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_admin_fails_by_non_admin(self):
+    #     """Invite fails by non admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.ADMIN,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_duplicate_invite_admin_fails(self):
+    #     """Re-inviting user as admin fails"""
+    #     institute = create_institute(self.user)
+    #     teacher = create_teacher()
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.ADMIN
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.ADMIN, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['invitee'], 'User already invited.')
+    #     self.assertEqual(len(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.ADMIN,
+    #         active=False
+    #     )), 1)
+    #
+    # def test_invite_student_as_admin_fails(self):
+    #     """Invite fails for providing admin permission to student"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     student = create_student()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.ADMIN, 'invitee': str(student)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['invitee'],
+    #                      'Only teacher user can be assigned special roles.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=student,
+    #         role=models.InstituteRole.ADMIN,
+    #         active=False
+    #     ))
+    #
+    # def test_invite_role_invitee_required(self):
+    #     """Invite fails if role and invitee are not provided"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #
+    #     res = self.client.post(get_invite_url(institute.institute_slug), {})
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['role'], 'This field is required.')
+    #     self.assertEqual(res.data['invitee'], 'This field is required.')
+    #
+    # def test_invite_fails_for_wrong_invitee(self):
+    #     """Invite fails if invitee does not exist"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.ADMIN, 'invitee': 'abcddf@gmail.com'}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['invitee'], 'This user does not exist.')
+    #
+    # def test_invite_staff_success_by_owner_admin(self):
+    #     """Invite success by owner admin"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['email'], str(teacher))
+    #     self.assertEqual(res.data['inviter'], str(self.user))
+    #     self.assertIn('invitation_id', res.data)
+    #     self.assertEqual(res.data['invitee_id'], teacher.pk)
+    #     self.assertIn('requested_on', res.data)
+    #     self.assertEqual(res.data['image'], None)
+    #     self.assertTrue(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_staff_success_by_active_admin(self):
+    #     """Invite success by active admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     staff = create_teacher()
+    #     perm = models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.ADMIN
+    #     )
+    #     perm.active = True
+    #     perm.save()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.STAFF, 'invitee': str(staff)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['email'], str(staff))
+    #     self.assertEqual(res.data['inviter'], str(self.user))
+    #     self.assertIn('invitation_id', res.data)
+    #     self.assertEqual(res.data['invitee_id'], staff.pk)
+    #     self.assertIn('requested_on', res.data)
+    #     self.assertEqual(res.data['image'], None)
+    #     self.assertTrue(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=staff,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_staff_fails_by_inactive_admin(self):
+    #     """Invite fails by inactive admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.ADMIN
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_staff_fails_by_non_admin(self):
+    #     """Invite fails by non admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     staff = create_teacher()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.STAFF, 'invitee': str(staff)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=staff,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_staff_fails_by_inactive_staff(self):
+    #     """Invite fails by inactive staff"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.STAFF
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_staff_fails_by_active_staff(self):
+    #     """Invite fails by active staff"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     perm = models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.STAFF
+    #     )
+    #     perm.active = True
+    #     perm.save()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_duplicate_invite_staff_fails(self):
+    #     """Invite fails for multiple invite for staff role"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.STAFF
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.STAFF, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['invitee'], 'User already invited.')
+    #     self.assertEqual(len(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     )), 1)
+    #
+    # def test_invite_student_as_staff_fails(self):
+    #     """Invite fails if student user are invited as staff"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     student = create_student()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.STAFF, 'invitee': str(student)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['invitee'],
+    #                      'Only teacher user can be assigned special roles.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=student,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ))
+    #
+    # def test_invite_faculty_success_by_owner_admin(self):
+    #     """Invite success by owner admin"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['email'], str(teacher))
+    #     self.assertEqual(res.data['inviter'], str(self.user))
+    #     self.assertIn('invitation_id', res.data)
+    #     self.assertEqual(res.data['invitee_id'], teacher.pk)
+    #     self.assertIn('requested_on', res.data)
+    #     self.assertEqual(res.data['image'], None)
+    #     self.assertTrue(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.FACULTY,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_faculty_success_by_active_admin(self):
+    #     """Invite success by active admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     faculty = create_teacher()
+    #     perm = models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.ADMIN
+    #     )
+    #     perm.active = True
+    #     perm.save()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(faculty)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['email'], str(faculty))
+    #     self.assertEqual(res.data['inviter'], str(self.user))
+    #     self.assertIn('invitation_id', res.data)
+    #     self.assertEqual(res.data['invitee_id'], faculty.pk)
+    #     self.assertIn('requested_on', res.data)
+    #     self.assertEqual(res.data['image'], None)
+    #     self.assertTrue(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=faculty,
+    #         role=models.InstituteRole.FACULTY,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_faculty_fails_by_inactive_admin(self):
+    #     """Invite fails by inactive admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.ADMIN
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_faculty_fails_by_inactive_staff(self):
+    #     """Invite fails by inactive staff"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.STAFF
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.STAFF,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_faculty_success_by_active_staff(self):
+    #     """Invite success by active staff"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     faculty = create_teacher()
+    #     perm = models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=admin,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.STAFF
+    #     )
+    #     perm.active = True
+    #     perm.save()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(faculty)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['email'], str(faculty))
+    #     self.assertEqual(res.data['inviter'], str(self.user))
+    #     self.assertIn('invitation_id', res.data)
+    #     self.assertEqual(res.data['invitee_id'], faculty.pk)
+    #     self.assertIn('requested_on', res.data)
+    #     self.assertEqual(res.data['image'], None)
+    #     self.assertTrue(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=faculty,
+    #         role=models.InstituteRole.FACULTY,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_invite_faculty_fails_by_non_admin(self):
+    #     """Invite fails by non admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     faculty = create_teacher()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(faculty)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=faculty,
+    #         role=models.InstituteRole.FACULTY,
+    #         active=False
+    #     ).exists())
+    #
+    # def test_duplicate_invite_faculty_fails(self):
+    #     """Invite fails for multiple invite for faculty role"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.FACULTY
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['invitee'], 'User already invited.')
+    #     self.assertEqual(len(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.FACULTY,
+    #         active=False
+    #     )), 1)
+    #
+    # def test_invite_student_as_faculty_fails(self):
+    #     """Invite fails if student user are invited as faculty"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     student = create_student()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(student)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['invitee'],
+    #                      'Only teacher user can be assigned special roles.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=student,
+    #         role=models.InstituteRole.FACULTY,
+    #         active=False
+    #     ))
+    #
+    # def test_invite_faculty_fails_by_inactive_faculty(self):
+    #     """Invite fails if inactive faculty tries to invite faculty"""
+    #     owner = create_teacher('ownersd@gmail.com', 'owenerfd')
+    #     institute = create_institute(owner)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=owner,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.FACULTY
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.FACULTY,
+    #         active=False
+    #     ))
+    #
+    # def test_invite_faculty_fails_by_active_faculty(self):
+    #     """Invite fails if active faculty tries to invite faculty"""
+    #     owner = create_teacher('ownersd@gmail.com', 'owenerfd')
+    #     institute = create_institute(owner)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     teacher = create_teacher()
+    #     role = models.InstitutePermission.objects.create(
+    #         institute=institute,
+    #         inviter=owner,
+    #         invitee=self.user,
+    #         role=models.InstituteRole.FACULTY
+    #     )
+    #     role.active = True
+    #     role.save()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': models.InstituteRole.FACULTY, 'invitee': str(teacher)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Insufficient permission.')
+    #     self.assertFalse(models.InstitutePermission.objects.filter(
+    #         institute=institute,
+    #         inviter=self.user,
+    #         invitee=teacher,
+    #         role=models.InstituteRole.FACULTY,
+    #         active=False
+    #     ))
+    #
+    # def test_invite_fails_invalid_role(self):
+    #     """Invite fails by non admin"""
+    #     admin = create_teacher('admindf@gmail.com', 'adminsdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     staff = create_teacher()
+    #
+    #     res = self.client.post(
+    #         get_invite_url(institute.institute_slug),
+    #         {'role': 'B', 'invitee': str(staff)}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['role'], 'Invalid role.')
+#
 #     def test_invitee_can_accept_admin_request(self):
 #         """Test that invitee can accept admin request"""
 #         owner = create_teacher()
@@ -1384,7 +1384,7 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 #             role_exists(institute, owner, self.user,
 #                         models.InstituteRole.FACULTY))
 #
-#     def test_invitee_can_accept_admin_request_twice(self):
+#     def test_invitee_can_not_accept_admin_request_twice(self):
 #         """Test that invitee can not accept admin request twice"""
 #         owner = create_teacher()
 #         institute = create_institute(owner)
@@ -1423,7 +1423,7 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 #             role_exists(institute, owner, self.user,
 #                         models.InstituteRole.STAFF))
 #
-#     def test_invitee_can_accept_faculty_request_twice(self):
+#     def test_invitee_can_not_accept_faculty_request_twice(self):
 #         """Test that invitee can not accept faculty request twice"""
 #         owner = create_teacher()
 #         institute = create_institute(owner)
@@ -1477,590 +1477,590 @@ class AuthenticatedTeacherUserAPITests(TestCase):
 #             role_exists(institute, owner, self.user,
 #                         models.InstituteRole.ADMIN, False))
 #
-#     def test_invitee_can_delete_admin_request(self):
-#         """Test that invitee can delete admin request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE'}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data['status'], 'DELETED')
-#         self.assertFalse(
-#             role_exists(institute, owner, self.user,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_invitee_can_delete_staff_request(self):
-#         """Test that invitee can delete staff request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE'}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data['status'], 'DELETED')
-#         self.assertFalse(
-#             role_exists(institute, owner, self.user,
-#                         models.InstituteRole.STAFF, False))
-#
-#     def test_invitee_can_decline_faculty_request(self):
-#         """Test that invitee can delete faculty request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.FACULTY)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE'}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data['status'], 'DELETED')
-#         self.assertFalse(
-#             role_exists(institute, owner, self.user,
-#                         models.InstituteRole.FACULTY, False))
-#
-#     def test_invitee_can_not_delete_admin_request_twice(self):
-#         """Test that invitee can not delete admin request twice"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.ADMIN)
-#         delete_invite(institute, self.user,
-#                       models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE'}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'],
-#                          'Invitation not found or already deleted.')
-#         self.assertFalse(
-#             role_exists(institute, owner, self.user,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_invitee_can_not_delete_staff_request_twice(self):
-#         """Test that invitee can not delete staff request twice"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.STAFF)
-#         delete_invite(institute, self.user,
-#                       models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE'}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'],
-#                          'Invitation not found or already deleted.')
-#         self.assertFalse(
-#             role_exists(institute, owner, self.user,
-#                         models.InstituteRole.STAFF, False))
-#
-#     def test_invitee_can_not_delete_faculty_request_twice(self):
-#         """Test that invitee can not delete faculty request twice"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.FACULTY)
-#         delete_invite(institute, self.user,
-#                       models.InstituteRole.FACULTY)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE'}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'],
-#                          'Invitation not found or already deleted.')
-#         self.assertFalse(
-#             role_exists(institute, owner, self.user,
-#                         models.InstituteRole.FACULTY, False))
-#
-#     def test_inviter_can_decline_admin_request(self):
-#         """Test that inviter can delete admin request"""
-#         invitee = create_teacher()
-#         institute = create_institute(self.user)
-#         create_invite(institute, self.user, invitee,
-#                       models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(invitee)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data['status'], 'DELETED')
-#         self.assertFalse(
-#             role_exists(institute, self.user, invitee,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_other_active_admin_can_decline_admin_request(self):
-#         """Test that all active admin can delete admin request"""
-#         invitee = create_teacher()
-#         owner = create_teacher('ownerdf@gmail.com', 'owenrdf')
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.ADMIN)
-#         accept_invite(institute, self.user,
-#                       models.InstituteRole.ADMIN)
-#         create_invite(institute, owner, invitee,
-#                       models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(invitee)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data['status'], 'DELETED')
-#         self.assertFalse(
-#             role_exists(institute, self.user, invitee,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_other_inactive_admin_can_not_decline_admin_request(self):
-#         """Test that inactive admin can not delete admin request"""
-#         invitee = create_teacher()
-#         owner = create_teacher('ownerdf@gmail.com', 'owenrdf')
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.ADMIN)
-#         create_invite(institute, owner, invitee,
-#                       models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(invitee)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, invitee,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_inviter_can_decline_staff_request(self):
-#         """Test that inviter can delete staff request"""
-#         invitee = create_teacher()
-#         institute = create_institute(self.user)
-#         create_invite(institute, self.user, invitee,
-#                       models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(invitee)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data['status'], 'DELETED')
-#         self.assertFalse(
-#             role_exists(institute, self.user, invitee,
-#                         models.InstituteRole.STAFF, False))
-#
-#     def test_inviter_can_decline_faculty_request(self):
-#         """Test that inviter can delete faculty request"""
-#         invitee = create_teacher()
-#         institute = create_institute(self.user)
-#         create_invite(institute, self.user, invitee,
-#                       models.InstituteRole.FACULTY)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(invitee)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data['status'], 'DELETED')
-#         self.assertFalse(
-#             role_exists(institute, self.user, invitee,
-#                         models.InstituteRole.FACULTY, False))
-#
-#     def test_inviter_can_delete_admin_request_twice(self):
-#         """Test that inviter can not delete admin request twice"""
-#         institute = create_institute(self.user)
-#         new_user = create_teacher()
-#         create_invite(institute, self.user, new_user,
-#                       models.InstituteRole.ADMIN)
-#         delete_invite(institute, new_user, models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'],
-#                          'Invitation not found or already deleted.')
-#         self.assertFalse(
-#             role_exists(institute, new_user, self.user,
-#                         models.InstituteRole.ADMIN))
-#
-#     def test_inviter_can_not_delete_staff_request_twice(self):
-#         """Test that inviter can not delete staff request twice"""
-#         institute = create_institute(self.user)
-#         new_user = create_teacher()
-#         create_invite(institute, self.user, new_user,
-#                       models.InstituteRole.STAFF)
-#         delete_invite(institute, new_user, models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'],
-#                          'Invitation not found or already deleted.')
-#         self.assertFalse(
-#             role_exists(institute, new_user, self.user,
-#                         models.InstituteRole.STAFF))
-#
-#     def test_inviter_can_not_delete_faculty_request_twice(self):
-#         """Test that inviter can not delete faculty request twice"""
-#         institute = create_institute(self.user)
-#         new_user = create_teacher()
-#         create_invite(institute, self.user, new_user,
-#                       models.InstituteRole.FACULTY)
-#         delete_invite(institute, new_user, models.InstituteRole.FACULTY)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'],
-#                          'Invitation not found or already deleted.')
-#         self.assertFalse(
-#             role_exists(institute, new_user, self.user,
-#                         models.InstituteRole.FACULTY))
-#
-#     def test_inviter_can_not_decline_non_existing_admin_request(self):
-#         """Test that inviter can delete non existing admin request"""
-#         invitee = create_teacher()
-#         institute = create_institute(self.user)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(invitee)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'],
-#                          'Invitation not found or already deleted.')
-#         self.assertFalse(
-#             role_exists(institute, self.user, invitee,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_active_staff_can_not_delete_admin_request(self):
-#         """Test that active staff can not delete admin request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
-#         accept_invite(institute, self.user, models.InstituteRole.STAFF)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_inactive_staff_can_not_delete_admin_request(self):
-#         """Test that inactive staff can not delete admin request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_active_faculty_can_not_delete_admin_request(self):
-#         """Test that active faculty can not delete admin request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.FACULTY)
-#         accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_inactive_faculty_can_not_delete_admin_request(self):
-#         """Test that inactive faculty can not delete admin request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.FACULTY)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_active_faculty_can_not_delete_staff_request(self):
-#         """Test that active faculty can not delete staff request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.FACULTY)
-#         accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.STAFF, False))
-#
-#     def test_inactive_faculty_can_not_delete_staff_request(self):
-#         """Test that inactive faculty can not delete staff request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.FACULTY)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.STAFF, False))
-#
-#     def test_active_staff_can_not_delete_staff_request(self):
-#         """Test that active staff can not delete staff request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
-#         accept_invite(institute, self.user, models.InstituteRole.STAFF)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.STAFF, False))
-#
-#     def test_inactive_staff_can_not_delete_staff_request(self):
-#         """Test that inactive staff can not delete staff request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.STAFF, False))
-#
-#     def test_active_faculty_can_not_delete_faculty_request(self):
-#         """Test that active faculty can not delete faculty request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.FACULTY)
-#         accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.FACULTY)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.FACULTY, False))
-#
-#     def test_inactive_faculty_can_not_delete_faculty_request(self):
-#         """Test that inactive faculty can not delete faculty request"""
-#         owner = create_teacher()
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, self.user,
-#                       models.InstituteRole.FACULTY)
-#         new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
-#         create_invite(institute, owner, new_user, models.InstituteRole.FACULTY)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(new_user)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, new_user,
-#                         models.InstituteRole.FACULTY, False))
-#
-#     def test_active_admin_can_not_remove_active_admin(self):
-#         """Test that active admin can not remove active admin"""
-#         institute = create_institute(self.user)
-#         admin = create_teacher()
-#         create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
-#         accept_invite(institute, admin, models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(admin)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, self.user, admin,
-#                         models.InstituteRole.ADMIN, True))
-#
-#     def test_active_admin_can_remove_inactive_admin(self):
-#         """Test that active admin can not remove inactive admin"""
-#         institute = create_institute(self.user)
-#         admin = create_teacher()
-#         create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(admin)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_200_OK)
-#         self.assertEqual(res.data['status'], 'DELETED')
-#         self.assertFalse(
-#             role_exists(institute, self.user, admin,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_active_staff_can_not_remove_active_staff(self):
-#         """Test that active staff can not remove active staff"""
-#         admin = create_teacher('activeadmin@gmail.com', 'activeadminfd')
-#         institute = create_institute(admin)
-#         staff = create_teacher()
-#         create_invite(institute, admin, staff, models.InstituteRole.STAFF)
-#         accept_invite(institute, staff, models.InstituteRole.STAFF)
-#         create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
-#         accept_invite(institute, self.user, models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(staff)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, admin, staff,
-#                         models.InstituteRole.STAFF, True))
-#
-#     def test_active_faculty_can_not_remove_active_staff(self):
-#         """Test that active faculty can not remove active faculty"""
-#         admin = create_teacher('activeadmin@gmail.com', 'activeadminfd')
-#         institute = create_institute(admin)
-#         faculty = create_teacher()
-#         create_invite(institute, admin, faculty, models.InstituteRole.FACULTY)
-#         accept_invite(institute, faculty, models.InstituteRole.FACULTY)
-#         create_invite(institute, admin, self.user,
-#                       models.InstituteRole.FACULTY)
-#         accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(faculty)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, admin, faculty,
-#                         models.InstituteRole.FACULTY, True))
-#
-#     def test_active_admin_can_not_delete_other_institute_admin_request(self):
-#         """
-#         Test that all active admin can not delete
-#         admin request of other institute
-#         """
-#         invitee = create_teacher()
-#         owner = create_teacher('ownerdf@gmail.com', 'owenrdf')
-#         institute = create_institute(owner)
-#         create_invite(institute, owner, invitee, models.InstituteRole.ADMIN)
-#         create_institute(self.user, 'Billy institute')
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(invitee)}
-#         )
-#         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-#         self.assertEqual(res.data['error'], 'Permission denied.')
-#         self.assertTrue(
-#             role_exists(institute, owner, invitee,
-#                         models.InstituteRole.ADMIN, False))
-#
-#     def test_admin_can_not_delete_active_staff_using_this_url(self):
-#         """
-#         Test active admin can not delete active
-#         staff using accept delete url"""
-#         institute = create_institute(self.user)
-#         staff = create_teacher()
-#         create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
-#         accept_invite(institute, staff, models.InstituteRole.STAFF)
-#
-#         res = self.client.post(
-#             get_invite_accept_delete_url(institute.institute_slug),
-#             {'operation': 'DELETE', 'invitee': str(staff)}
-#         )
-#         self.assertEqual(res.status_code,
-#                          status.HTTP_500_INTERNAL_SERVER_ERROR)
-#         self.assertEqual(res.data['error'],
-#                          'Internal server error. Please contact EduWeb.')
-#         self.assertTrue(
-#             role_exists(institute, self.user, staff,
-#                         models.InstituteRole.STAFF, True))
-#
+    def test_invitee_can_delete_admin_request(self):
+        """Test that invitee can delete admin request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE'}
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'DELETED')
+        self.assertFalse(
+            role_exists(institute, owner, self.user,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_invitee_can_delete_staff_request(self):
+        """Test that invitee can delete staff request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE'}
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'DELETED')
+        self.assertFalse(
+            role_exists(institute, owner, self.user,
+                        models.InstituteRole.STAFF, False))
+
+    def test_invitee_can_decline_faculty_request(self):
+        """Test that invitee can delete faculty request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.FACULTY)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE'}
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'DELETED')
+        self.assertFalse(
+            role_exists(institute, owner, self.user,
+                        models.InstituteRole.FACULTY, False))
+
+    def test_invitee_can_not_delete_admin_request_twice(self):
+        """Test that invitee can not delete admin request twice"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.ADMIN)
+        delete_invite(institute, self.user,
+                      models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE'}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'],
+                         'Invitation not found or already deleted.')
+        self.assertFalse(
+            role_exists(institute, owner, self.user,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_invitee_can_not_delete_staff_request_twice(self):
+        """Test that invitee can not delete staff request twice"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.STAFF)
+        delete_invite(institute, self.user,
+                      models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE'}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'],
+                         'Invitation not found or already deleted.')
+        self.assertFalse(
+            role_exists(institute, owner, self.user,
+                        models.InstituteRole.STAFF, False))
+
+    def test_invitee_can_not_delete_faculty_request_twice(self):
+        """Test that invitee can not delete faculty request twice"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.FACULTY)
+        delete_invite(institute, self.user,
+                      models.InstituteRole.FACULTY)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE'}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'],
+                         'Invitation not found or already deleted.')
+        self.assertFalse(
+            role_exists(institute, owner, self.user,
+                        models.InstituteRole.FACULTY, False))
+
+    def test_inviter_can_decline_admin_request(self):
+        """Test that inviter can delete admin request"""
+        invitee = create_teacher()
+        institute = create_institute(self.user)
+        create_invite(institute, self.user, invitee,
+                      models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(invitee)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'DELETED')
+        self.assertFalse(
+            role_exists(institute, self.user, invitee,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_other_active_admin_can_decline_admin_request(self):
+        """Test that all active admin can delete admin request"""
+        invitee = create_teacher()
+        owner = create_teacher('ownerdf@gmail.com', 'owenrdf')
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.ADMIN)
+        accept_invite(institute, self.user,
+                      models.InstituteRole.ADMIN)
+        create_invite(institute, owner, invitee,
+                      models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(invitee)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'DELETED')
+        self.assertFalse(
+            role_exists(institute, self.user, invitee,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_other_inactive_admin_can_not_decline_admin_request(self):
+        """Test that inactive admin can not delete admin request"""
+        invitee = create_teacher()
+        owner = create_teacher('ownerdf@gmail.com', 'owenrdf')
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.ADMIN)
+        create_invite(institute, owner, invitee,
+                      models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(invitee)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, invitee,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_inviter_can_decline_staff_request(self):
+        """Test that inviter can delete staff request"""
+        invitee = create_teacher()
+        institute = create_institute(self.user)
+        create_invite(institute, self.user, invitee,
+                      models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(invitee)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'DELETED')
+        self.assertFalse(
+            role_exists(institute, self.user, invitee,
+                        models.InstituteRole.STAFF, False))
+
+    def test_inviter_can_decline_faculty_request(self):
+        """Test that inviter can delete faculty request"""
+        invitee = create_teacher()
+        institute = create_institute(self.user)
+        create_invite(institute, self.user, invitee,
+                      models.InstituteRole.FACULTY)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(invitee)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'DELETED')
+        self.assertFalse(
+            role_exists(institute, self.user, invitee,
+                        models.InstituteRole.FACULTY, False))
+
+    def test_inviter_can_delete_admin_request_twice(self):
+        """Test that inviter can not delete admin request twice"""
+        institute = create_institute(self.user)
+        new_user = create_teacher()
+        create_invite(institute, self.user, new_user,
+                      models.InstituteRole.ADMIN)
+        delete_invite(institute, new_user, models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'],
+                         'Invitation not found or already deleted.')
+        self.assertFalse(
+            role_exists(institute, new_user, self.user,
+                        models.InstituteRole.ADMIN))
+
+    def test_inviter_can_not_delete_staff_request_twice(self):
+        """Test that inviter can not delete staff request twice"""
+        institute = create_institute(self.user)
+        new_user = create_teacher()
+        create_invite(institute, self.user, new_user,
+                      models.InstituteRole.STAFF)
+        delete_invite(institute, new_user, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'],
+                         'Invitation not found or already deleted.')
+        self.assertFalse(
+            role_exists(institute, new_user, self.user,
+                        models.InstituteRole.STAFF))
+
+    def test_inviter_can_not_delete_faculty_request_twice(self):
+        """Test that inviter can not delete faculty request twice"""
+        institute = create_institute(self.user)
+        new_user = create_teacher()
+        create_invite(institute, self.user, new_user,
+                      models.InstituteRole.FACULTY)
+        delete_invite(institute, new_user, models.InstituteRole.FACULTY)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'],
+                         'Invitation not found or already deleted.')
+        self.assertFalse(
+            role_exists(institute, new_user, self.user,
+                        models.InstituteRole.FACULTY))
+
+    def test_inviter_can_not_decline_non_existing_admin_request(self):
+        """Test that inviter can delete non existing admin request"""
+        invitee = create_teacher()
+        institute = create_institute(self.user)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(invitee)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'],
+                         'Invitation not found or already deleted.')
+        self.assertFalse(
+            role_exists(institute, self.user, invitee,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_active_staff_can_not_delete_admin_request(self):
+        """Test that active staff can not delete admin request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_inactive_staff_can_not_delete_admin_request(self):
+        """Test that inactive staff can not delete admin request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_active_faculty_can_not_delete_admin_request(self):
+        """Test that active faculty can not delete admin request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.FACULTY)
+        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_inactive_faculty_can_not_delete_admin_request(self):
+        """Test that inactive faculty can not delete admin request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.FACULTY)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_active_faculty_can_not_delete_staff_request(self):
+        """Test that active faculty can not delete staff request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.FACULTY)
+        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.STAFF, False))
+
+    def test_inactive_faculty_can_not_delete_staff_request(self):
+        """Test that inactive faculty can not delete staff request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.FACULTY)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.STAFF, False))
+
+    def test_active_staff_can_not_delete_staff_request(self):
+        """Test that active staff can not delete staff request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.STAFF, False))
+
+    def test_inactive_staff_can_not_delete_staff_request(self):
+        """Test that inactive staff can not delete staff request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user, models.InstituteRole.STAFF)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.STAFF, False))
+
+    def test_active_faculty_can_not_delete_faculty_request(self):
+        """Test that active faculty can not delete faculty request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.FACULTY)
+        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.FACULTY)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.FACULTY, False))
+
+    def test_inactive_faculty_can_not_delete_faculty_request(self):
+        """Test that inactive faculty can not delete faculty request"""
+        owner = create_teacher()
+        institute = create_institute(owner)
+        create_invite(institute, owner, self.user,
+                      models.InstituteRole.FACULTY)
+        new_user = create_teacher('newuser@gmail.com', 'newusersfddff')
+        create_invite(institute, owner, new_user, models.InstituteRole.FACULTY)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(new_user)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, new_user,
+                        models.InstituteRole.FACULTY, False))
+
+    def test_active_admin_can_not_remove_active_admin(self):
+        """Test that active admin can not remove active admin"""
+        institute = create_institute(self.user)
+        admin = create_teacher()
+        create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
+        accept_invite(institute, admin, models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(admin)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, self.user, admin,
+                        models.InstituteRole.ADMIN, True))
+
+    def test_active_admin_can_remove_inactive_admin(self):
+        """Test that active admin can not remove inactive admin"""
+        institute = create_institute(self.user)
+        admin = create_teacher()
+        create_invite(institute, self.user, admin, models.InstituteRole.ADMIN)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(admin)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'DELETED')
+        self.assertFalse(
+            role_exists(institute, self.user, admin,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_active_staff_can_not_remove_active_staff(self):
+        """Test that active staff can not remove active staff"""
+        admin = create_teacher('activeadmin@gmail.com', 'activeadminfd')
+        institute = create_institute(admin)
+        staff = create_teacher()
+        create_invite(institute, admin, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(staff)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, admin, staff,
+                        models.InstituteRole.STAFF, True))
+
+    def test_active_faculty_can_not_remove_active_staff(self):
+        """Test that active faculty can not remove active faculty"""
+        admin = create_teacher('activeadmin@gmail.com', 'activeadminfd')
+        institute = create_institute(admin)
+        faculty = create_teacher()
+        create_invite(institute, admin, faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, admin, self.user,
+                      models.InstituteRole.FACULTY)
+        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(faculty)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, admin, faculty,
+                        models.InstituteRole.FACULTY, True))
+
+    def test_active_admin_can_not_delete_other_institute_admin_request(self):
+        """
+        Test that all active admin can not delete
+        admin request of other institute
+        """
+        invitee = create_teacher()
+        owner = create_teacher('ownerdf@gmail.com', 'owenrdf')
+        institute = create_institute(owner)
+        create_invite(institute, owner, invitee, models.InstituteRole.ADMIN)
+        create_institute(self.user, 'Billy institute')
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(invitee)}
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertTrue(
+            role_exists(institute, owner, invitee,
+                        models.InstituteRole.ADMIN, False))
+
+    def test_admin_can_not_delete_active_staff_using_this_url(self):
+        """
+        Test active admin can not delete active
+        staff using accept delete url"""
+        institute = create_institute(self.user)
+        staff = create_teacher()
+        create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            get_invite_accept_delete_url(institute.institute_slug),
+            {'operation': 'DELETE', 'invitee': str(staff)}
+        )
+        self.assertEqual(res.status_code,
+                         status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(res.data['error'],
+                         'Internal server error. Please contact EduWeb.')
+        self.assertTrue(
+            role_exists(institute, self.user, staff,
+                        models.InstituteRole.STAFF, True))
+
 #     def test_get_success_on_get_admin_permission_list_url(self):
 #         """
 #         Test that teacher can get admin permissions successfully.

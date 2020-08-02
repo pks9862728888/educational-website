@@ -1003,7 +1003,18 @@ class InstitutePermissionAcceptDeleteView(APIView):
                                     status=status.HTTP_400_BAD_REQUEST)
 
                 try:
+                    role = invitation.role
                     invitation.delete()
+                    stat = models.InstituteStatistics.objects.filter(
+                        institute=institute
+                    ).first()
+                    if role == models.InstituteRole.FACULTY:
+                        stat.no_of_faculties -= 1
+                    elif role == models.InstituteRole.STAFF:
+                        stat.no_of_staffs -= 1
+                    elif role == models.InstituteRole.ADMIN:
+                        stat.no_of_admins -= 1
+                    stat.save()
                     return Response({'status': 'DELETED'},
                                     status=status.HTTP_200_OK)
                 except Exception:
@@ -1025,7 +1036,18 @@ class InstitutePermissionAcceptDeleteView(APIView):
 
                 # Deleting invitation
                 try:
+                    role = invitation.role
                     invitation.delete()
+                    stat = models.InstituteStatistics.objects.filter(
+                        institute=institute
+                    ).first()
+                    if role == models.InstituteRole.FACULTY:
+                        stat.no_of_faculties -= 1
+                    elif role == models.InstituteRole.STAFF:
+                        stat.no_of_staffs -= 1
+                    elif role == models.InstituteRole.ADMIN:
+                        stat.no_of_admins -= 1
+                    stat.save()
                     return Response({'status': 'DELETED'},
                                     status=status.HTTP_200_OK)
                 except Exception:

@@ -340,41 +340,41 @@ def accept_invite(institute, invitee, role):
 #         self.assertEqual(file_path, expected_path)
 #
 #
-class InstitutePermissionModelTests(TestCase):
-    """Test for institute permissions model"""
-
-    def setUp(self):
-        self.user = create_teacher('owner@gmail.com', 'owners')
-
-    def test_add_admin_by_owner_success(self):
-        """Test that admin can be added"""
-        institute = create_institute(self.user)
-        teacher = create_teacher()
-        res = models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=self.user,
-            invitee=teacher,
-            role=models.InstituteRole.ADMIN
-        )
-        self.assertEqual(res.institute, institute)
-        self.assertEqual(res.inviter, self.user)
-        self.assertEqual(res.invitee, teacher)
-        self.assertEqual(res.active, False)
-        self.assertEqual(res.request_accepted_on, None)
-
-    def test_string_repr_of_institute_permission_model(self):
-        """Test the string representation"""
-        institute = create_institute(self.user)
-        new_admin = create_teacher()
-        perm = models.InstitutePermission.objects.create(
-            institute=institute,
-            inviter=self.user,
-            invitee=new_admin,
-            role=models.InstituteRole.ADMIN
-        )
-        self.assertEqual(str(perm), str(new_admin))
-
-
+# class InstitutePermissionModelTests(TestCase):
+#     """Test for institute permissions model"""
+#
+#     def setUp(self):
+#         self.user = create_teacher('owner@gmail.com', 'owners')
+#
+#     def test_add_admin_by_owner_success(self):
+#         """Test that admin can be added"""
+#         institute = create_institute(self.user)
+#         teacher = create_teacher()
+#         res = models.InstitutePermission.objects.create(
+#             institute=institute,
+#             inviter=self.user,
+#             invitee=teacher,
+#             role=models.InstituteRole.ADMIN
+#         )
+#         self.assertEqual(res.institute, institute)
+#         self.assertEqual(res.inviter, self.user)
+#         self.assertEqual(res.invitee, teacher)
+#         self.assertEqual(res.active, False)
+#         self.assertEqual(res.request_accepted_on, None)
+#
+#     def test_string_repr_of_institute_permission_model(self):
+#         """Test the string representation"""
+#         institute = create_institute(self.user)
+#         new_admin = create_teacher()
+#         perm = models.InstitutePermission.objects.create(
+#             institute=institute,
+#             inviter=self.user,
+#             invitee=new_admin,
+#             role=models.InstituteRole.ADMIN
+#         )
+#         self.assertEqual(str(perm), str(new_admin))
+#
+#
 # class InstituteClassModelTests(TestCase):
 #     """Tests for institute class"""
 #
