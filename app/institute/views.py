@@ -388,7 +388,7 @@ class RazorpayPaymentCallbackView(APIView):
                 return Response({'status': _('FAILURE')},
                                 status=status.HTTP_200_OK)
         except Exception:
-            return Response({'error': _('Internal server error.')},
+            return Response({'error': _('Internal server error. Dont worry, if payment was successful it will be verified automatically. If problem persists let us know.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
