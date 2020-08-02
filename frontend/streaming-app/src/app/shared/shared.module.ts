@@ -9,6 +9,8 @@ import { UiLoadingComponent } from './ui-loading/ui-loading.component';
 import { ClassComponent } from './class/class.component';
 import { UiSuccessTextComponent } from './ui-success-text/ui-success-text.component';
 import { PermissionsComponent } from './permissions/permissions.component';
+import { UiDialogComponent } from './ui-dialog/ui-dialog.component';
+import { UiService } from '../services/ui.service';
 
 
 
@@ -20,6 +22,7 @@ import { PermissionsComponent } from './permissions/permissions.component';
     UiLoadingComponent,
     ClassComponent,
     PermissionsComponent,
+    UiDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -35,6 +38,9 @@ import { PermissionsComponent } from './permissions/permissions.component';
     ClassComponent,
     PermissionsComponent
   ],
-  providers: [InstituteApiService]
+  providers: [
+    InstituteApiService,
+    UiService
+  ]
 })
 export class SharedModule { }

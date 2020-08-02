@@ -7,6 +7,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialogModule } from '@angular/material/dialog';
+
 
 @NgModule({
   imports: [
@@ -17,7 +19,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatCardModule,
     MatFormFieldModule,
     MatTooltipModule,
-    MatTabsModule
+    MatTabsModule,
+    MatDialogModule
   ],
   exports: [
     MatButtonModule,
@@ -27,7 +30,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatCardModule,
     MatFormFieldModule,
     MatTooltipModule,
-    MatTabsModule
+    MatTabsModule,
+    MatDialogModule
   ]
 })
 export class MaterialSharedModule {}

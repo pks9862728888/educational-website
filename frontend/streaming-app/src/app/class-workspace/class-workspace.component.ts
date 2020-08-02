@@ -35,13 +35,17 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
       if (val instanceof NavigationEnd) {
         if(val.url.includes('profile')) {
           this.activeLink = 'CLASS_PROFILE';
+        } else if(val.url.includes('subjects')) {
+          this.activeLink = 'CLASS_SUBJECTS';
+        } else if(val.url.includes('permissions')) {
+          this.activeLink = 'CLASS_PERMISSIONS';
         }
       }
     });
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentInstituteRole = sessionStorage.getItem(currentInstituteRole);
     this.currentClassSlug = sessionStorage.getItem(currentClassSlug);
-    this.baseUrl = '/class-workspace/' + this.currentClassSlug.slice(0, -9);
+    this.baseUrl = '/class-workspace/' + this.currentClassSlug.slice(0, -10);
   }
 
   ngOnInit(): void {

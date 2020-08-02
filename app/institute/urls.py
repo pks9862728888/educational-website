@@ -63,6 +63,9 @@ urlpatterns = [
     path('<slug:institute_slug>/create-class',
          views.CreateClassView.as_view(),
          name='create-class'),
+    path('<slug:class_slug>/delete-class',
+         views.DeleteClassView.as_view(),
+         name='delete-class'),
     path('<slug:institute_slug>/list-all-class',
          views.ListAllClassView.as_view(),
          name='list-all-class')

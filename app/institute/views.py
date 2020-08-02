@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, CreateAPIView,\
-    RetrieveAPIView
+    RetrieveAPIView, DestroyAPIView
 from rest_framework.response import Response
 
 from . import serializer
@@ -1192,6 +1192,50 @@ class CreateClassView(CreateAPIView):
             return Response(serializer_.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer_.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteClassView(DestroyAPIView):
+    """View for deleting class"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher,)
+
+    def destroy(self, request, *args, **kwargs):
+        """Only active admin or permitted staff can delete"""
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        institute = models.Institute.objects.filter(
+            pk=class_.class_institute.pk).first()
+
+        if institute:
+            permission = models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True
+            ).first()
+
+            if not permission or\
+                    permission.role == models.InstituteRole.FACULTY or\
+                    permission.role == models.InstituteRole.STAFF and\
+                    not models.InstituteClassPermission.objects.filter(
+                        invitee=self.request.user, to=class_
+                    ).exists():
+                return Response({'error': 'Permission denied.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            class_.delete()
+            stat = models.InstituteStatistics.objects.filter(
+                institute=institute
+            ).first()
+            stat.class_count -= 1
+            stat.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({'error': 'Institute not found.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ListAllClassView(ListAPIView):

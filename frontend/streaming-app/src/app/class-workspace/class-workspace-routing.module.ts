@@ -2,6 +2,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { ClassWorkspaceComponent } from './class-workspace.component';
 import { ClassProfileComponent } from './class-profile/class-profile.component';
+import { ClassSubjectsComponent } from './class-subjects/class-subjects.component';
+import { ClassPermissionsComponent } from './class-permissions/class-permissions.component';
 
 const routes: Routes = [
   {
@@ -9,6 +11,8 @@ const routes: Routes = [
     component: ClassWorkspaceComponent,
     children: [
       { path: ':name/profile', component: ClassProfileComponent },
+      { path: ':name/permissions', component: ClassPermissionsComponent },
+      { path: ':name/subjects', component: ClassSubjectsComponent },
     ]
   }
 ]
@@ -21,5 +25,7 @@ export class ClassWorkspaceRoutingModule {}
 
 export const classWorkspaceRoutingComponents = [
   ClassWorkspaceComponent,
-  ClassProfileComponent
+  ClassProfileComponent,
+  ClassPermissionsComponent,
+  ClassSubjectsComponent
 ]

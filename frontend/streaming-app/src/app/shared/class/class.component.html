@@ -76,7 +76,7 @@
                 <hr class="invite-bottom-separator" />
                 <div class="col">
                     <div class="action-row">
-                        <button mat-raised-button class="red-button margin-right-1">Delete</button>
+                        <button mat-raised-button class="red-button margin-right-1" *ngIf="userIsAdmin()" (click)="deleteClassClicked(class.name, class.class_slug)">Delete</button>
                         <button mat-flat-button class="green-button" (click)="openClass(class.class_slug)">Open</button>
                     </div>
                 </div>

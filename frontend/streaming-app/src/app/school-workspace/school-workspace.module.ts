@@ -13,6 +13,7 @@ import { APP_DATE_FORMATS, AppDateAdapter } from '../format-datepicker';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { ApiService } from '../services/api.service';
 import { WindowRefService } from './../services/window-ref.service';
+import { UiService } from '../services/ui.service';
 
 
 @NgModule({
@@ -33,6 +34,7 @@ import { WindowRefService } from './../services/window-ref.service';
     ApiService,
     InAppDataTransferService,
     WindowRefService,
+    UiService,
     {provide: DateAdapter, useClass: AppDateAdapter},
     {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
   ]

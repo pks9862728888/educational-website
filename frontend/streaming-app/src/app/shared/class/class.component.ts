@@ -1,10 +1,12 @@
+import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClassDetailsResponse } from './../../models/class.model';
-import { currentInstituteSlug, currentClassSlug } from './../../../constants';
+import { currentInstituteSlug, currentClassSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
+import { UiService } from 'src/app/services/ui.service';
 
 @Component({
   selector: 'app-class',
@@ -26,12 +28,14 @@ export class ClassComponent implements OnInit {
   showCreateClassFormMb: boolean;
   createClassIndicator: boolean;
   createClassForm: FormGroup;
+  subscribedDialogData: Subscription;
 
   constructor(
     private media: MediaMatcher,
     private instituteApiService: InstituteApiService,
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private uiService: UiService
     ) {
     this.mq = this.media.matchMedia('(max-width: 768px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
@@ -107,7 +111,7 @@ export class ClassComponent implements OnInit {
 
   openClass(classSlug: string) {
     sessionStorage.setItem(currentClassSlug, classSlug);
-    this.router.navigate(['class-workspace/' + classSlug.slice(0, -9) + '/profile']);
+    this.router.navigate(['class-workspace/' + classSlug.slice(0, -10) + '/profile']);
   }
 
   showCreateClassFormMobile() {
@@ -141,5 +145,36 @@ export class ClassComponent implements OnInit {
 
   closeSuccessText() {
     this.successText = null;
+  }
+
+  userIsAdmin() {
+    if (sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE['Admin']) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  deleteClassClicked(className: string, classSlug: string) {
+    this.subscribedDialogData = this.uiService.dialogData$.subscribe(
+      result => {
+        if (result) {
+          this.deleteClass(classSlug, className);
+        }
+        this.unsubscribeDialogData();
+      }
+    )
+    const header = 'Are you sure you want to delete ' + className.charAt(0).toUpperCase() + className.substr(1).toLowerCase() + ' ?';
+    this.uiService.openDialog(header, 'Cancel', 'Delete');
+  }
+
+  deleteClass(classSlug: string, className: string) {
+    alert(classSlug);
+  }
+
+  unsubscribeDialogData() {
+    if (this.subscribedDialogData) {
+      this.subscribedDialogData.unsubscribe();
+    }
   }
 }

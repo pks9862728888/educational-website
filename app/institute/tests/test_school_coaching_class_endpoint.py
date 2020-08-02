@@ -24,6 +24,11 @@ def get_institute_list_class_url(institute_slug):
                    kwargs={'institute_slug': institute_slug})
 
 
+def get_institute_delete_class_url(class_slug):
+    return reverse("institute:delete-class",
+                   kwargs={'class_slug': class_slug})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -78,9 +83,14 @@ def create_order(license_, institute):
 
 def create_class(institute, name='temp class'):
     """Creates and returns class"""
-    return models.InstituteClass.objects.create(
+    class_ = models.InstituteClass.objects.create(
         class_institute=institute,
         name=name)
+    stat = models.InstituteStatistics.objects.filter(
+        institute=institute).first()
+    stat.class_count += 1
+    stat.save()
+    return class_
 
 
 def create_invite(institute, inviter, invitee, role):
@@ -103,6 +113,15 @@ def accept_invite(institute, invitee, role):
     role.active = True
     role.request_accepted_on = timezone.now()
     role.save()
+
+
+def create_institute_class_permission(inviter, invitee, class_):
+    """Creates and returns institute class permission"""
+    return models.InstituteClassPermission.objects.create(
+        inviter=inviter,
+        invitee=invitee,
+        to=class_
+    )
 
 
 class SchoolCollegeAuthenticatedTeacherTests(TestCase):
@@ -267,3 +286,61 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     )
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_delete_class_success_by_admin(self):
+        """Test that admin can delete class"""
+        create_institute(self.user, 'sdfsdff')
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+
+        res = self.client.delete(
+            get_institute_delete_class_url(class_.class_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(models.InstituteClass.objects.filter(
+            class_slug=class_.class_slug
+        ).exists())
+        self.assertEqual(models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).first().class_count, 0)
+
+    def test_delete_class_success_by_permitted_staff(self):
+        """Test that admin can delete class"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+        create_institute_class_permission(admin, self.user, class_)
+
+        res = self.client.delete(
+            get_institute_delete_class_url(class_.class_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(models.InstituteClass.objects.filter(
+            class_slug=class_.class_slug
+        ).exists())
+        self.assertEqual(models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).first().class_count, 0)
+
+    def test_delete_class_fails_by_non_admin(self):
+        """Test that admin can delete class"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+
+        res = self.client.delete(
+            get_institute_delete_class_url(class_.class_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')

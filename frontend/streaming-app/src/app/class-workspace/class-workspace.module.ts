@@ -8,7 +8,7 @@ import { MaterialClassWorkspaceModule } from './material.class.workspace';
 
 @NgModule({
   declarations: [
-    classWorkspaceRoutingComponents
+    classWorkspaceRoutingComponents,
   ],
   imports: [
     CommonModule,
