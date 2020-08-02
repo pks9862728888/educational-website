@@ -975,48 +975,6 @@ class InstitutePermission(models.Model):
     request_accepted_on = models.DateTimeField(
         _('Request Accept Date'), null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        """Overriding save method to check permissions"""
-        # Only teacher user can be provided special permissions
-        if not self.invitee.is_teacher:
-            raise PermissionDenied()
-
-        # Pre-activation of role is not allowed
-        role_exists = InstitutePermission.objects.filter(
-            institute=self.institute,
-            invitee=self.invitee
-        ).first()
-        if self.active and not role_exists:
-            raise PermissionDenied()
-
-        # Ensuring each user has only one permission
-        if not self.active and role_exists:
-            raise PermissionDenied()
-
-        # Duplicate addition of role is not allowed
-        if self.active and not role_exists:
-            raise PermissionDenied()
-
-        inviter_role = InstitutePermission.objects.filter(
-            institute=self.institute,
-            invitee=self.inviter,
-            active=True
-        ).first()
-
-        # For addition of admin role by self
-        if not inviter_role and self.inviter == self.institute.user:
-            pass
-        # Only active admin can add admin and staff
-        elif (self.role == InstituteRole.ADMIN or self.role == InstituteRole.STAFF) and \
-                (not inviter_role or inviter_role.role != InstituteRole.ADMIN):
-            raise PermissionDenied()
-        # Only active admin and staff can add faculty
-        elif self.role == InstituteRole.FACULTY and \
-                ((not inviter_role) or inviter_role.role == InstituteRole.FACULTY):
-            raise PermissionDenied()
-
-        super(InstitutePermission, self).save(*args, **kwargs)
-
     class Meta:
         unique_together = ('institute', 'invitee')
 
