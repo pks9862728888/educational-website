@@ -32,15 +32,31 @@ button.active:focus {
     outline-style: none !important;
 }
 
-.green-button {
-    background-color: #008000;
+.green-button,
+.red-button {
     color: #ffffff;
     box-shadow: 1px 1px 2px #1d1d1d;
 }
 
+.green-button:hover,
+.red-button:hover {
+    box-shadow: none;
+}
+
+.green-button {
+    background-color: #008000;
+}
+
 .green-button:hover {
     background-color: #3a9b0d;
-    box-shadow: none;
+}
+
+.red-button {
+    background-color: #ff0000;
+}
+
+.red-button:hover {
+    background-color: #d60000;
 }
 
 
