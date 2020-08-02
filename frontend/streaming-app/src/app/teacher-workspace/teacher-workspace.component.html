@@ -1,29 +1,29 @@
 <!-- Showing sidenav -->
-<div class="full-body-container" [ngClass]="{'is-mobile': mobileQuery.matches}">
+<div class="full-body-container" [ngClass]="{'is-mobile': mq.matches}">
     <mat-sidenav-container class="sidenav-container">
-        <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches" [ngClass]="{'sidenav-container-20': mobileQuery.matches === false,
-                                       'sidenav-container-75': mobileQuery.matches}" fixedTopGap="46px" [(opened)]="opened" autoFocus="false" class="sidenav-background-color">
+        <mat-sidenav #snav [mode]="mq.matches ? 'over' : 'side'" [fixedInViewport]="mq.matches" [ngClass]="{'sidenav-container-20': mq.matches === false,
+                                       'sidenav-container-75': mq.matches}" fixedTopGap="46px" [(opened)]="opened" autoFocus="false" class="sidenav-background-color">
 
             <!-- Sidenav contents -->
             <mat-nav-list>
-                <div *ngIf="mobileQuery.matches">
+                <div *ngIf="mq.matches">
                     <h1 class="website-name">EduWeb</h1>
                     <mat-divider></mat-divider>
                 </div>
-                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'PROFILE'" (click)="performAction('PROFILE')">My Profile</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PROFILE'" (click)="performAction('PROFILE')">My Profile</div>
                 <mat-divider></mat-divider>
-                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'INSTITUTES'" (click)="performAction('INSTITUTES')">My Institutes</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'INSTITUTES'" (click)="performAction('INSTITUTES')">My Institutes</div>
                 <mat-divider></mat-divider>
-                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                    'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'CHATROOMS'" (click)="performAction('CHATROOMS')">Chat Rooms</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                    'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CHATROOMS'" (click)="performAction('CHATROOMS')">Chat Rooms</div>
                 <mat-divider></mat-divider>
             </mat-nav-list>
         </mat-sidenav>
 
         <mat-sidenav-content>
-            <section [ngClass]="{'toggle-icon-mobile': mobileQuery.matches, 'toggle-icon-desktop': !mobileQuery.matches}" (click)="snav.toggle()">
+            <section [ngClass]="{'toggle-icon-mobile': mq.matches, 'toggle-icon-desktop': !mq.matches}" (click)="snav.toggle()">
                 <mat-icon *ngIf="opened === false" class="icon" aria-hidden="false" aria-label="Show navigaion pane icon">keyboard_arrow_right</mat-icon>
                 <mat-icon *ngIf="opened" class="icon" aria-hidden="false" aria-label="Hide navigaion Pane icon">
                     keyboard_arrow_left</mat-icon>

@@ -50,6 +50,10 @@ const routes: Routes = [
     canLoad: [CoachingWorkspaceGuard]
   },
   {
+    path: 'class-workspace',
+    loadChildren: () => import('./class-workspace/class-workspace.module').then(m => m.ClassWorkspaceModule),
+  },
+  {
     path: 'features',
     loadChildren: () => import('./features/features.module').then(m => m.FeaturesModule)
   },

@@ -5,6 +5,7 @@ export const UNLIMITED = 99999;
 export const currentInstituteRole = 'currentInstituteRole';
 export const currentInstituteSlug = 'currentInstituteSlug';
 export const currentInstituteType = 'currentInstituteType';
+export const currentClassSlug = 'currentClassSlug';
 
 // For license
 export const selectedLicenseId = 'selectedLicenseId';

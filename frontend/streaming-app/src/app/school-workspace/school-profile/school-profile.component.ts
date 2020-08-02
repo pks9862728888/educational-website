@@ -48,7 +48,7 @@ interface InstituteDetails {
 })
 export class SchoolProfileComponent implements OnInit {
 
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
 
   // To store current institute details
   currentInstituteSlug: string;
@@ -62,7 +62,7 @@ export class SchoolProfileComponent implements OnInit {
                private media: MediaMatcher,
                private inAppDataTransferService: InAppDataTransferService,
                private instituteApiService: InstituteApiService ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this.mq = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {

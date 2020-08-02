@@ -12,7 +12,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
   styleUrls: ['./permissions.component.css']
 })
 export class PermissionsComponent implements OnInit {
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
 
   // For storing opened expansion panel
   activeAdminStep: number;
@@ -41,7 +41,7 @@ export class PermissionsComponent implements OnInit {
   constructor( private media: MediaMatcher,
                private instituteApiService: InstituteApiService,
                private formBuilder: FormBuilder ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this.mq = this.media.matchMedia('(max-width: 600px)');
   }
 
   getAdminUserList() {

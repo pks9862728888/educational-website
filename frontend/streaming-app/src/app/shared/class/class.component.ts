@@ -1,6 +1,7 @@
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClassDetailsResponse } from './../../models/class.model';
-import { currentInstituteSlug } from './../../../constants';
+import { currentInstituteSlug, currentClassSlug } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -12,7 +13,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 })
 export class ClassComponent implements OnInit {
 
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
   showLoadingIndicator: boolean;
   showReloadError: boolean;
   showReloadText = 'Unable to fetch class list...';
@@ -29,9 +30,10 @@ export class ClassComponent implements OnInit {
   constructor(
     private media: MediaMatcher,
     private instituteApiService: InstituteApiService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private router: Router
     ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 768px)');
+    this.mq = this.media.matchMedia('(max-width: 768px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
   }
 
@@ -52,7 +54,6 @@ export class ClassComponent implements OnInit {
         for(const class_ of result) {
           this.classList.push(class_);
         }
-        console.log(result);
       },
       errors => {
         this.showLoadingIndicator = false;
@@ -102,6 +103,11 @@ export class ClassComponent implements OnInit {
         }
       )
     }
+  }
+
+  openClass(classSlug: string) {
+    sessionStorage.setItem(currentClassSlug, classSlug);
+    this.router.navigate(['class-workspace/' + classSlug.slice(0, -9) + '/profile']);
   }
 
   showCreateClassFormMobile() {

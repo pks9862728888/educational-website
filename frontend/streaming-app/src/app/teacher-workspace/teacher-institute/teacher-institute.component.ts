@@ -1,7 +1,15 @@
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
-import { COUNTRY, STATE, INSTITUTE_CATEGORY, INSTITUTE_ROLE, INSTITUTE_TYPE_REVERSE, INSTITUTE_ROLE_REVERSE } from './../../../constants';
+import { COUNTRY,
+         STATE,
+         INSTITUTE_CATEGORY,
+         INSTITUTE_ROLE,
+         INSTITUTE_TYPE_REVERSE,
+         INSTITUTE_ROLE_REVERSE,
+         currentInstituteRole,
+         currentInstituteSlug,
+         currentInstituteType } from './../../../constants';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
@@ -238,9 +246,9 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   }
 
   previewClicked(instituteSlug: string, role:string, type: string) {
-    sessionStorage.setItem('currentInstituteSlug', instituteSlug);
-    sessionStorage.setItem('currentInstituteRole', role);
-    sessionStorage.setItem('currentInstituteType', type);
+    sessionStorage.setItem(currentInstituteSlug, instituteSlug);
+    sessionStorage.setItem(currentInstituteRole, role);
+    sessionStorage.setItem(currentInstituteType, type);
     this.navigateToProfile(type, instituteSlug);
   }
 

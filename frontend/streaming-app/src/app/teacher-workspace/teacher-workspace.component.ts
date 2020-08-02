@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
 
   // For showing sidenav toolbar
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
   opened: boolean;
   activeLink: string;
   showTempNamesSubscription: Subscription;
@@ -23,7 +23,7 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
                private media: MediaMatcher,
                private inAppDataTransferService: InAppDataTransferService ) {
 
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this.mq = this.media.matchMedia('(max-width: 600px)');
     this.activeLink = 'PROFILE';
     this.routerActiveLinkSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
@@ -40,7 +40,7 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // For keeping the sidenav opened in desktop view in the beginning
-    if (this.mobileQuery.matches === true) {
+    if (this.mq.matches === true) {
       this.opened = false;
     } else {
       this.opened = true;
@@ -69,7 +69,7 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
   // For navbar
   performAction(link: string) {
     // Hiding navbar if it is mobile
-    if (this.mobileQuery.matches === true) {
+    if (this.mq.matches === true) {
       this.opened = false;
     }
     this.navigate(link);

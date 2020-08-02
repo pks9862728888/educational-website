@@ -95,13 +95,11 @@ export class SchoolWorkspaceGuard implements CanLoad {
 
   canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
-        if (sessionStorage.getItem('activeRoute') &&
-            sessionStorage.getItem('currentInstituteRole') &&
+        if (sessionStorage.getItem('currentInstituteRole') &&
             sessionStorage.getItem('currentInstituteSlug') &&
             sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['School']) {
           return true;
         } else {
-          sessionStorage.setItem('activeRoute', 'INSTITUTES');
           this.router.navigate(['/teacher-workspace/institutes']);
         }
       } else {
@@ -119,13 +117,11 @@ export class CollegeWorkspaceGuard implements CanLoad {
 
   canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
-        if (sessionStorage.getItem('activeRoute') &&
-            sessionStorage.getItem('currentInstituteRole') &&
+        if (sessionStorage.getItem('currentInstituteRole') &&
             sessionStorage.getItem('currentInstituteSlug') &&
             sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['College']) {
           return true;
         } else {
-          sessionStorage.setItem('activeRoute', 'INSTITUTES');
           this.router.navigate(['/teacher-workspace/institutes']);
         }
       } else {
@@ -143,13 +139,11 @@ export class CoachingWorkspaceGuard implements CanLoad {
 
   canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
-        if (sessionStorage.getItem('activeRoute') &&
-            sessionStorage.getItem('currentInstituteRole') &&
+        if (sessionStorage.getItem('currentInstituteRole') &&
             sessionStorage.getItem('currentInstituteSlug') &&
             sessionStorage.getItem('currentInstituteType') === INSTITUTE_TYPE_REVERSE['Coaching']) {
           return true;
         } else {
-          sessionStorage.setItem('activeRoute', 'INSTITUTES');
           this.router.navigate(['/teacher-workspace/institutes']);
         }
       } else {

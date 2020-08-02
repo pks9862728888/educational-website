@@ -34,19 +34,19 @@
                                             <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ admin.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ admin.email }}</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ admin.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ admin.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">admin</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">active</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                <div class="row invite-body " *ngIf="this.mq.matches ">
                                     <div class="col-12">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -84,7 +84,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -107,10 +107,10 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                    <div *ngIf="!this.mq.matches" class="action-row">
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
@@ -129,19 +129,19 @@
                                             <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ admin.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ admin.email }}</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ admin.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ admin.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">admin</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">inactive</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                <div class="row invite-body " *ngIf="this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -179,7 +179,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -202,11 +202,11 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                    <div *ngIf="!this.mq.matches" class="action-row">
                                         <button mat-button *ngIf="this.currentInstituteRole === 'A'" class="red-button margin-right-1">Cancel Invitation</button>
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
                                         <mat-icon *ngIf="this.currentInstituteRole === 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
@@ -251,19 +251,19 @@
                                             <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of active staff">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ staff.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ staff.email }}</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ staff.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ staff.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">staff</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">active</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                <div class="row invite-body " *ngIf="this.mq.matches ">
                                     <div class="col-12">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -300,7 +300,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -322,10 +322,10 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                    <div *ngIf="!this.mq.matches" class="action-row">
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
@@ -344,19 +344,19 @@
                                             <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of inactive staff">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ staff.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ staff.email }}</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ staff.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ staff.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">staff</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">inactive</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                <div class="row invite-body " *ngIf="this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -393,7 +393,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -415,11 +415,11 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                    <div *ngIf="!this.mq.matches" class="action-row">
                                         <button *ngIf="this.currentInstituteRole !== 'A'" mat-button class="red-button margin-right-1">Cancel Invitation</button>
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
                                         <mat-icon *ngIf="this.currentInstituteRole !== 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
@@ -464,19 +464,19 @@
                                             <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of active faculty">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ faculty.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ faculty.email }}</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ faculty.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ faculty.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">faculty</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">active</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                <div class="row invite-body " *ngIf="this.mq.matches ">
                                     <div class="col-12">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -513,7 +513,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -535,10 +535,10 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                    <div *ngIf="!this.mq.matches" class="action-row">
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
@@ -557,19 +557,19 @@
                                             <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of inactive faculty">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mobileQuery.matches">{{ faculty.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mobileQuery.matches">{{ faculty.email }}</p>
+                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ faculty.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ faculty.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">faculty</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
                                             <h3 class="line-height-center">inactive</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mobileQuery.matches ">
+                                <div class="row invite-body " *ngIf="this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -606,7 +606,7 @@
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mobileQuery.matches ">
+                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
                                     <div class="col-12 ">
                                         <div class="row invite-details ">
                                             <div class="col ">
@@ -628,11 +628,11 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mobileQuery.matches" class="action-row">
+                                    <div *ngIf="!this.mq.matches" class="action-row">
                                         <button *ngIf="this.currentInstituteRole === 'A'" mat-button class="red-button margin-right-1">Cancel Invitation</button>
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mobileQuery.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
                                         <mat-icon *ngIf="this.currentInstituteRole === 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>

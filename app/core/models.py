@@ -312,7 +312,7 @@ def create_order_receipt(instance):
 def unique_slug_generator_for_class(instance):
     """Generates a unique slug for class"""
     while True:
-        slug = f'{slugify(instance.name)}-{random_string_generator(size=8)}'
+        slug = f'{slugify(instance.name)}-{random_string_generator(size=4)}-{random_string_generator(size=4)}'
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(class_slug=slug).exists()
         if not qs_exists:

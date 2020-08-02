@@ -21,7 +21,7 @@
                         <h3>Role: {{ this.getRole() }}</h3>
                         <h3><span *ngIf="this.currentInstituteDetails.institute_profile.state">{{ this.getState(this.currentInstituteDetails.institute_profile.state) }},</span> {{ this.getInstituteCountry(this.currentInstituteDetails.country ) }}</h3>
                     </div>
-                    <div class="col-sm-6" *ngIf="!this.mobileQuery.matches">
+                    <div class="col-sm-6" *ngIf="!this.mq.matches">
                         <div class="d-flex justify-content-end margin-left-05" *ngIf="this.currentInstituteRole === 'A'">
                             <div class="col margin-right-1">
                                 <button mat-raised-button class="green-button margin-publish-button full-width">Publish</button>
@@ -36,8 +36,8 @@
                     </div>
                 </div>
             </div>
-            <hr class="btn-outline-secondary" *ngIf="this.currentInstituteRole === 'A' || !this.mobileQuery.matches" />
-            <div class="row" *ngIf="this.mobileQuery.matches && this.currentInstituteRole === 'A'">
+            <hr class="btn-outline-secondary" *ngIf="this.currentInstituteRole === 'A' || !this.mq.matches" />
+            <div class="row" *ngIf="this.mq.matches && this.currentInstituteRole === 'A'">
                 <div class="col margin-right-05">
                     <button mat-raised-button class="green-button full-width margin-bottom-1">Publish</button>
                 </div>
@@ -48,14 +48,14 @@
                     <button mat-raised-button class="red-button full-width margin-bottom-1">Delete</button>
                 </div>
             </div>
-            <hr *ngIf="mobileQuery.matches" class="btn-outline-secondary">
+            <hr *ngIf="mq.matches" class="btn-outline-secondary">
 
             <div class="row text-color">
                 <div class="col-12">
                     <h4><strong>Motto:</strong></h4>
                     <span *ngIf="this.currentInstituteDetails.institute_profile.motto"> {{ this.currentInstituteDetails.institute_profile.motto }}</span>
                 </div>
-                <div class="div col-sm-6" [ngClass]="{'padding-right': !mobileQuery.matches}">
+                <div class="div col-sm-6" [ngClass]="{'padding-right': !mq.matches}">
                     <h4 class="section-title padding-top-1"><strong>Contact Details:</strong></h4>
                     <ul>
                         <li>
@@ -109,7 +109,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="div col-sm-6" [ngClass]="{'padding-left': !mobileQuery.matches}">
+                <div class="div col-sm-6" [ngClass]="{'padding-left': !mq.matches}">
                     <h4 class="section-title padding-top-1"><strong>Statistical Information:</strong></h4>
                     <ul>
                         <li>
@@ -154,7 +154,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-sm-6" [ngClass]="{'padding-right': !mobileQuery.matches}">
+                <div class="col-sm-6" [ngClass]="{'padding-right': !mq.matches}">
                     <h4 class="section-title padding-top-1"><strong>Language Preferences:</strong></h4>
                     <ul>
                         <li>
@@ -191,7 +191,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-sm-6" [ngClass]="{'padding-left': !mobileQuery.matches}">
+                <div class="col-sm-6" [ngClass]="{'padding-left': !mq.matches}">
                     <h4 class="section-title padding-top-1"><strong>Additional Details:</strong></h4>
                     <ul>
                         <li>
