@@ -400,12 +400,3 @@ class InstituteClassSerializer(serializers.ModelSerializer):
         fields = ('id', 'class_institute', 'name', 'class_slug',
                   'created_on')
         read_only_fields = ('id', 'class_slug', 'created_on')
-
-
-class InstituteClassPermissionSerializer(serializers.ModelSerializer):
-    """Serializer for creating institute class permission"""
-
-    class Meta:
-        model = InstituteClassPermission
-        fields = ('id', 'invitee', 'inviter', 'created_on', 'to')
-        read_only_fields = ('id', 'created_on')

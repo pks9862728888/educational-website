@@ -360,12 +360,12 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
             {'invitee': str(staff), 'class_slug': class_.class_slug}
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['name'], '')
+        self.assertEqual(res.data['name'], ' ')
         self.assertEqual(res.data['email'], str(staff))
         self.assertIn('created_on', res.data)
         self.assertIn('profile_pic', res.data)
-        self.assertEqual('inviter_name', None)
-        self.assertEqual('inviter_email', str(self.user))
+        self.assertEqual(res.data['inviter_name'], ' ')
+        self.assertEqual(res.data['inviter_email'], str(self.user))
         self.assertTrue(models.InstituteClassPermission.objects.filter(
             to=class_,
             invitee=staff).exists())
@@ -385,12 +385,12 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
             {'invitee': str(staff), 'class_slug': class_.class_slug}
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['name'], '')
+        self.assertEqual(res.data['name'], ' ')
         self.assertEqual(res.data['email'], str(staff))
         self.assertIn('created_on', res.data)
         self.assertIn('profile_pic', res.data)
-        self.assertEqual('inviter_name', None)
-        self.assertEqual('inviter_email', str(self.user))
+        self.assertEqual(res.data['inviter_name'], ' ')
+        self.assertEqual(res.data['inviter_email'], str(self.user))
         self.assertTrue(models.InstituteClassPermission.objects.filter(
             to=class_,
             invitee=staff).exists())
@@ -450,12 +450,12 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         staff = create_teacher()
         create_invite(institute, admin, staff, models.InstituteRole.ADMIN)
         accept_invite(institute, staff, models.InstituteRole.ADMIN)
-        create_invite(institute, admin, self.user, models.InstituteRole.ADMIN)
-        accept_invite(institute, self.user, models.InstituteRole.ADMIN)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
 
         res = self.client.post(
             INSTITUTE_ADD_CLASS_PERMISSION,
             {'invitee': str(staff), 'class_slug': class_.class_slug}
         )
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['name'], 'Permission denied.')
+        self.assertEqual(res.data['error'], 'Permission denied.')

@@ -3,6 +3,7 @@ import os
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.utils.translation import ugettext as _
+from django.shortcuts import get_object_or_404
 from razorpay.errors import SignatureVerificationError
 
 from rest_framework.authentication import TokenAuthentication
@@ -1277,11 +1278,10 @@ class ProvideClassPermissionView(CreateAPIView):
     """View for providing class permission by admin to staff/admin"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher,)
-    serializer_class = serializer.InstituteClassPermissionSerializer
 
     def create(self, request, *args, **kwargs):
         class_ = models.InstituteClass.objects.filter(
-            class_slug=kwargs.get('class_slug')
+            class_slug=request.data.get('class_slug')
         ).first()
 
         if not class_:
@@ -1300,13 +1300,48 @@ class ProvideClassPermissionView(CreateAPIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        invitee = get_user_model().objects.filter(
+            email=request.data.get('invitee')
+        ).first()
+
+        if not invitee:
+            return Response({'error': _('This user does not exist.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         invitee_perm = models.InstitutePermission.objects.filter(
             institute=institute,
             active=True,
-            invitee=self.request.user
-        )
+            invitee=invitee
+        ).first()
 
-        serializer_ = self.get_serializer(data=request.data)
-        serializer_.is_valid(raise_exception=True)
-        self.perform_create(serializer_)
-        return Response(serializer_.data, status=status.HTTP_201_CREATED)
+        if not invitee_perm:
+            return Response({'error': _('User is not a member of this institute.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif invitee_perm.role == models.InstituteRole.FACULTY:
+            return Response({'error': _('Faculty can not be provided class permission.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if models.InstituteClassPermission.objects.filter(to=class_,
+                                                          invitee=invitee).exists():
+            return Response({'error': _('User already has class permission.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            perm = models.InstituteClassPermission.objects.create(
+                invitee=invitee,
+                inviter=self.request.user,
+                to=class_
+            )
+            invitee = get_object_or_404(models.UserProfile, user=invitee)
+            inviter = get_object_or_404(models.UserProfile, user=self.request.user)
+            return Response({
+                'name': invitee.first_name + ' ' + invitee.last_name,
+                'email': str(invitee),
+                'inviter_name': inviter.first_name + ' ' + inviter.last_name,
+                'inviter_email': str(inviter),
+                'created_on': str(perm.created_on),
+                'profile_pic': None
+            }, status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
