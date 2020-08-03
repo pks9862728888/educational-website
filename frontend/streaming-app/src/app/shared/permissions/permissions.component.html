@@ -23,7 +23,7 @@
                         </div>
                     </section>
                     <hr class="top-separator" *ngIf="this.currentInstituteRole === 'A'" />
-                    <section ngClass="{'padding-top-07': this.currentInstituteRole === 'A'}">
+                    <section [ngClass]="{'padding-top-07': this.currentInstituteRole === 'A'}">
                         <h3>Admin:</h3>
                         <mat-accordion *ngIf="!this.isActiveAdminListEmpty()">
                             <mat-expansion-panel *ngFor="let admin of this.activeAdminList" [expanded]="this.activeAdminStep === admin.invitation_id" (opened)="setActiveAdminPanelStep(admin.invitation_id)">

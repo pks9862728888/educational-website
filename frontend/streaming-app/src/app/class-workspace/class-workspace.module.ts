@@ -1,3 +1,5 @@
+import { SharedModule } from './../shared/shared.module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
 import { classWorkspaceRoutingComponents, ClassWorkspaceRoutingModule } from './class-workspace-routing.module';
@@ -13,7 +15,10 @@ import { MaterialClassWorkspaceModule } from './material.class.workspace';
   imports: [
     CommonModule,
     ClassWorkspaceRoutingModule,
-    MaterialClassWorkspaceModule
+    MaterialClassWorkspaceModule,
+    FormsModule,
+    ReactiveFormsModule,
+    SharedModule
   ],
   providers: [
     InAppDataTransferService,

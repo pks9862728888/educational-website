@@ -66,7 +66,7 @@ urlpatterns = [
     path('<slug:class_slug>/delete-class',
          views.DeleteClassView.as_view(),
          name='delete-class'),
-    path('<slug:institute_slug>/list-all-class',
-         views.ListAllClassView.as_view(),
-         name='list-all-class')
+    path('add-class-permission',
+         views.ProvideClassPermissionView.as_view(),
+         name='add-class-permission')
 ]

@@ -1,1 +1,105 @@
-<p>class-permissions works!</p>
+<mat-card>
+    <div class="d-flex justify-content-between">
+        <div>
+            <h3 [ngClass]="{'header-text': !mq.matches}">Class Incharges:</h3>
+        </div>
+        <div>
+            <form class="form-inline" *ngIf="!mq.matches" [formGroup]="newInviteForm">
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="invitee" class="sr-only">Email of invitee</label>
+                    <input type="email" formControlName="invitee" class="form-control" id="invitee" placeholder="Email of invitee" required/>
+                </div>
+                <button type="submit" *ngIf="!createInviteIndicator" [disabled]="newInviteForm.invalid" mat-flat-button class="green-button mb-2" (click)="invite()">Invite</button>
+                <mat-progress-spinner *ngIf="createInviteIndicator" [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
+            </form>
+            <mat-icon *ngIf="mq.matches" [ngClass]="{'add-class': mq.matches}">
+                <span *ngIf="!showInviteFormMb" (click)="showInviteFormMobile()">add_box</span>
+                <span *ngIf="showInviteFormMb" (click)="hideInviteFormMobile()">clear</span>
+            </mat-icon>
+        </div>
+    </div>
+    <hr class="top-separator" *ngIf="currentInstituteRole === 'A'" />
+    <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
+    <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getInchargeList()"></app-ui-reload>
+    <div class="margin-bottom-1" *ngIf="errorText">
+        <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+    </div>
+    <div class="margin-bottom-1" *ngIf="successText">
+        <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
+    </div>
+    <section *ngIf="mq.matches && showInviteFormMb" class="margin-bottom-1">
+        <div class="row">
+            <div class="col-12">
+                <form class="input-group" [formGroup]="newInviteForm">
+                    <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Email of invitee" aria-label="Create Class Incharge">
+                    <div class="input-group-append">
+                        <button mat-flat-button [disabled]="newInviteForm.invalid || createInviteIndicator" (click)="invite()" class="btn create-button-mb" type="submit">Invite</button>
+                    </div>
+                </form>
+            </div>
+            <div class="create-invite-spinner-mb" *ngIf="createInviteIndicator">
+                <mat-progress-spinner [diameter]="30" mode="indeterminate" class="create-invite-spinner"></mat-progress-spinner>
+                <p class="line-height">Inviting user...</p>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div *ngIf="!showLoadingIndicator && !showReloadError && !hasClassIncharge()" class="margin-bottom-1">
+            <h4 *ngIf="!mq.matches">No Class Incharge Found!</h4>
+            <p *ngIf="mq.matches">No Class Incharge Found!</p>
+        </div>
+        <mat-accordion *ngIf="hasClassIncharge()">
+            <mat-expansion-panel *ngFor="let incharge of inchargeList" [expanded]="activeInchargeStep === incharge.invitation_id" (opened)="setActiveInchargePanelStep(incharge.id)">
+                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                    <mat-panel-title>
+                        <div>
+                            <img *ngIf="!incharge.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of class incharge">
+                            <img *ngIf="incharge.image" [src]="incharge.image" class="profile-pic" alt="Profile picture of class incharge">
+                        </div>
+                        <div class="col-sm-8 col-md-6 col-lg-4">
+                            <h3 class="line-height-center" *ngIf="! mq.matches">
+                                <span *ngIf="incharge.name">{{ incharge.name }}</span>
+                                <span *ngIf="!incharge.name">{{ incharge.email }}</span>
+                            </h3>
+                            <p class="invitee-name-mb" *ngIf=" mq.matches">
+                                <span *ngIf="incharge.name">{{ incharge.name }}</span>
+                                <span *ngIf="!incharge.name">{{ incharge.email }}</span>
+                            </p>
+                        </div>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <hr class="invite-top-separator" />
+                <!-- <div class="row invite-body">
+                    <div class="col-12 ">
+                        <div class="row invite-details ">
+                            <div class="col ">
+                                <h3>Invited By:</h3>
+                            </div>
+                            <div class="col ">
+                                <h3 *ngIf="admin.inviter === admin.email">Self</h3>
+                                <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
+                            </div>
+                        </div>
+                        <div class="row invite-details ">
+                            <div class="col ">
+                                <h3>Member since:</h3>
+                            </div>
+                            <div class="col ">
+                                <h3>{{ admin.request_accepted_on | date}}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="invite-bottom-separator" />
+                <div class="col">
+                    <div *ngIf="! mq.matches" class="action-row">
+                        <button mat-button class="green-button">Send Message</button>
+                    </div>
+                    <div *ngIf=" mq.matches" class="d-flex justify-content-end">
+                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                    </div>
+                </div> -->
+            </mat-expansion-panel>
+        </mat-accordion>
+    </section>
+</mat-card>

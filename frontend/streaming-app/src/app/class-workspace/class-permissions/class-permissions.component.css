@@ -1,0 +1,248 @@
+.row,
+.col,
+.col-2,
+.col-3,
+.col-8,
+.col-12,
+.col-sm-4,
+.col-sm-6,
+.col-md-4,
+.col-lg-2,
+.col-lg-3,
+h3,
+h4,
+hr,
+p {
+    padding: 0px;
+    margin: 0px;
+}
+
+.mat-card {
+    background-color: #3B3B3B;
+    color: #bdbdbd;
+}
+
+.add-class {
+    color: #f2aa4cff;
+}
+
+.green-button:disabled {
+    color: #fff;
+    background-color: #008000;
+    opacity: 0.7;
+}
+
+.header-text {
+    transform: translateY(60%);
+}
+
+.form-control {
+    background-color: #3b3b3b;
+    color: #bdbdbd;
+    border-color: #6c757d;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: none;
+    outline: none;
+}
+
+::ng-deep.mat-progress-spinner circle,
+.mat-spinner circle {
+    stroke: #f2aa4cff !important;
+}
+
+.top-separator {
+    margin-top: 0.2rem;
+    margin-bottom: 1rem;
+}
+
+.create-button-mb {
+    color: #fff;
+    background-color: #008000;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.create-button-mb:disabled {
+    color: #fff;
+    background-color: #008000;
+    opacity: 0.3;
+}
+
+.create-invite-spinner {
+    margin-bottom: 0.5rem;
+}
+
+.create-invite-spinner-mb {
+    display: flex;
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
+.create-invite-spinner-mb .create-invite-spinner {
+    margin-right: 1rem;
+}
+
+.line-height {
+    line-height: 30px;
+}
+
+
+/* For displaying people list */
+
+.mat-expansion-panel {
+    background-color: #303030;
+    box-shadow: 0 1px 1px #4b4b4b;
+    margin-bottom: 0.7rem;
+}
+
+.mat-expansion-panel-header {
+    border-radius: 10px;
+}
+
+.mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
+    background-color: #292929;
+    color: #c5c5c5;
+}
+
+::ng-deep .mat-expansion-indicator::after {
+    color: #c5c5c5;
+}
+
+h3,
+p {
+    color: #bdbdbd;
+}
+
+p {
+    font-size: 13px;
+}
+
+.invite-top-separator,
+.invite-bottom-separator {
+    background-color: #6c757d;
+}
+
+.invite-top-separator {
+    margin-bottom: 0.5rem;
+}
+
+.invite-bottom-separator {
+    margin-top: 0.5rem;
+}
+
+.profile-pic-width {
+    width: 40px !important;
+    overflow: hidden;
+    object-fit: cover;
+    line-height: 40px;
+}
+
+.profile-pic {
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+}
+
+.line-height-center {
+    line-height: 40px;
+}
+
+.mat-button-toggle-button:focus {
+    outline: none;
+}
+
+.action-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.8rem;
+}
+
+@media screen and (max-width: 600px) {
+    .profile-pic-width {
+        width: 35px;
+    }
+    .profile-pic {
+        border: 1px solid #ffffff;
+        width: 35px;
+        height: 35px;
+    }
+    .line-height-center {
+        line-height: 35px;
+    }
+    .col {
+        word-wrap: break-word;
+    }
+    .invite-details {
+        padding: 0.3rem 0;
+    }
+    .invitee-name-mb {
+        line-height: 35px;
+    }
+}
+
+.green-button {
+    color: #ffffff;
+    background-color: #008000;
+}
+
+.blue-button {
+    color: #ffffff;
+    background-color: #0784fa;
+}
+
+.red-button {
+    color: #ffffff;
+    background-color: #ff0000;
+}
+
+.red-button:hover {
+    background-color: #c40000;
+}
+
+.green-button:hover {
+    background-color: #1f6100;
+}
+
+.blue-button:hover {
+    background-color: #0674db;
+}
+
+.red-color {
+    color: #ff0000;
+}
+
+.yellow-color {
+    color: #dda900;
+}
+
+
+/* Margins and padding */
+
+.padding-top-07 {
+    padding-top: 0.7rem;
+}
+
+.padding-bottom-07 {
+    padding-bottom: 0.7rem;
+}
+
+.margin-right-1 {
+    margin-right: 1rem;
+}
+
+.margin-bottom-1 {
+    margin-bottom: 1rem;
+}
+
+.padding-left-1 {
+    padding-left: 1rem;
+}
+
+.break-word {
+    word-wrap: break-word;
+}

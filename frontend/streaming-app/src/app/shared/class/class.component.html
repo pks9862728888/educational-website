@@ -22,19 +22,19 @@
         <hr class="top-separator" />
         <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
         <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getClassList()"></app-ui-reload>
-        <div class="margin-bottom-1">
-            <app-ui-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+        <div class="margin-bottom-1" *ngIf="errorText">
+            <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
         </div>
-        <div class="margin-bottom-1">
-            <app-ui-success-text *ngIf="successText" [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
+        <div class="margin-bottom-1" *ngIf="successText">
+            <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
         </div>
         <section *ngIf="mq.matches && showCreateClassFormMb" class="margin-bottom-1">
             <div class="row">
                 <div class="col-12">
                     <form class="input-group" [formGroup]="createClassForm">
-                        <input type="email" formControlName="name" maxlength="40" class="form-control search-color" placeholder="Enter Class Name" aria-label="Create class">
+                        <input type="text" formControlName="name" maxlength="40" class="form-control search-color" placeholder="Enter Class Name" aria-label="Create class">
                         <div class="input-group-append">
-                            <button mat-flat-button [disabled]="createClassForm.invalid || createClassIndicator" (click)="this.createClass()" class="btn" class="create-button-mb" type="submit">Create</button>
+                            <button mat-flat-button [disabled]="createClassForm.invalid || createClassIndicator" (click)="this.createClass()" class="btn create-button-mb" type="submit">Create</button>
                         </div>
                     </form>
                 </div>

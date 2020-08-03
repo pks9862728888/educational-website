@@ -1271,3 +1271,42 @@ class ListAllClassView(ListAPIView):
         ).order_by('created_on')
         serializer_ = self.get_serializer(queryset, many=True)
         return Response(serializer_.data, status=status.HTTP_200_OK)
+
+
+class ProvideClassPermissionView(CreateAPIView):
+    """View for providing class permission by admin to staff/admin"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher,)
+    serializer_class = serializer.InstituteClassPermissionSerializer
+
+    def create(self, request, *args, **kwargs):
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            pk=class_.class_institute.pk).first()
+
+        if not models.InstitutePermission.objects.filter(
+            institute=institute,
+            active=True,
+            invitee=self.request.user,
+            role=models.InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        invitee_perm = models.InstitutePermission.objects.filter(
+            institute=institute,
+            active=True,
+            invitee=self.request.user
+        )
+
+        serializer_ = self.get_serializer(data=request.data)
+        serializer_.is_valid(raise_exception=True)
+        self.perform_create(serializer_)
+        return Response(serializer_.data, status=status.HTTP_201_CREATED)

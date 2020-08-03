@@ -222,6 +222,4 @@ export class PermissionsComponent implements OnInit {
   isInactiveFacultyListEmpty() {
     return this.inactiveFacultyList.length === 0;
   }
-
-
 }
