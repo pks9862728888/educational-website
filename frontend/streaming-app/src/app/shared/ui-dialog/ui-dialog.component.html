@@ -1,0 +1,7 @@
+<h3 mat-dialog-title class="text-center">{{ data.title | titlecase }}</h3>
+<mat-dialog-actions align="center">
+    <div class="margin-action-button">
+        <button mat-flat-button class="green-button" mat-dialog-close>{{ data.falseStringDisplay }}</button>
+        <button mat-flat-button class="red-button" [mat-dialog-close]="true" cdkFocusInitial>{{ data.trueStringDisplay }}</button>
+    </div>
+</mat-dialog-actions>

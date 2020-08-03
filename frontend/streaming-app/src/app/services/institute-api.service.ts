@@ -83,6 +83,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/create-class`;
   }
 
+  createDeleteClassUrl(classSlug: string) {
+    return `${this.instituteBaseUrl}${classSlug}/delete-class`;
+  }
+
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
 
@@ -225,6 +229,14 @@ export class InstituteApiService {
       { 'name': name },
       { headers: this.getAuthHeader() }
     )
+  }
+
+  // To delete class
+  deleteClass(classSlug: string) {
+    return this.httpClient.delete(
+      this.createDeleteClassUrl(classSlug),
+      { headers: this.getAuthHeader() }
+    );
   }
 
   // To load token from storage

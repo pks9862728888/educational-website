@@ -44,6 +44,10 @@
                 </div>
             </div>
         </section>
+        <div *ngIf="!showLoadingIndicator && !showReloadError && isClassesListEmpty()" class="margin-bottom-05">
+            <h3 *ngIf="!mq.matches">No classes created yet.</h3>
+            <p *ngIf="mq.matches">No classes created yet.</p>
+        </div>
         <mat-accordion *ngIf="!showLoadingIndicator && !showReloadError && !isClassesListEmpty()">
             <mat-expansion-panel class="text-color" *ngFor="let class of this.classList" [expanded]="this.classStep === class.id" (opened)="setClassStep(class.id)">
                 <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
@@ -76,7 +80,7 @@
                 <hr class="invite-bottom-separator" />
                 <div class="col">
                     <div class="action-row">
-                        <button mat-raised-button class="red-button margin-right-1" *ngIf="userIsAdmin()" (click)="deleteClassClicked(class.name, class.class_slug)">Delete</button>
+                        <button mat-raised-button class="red-button margin-right-1" *ngIf="userIsAdmin()" (click)="deleteClassClicked(class)">Delete</button>
                         <button mat-flat-button class="green-button" (click)="openClass(class.class_slug)">Open</button>
                     </div>
                 </div>

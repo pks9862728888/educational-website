@@ -1,0 +1,9 @@
+h3,
+hr {
+    margin: 0;
+    padding: 0;
+}
+
+.margin-action-button {
+    margin: 0.5rem 0 1.5rem 0;
+}

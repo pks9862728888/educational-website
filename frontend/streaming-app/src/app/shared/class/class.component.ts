@@ -155,21 +155,26 @@ export class ClassComponent implements OnInit {
     }
   }
 
-  deleteClassClicked(className: string, classSlug: string) {
+  deleteClassClicked(classObject: ClassDetailsResponse) {
     this.subscribedDialogData = this.uiService.dialogData$.subscribe(
       result => {
         if (result) {
-          this.deleteClass(classSlug, className);
+          this.deleteClass(classObject);
         }
         this.unsubscribeDialogData();
       }
     )
-    const header = 'Are you sure you want to delete ' + className.charAt(0).toUpperCase() + className.substr(1).toLowerCase() + ' ?';
+    const header = 'Are you sure you want to delete ' + classObject.name.charAt(0).toUpperCase() + classObject.name.substr(1).toLowerCase() + ' ?';
     this.uiService.openDialog(header, 'Cancel', 'Delete');
   }
 
-  deleteClass(classSlug: string, className: string) {
-    alert(classSlug);
+  deleteClass(classObject: ClassDetailsResponse) {
+    this.instituteApiService.deleteClass(classObject.class_slug).subscribe(
+      () => {
+        this.uiService.showSnackBar('Deleted class ' + classObject.name.toUpperCase() + ' successfully!', 2000);
+        this.classList.splice(this.classList.indexOf(classObject), 1);
+      }
+    )
   }
 
   unsubscribeDialogData() {
