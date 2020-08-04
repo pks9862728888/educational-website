@@ -1345,3 +1345,94 @@ class ProvideClassPermissionView(CreateAPIView):
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ListPermittedClassInchargeView(APIView):
+    """View for listing all permitted class incharges"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher,)
+
+    def get(self, *args, **kwargs):
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+            institute=models.Institute.objects.filter(
+                pk=class_.class_institute.pk).first(),
+            active=True,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        response = []
+        perm = models.InstituteClassPermission.objects.filter(
+            to=class_
+        ).order_by('created_on')
+        for p in perm:
+            res = dict()
+            invitee = models.UserProfile.objects.filter(
+                user=get_user_model().objects.filter(pk=p.invitee.pk).first()).first()
+            inviter = None
+            if p.inviter:
+                inviter = models.UserProfile.objects.filter(
+                    user=get_user_model().objects.filter(pk=p.inviter.pk).first()).first()
+            res['name'] = invitee.first_name + ' ' + invitee.last_name
+            res['email'] = str(p.invitee)
+            if inviter:
+                res['inviter_name'] = inviter.first_name + ' ' + inviter.last_name
+                res['inviter_email'] = str(p.inviter)
+            else:
+                res['inviter_name'] = ' '
+                res['inviter_email'] = 'Anonymous'
+            res['created_on'] = str(p.created_on)
+            res['image'] = None
+            response.append(res)
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class CheckClassPermView(APIView):
+    """View returns true if user has class perm"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        perm = models.InstitutePermission.objects.filter(
+            institute=models.Institute.objects.filter(
+                pk=class_.class_institute.pk).first(),
+            invitee=self.request.user,
+            active=True
+        ).first()
+
+        if not perm:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif perm.role == models.InstituteRole.FACULTY:
+            return Response({'status': False},
+                            status=status.HTTP_200_OK)
+        elif perm.role == models.InstituteRole.ADMIN:
+            return Response({'status': True},
+                            status=status.HTTP_200_OK)
+        else:
+            if models.InstituteClassPermission.objects.filter(
+                to=class_,
+                invitee=self.request.user
+            ).exists():
+                return Response({'status': True},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({'status': False},
+                                status=status.HTTP_200_OK)

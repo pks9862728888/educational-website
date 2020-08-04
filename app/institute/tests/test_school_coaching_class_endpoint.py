@@ -29,6 +29,16 @@ def get_institute_delete_class_url(class_slug):
                    kwargs={'class_slug': class_slug})
 
 
+def get_institute_class_permission_list_url(class_slug):
+    return reverse("institute:list-permitted-class-incharge",
+                   kwargs={'class_slug': class_slug})
+
+
+def get_check_institute_class_permission_url(class_slug):
+    return reverse("institute:has-class-perm",
+                   kwargs={'class_slug': class_slug})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -344,118 +354,296 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_provide_class_permission_to_staff_success_by_admin(self):
+    #     """Test that class permission can be provided to staff by admin"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     staff = create_teacher()
+    #     create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+    #     accept_invite(institute, staff, models.InstituteRole.STAFF)
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_ADD_CLASS_PERMISSION,
+    #         {'invitee': str(staff), 'class_slug': class_.class_slug}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['name'], ' ')
+    #     self.assertEqual(res.data['email'], str(staff))
+    #     self.assertIn('created_on', res.data)
+    #     self.assertIn('profile_pic', res.data)
+    #     self.assertEqual(res.data['inviter_name'], ' ')
+    #     self.assertEqual(res.data['inviter_email'], str(self.user))
+    #     self.assertTrue(models.InstituteClassPermission.objects.filter(
+    #         to=class_,
+    #         invitee=staff).exists())
+    #
+    # def test_provide_class_permission_to_admin_success_by_admin(self):
+    #     """Test that class permission can be provided to admin by admin"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     staff = create_teacher()
+    #     create_invite(institute, self.user, staff, models.InstituteRole.ADMIN)
+    #     accept_invite(institute, staff, models.InstituteRole.ADMIN)
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_ADD_CLASS_PERMISSION,
+    #         {'invitee': str(staff), 'class_slug': class_.class_slug}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['name'], ' ')
+    #     self.assertEqual(res.data['email'], str(staff))
+    #     self.assertIn('created_on', res.data)
+    #     self.assertIn('profile_pic', res.data)
+    #     self.assertEqual(res.data['inviter_name'], ' ')
+    #     self.assertEqual(res.data['inviter_email'], str(self.user))
+    #     self.assertTrue(models.InstituteClassPermission.objects.filter(
+    #         to=class_,
+    #         invitee=staff).exists())
+    #
+    # def test_provide_class_permission_to_non_user_fails_by_admin(self):
+    #     """Test that class permission can not be provided to non permitted user."""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     user = create_teacher()
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_ADD_CLASS_PERMISSION,
+    #         {'invitee': str(user), 'class_slug': class_.class_slug}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'User is not a member of this institute.')
+    #
+    # def test_provide_class_permission_to_false_email_fails_by_admin(self):
+    #     """Test that class permission can be provided to invalid user"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_ADD_CLASS_PERMISSION,
+    #         {'invitee': 'abc@gmail.com', 'class_slug': class_.class_slug}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'This user does not exist.')
+    #
+    # def test_provide_class_permission_to_false_class_fails_by_admin(self):
+    #     """Test that class permission can be provided to staff"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_ADD_CLASS_PERMISSION,
+    #         {'invitee': 'abc@gmail.com', 'class_slug': 'sggdsgs-sdgsg-sgsg'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Class not found.')
+    #
+    # def test_provide_class_permission_to_admin_fails_by_staff(self):
+    #     """Test that class permission can not be provided by staff"""
+    #     admin = create_teacher('teacher@gamil.com', 'sdfEgafjjjjs')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     staff = create_teacher()
+    #     create_invite(institute, admin, staff, models.InstituteRole.ADMIN)
+    #     accept_invite(institute, staff, models.InstituteRole.ADMIN)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+    #     accept_invite(institute, self.user, models.InstituteRole.STAFF)
+    #
+    #     res = self.client.post(
+    #         INSTITUTE_ADD_CLASS_PERMISSION,
+    #         {'invitee': str(staff), 'class_slug': class_.class_slug}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_get_all_class_permission_list_successful_no_user_admin(self):
+    #     """Test that all permitted class user list successful"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #
+    #     res = self.client.get(
+    #         get_institute_class_permission_list_url(class_.class_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 0)
+    #
+    # def test_get_all_class_permission_list_successful_admin(self):
+    #     """Test that admin can get list of all permitted user"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     staff = create_teacher()
+    #     prof = models.UserProfile.objects.filter(user=staff).first()
+    #     prof.first_name = 'abc'
+    #     prof.last_name = 'aaa'
+    #     prof.save()
+    #     create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+    #     accept_invite(institute, staff, models.InstituteRole.STAFF)
+    #     create_institute_class_permission(self.user, staff, class_)
+    #
+    #     res = self.client.get(
+    #         get_institute_class_permission_list_url(class_.class_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['name'], 'abc aaa'.upper())
+    #     self.assertEqual(res.data[0]['email'], str(staff))
+    #     self.assertEqual(res.data[0]['inviter_name'], ' ')
+    #     self.assertEqual(res.data[0]['inviter_email'], str(self.user))
+    #     self.assertEqual(res.data[0]['image'], None)
+    #     self.assertIn('created_on', res.data[0])
+    #
+    # def test_get_all_class_permission_list_successful_staff(self):
+    #     """Test that staff can get list of all permitted user"""
+    #     admin = create_teacher('admin@gmail.com', 'adminglsjdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     staff = create_teacher()
+    #     inviter = create_teacher('inviter@gmail.com', 'asdfsggsgs')
+    #     create_invite(institute, admin, inviter, models.InstituteRole.ADMIN)
+    #     accept_invite(institute, inviter, models.InstituteRole.ADMIN)
+    #     create_invite(institute, inviter, staff, models.InstituteRole.STAFF)
+    #     accept_invite(institute, staff, models.InstituteRole.STAFF)
+    #     create_invite(institute, inviter, self.user, models.InstituteRole.STAFF)
+    #     accept_invite(institute, self.user, models.InstituteRole.STAFF)
+    #     create_institute_class_permission(inviter, staff, class_)
+    #     inviter.delete()
+    #
+    #     res = self.client.get(
+    #         get_institute_class_permission_list_url(class_.class_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['name'], ' ')
+    #     self.assertEqual(res.data[0]['email'], str(staff))
+    #     self.assertEqual(res.data[0]['inviter_name'], ' ')
+    #     self.assertEqual(res.data[0]['inviter_email'], 'Anonymous')
+    #     self.assertEqual(res.data[0]['image'], None)
+    #     self.assertIn('created_on', res.data[0])
+    #
+    # def test_get_all_class_permission_list_successful_faculty(self):
+    #     """Test that faculty can get list of all permitted user"""
+    #     admin = create_teacher('admin@gmail.com', 'adminglsjdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     staff = create_teacher()
+    #     create_invite(institute, admin, staff, models.InstituteRole.STAFF)
+    #     accept_invite(institute, staff, models.InstituteRole.STAFF)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
+    #     accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+    #     create_institute_class_permission(admin, staff, class_)
+    #
+    #     res = self.client.get(
+    #         get_institute_class_permission_list_url(class_.class_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['name'], ' ')
+    #     self.assertEqual(res.data[0]['email'], str(staff))
+    #     self.assertEqual(res.data[0]['inviter_name'], ' ')
+    #     self.assertEqual(res.data[0]['inviter_email'], str(admin))
+    #     self.assertEqual(res.data[0]['image'], None)
+    #     self.assertIn('created_on', res.data[0])
+    #
+    # def test_get_all_class_permission_list_fails_non_user(self):
+    #     """Test that non user can not get list of all permitted user"""
+    #     admin = create_teacher('admin@gmail.com', 'adminglsjdf')
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     staff = create_teacher()
+    #     create_invite(institute, admin, staff, models.InstituteRole.STAFF)
+    #     accept_invite(institute, staff, models.InstituteRole.STAFF)
+    #     create_institute_class_permission(admin, staff, class_)
+    #
+    #     res = self.client.get(
+    #         get_institute_class_permission_list_url(class_.class_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
 
-    def test_provide_class_permission_to_staff_success_by_admin(self):
-        """Test that class permission can be provided to staff by admin"""
+    def test_check_class_perm_successful_admin(self):
+        """Test admin class perm successful"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         create_order(lic, institute)
         class_ = create_class(institute)
-        staff = create_teacher()
-        create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
-        accept_invite(institute, staff, models.InstituteRole.STAFF)
 
-        res = self.client.post(
-            INSTITUTE_ADD_CLASS_PERMISSION,
-            {'invitee': str(staff), 'class_slug': class_.class_slug}
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['name'], ' ')
-        self.assertEqual(res.data['email'], str(staff))
-        self.assertIn('created_on', res.data)
-        self.assertIn('profile_pic', res.data)
-        self.assertEqual(res.data['inviter_name'], ' ')
-        self.assertEqual(res.data['inviter_email'], str(self.user))
-        self.assertTrue(models.InstituteClassPermission.objects.filter(
-            to=class_,
-            invitee=staff).exists())
-
-    def test_provide_class_permission_to_admin_success_by_admin(self):
-        """Test that class permission can be provided to admin by admin"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        class_ = create_class(institute)
-        staff = create_teacher()
-        create_invite(institute, self.user, staff, models.InstituteRole.ADMIN)
-        accept_invite(institute, staff, models.InstituteRole.ADMIN)
-
-        res = self.client.post(
-            INSTITUTE_ADD_CLASS_PERMISSION,
-            {'invitee': str(staff), 'class_slug': class_.class_slug}
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['name'], ' ')
-        self.assertEqual(res.data['email'], str(staff))
-        self.assertIn('created_on', res.data)
-        self.assertIn('profile_pic', res.data)
-        self.assertEqual(res.data['inviter_name'], ' ')
-        self.assertEqual(res.data['inviter_email'], str(self.user))
-        self.assertTrue(models.InstituteClassPermission.objects.filter(
-            to=class_,
-            invitee=staff).exists())
-
-    def test_provide_class_permission_to_non_user_fails_by_admin(self):
-        """Test that class permission can not be provided to non permitted user."""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        class_ = create_class(institute)
-        user = create_teacher()
-
-        res = self.client.post(
-            INSTITUTE_ADD_CLASS_PERMISSION,
-            {'invitee': str(user), 'class_slug': class_.class_slug}
+        res = self.client.get(
+            get_check_institute_class_permission_url(class_.class_slug)
         )
 
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'User is not a member of this institute.')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], True)
 
-    def test_provide_class_permission_to_false_email_fails_by_admin(self):
-        """Test that class permission can be provided to invalid user"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        class_ = create_class(institute)
-
-        res = self.client.post(
-            INSTITUTE_ADD_CLASS_PERMISSION,
-            {'invitee': 'abc@gmail.com', 'class_slug': class_.class_slug}
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'This user does not exist.')
-
-    def test_provide_class_permission_to_false_class_fails_by_admin(self):
-        """Test that class permission can be provided to staff"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-
-        res = self.client.post(
-            INSTITUTE_ADD_CLASS_PERMISSION,
-            {'invitee': 'abc@gmail.com', 'class_slug': 'sggdsgs-sdgsg-sgsg'}
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Class not found.')
-
-    def test_provide_class_permission_to_admin_fails_by_staff(self):
-        """Test that class permission can not be provided by staff"""
-        admin = create_teacher('teacher@gamil.com', 'sdfEgafjjjjs')
+    def test_check_class_perm_successful_non_permitted_user(self):
+        """Test non permitted user class perm false"""
+        admin = create_teacher()
         institute = create_institute(admin)
         lic = create_institute_license(institute, self.payload)
         create_order(lic, institute)
         class_ = create_class(institute)
-        staff = create_teacher()
-        create_invite(institute, admin, staff, models.InstituteRole.ADMIN)
-        accept_invite(institute, staff, models.InstituteRole.ADMIN)
         create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
         accept_invite(institute, self.user, models.InstituteRole.STAFF)
 
-        res = self.client.post(
-            INSTITUTE_ADD_CLASS_PERMISSION,
-            {'invitee': str(staff), 'class_slug': class_.class_slug}
+        res = self.client.get(
+            get_check_institute_class_permission_url(class_.class_slug)
         )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], False)
+
+    def test_check_class_perm_fails_non_institute_member_user(self):
+        """Test non permitted user class perm false"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+
+        res = self.client.get(
+            get_check_institute_class_permission_url(class_.class_slug)
+        )
+
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_check_class_perm_successful_staff(self):
+        """Test staff class perm successful"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+        create_institute_class_permission(admin, self.user, class_)
+
+        res = self.client.get(
+            get_check_institute_class_permission_url(class_.class_slug)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], True)

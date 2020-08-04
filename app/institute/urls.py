@@ -68,5 +68,11 @@ urlpatterns = [
          name='delete-class'),
     path('add-class-permission',
          views.ProvideClassPermissionView.as_view(),
-         name='add-class-permission')
+         name='add-class-permission'),
+    path('<slug:class_slug>/list-permitted-class-incharge',
+         views.ListPermittedClassInchargeView.as_view(),
+         name='list-permitted-class-incharge'),
+    path('<slug:class_slug>/has-class-perm',
+         views.CheckClassPermView.as_view(),
+         name='has-class-perm')
 ]
