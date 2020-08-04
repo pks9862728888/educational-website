@@ -85,5 +85,8 @@ urlpatterns = [
     # Institute section
     path('<slug:class_slug>/create-section',
          views.CreateSectionView.as_view(),
-         name='create-section')
+         name='create-section'),
+    path('add-section-permission',
+         views.AddSectionPermissionView.as_view(),
+         name='add-section-permission'),
 ]
