@@ -39,6 +39,11 @@ def get_check_institute_class_permission_url(class_slug):
                    kwargs={'class_slug': class_slug})
 
 
+def create_subject_url(class_slug):
+    return reverse("institute:create-subject",
+                   kwargs={'class_slug': class_slug})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -583,55 +588,90 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     )
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_check_class_perm_successful_admin(self):
+    #     """Test admin class perm successful"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #
+    #     res = self.client.get(
+    #         get_check_institute_class_permission_url(class_.class_slug)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['status'], True)
+    #
+    # def test_check_class_perm_successful_non_permitted_user(self):
+    #     """Test non permitted user class perm false"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+    #     accept_invite(institute, self.user, models.InstituteRole.STAFF)
+    #
+    #     res = self.client.get(
+    #         get_check_institute_class_permission_url(class_.class_slug)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['status'], False)
+    #
+    # def test_check_class_perm_fails_non_institute_member_user(self):
+    #     """Test non permitted user class perm false"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #
+    #     res = self.client.get(
+    #         get_check_institute_class_permission_url(class_.class_slug)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_check_class_perm_successful_staff(self):
+    #     """Test staff class perm successful"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+    #     accept_invite(institute, self.user, models.InstituteRole.STAFF)
+    #     create_institute_class_permission(admin, self.user, class_)
+    #
+    #     res = self.client.get(
+    #         get_check_institute_class_permission_url(class_.class_slug)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['status'], True)
 
-    def test_check_class_perm_successful_admin(self):
-        """Test admin class perm successful"""
+    def test_subject_creation_by_admin_success(self):
+        """Test that admin can create subject"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         create_order(lic, institute)
         class_ = create_class(institute)
 
-        res = self.client.get(
-            get_check_institute_class_permission_url(class_.class_slug)
+        res = self.client.post(
+            create_subject_url(class_.class_slug),
+            {'name': 'Subject', 'type': models.InstituteSubjectType.MANDATORY}
         )
 
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['status'], True)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['name'], 'subject')
+        self.assertEqual(res.data['type'], models.InstituteSubjectType.MANDATORY)
+        self.assertIn('created_on', res.data)
 
-    def test_check_class_perm_successful_non_permitted_user(self):
-        """Test non permitted user class perm false"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        class_ = create_class(institute)
-        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
-        accept_invite(institute, self.user, models.InstituteRole.STAFF)
-
-        res = self.client.get(
-            get_check_institute_class_permission_url(class_.class_slug)
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['status'], False)
-
-    def test_check_class_perm_fails_non_institute_member_user(self):
-        """Test non permitted user class perm false"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        class_ = create_class(institute)
-
-        res = self.client.get(
-            get_check_institute_class_permission_url(class_.class_slug)
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
-
-    def test_check_class_perm_successful_staff(self):
-        """Test staff class perm successful"""
+    def test_subject_creation_by_authorized_staff_success(self):
+        """Test that staff can create subject"""
         admin = create_teacher()
         institute = create_institute(admin)
         lic = create_institute_license(institute, self.payload)
@@ -641,9 +681,65 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         accept_invite(institute, self.user, models.InstituteRole.STAFF)
         create_institute_class_permission(admin, self.user, class_)
 
-        res = self.client.get(
-            get_check_institute_class_permission_url(class_.class_slug)
+        res = self.client.post(
+            create_subject_url(class_.class_slug),
+            {'name': 'Subject', 'type': models.InstituteSubjectType.MANDATORY}
         )
 
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['status'], True)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['name'], 'subject')
+        self.assertEqual(res.data['type'], models.InstituteSubjectType.MANDATORY)
+        self.assertIn('created_on', res.data)
+
+    def test_subject_creation_by_unauthorized_staff_fails(self):
+        """Test that unauthorized staff can not create subject"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            create_subject_url(class_.class_slug),
+            {'name': 'Subject', 'type': models.InstituteSubjectType.MANDATORY}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_subject_creation_by_non_user(self):
+        """Test that non permitted user can not create subject"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+
+        res = self.client.post(
+            create_subject_url(class_.class_slug),
+            {'name': 'Subject', 'type': models.InstituteSubjectType.MANDATORY}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_duplicate_subject_creation_fails(self):
+        """Test that duplicate subject can not be created"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+
+        self.client.post(
+            create_subject_url(class_.class_slug),
+            {'name': 'Subject', 'type': models.InstituteSubjectType.MANDATORY}
+        )
+        res = self.client.post(
+            create_subject_url(class_.class_slug),
+            {'name': 'Subject', 'type': models.InstituteSubjectType.MANDATORY}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Subject with same name exists.')

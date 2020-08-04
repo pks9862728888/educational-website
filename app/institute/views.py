@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
@@ -1436,3 +1437,64 @@ class CheckClassPermView(APIView):
             else:
                 return Response({'status': False},
                                 status=status.HTTP_200_OK)
+
+
+class CreateSubjectView(CreateAPIView):
+    """View for creating subject"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('name'):
+            return Response({'error': _('Subject name is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('type'):
+            return Response({'error': _('Subject type is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('name').strip():
+            return Response({'error': _('Subject name can not be blank.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        has_perm = models.InstituteClassPermission.objects.filter(
+            to=class_,
+            invitee=self.request.user
+        ).exists()
+
+        if not has_perm:
+            if not models.InstitutePermission.objects.filter(
+                institute=models.Institute.objects.filter(pk=class_.class_institute.pk).first(),
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            subject = models.InstituteSubject.objects.create(
+                subject_class=class_,
+                name=self.request.data.get('name'),
+                type=self.request.data.get('type')
+            )
+            return Response({
+                'name': subject.name,
+                'type': subject.type,
+                'created_on': subject.created_on
+            }, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({'error': _('Subject with same name exists.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

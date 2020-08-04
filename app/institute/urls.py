@@ -74,5 +74,8 @@ urlpatterns = [
          name='list-permitted-class-incharge'),
     path('<slug:class_slug>/has-class-perm',
          views.CheckClassPermView.as_view(),
-         name='has-class-perm')
+         name='has-class-perm'),
+    path('<slug:class_slug>/create-subject',
+         views.CreateSubjectView.as_view(),
+         name='create-subject')
 ]
