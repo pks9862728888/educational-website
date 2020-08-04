@@ -75,9 +75,13 @@ urlpatterns = [
     path('<slug:class_slug>/has-class-perm',
          views.CheckClassPermView.as_view(),
          name='has-class-perm'),
+    # Institute subject
     path('<slug:class_slug>/create-subject',
          views.CreateSubjectView.as_view(),
          name='create-subject'),
+    path('add-subject-permission',
+         views.AddSubjectPermissionView.as_view(),
+         name='add-subject-permission'),
     # Institute section
     path('<slug:class_slug>/create-section',
          views.CreateSectionView.as_view(),

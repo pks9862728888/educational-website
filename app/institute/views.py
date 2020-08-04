@@ -1553,3 +1553,74 @@ class CreateSectionView(APIView):
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class AddSubjectPermissionView(APIView):
+    """View for adding subject permission"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=request.data.get('subject_slug')
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        class_ = models.InstituteClass.objects.filter(
+            pk=subject.subject_class.pk).first()
+        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+        has_perm = models.InstituteClassPermission.objects.filter(
+            to=class_,
+            invitee=self.request.user
+        ).exists()
+
+        if not has_perm:
+            if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        invitee = get_user_model().objects.filter(
+            email=request.data.get('invitee')
+        ).first()
+
+        if not invitee:
+            return Response({'error': _('This user does not exist.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=invitee,
+            active=True
+        ).exists():
+            return Response({'error': _('User is not a member of this institute.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            perm = models.InstituteSubjectPermission.objects.create(
+                to=subject,
+                inviter=self.request.user,
+                invitee=invitee
+            )
+            invitee = models.UserProfile.objects.filter(user=invitee).first()
+            inviter = models.UserProfile.objects.filter(user=self.request.user).first()
+            return Response({
+                'email': str(perm.invitee),
+                'name': invitee.first_name + ' ' + invitee.last_name,
+                'inviter_email': str(perm.inviter),
+                'inviter_name': inviter.first_name + ' ' + inviter.last_name,
+                'created_on': str(perm.created_on),
+                'image': None
+            }, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({'error': _('User is already an instructor.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal Server Error.')},
+                            status=status.HTTP_400_BAD_REQUEST)

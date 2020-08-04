@@ -12,6 +12,7 @@ from core import models
 
 
 INSTITUTE_ADD_CLASS_PERMISSION = reverse('institute:add-class-permission')
+INSTITUTE_ADD_SUBJECT_PERMISSION = reverse('institute:add-subject-permission')
 
 
 def get_institute_create_class_url(institute_slug):
@@ -111,6 +112,15 @@ def create_class(institute, name='temp class'):
     stat.class_count += 1
     stat.save()
     return class_
+
+
+def create_subject(class_, name='temp subject', type_=models.InstituteSubjectType.MANDATORY):
+    """Creates and returns subject"""
+    return models.InstituteSubject.objects.create(
+        subject_class=class_,
+        name=name,
+        type=type_
+    )
 
 
 def create_invite(institute, inviter, invitee, role):
@@ -748,96 +758,320 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Subject with same name exists.')
+    #
+    # def test_section_creation_by_admin_success(self):
+    #     """Test that admin can create section"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #
+    #     res = self.client.post(
+    #         create_section_url(class_.class_slug),
+    #         {'name': 'A'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['name'], 'a')
+    #     self.assertIn('created_on', res.data)
+    #     self.assertIn('section_slug', res.data)
+    #     self.assertTrue(len('section_slug') > 0)
+    #
+    # def test_section_creation_by_authorized_staff_success(self):
+    #     """Test that staff can create section"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+    #     accept_invite(institute, self.user, models.InstituteRole.STAFF)
+    #     create_institute_class_permission(admin, self.user, class_)
+    #
+    #     res = self.client.post(
+    #         create_section_url(class_.class_slug),
+    #         {'name': 'Section 2'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['name'], 'section 2')
+    #     self.assertIn('created_on', res.data)
+    #     self.assertIn('section_slug', res.data)
+    #     self.assertTrue(len('section_slug') > 0)
+    #
+    # def test_section_creation_by_unauthorized_staff_fails(self):
+    #     """Test that unauthorized staff can not create section"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+    #     accept_invite(institute, self.user, models.InstituteRole.STAFF)
+    #
+    #     res = self.client.post(
+    #         create_section_url(class_.class_slug),
+    #         {'name': 'Subject'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_section_creation_by_non_user(self):
+    #     """Test that non permitted user can not create section"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #
+    #     res = self.client.post(
+    #         create_section_url(class_.class_slug),
+    #         {'name': 'section'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_duplicate_section_creation_fails(self):
+    #     """Test that duplicate section can not be created"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     create_order(lic, institute)
+    #     class_ = create_class(institute)
+    #
+    #     self.client.post(
+    #         create_section_url(class_.class_slug),
+    #         {'name': 'Subject'}
+    #     )
+    #     res = self.client.post(
+    #         create_section_url(class_.class_slug),
+    #         {'name': 'Subject'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Section with same name exists.')
 
-    def test_section_creation_by_admin_success(self):
-        """Test that admin can create section"""
+    def test_add_subject_permission_to_staff_success_by_admin(self):
+        """Test that admin can add subject permission to staff"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         create_order(lic, institute)
         class_ = create_class(institute)
+        sub = create_subject(class_)
+        staff = create_teacher()
+        create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
 
         res = self.client.post(
-            create_section_url(class_.class_slug),
-            {'name': 'A'}
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(staff), 'subject_slug': sub.subject_slug}
         )
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['name'], 'a')
+        self.assertEqual(res.data['name'], ' ')
+        self.assertEqual(res.data['email'], str(staff))
+        self.assertEqual(res.data['inviter_name'], ' ')
+        self.assertEqual(res.data['inviter_email'], str(self.user))
+        self.assertEqual(res.data['image'], None)
         self.assertIn('created_on', res.data)
-        self.assertIn('section_slug', res.data)
-        self.assertTrue(len('section_slug') > 0)
 
-    def test_section_creation_by_authorized_staff_success(self):
-        """Test that staff can create section"""
-        admin = create_teacher()
+    def test_add_subject_permission_to_staff_success_by_permitted_staff(self):
+        """Test that permitted staff can add subject permission to staff"""
+        admin = create_teacher('adminer@gmail.com', 'adminguersjnej')
         institute = create_institute(admin)
         lic = create_institute_license(institute, self.payload)
         create_order(lic, institute)
         class_ = create_class(institute)
+        sub = create_subject(class_)
+        staff = create_teacher()
+        create_invite(institute, admin, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
         create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
         accept_invite(institute, self.user, models.InstituteRole.STAFF)
         create_institute_class_permission(admin, self.user, class_)
 
         res = self.client.post(
-            create_section_url(class_.class_slug),
-            {'name': 'Section 2'}
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(staff), 'subject_slug': sub.subject_slug}
         )
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['name'], 'section 2')
+        self.assertEqual(res.data['name'], ' ')
+        self.assertEqual(res.data['email'], str(staff))
+        self.assertEqual(res.data['inviter_name'], ' ')
+        self.assertEqual(res.data['inviter_email'], str(self.user))
+        self.assertEqual(res.data['image'], None)
         self.assertIn('created_on', res.data)
-        self.assertIn('section_slug', res.data)
-        self.assertTrue(len('section_slug') > 0)
 
-    def test_section_creation_by_unauthorized_staff_fails(self):
-        """Test that unauthorized staff can not create section"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        class_ = create_class(institute)
-        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
-        accept_invite(institute, self.user, models.InstituteRole.STAFF)
-
-        res = self.client.post(
-            create_section_url(class_.class_slug),
-            {'name': 'Subject'}
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
-
-    def test_section_creation_by_non_user(self):
-        """Test that non permitted user can not create section"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        create_order(lic, institute)
-        class_ = create_class(institute)
-
-        res = self.client.post(
-            create_section_url(class_.class_slug),
-            {'name': 'section'}
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
-
-    def test_duplicate_section_creation_fails(self):
-        """Test that duplicate section can not be created"""
+    def test_add_subject_permission_to_faculty_success_by_admin(self):
+        """Test that admin can add subject permission to faculty"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         create_order(lic, institute)
         class_ = create_class(institute)
+        sub = create_subject(class_)
+        faculty = create_teacher()
+        create_invite(institute, self.user, faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, faculty, models.InstituteRole.FACULTY)
 
-        self.client.post(
-            create_section_url(class_.class_slug),
-            {'name': 'Subject'}
-        )
         res = self.client.post(
-            create_section_url(class_.class_slug),
-            {'name': 'Subject'}
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(faculty), 'subject_slug': sub.subject_slug}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['name'], ' ')
+        self.assertEqual(res.data['email'], str(faculty))
+        self.assertEqual(res.data['inviter_name'], ' ')
+        self.assertEqual(res.data['inviter_email'], str(self.user))
+        self.assertEqual(res.data['image'], None)
+        self.assertIn('created_on', res.data)
+
+    def test_add_subject_permission_to_faculty_success_by_permitted_staff(self):
+        """Test that permitted staff can add subject permission to faculty"""
+        admin = create_teacher('adminer@gmail.com', 'adminguersjnej')
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        faculty = create_teacher()
+        create_invite(institute, admin, faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+        create_institute_class_permission(admin, self.user, class_)
+
+        res = self.client.post(
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(faculty), 'subject_slug': sub.subject_slug}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['name'], ' ')
+        self.assertEqual(res.data['email'], str(faculty))
+        self.assertEqual(res.data['inviter_name'], ' ')
+        self.assertEqual(res.data['inviter_email'], str(self.user))
+        self.assertEqual(res.data['image'], None)
+        self.assertIn('created_on', res.data)
+
+    def test_add_subject_permission_to_faculty_fails_by_non_permitted_staff(self):
+        """Test that unpermitted staff can not add subject permission to faculty"""
+        admin = create_teacher('adminer@gmail.com', 'adminguersjnej')
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        faculty = create_teacher()
+        create_invite(institute, admin, faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, faculty, models.InstituteRole.FACULTY)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(faculty), 'subject_slug': sub.subject_slug}
         )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Section with same name exists.')
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_add_subject_permission_to_faculty_fails_by_non_member(self):
+        """Test that non member can not add subject permission to faculty"""
+        admin = create_teacher('adminer@gmail.com', 'adminguersjnej')
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        faculty = create_teacher()
+        create_invite(institute, admin, faculty, models.InstituteRole.FACULTY)
+        accept_invite(institute, faculty, models.InstituteRole.FACULTY)
+
+        res = self.client.post(
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(faculty), 'subject_slug': sub.subject_slug}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_add_subject_permission_to_staff_twice_fails_by_admin(self):
+        """Test that staff permission can not be added twice"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        staff = create_teacher()
+        create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+
+        self.client.post(
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(staff), 'subject_slug': sub.subject_slug}
+        )
+        res = self.client.post(
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(staff), 'subject_slug': sub.subject_slug}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'User is already an instructor.')
+
+    def test_add_subject_permission_to_invalid_staff_fails(self):
+        """Test that staff permission can not be added to invalid staff"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        staff = create_teacher()
+        create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': 'adf@gd.cpm', 'subject_slug': sub.subject_slug}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'This user does not exist.')
+
+    def test_add_subject_permission_to_non_member_fails(self):
+        """Test that staff permission can not be added to non member staff"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        staff = create_teacher()
+
+        res = self.client.post(
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': str(staff), 'subject_slug': sub.subject_slug}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'User is not a member of this institute.')
+
+    def test_add_subject_permission_to_wrong_subject_fails(self):
+        """Test that staff permission can not be added to invalid subject"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        create_order(lic, institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        staff = create_teacher()
+        create_invite(institute, self.user, staff, models.InstituteRole.STAFF)
+        accept_invite(institute, staff, models.InstituteRole.STAFF)
+
+        res = self.client.post(
+            INSTITUTE_ADD_SUBJECT_PERMISSION,
+            {'invitee': 'adf@gd.cpm', 'subject_slug': 'adf'}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Subject not found.')
