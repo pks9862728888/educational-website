@@ -1439,7 +1439,7 @@ class CheckClassPermView(APIView):
                                 status=status.HTTP_200_OK)
 
 
-class CreateSubjectView(CreateAPIView):
+class CreateSubjectView(APIView):
     """View for creating subject"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
@@ -1493,6 +1493,61 @@ class CreateSubjectView(CreateAPIView):
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({'error': _('Subject with same name exists.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CreateSectionView(APIView):
+    """View for creating section"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('name'):
+            return Response({'error': _('Section name is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('name').strip():
+            return Response({'error': _('Section name can not be blank.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        has_perm = models.InstituteClassPermission.objects.filter(
+            to=class_,
+            invitee=self.request.user
+        ).exists()
+
+        if not has_perm:
+            if not models.InstitutePermission.objects.filter(
+                institute=models.Institute.objects.filter(pk=class_.class_institute.pk).first(),
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            section = models.InstituteSection.objects.create(
+                section_class=class_,
+                name=self.request.data.get('name')
+            )
+            return Response({
+                'name': section.name,
+                'section_slug': section.section_slug,
+                'created_on': section.created_on
+            }, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({'error': _('Section with same name exists.')},
                             status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             return Response({'error': _('Internal server error.')},

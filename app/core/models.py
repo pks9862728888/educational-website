@@ -1107,6 +1107,8 @@ class InstituteSection(models.Model):
         _('Section Name'), max_length=50, blank=False, null=False)
     section_slug = models.CharField(
         _('Section Slug'), max_length=60, blank=True, null=False, unique=True)
+    created_on = models.DateTimeField(
+        _('Created On'), default=timezone.now, editable=False)
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower().strip()
