@@ -41,6 +41,11 @@ def get_check_institute_class_permission_url(class_slug):
                    kwargs={'class_slug': class_slug})
 
 
+def get_institute_subject_list_url(class_slug):
+    return reverse("institute:list-all-subject",
+                   kwargs={'class_slug': class_slug})
+
+
 def create_subject_url(class_slug):
     return reverse("institute:create-subject",
                    kwargs={'class_slug': class_slug})
@@ -163,6 +168,15 @@ def create_institute_class_permission(inviter, invitee, class_):
     )
 
 
+def create_institute_subject_permission(inviter, invitee, subject):
+    """Creates and returns institute subject permission"""
+    return models.InstituteSubjectPermission.objects.create(
+        inviter=inviter,
+        invitee=invitee,
+        to=subject
+    )
+
+
 class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     """Tests related to creation and providing permission to class"""
 
@@ -279,97 +293,97 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Maximum class creation limit attained.')
     #
-    def test_get_all_class_when_no_class_created_success_by_permitted_user(self):
-        """Test list all class success by permitted user"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        res = self.client.get(
-            get_institute_list_class_url(institute.institute_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 0)
-
-    def test_get_all_class_when_class_created_success_by_permitted_user(self):
-        """Test list all class success by permitted user"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        res = self.client.get(
-            get_institute_list_class_url(institute.institute_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['name'], class_.name)
-        self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
-        self.assertTrue(res.data[0]['has_class_perm'])
-
-    def test_get_all_class_by_member_faculty(self):
-        """Test list all class success by member faculty"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
-        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-        res = self.client.get(
-            get_institute_list_class_url(institute.institute_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['name'], class_.name)
-        self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
-        self.assertFalse(res.data[0]['has_class_perm'])
-
-    def test_get_all_class_by_permitted_faculty(self):
-        """Test list all class success by member faculty"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
-        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-        create_institute_class_permission(admin, self.user, class_)
-        res = self.client.get(
-            get_institute_list_class_url(institute.institute_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['name'], class_.name)
-        self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
-        self.assertTrue(res.data[0]['has_class_perm'])
-
-    def test_get_all_class_fails_by_non_member_user(self):
-        """Test list all class fails by non member user"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        create_class(institute)
-        res = self.client.get(
-            get_institute_list_class_url(institute.institute_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
-
+    # def test_get_all_class_when_no_class_created_success_by_permitted_user(self):
+    #     """Test list all class success by permitted user"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     res = self.client.get(
+    #         get_institute_list_class_url(institute.institute_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 0)
+    #
+    # def test_get_all_class_when_class_created_success_by_permitted_user(self):
+    #     """Test list all class success by permitted user"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     res = self.client.get(
+    #         get_institute_list_class_url(institute.institute_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['name'], class_.name)
+    #     self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
+    #     self.assertTrue(res.data[0]['has_class_perm'])
+    #
+    # def test_get_all_class_by_member_faculty(self):
+    #     """Test list all class success by member faculty"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
+    #     accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+    #     res = self.client.get(
+    #         get_institute_list_class_url(institute.institute_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['name'], class_.name)
+    #     self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
+    #     self.assertFalse(res.data[0]['has_class_perm'])
+    #
+    # def test_get_all_class_by_permitted_faculty(self):
+    #     """Test list all class success by member faculty"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
+    #     accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+    #     create_institute_class_permission(admin, self.user, class_)
+    #     res = self.client.get(
+    #         get_institute_list_class_url(institute.institute_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['name'], class_.name)
+    #     self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
+    #     self.assertTrue(res.data[0]['has_class_perm'])
+    #
+    # def test_get_all_class_fails_by_non_member_user(self):
+    #     """Test list all class fails by non member user"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     create_class(institute)
+    #     res = self.client.get(
+    #         get_institute_list_class_url(institute.institute_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
     # def test_delete_class_success_by_admin(self):
     #     """Test that admin can delete class"""
     #     create_institute(self.user, 'sdfsdff')
@@ -1352,3 +1366,102 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Section not found.')
+    #
+    def test_list_all_subject_with_no_created_subject_success(self):
+        """Test that listing subject success when no subjects are created"""
+        institute = create_institute(self.user)
+        create_order(create_institute_license(institute, self.payload), institute)
+        class_ = create_class(institute)
+
+        res = self.client.get(
+            get_institute_subject_list_url(class_.class_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 0)
+
+    def test_list_all_subject_by_admin_success_with_created_subject(self):
+        """Test that listing subject success when subjects are created"""
+        institute = create_institute(self.user)
+        create_order(create_institute_license(institute, self.payload), institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+
+        res = self.client.get(
+            get_institute_subject_list_url(class_.class_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['name'], sub.name)
+        self.assertEqual(res.data[0]['type'], sub.type)
+        self.assertEqual(res.data[0]['subject_slug'], sub.subject_slug)
+        self.assertTrue(res.data[0]['has_subject_perm'])
+
+    def test_list_all_subject_by_member_staff_success(self):
+        """Test that listing subject success when subjects are created"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        create_order(create_institute_license(institute, self.payload), institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_institute_subject_list_url(class_.class_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['name'], sub.name)
+        self.assertEqual(res.data[0]['type'], sub.type)
+        self.assertEqual(res.data[0]['subject_slug'], sub.subject_slug)
+        self.assertFalse(res.data[0]['has_subject_perm'])
+
+    def test_list_all_subject_by_permitted_faculty_success(self):
+        """Test that listing subject success when subjects are created"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        create_order(create_institute_license(institute, self.payload), institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+        create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
+        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+        create_institute_subject_permission(admin, self.user, sub)
+
+        res = self.client.get(
+            get_institute_subject_list_url(class_.class_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['name'], sub.name)
+        self.assertEqual(res.data[0]['type'], sub.type)
+        self.assertEqual(res.data[0]['subject_slug'], sub.subject_slug)
+        self.assertTrue(res.data[0]['has_subject_perm'])
+
+    def test_list_all_subject_by_non_member_user_fails(self):
+        """Test that listing subject fails by non member user"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        create_order(create_institute_license(institute, self.payload), institute)
+        class_ = create_class(institute)
+        sub = create_subject(class_)
+
+        res = self.client.get(
+            get_institute_subject_list_url(class_.class_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_list_all_subject_by_invited_member_staff_fails(self):
+        """Test that listing subject success when subjects are created"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        create_order(create_institute_license(institute, self.payload), institute)
+        class_ = create_class(institute)
+        create_subject(class_)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_institute_subject_list_url(class_.class_slug)
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
