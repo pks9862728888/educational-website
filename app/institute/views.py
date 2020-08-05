@@ -1624,6 +1624,54 @@ class CreateSectionView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class ListAllSectionView(APIView):
+    """View for listing all section"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        perm = models.InstitutePermission.objects.filter(
+            institute=models.Institute.objects.filter(
+                pk=class_.class_institute.pk).first(),
+            invitee=self.request.user,
+            active=True
+        ).first()
+
+        if not perm:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        section_list = models.InstituteSection.objects.filter(
+            section_class=class_
+        ).filter().order_by('created_on')
+        response = []
+        for section in section_list:
+            section_details = dict()
+            section_details['id'] = section.id
+            section_details['name'] = section.name
+            section_details['section_slug'] = section.section_slug
+            section_details['created_on'] = section.created_on
+            if perm and perm.role == models.InstituteRole.ADMIN:
+                section_details['has_section_perm'] = True
+            elif models.InstituteSectionPermission.objects.filter(
+                to=models.InstituteSection.objects.filter(section_slug=section.section_slug).first(),
+                invitee=self.request.user
+            ).first():
+                section_details['has_section_perm'] = True
+            else:
+                section_details['has_section_perm'] = False
+            response.append(section_details)
+        return Response(response, status=status.HTTP_200_OK)
+
+
 class AddSubjectPermissionView(APIView):
     """View for adding subject permission"""
     authentication_classes = (TokenAuthentication,)
