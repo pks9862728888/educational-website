@@ -942,7 +942,7 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Section with same name exists.')
-
+    #
     # def test_add_subject_permission_to_staff_success_by_admin(self):
     #     """Test that admin can add subject permission to staff"""
     #     institute = create_institute(self.user)
@@ -1416,8 +1416,10 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     self.assertEqual(res.status_code, status.HTTP_200_OK)
     #     self.assertEqual(len(res.data), 1)
     #     self.assertEqual(res.data[0]['name'], sub.name)
+    #     self.assertEqual(res.data[0]['id'], sub.id)
     #     self.assertEqual(res.data[0]['type'], sub.type)
     #     self.assertEqual(res.data[0]['subject_slug'], sub.subject_slug)
+    #     self.assertIn('created_on', res.data[0])
     #     self.assertTrue(res.data[0]['has_subject_perm'])
     #
     # def test_list_all_subject_by_member_staff_success(self):
@@ -1632,49 +1634,49 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     )
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
-
-    def test_list_section_permission_success_no_permitted_user(self):
-        """Test that subject permission list success with no permitted user"""
-        institute = create_institute(self.user)
-        create_order(create_institute_license(institute, self.payload), institute)
-        section = create_section(create_class(institute))
-
-        res = self.client.get(
-            get_institute_section_permission_list_url(section.section_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 0)
-
-    def test_list_section_permission_success_admin(self):
-        """Test that section permission list success"""
-        institute = create_institute(self.user)
-        create_order(create_institute_license(institute, self.payload), institute)
-        section = create_section(create_class(institute))
-        teacher = create_teacher()
-        perm = create_institute_section_permission(self.user, teacher, section)
-
-        res = self.client.get(
-            get_institute_section_permission_list_url(section.section_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['id'], perm.id)
-        self.assertEqual(res.data[0]['name'], ' ')
-        self.assertEqual(res.data[0]['email'], str(teacher))
-        self.assertEqual(res.data[0]['inviter_name'], ' ')
-        self.assertEqual(res.data[0]['inviter_email'], str(self.user))
-        self.assertEqual(res.data[0]['image'], None)
-        self.assertIn('created_on', res.data[0])
-
-    def test_list_section_permission_fails_non_user(self):
-        """Test that section permission list fails for non institute member"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        create_order(create_institute_license(institute, self.payload), institute)
-        section = create_section(create_class(institute))
-
-        res = self.client.get(
-            get_institute_section_permission_list_url(section.section_slug)
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_list_section_permission_success_no_permitted_user(self):
+    #     """Test that subject permission list success with no permitted user"""
+    #     institute = create_institute(self.user)
+    #     create_order(create_institute_license(institute, self.payload), institute)
+    #     section = create_section(create_class(institute))
+    #
+    #     res = self.client.get(
+    #         get_institute_section_permission_list_url(section.section_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 0)
+    #
+    # def test_list_section_permission_success_admin(self):
+    #     """Test that section permission list success"""
+    #     institute = create_institute(self.user)
+    #     create_order(create_institute_license(institute, self.payload), institute)
+    #     section = create_section(create_class(institute))
+    #     teacher = create_teacher()
+    #     perm = create_institute_section_permission(self.user, teacher, section)
+    #
+    #     res = self.client.get(
+    #         get_institute_section_permission_list_url(section.section_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['id'], perm.id)
+    #     self.assertEqual(res.data[0]['name'], ' ')
+    #     self.assertEqual(res.data[0]['email'], str(teacher))
+    #     self.assertEqual(res.data[0]['inviter_name'], ' ')
+    #     self.assertEqual(res.data[0]['inviter_email'], str(self.user))
+    #     self.assertEqual(res.data[0]['image'], None)
+    #     self.assertIn('created_on', res.data[0])
+    #
+    # def test_list_section_permission_fails_non_user(self):
+    #     """Test that section permission list fails for non institute member"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     create_order(create_institute_license(institute, self.payload), institute)
+    #     section = create_section(create_class(institute))
+    #
+    #     res = self.client.get(
+    #         get_institute_section_permission_list_url(section.section_slug)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')

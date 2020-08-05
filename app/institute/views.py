@@ -1568,7 +1568,7 @@ class ListAllSubjectView(APIView):
                     subject_details['has_subject_perm'] = True
                 else:
                     subject_details['has_subject_perm'] = False
-                response.append(subject_details)
+            response.append(subject_details)
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -1623,109 +1623,6 @@ class ListSubjectInstructorsView(APIView):
             invite_details['image'] = None
             response.append(invite_details)
 
-        return Response(response, status=status.HTTP_200_OK)
-
-
-class CreateSectionView(APIView):
-    """View for creating section"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def post(self, request, *args, **kwargs):
-        class_ = models.InstituteClass.objects.filter(
-            class_slug=kwargs.get('class_slug')
-        ).first()
-
-        if not class_:
-            return Response({'error': _('Class not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not request.data.get('name'):
-            return Response({'error': _('Section name is required.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not request.data.get('name').strip():
-            return Response({'error': _('Section name can not be blank.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        has_perm = models.InstituteClassPermission.objects.filter(
-            to=class_,
-            invitee=self.request.user
-        ).exists()
-
-        if not has_perm:
-            if not models.InstitutePermission.objects.filter(
-                institute=models.Institute.objects.filter(pk=class_.class_institute.pk).first(),
-                invitee=self.request.user,
-                active=True,
-                role=models.InstituteRole.ADMIN
-            ).exists():
-                return Response({'error': _('Permission denied.')},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            section = models.InstituteSection.objects.create(
-                section_class=class_,
-                name=self.request.data.get('name')
-            )
-            return Response({
-                'name': section.name,
-                'section_slug': section.section_slug,
-                'created_on': section.created_on
-            }, status=status.HTTP_201_CREATED)
-        except IntegrityError:
-            return Response({'error': _('Section with same name exists.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
-            return Response({'error': _('Internal server error.')},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class ListAllSectionView(APIView):
-    """View for listing all section"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def get(self, *args, **kwargs):
-        class_ = models.InstituteClass.objects.filter(
-            class_slug=kwargs.get('class_slug')
-        ).first()
-
-        if not class_:
-            return Response({'error': _('Class not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        perm = models.InstitutePermission.objects.filter(
-            institute=models.Institute.objects.filter(
-                pk=class_.class_institute.pk).first(),
-            invitee=self.request.user,
-            active=True
-        ).first()
-
-        if not perm:
-            return Response({'error': _('Permission denied.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        section_list = models.InstituteSection.objects.filter(
-            section_class=class_
-        ).filter().order_by('created_on')
-        response = []
-        for section in section_list:
-            section_details = dict()
-            section_details['id'] = section.id
-            section_details['name'] = section.name
-            section_details['section_slug'] = section.section_slug
-            section_details['created_on'] = section.created_on
-            if perm and perm.role == models.InstituteRole.ADMIN:
-                section_details['has_section_perm'] = True
-            elif models.InstituteSectionPermission.objects.filter(
-                to=models.InstituteSection.objects.filter(section_slug=section.section_slug).first(),
-                invitee=self.request.user
-            ).first():
-                section_details['has_section_perm'] = True
-            else:
-                section_details['has_section_perm'] = False
-            response.append(section_details)
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -1801,6 +1698,61 @@ class AddSubjectPermissionView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
+class CreateSectionView(APIView):
+    """View for creating section"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('name'):
+            return Response({'error': _('Section name is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('name').strip():
+            return Response({'error': _('Section name can not be blank.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        has_perm = models.InstituteClassPermission.objects.filter(
+            to=class_,
+            invitee=self.request.user
+        ).exists()
+
+        if not has_perm:
+            if not models.InstitutePermission.objects.filter(
+                institute=models.Institute.objects.filter(pk=class_.class_institute.pk).first(),
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            section = models.InstituteSection.objects.create(
+                section_class=class_,
+                name=self.request.data.get('name')
+            )
+            return Response({
+                'name': section.name,
+                'section_slug': section.section_slug,
+                'created_on': section.created_on
+            }, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({'error': _('Section with same name exists.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class AddSectionPermissionView(APIView):
     """View for adding section permission"""
     authentication_classes = (TokenAuthentication,)
@@ -1872,8 +1824,57 @@ class AddSectionPermissionView(APIView):
             return Response({'error': _('Internal Server Error.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+
+class ListAllSectionView(APIView):
+    """View for listing all section"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        perm = models.InstitutePermission.objects.filter(
+            institute=models.Institute.objects.filter(
+                pk=class_.class_institute.pk).first(),
+            invitee=self.request.user,
+            active=True
+        ).first()
+
+        if not perm:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        section_list = models.InstituteSection.objects.filter(
+            section_class=class_
+        ).filter().order_by('created_on')
+        response = []
+        for section in section_list:
+            section_details = dict()
+            section_details['id'] = section.id
+            section_details['name'] = section.name
+            section_details['section_slug'] = section.section_slug
+            section_details['created_on'] = section.created_on
+            if perm and perm.role == models.InstituteRole.ADMIN:
+                section_details['has_section_perm'] = True
+            elif models.InstituteSectionPermission.objects.filter(
+                to=models.InstituteSection.objects.filter(section_slug=section.section_slug).first(),
+                invitee=self.request.user
+            ).first():
+                section_details['has_section_perm'] = True
+            else:
+                section_details['has_section_perm'] = False
+            response.append(section_details)
+        return Response(response, status=status.HTTP_200_OK)
+
+
 class ListSectionInchargesView(APIView):
-    """View for listing all subject instructors"""
+    """View for listing all section incharges"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
