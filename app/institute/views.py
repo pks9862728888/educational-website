@@ -1279,12 +1279,11 @@ class ListAllClassView(APIView):
             class_details['name'] = data.name
             class_details['class_slug'] = data.class_slug
             class_details['created_on'] = data.created_on
+            class_ = models.InstituteClass.objects.filter(
+                class_slug=data.class_slug).first()
             if perm and perm.role == models.InstituteRole.ADMIN or\
                     models.InstituteClassPermission.objects.filter(
-                        invitee=self.request.user,
-                        to=models.InstituteClass.objects.filter(
-                            class_slug=data.class_slug).first()
-                    ).exists():
+                        invitee=self.request.user, to=class_ ).exists():
                 class_details['has_class_perm'] = True
             else:
                 class_details['has_class_perm'] = False
@@ -1340,8 +1339,9 @@ class ProvideClassPermissionView(CreateAPIView):
             return Response({'error': _('Faculty can not be provided class permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if models.InstituteClassPermission.objects.filter(to=class_,
-                                                          invitee=invitee).exists():
+        if models.InstituteClassPermission.objects.filter(
+                to=class_,
+                invitee=invitee).exists():
             return Response({'error': _('User already has class permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -1351,8 +1351,10 @@ class ProvideClassPermissionView(CreateAPIView):
                 inviter=self.request.user,
                 to=class_
             )
-            invitee = get_object_or_404(models.UserProfile, user=invitee)
-            inviter = get_object_or_404(models.UserProfile, user=self.request.user)
+            invitee = get_object_or_404(models.UserProfile,
+                                        user=invitee)
+            inviter = get_object_or_404(models.UserProfile,
+                                        user=self.request.user)
             return Response({
                 'id': perm.id,
                 'name': invitee.first_name + ' ' + invitee.last_name,
@@ -1397,11 +1399,13 @@ class ListPermittedClassInchargeView(APIView):
         for p in perm:
             res = dict()
             invitee = models.UserProfile.objects.filter(
-                user=get_user_model().objects.filter(pk=p.invitee.pk).first()).first()
+                user=get_user_model().objects.filter(
+                    pk=p.invitee.pk).first()).first()
             inviter = None
             if p.inviter:
                 inviter = models.UserProfile.objects.filter(
-                    user=get_user_model().objects.filter(pk=p.inviter.pk).first()).first()
+                    user=get_user_model().objects.filter(
+                        pk=p.inviter.pk).first()).first()
             res['id'] = p.id
             res['name'] = invitee.first_name + ' ' + invitee.last_name
             res['email'] = str(p.invitee)
@@ -1492,7 +1496,8 @@ class CreateSubjectView(APIView):
 
         if not has_perm:
             if not models.InstitutePermission.objects.filter(
-                institute=models.Institute.objects.filter(pk=class_.class_institute.pk).first(),
+                institute=models.Institute.objects.filter(
+                    pk=class_.class_institute.pk).first(),
                 invitee=self.request.user,
                 active=True,
                 role=models.InstituteRole.ADMIN
@@ -1586,8 +1591,10 @@ class ListSubjectInstructorsView(APIView):
             return Response({'error': _('Subject not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        class_ = models.InstituteClass.objects.get(pk=subject.subject_class.pk)
-        institute = models.Institute.objects.get(pk=class_.class_institute.pk)
+        class_ = models.InstituteClass.objects.get(
+            pk=subject.subject_class.pk)
+        institute = models.Institute.objects.get(
+            pk=class_.class_institute.pk)
 
         if not models.InstitutePermission.objects.filter(
             institute=institute,
@@ -1606,12 +1613,16 @@ class ListSubjectInstructorsView(APIView):
             invite_details = dict()
             invite_details['id'] = perm.id
             invite_details['email'] = str(perm.invitee)
-            invitee = get_user_model().objects.filter(pk=perm.invitee.pk).first()
-            invitee = models.UserProfile.objects.filter(user=invitee).first()
+            invitee = get_user_model().objects.filter(
+                pk=perm.invitee.pk).first()
+            invitee = models.UserProfile.objects.filter(
+                user=invitee).first()
 
             if perm.inviter:
-                inviter = get_user_model().objects.filter(pk=perm.inviter.pk).first()
-                inviter = models.UserProfile.objects.filter(user=inviter).first()
+                inviter = get_user_model().objects.filter(
+                    pk=perm.inviter.pk).first()
+                inviter = models.UserProfile.objects.filter(
+                    user=inviter).first()
                 invite_details['inviter_name'] = inviter.first_name + ' ' + inviter.last_name
                 invite_details['inviter_email'] = str(perm.inviter)
             else:
@@ -1642,7 +1653,8 @@ class AddSubjectPermissionView(APIView):
 
         class_ = models.InstituteClass.objects.filter(
             pk=subject.subject_class.pk).first()
-        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+        institute = models.Institute.objects.filter(
+            pk=class_.class_institute.pk).first()
         has_perm = models.InstituteClassPermission.objects.filter(
             to=class_,
             invitee=self.request.user
@@ -1726,8 +1738,10 @@ class CreateSectionView(APIView):
         ).exists()
 
         if not has_perm:
+            institute = models.Institute.objects.filter(
+                pk=class_.class_institute.pk).first()
             if not models.InstitutePermission.objects.filter(
-                institute=models.Institute.objects.filter(pk=class_.class_institute.pk).first(),
+                institute=institute,
                 invitee=self.request.user,
                 active=True,
                 role=models.InstituteRole.ADMIN
@@ -1769,7 +1783,8 @@ class AddSectionPermissionView(APIView):
 
         class_ = models.InstituteClass.objects.filter(
             pk=section.section_class.pk).first()
-        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+        institute = models.Institute.objects.filter(
+            pk=class_.class_institute.pk).first()
         has_perm = models.InstituteClassPermission.objects.filter(
             to=class_,
             invitee=self.request.user
@@ -1862,13 +1877,16 @@ class ListAllSectionView(APIView):
             section_details['created_on'] = section.created_on
             if perm and perm.role == models.InstituteRole.ADMIN:
                 section_details['has_section_perm'] = True
-            elif models.InstituteSectionPermission.objects.filter(
-                to=models.InstituteSection.objects.filter(section_slug=section.section_slug).first(),
-                invitee=self.request.user
-            ).first():
-                section_details['has_section_perm'] = True
             else:
-                section_details['has_section_perm'] = False
+                sec = models.InstituteSection.objects.filter(
+                    section_slug=section.section_slug).first()
+                if models.InstituteSectionPermission.objects.filter(
+                    to=sec,
+                    invitee=self.request.user
+                ).first():
+                    section_details['has_section_perm'] = True
+                else:
+                    section_details['has_section_perm'] = False
             response.append(section_details)
         return Response(response, status=status.HTTP_200_OK)
 
