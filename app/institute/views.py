@@ -1256,11 +1256,13 @@ class ListAllClassView(ListAPIView):
             return Response({'error': _('Invalid Institute.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not models.InstitutePermission.objects.filter(
+        perm = models.InstitutePermission.objects.filter(
             institute=institute,
             invitee=self.request.user,
             active=True
-        ).exists():
+        ).first()
+
+        if not perm:
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -1271,8 +1273,24 @@ class ListAllClassView(ListAPIView):
         queryset = self.queryset.filter(
             class_institute=institute
         ).order_by('created_on')
-        serializer_ = self.get_serializer(queryset, many=True)
-        return Response(serializer_.data, status=status.HTTP_200_OK)
+        response = []
+
+        for data in queryset:
+            class_details = dict()
+            class_details['name'] = data.name
+            class_details['class_slug'] = data.class_slug
+            if perm and perm.role == models.InstituteRole.ADMIN or\
+                    models.InstituteClassPermission.objects.filter(
+                        invitee=self.request.user,
+                        to=models.InstituteClass.objects.filter(
+                            class_slug=data.class_slug).first()
+                    ).exists():
+                class_details['has_class_perm'] = True
+            else:
+                class_details['has_class_perm'] = False
+            response.append(class_details)
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class ProvideClassPermissionView(CreateAPIView):

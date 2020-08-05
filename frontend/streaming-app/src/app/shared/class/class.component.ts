@@ -60,6 +60,7 @@ export class ClassComponent implements OnInit {
         }
       },
       errors => {
+        console.log(errors)
         this.showLoadingIndicator = false;
         if (errors.error) {
           if (errors.error.error) {
