@@ -22,10 +22,6 @@ p {
     color: #bdbdbd;
 }
 
-.add-class {
-    color: #f2aa4cff;
-}
-
 .green-button:disabled,
 .green-button:disabled:hover {
     color: #fff;
@@ -37,18 +33,6 @@ p {
     transform: translateY(60%);
 }
 
-.form-control {
-    background-color: #3b3b3b;
-    color: #bdbdbd;
-    border-color: #6c757d;
-}
-
-.form-control:focus {
-    box-shadow: none;
-    border-color: none;
-    outline: none;
-}
-
 ::ng-deep.mat-progress-spinner circle,
 .mat-spinner circle {
     stroke: #f2aa4cff !important;
@@ -57,37 +41,6 @@ p {
 .top-separator {
     margin-top: 0.2rem;
     margin-bottom: 1rem;
-}
-
-.create-button-mb {
-    color: #fff;
-    background-color: #008000;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.create-button-mb:disabled {
-    color: #fff;
-    background-color: #008000;
-    opacity: 0.3;
-}
-
-.create-invite-spinner {
-    margin-bottom: 0.5rem;
-}
-
-.create-invite-spinner-mb {
-    display: flex;
-    margin-top: 1rem;
-    margin-bottom: 0;
-}
-
-.create-invite-spinner-mb .create-invite-spinner {
-    margin-right: 1rem;
-}
-
-.line-height {
-    line-height: 30px;
 }
 
 
@@ -113,6 +66,7 @@ p {
 }
 
 h3,
+h4,
 p {
     color: #bdbdbd;
 }

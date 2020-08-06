@@ -1,4 +1,4 @@
-import { currentInstituteSlug, currentClassSlug, currentInstituteRole } from './../../../constants';
+import { currentInstituteSlug, currentClassSlug, currentInstituteRole, hasClassPerm } from './../../../constants';
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -13,6 +13,7 @@ import { ClassPermittedUserDetails } from 'src/app/models/class.model';
 export class ClassPermissionsComponent implements OnInit {
 
   mq: MediaQueryList;
+  hasClassPerm: boolean;
   activeInchargeStep: number;
   currentInstituteSlug: string;
   currentInstituteRole: string;
@@ -26,6 +27,9 @@ export class ClassPermissionsComponent implements OnInit {
   loadingText = 'Fetching Class Incharge Details...';
   showReloadError: boolean;
   showReloadText = 'Unable to fetch class incharge details!';
+  inputPlaceholder = 'Email of invitee';
+  inviteButtonText = 'Invite';
+  progressSpinnerText = 'Inviting user...';
   inchargeList: ClassPermittedUserDetails[];
 
   constructor(
@@ -36,6 +40,11 @@ export class ClassPermissionsComponent implements OnInit {
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentInstituteRole = sessionStorage.getItem(currentInstituteRole);
     this.currentClassSlug = sessionStorage.getItem(currentClassSlug);
+    if (sessionStorage.getItem(hasClassPerm) === 'true') {
+      this.hasClassPerm = true;
+    } else {
+      this.hasClassPerm = false;
+    }
   }
 
   ngOnInit(): void {
@@ -70,14 +79,15 @@ export class ClassPermissionsComponent implements OnInit {
     )
   }
 
-  invite() {
+  invite(inviteeEmail: string) {
     this.errorText = null;
     this.successText = null;
     this.createInviteIndicator = true;
-    this.instituteApiService.addClassIncharge(this.newInviteForm.value.invitee,
+    this.instituteApiService.addClassIncharge(inviteeEmail,
                                               this.currentClassSlug).subscribe(
         (result: ClassPermittedUserDetails) => {
           this.createInviteIndicator = false;
+          this.showReloadError = false;
           if (!this.inchargeList) {
             this.inchargeList = [];
           }

@@ -11,6 +11,8 @@ import { UiSuccessTextComponent } from './ui-success-text/ui-success-text.compon
 import { PermissionsComponent } from './permissions/permissions.component';
 import { UiDialogComponent } from './ui-dialog/ui-dialog.component';
 import { UiService } from '../services/ui.service';
+import { UiInlineInviteFormComponent } from './ui-inline-invite-form/ui-inline-invite-form.component';
+import { UiMbInviteFormComponent } from './ui-mb-invite-form/ui-mb-invite-form.component';
 
 
 
@@ -23,6 +25,8 @@ import { UiService } from '../services/ui.service';
     ClassComponent,
     PermissionsComponent,
     UiDialogComponent,
+    UiInlineInviteFormComponent,
+    UiMbInviteFormComponent,
   ],
   imports: [
     CommonModule,
@@ -36,7 +40,9 @@ import { UiService } from '../services/ui.service';
     UiSuccessTextComponent,
     UiLoadingComponent,
     ClassComponent,
-    PermissionsComponent
+    PermissionsComponent,
+    UiInlineInviteFormComponent,
+    UiMbInviteFormComponent
   ],
   providers: [
     InstituteApiService,

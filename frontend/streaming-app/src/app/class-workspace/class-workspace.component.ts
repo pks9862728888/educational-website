@@ -1,9 +1,8 @@
-import { currentClassSlug, currentInstituteType, paymentComplete, purchasedLicenseExists, INSTITUTE_TYPE_REVERSE } from './../../constants';
+import { currentClassSlug, currentInstituteType, paymentComplete, purchasedLicenseExists, INSTITUTE_TYPE_REVERSE, hasClassPerm } from './../../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Subscription } from 'rxjs';
-import { InstituteApiService } from '../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { currentInstituteSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE } from '../../constants';
 
@@ -27,8 +26,7 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
 
   constructor( private router: Router,
                private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService,
-               private instituteApiService: InstituteApiService) {
+               private inAppDataTransferService: InAppDataTransferService) {
     this.mq = this.media.matchMedia('(max-width: 768px)');
     this.activeLink = 'CLASS_PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
@@ -69,6 +67,7 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
     sessionStorage.removeItem(paymentComplete);
     sessionStorage.removeItem(purchasedLicenseExists);
     sessionStorage.removeItem(currentClassSlug);
+    sessionStorage.removeItem(hasClassPerm);
   }
 
   navigateToAppropriateInstituteWorkspace(path: string) {
@@ -94,6 +93,7 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
         this.router.navigate(['/teacher-workspace/institutes']);
       } else if (link === 'EXIT_CLASS' || link === 'INSTITUTE') {
         sessionStorage.removeItem(currentClassSlug);
+        sessionStorage.removeItem(hasClassPerm);
         this.navigateToAppropriateInstituteWorkspace('/classes');
       } else {
         if (link === 'CLASS_PROFILE') {

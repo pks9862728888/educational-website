@@ -1357,6 +1357,7 @@ class ProvideClassPermissionView(CreateAPIView):
                                         user=self.request.user)
             return Response({
                 'id': perm.id,
+                'invitee_id': perm.invitee.pk,
                 'name': invitee.first_name + ' ' + invitee.last_name,
                 'email': str(invitee),
                 'inviter_name': inviter.first_name + ' ' + inviter.last_name,
@@ -1410,14 +1411,15 @@ class ListPermittedClassInchargeView(APIView):
                     user=get_user_model().objects.filter(
                         pk=p.inviter.pk).first()).first()
             res['id'] = p.id
+            res['invitee_id'] = p.invitee.pk
             res['name'] = invitee.first_name + ' ' + invitee.last_name
             res['email'] = str(p.invitee)
             if inviter:
                 res['inviter_name'] = inviter.first_name + ' ' + inviter.last_name
                 res['inviter_email'] = str(p.inviter)
             else:
-                res['inviter_name'] = ' '
-                res['inviter_email'] = 'Anonymous'
+                res['inviter_name'] = 'Anonymous'
+                res['inviter_email'] = ' '
             res['created_on'] = str(p.created_on)
             res['image'] = None
             response.append(res)
@@ -1615,6 +1617,7 @@ class ListSubjectInstructorsView(APIView):
         for perm in perm_list:
             invite_details = dict()
             invite_details['id'] = perm.id
+            invite_details['invitee_id'] = perm.invitee.pk
             invite_details['email'] = str(perm.invitee)
             invitee = get_user_model().objects.filter(
                 pk=perm.invitee.pk).first()
@@ -1700,6 +1703,7 @@ class AddSubjectPermissionView(APIView):
             return Response({
                 'email': str(perm.invitee),
                 'name': invitee.first_name + ' ' + invitee.last_name,
+                'invitee_id': perm.invitee.pk,
                 'inviter_email': str(perm.inviter),
                 'inviter_name': inviter.first_name + ' ' + inviter.last_name,
                 'created_on': str(perm.created_on),
@@ -1830,6 +1834,7 @@ class AddSectionPermissionView(APIView):
             return Response({
                 'email': str(perm.invitee),
                 'name': invitee.first_name + ' ' + invitee.last_name,
+                'invitee_id': perm.invitee.pk,
                 'inviter_email': str(perm.inviter),
                 'inviter_name': inviter.first_name + ' ' + inviter.last_name,
                 'created_on': str(perm.created_on),
@@ -1928,6 +1933,7 @@ class ListSectionInchargesView(APIView):
             invite_details = dict()
             invite_details['id'] = perm.id
             invite_details['email'] = str(perm.invitee)
+            invite_details['invitee_id'] = perm.invitee.pk
             invitee = get_user_model().objects.filter(pk=perm.invitee.pk).first()
             invitee = models.UserProfile.objects.filter(user=invitee).first()
 
@@ -1946,4 +1952,3 @@ class ListSectionInchargesView(APIView):
             response.append(invite_details)
 
         return Response(response, status=status.HTTP_200_OK)
-
