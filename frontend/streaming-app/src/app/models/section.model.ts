@@ -1,19 +1,19 @@
-export interface ClassInchargeDetails {
+export interface SectionInchargeDetails {
   id?: number;
   name?: string;
   email?: string;
 }
 
-export interface ClassDetailsResponse {
+export interface SectionDetailsResponse {
   id?: number;
   name?: string;
-  class_slug?: string;
+  section_slug?: string;
   created_on?: string;
-  has_class_perm?: boolean;
-  class_incharges?: ClassInchargeDetails[];
+  has_section_perm?: boolean;
+  section_incharges?: SectionInchargeDetails[];
 }
 
-export interface ClassPermittedUserDetails {
+export interface SectionPermittedUserDetails {
   'id': number;
   'name': string;
   'email': string;

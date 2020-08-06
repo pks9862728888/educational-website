@@ -102,6 +102,14 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${classSlug}/list-all-subject`;
   }
 
+  createSectionUrl(classSlug: string) {
+    return `${this.instituteBaseUrl}${classSlug}/create-section`;
+  }
+
+  getSectionListUrl(classSlug: string) {
+    return `${this.instituteBaseUrl}${classSlug}/list-all-section`;
+  }
+
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
 
@@ -288,6 +296,22 @@ export class InstituteApiService {
       this.getInstituteSubjectListUrl(classSlug),
       { headers: this.getAuthHeader() }
     )
+  }
+
+  // To create institute section
+  createClassSection(classSlug: string, name: string) {
+    return this.httpClient.post(
+      this.createSectionUrl(classSlug),
+      {'name': name},
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getInstituteSectionList(classSlug: string) {
+    return this.httpClient.get(
+      this.getSectionListUrl(classSlug),
+      { headers: this.getAuthHeader() }
+    );
   }
 
   // To load token from storage

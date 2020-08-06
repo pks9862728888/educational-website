@@ -6,13 +6,11 @@ import { classWorkspaceRoutingComponents, ClassWorkspaceRoutingModule } from './
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialClassWorkspaceModule } from './material.class.workspace';
-import { ClassSectionComponent } from './class-section/class-section.component';
 
 
 @NgModule({
   declarations: [
     classWorkspaceRoutingComponents,
-    ClassSectionComponent,
   ],
   imports: [
     CommonModule,

@@ -10,7 +10,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class UiInlineInviteFormComponent implements OnInit {
 
   mq: MediaQueryList;
-  newInviteForm: FormGroup;
+  inviteForm: FormGroup;
   @Input() createInviteIndicator: boolean;
   @Input() showInviteFormMb: boolean;
   @Input() inputPlaceholder: string;
@@ -26,13 +26,13 @@ export class UiInlineInviteFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.newInviteForm = this.formBuilder.group({
+    this.inviteForm = this.formBuilder.group({
       invitee: [null, [Validators.required, Validators.email]]
     });
   }
 
   invite() {
-    this.inviteeEmail.emit(this.newInviteForm.value.invitee);
+    this.inviteeEmail.emit(this.inviteForm.value.invitee);
   }
 
   showInviteFormMobile_() {

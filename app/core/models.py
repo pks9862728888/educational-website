@@ -334,7 +334,7 @@ def unique_slug_generator_for_subject(instance):
 def unique_slug_generator_for_section(instance):
     """Generates unique slug for section"""
     while True:
-        slug = f'{slugify(instance.name)}-{random_string_generator(size=8)}'
+        slug = f'{slugify(instance.name)}-{random_string_generator(size=4)}-{random_string_generator(size=4)}'
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(section_slug=slug).exists()
         if not qs_exists:
@@ -1104,9 +1104,9 @@ class InstituteSection(models.Model):
     section_class = models.ForeignKey(
         InstituteClass, on_delete=models.CASCADE, related_name='section_class')
     name = models.CharField(
-        _('Section Name'), max_length=50, blank=False, null=False)
+        _('Section Name'), max_length=20, blank=False, null=False)
     section_slug = models.CharField(
-        _('Section Slug'), max_length=60, blank=True, null=False, unique=True)
+        _('Section Slug'), max_length=32, blank=True, null=False, unique=True)
     created_on = models.DateTimeField(
         _('Created On'), default=timezone.now, editable=False)
 

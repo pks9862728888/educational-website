@@ -61,7 +61,6 @@ export class ClassComponent implements OnInit {
         }
       },
       errors => {
-        console.log(errors)
         this.showLoadingIndicator = false;
         if (errors.error) {
           if (errors.error.error) {
@@ -87,7 +86,6 @@ export class ClassComponent implements OnInit {
       this.createClassForm.disable();
       this.instituteApiService.createInstituteClass(this.currentInstituteSlug, this.createClassForm.value.name).subscribe(
         (result: ClassDetailsResponse) => {
-          console.log(result);
           this.createClassIndicator = false;
           this.successText = 'Class created successfully!';
           this.createClassForm.enable();

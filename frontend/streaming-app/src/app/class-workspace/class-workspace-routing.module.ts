@@ -1,3 +1,4 @@
+import { ClassSectionComponent } from './class-section/class-section.component';
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { ClassWorkspaceComponent } from './class-workspace.component';
@@ -13,6 +14,7 @@ const routes: Routes = [
       { path: ':name/profile', component: ClassProfileComponent },
       { path: ':name/permissions', component: ClassPermissionsComponent },
       { path: ':name/subjects', component: ClassSubjectsComponent },
+      { path: ':name/sections', component: ClassSectionComponent }
     ]
   }
 ]
@@ -27,5 +29,6 @@ export const classWorkspaceRoutingComponents = [
   ClassWorkspaceComponent,
   ClassProfileComponent,
   ClassPermissionsComponent,
-  ClassSubjectsComponent
+  ClassSubjectsComponent,
+  ClassSectionComponent
 ]

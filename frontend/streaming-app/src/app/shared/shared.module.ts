@@ -13,6 +13,8 @@ import { UiDialogComponent } from './ui-dialog/ui-dialog.component';
 import { UiService } from '../services/ui.service';
 import { UiInlineInviteFormComponent } from './ui-inline-invite-form/ui-inline-invite-form.component';
 import { UiMbInviteFormComponent } from './ui-mb-invite-form/ui-mb-invite-form.component';
+import { UiInlineCreateFormComponent } from './ui-inline-create-form/ui-inline-create-form.component';
+import { UiMbCreateFormComponent } from './ui-mb-create-form/ui-mb-create-form.component';
 
 
 
@@ -27,6 +29,8 @@ import { UiMbInviteFormComponent } from './ui-mb-invite-form/ui-mb-invite-form.c
     UiDialogComponent,
     UiInlineInviteFormComponent,
     UiMbInviteFormComponent,
+    UiInlineCreateFormComponent,
+    UiMbCreateFormComponent,
   ],
   imports: [
     CommonModule,
@@ -42,7 +46,9 @@ import { UiMbInviteFormComponent } from './ui-mb-invite-form/ui-mb-invite-form.c
     ClassComponent,
     PermissionsComponent,
     UiInlineInviteFormComponent,
-    UiMbInviteFormComponent
+    UiMbInviteFormComponent,
+    UiInlineCreateFormComponent,
+    UiMbCreateFormComponent
   ],
   providers: [
     InstituteApiService,

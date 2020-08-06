@@ -1,1 +1,71 @@
-<p>class-section works!</p>
+<mat-card class="component-body">
+    <section class="padding-bottom-07 text-color">
+        <div class="d-flex justify-content-between" [ngClass]="{'header-mb': mq.matches, 'header': !mq.matches}">
+            <div>
+                <h3 [ngClass]="{'header-text': !mq.matches}">Sections:</h3>
+            </div>
+            <div>
+                <app-ui-inline-create-form [createIndicator]="createSectionIndicator" [showFormMb]="showCreateSectionFormMb" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [hasPerm]="hasClassPerm" [maxLength]="maxSectionNameLength" (showFormMobile)="showCreateSectionFormMobile()"
+                    (hideFormMobile)="hideCreateSectionFormMobile()" (createEvent)="createSection($event)"></app-ui-inline-create-form>
+            </div>
+        </div>
+        <hr class="top-separator" />
+        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
+        <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getSectionList()"></app-ui-reload>
+        <div class="margin-bottom-1" *ngIf="errorText">
+            <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+        </div>
+        <div class="margin-bottom-1" *ngIf="successText">
+            <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
+        </div>
+        <section *ngIf="mq.matches && showCreateSectionFormMb" class="margin-bottom-1">
+            <app-ui-mb-create-form [maxLength]="maxSectionNameLength" [createIndicator]="createSectionIndicator" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [progressSpinnerText]="createProgressSpinnerText" (createEvent)="createSection($event)"></app-ui-mb-create-form>
+        </section>
+        <div *ngIf="!showLoadingIndicator && !showReloadError && isSectionListEmpty()" class="margin-bottom-05">
+            <h3 *ngIf="!mq.matches">No section created yet.</h3>
+            <p *ngIf="mq.matches">No section created yet.</p>
+        </div>
+        <mat-accordion *ngIf="!showLoadingIndicator && !showReloadError && !isSectionListEmpty()">
+            <mat-expansion-panel class="text-color" *ngFor="let section of sectionList" [expanded]="sectionStep === section.id" (opened)="setSectionStep(section.id)">
+                <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
+                    <mat-panel-title>
+                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                            <h3 *ngIf="!mq.matches">{{ section.name | titlecase}}</h3>
+                            <p *ngIf="mq.matches">{{ section.name | titlecase}}</p>
+                        </div>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <hr class="invite-top-separator" />
+                <div class="row invite-body">
+                    <div class="col-12 margin-bottom-05">
+                        <h3 *ngIf="!mq.matches">Section Incharges: <span *ngIf="!sectionHasIncharge(section.section_incharges)">Not assigned.</span></h3>
+                        <p *ngIf="mq.matches">Section Incharges: <span *ngIf="!sectionHasIncharge(section.section_incharges)">Not assigned.</span></p>
+                    </div>
+                    <div class="col-12" *ngIf="sectionHasIncharge(section.section_incharges)">
+                        <div class="d-flex justify-content-between" *ngFor="let incharge of section.section_incharges; let i=index">
+                            <div>
+                                <h3 *ngIf="!mq.matches">
+                                    {{ i + 1 }}. <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span><span *ngIf="incharge.name == ' '">{{ incharge.email }}</span>
+                                </h3>
+                                <p *ngIf="mq.matches">
+                                    {{ i + 1 }}. <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span><span *ngIf="incharge.name == ' '">{{ incharge.email }}</span>
+                                </p>
+                            </div>
+                            <div>
+                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="!userIsSelf(incharge.id)">message</mat-icon>
+                                <mat-icon class="incharge-icon green-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="invite-bottom-separator" />
+                <div class="col">
+                    <div class="action-row">
+                        <button mat-raised-button class="red-button margin-right-1" (click)="deleteSectionClicked(section)">Delete</button>
+                        <button mat-flat-button class="green-button" (click)="openSection(section.section_slug, section.has_section_perm)">Open</button>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </section>
+</mat-card>

@@ -1,0 +1,169 @@
+.row,
+.col,
+.col-12,
+.col-sm-8,
+.col-md-6,
+.col-lg-4,
+h3,
+hr,
+p {
+    padding: 0px;
+    margin: 0px;
+}
+
+.component-body {
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.mat-card {
+    padding: 0px 16px 0px;
+    background-color: #3B3B3B;
+    color: #bdbdbd;
+}
+
+.text-color {
+    color: #bdbdbd;
+}
+
+
+/* For displaying class list */
+
+.mat-expansion-panel {
+    background-color: #303030;
+    box-shadow: 0 1px 1px #4b4b4b;
+    margin-bottom: 0.7rem;
+}
+
+.mat-expansion-panel-header {
+    border-radius: 10px;
+}
+
+.mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
+    background-color: #292929;
+    color: #c5c5c5;
+}
+
+::ng-deep .mat-expansion-indicator::after {
+    color: #f2aa4cff;
+}
+
+.header {
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+}
+
+.header-mb {
+    padding-top: 0.5rem;
+}
+
+.header-text {
+    line-height: 36px;
+    transform: translateY(40%);
+}
+
+.top-separator {
+    margin-bottom: 1rem;
+}
+
+.green-button:disabled {
+    color: #fff;
+    background-color: #008000;
+    opacity: 0.7;
+}
+
+.create-button-mb {
+    color: #fff;
+    background-color: #008000;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.create-button-mb:disabled {
+    color: #fff;
+    background-color: #008000;
+    opacity: 0.3;
+}
+
+.invite-top-separator,
+.invite-bottom-separator {
+    background-color: #6c757d;
+}
+
+.invite-top-separator {
+    margin-bottom: 0.5rem;
+}
+
+.invite-bottom-separator {
+    margin-top: 0.5rem;
+}
+
+.line-height {
+    line-height: 30px;
+}
+
+.action-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    margin-bottom: 0.1rem;
+}
+
+.incharge-icon {
+    cursor: pointer;
+}
+
+.cta-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+    line-height: 28px;
+}
+
+.cta-icon-mb {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    line-height: 20px;
+}
+
+.green-icon {
+    color: #61e061;
+}
+
+.blue-icon {
+    color: #7375ee;
+}
+
+
+/* Margins and padding */
+
+.padding-bottom-07 {
+    padding-bottom: 0.7rem;
+}
+
+.margin-bottom-05 {
+    margin-bottom: 0.5rem;
+}
+
+.margin-bottom-1 {
+    margin-bottom: 1rem;
+}
+
+.margin-right-05 {
+    margin-right: 0.5rem;
+}
+
+.margin-right-1 {
+    margin-right: 1rem;
+}
+
+button:focus,
+button:active:focus,
+button.active:focus {
+    outline: none !important;
+    outline-style: none !important;
+}

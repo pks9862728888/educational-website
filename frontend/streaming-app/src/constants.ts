@@ -11,6 +11,8 @@ export const currentInstituteType = 'currentInstituteType';
 export const currentClassSlug = 'currentClassSlug';
 export const hasClassPerm = 'hasClassPerm';
 export const hasSubjectPerm = 'hasSubjectPerm';
+export const currentSectionSlug = 'currentSectionSlug';
+export const hasSectionPerm = 'hasSectionPerm';
 
 // For license
 export const selectedLicenseId = 'selectedLicenseId';

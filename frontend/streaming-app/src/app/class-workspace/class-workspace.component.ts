@@ -33,10 +33,12 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
       if (val instanceof NavigationEnd) {
         if(val.url.includes('profile')) {
           this.activeLink = 'CLASS_PROFILE';
-        } else if(val.url.includes('subjects')) {
+        } else if (val.url.includes('subjects')) {
           this.activeLink = 'CLASS_SUBJECTS';
-        } else if(val.url.includes('permissions')) {
+        } else if (val.url.includes('permissions')) {
           this.activeLink = 'CLASS_PERMISSIONS';
+        } else if (val.url.includes('sections')) {
+          this.activeLink = 'CLASS_SECTIONS';
         }
       }
     });
@@ -102,6 +104,8 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
           this.router.navigate([this.baseUrl + '/permissions']);
         } else if (link === 'CLASS_SUBJECTS') {
           this.router.navigate([this.baseUrl + '/subjects']);
+        } else if (link === 'CLASS_SECTIONS') {
+          this.router.navigate([this.baseUrl + '/sections']);
         }
       }
     }

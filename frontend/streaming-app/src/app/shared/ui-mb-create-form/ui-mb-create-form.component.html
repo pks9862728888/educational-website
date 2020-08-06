@@ -1,0 +1,14 @@
+<div class="row">
+    <div class="col-12">
+        <form class="input-group" [formGroup]="createForm">
+            <input type="text" [maxlength]="maxLength" formControlName="name" class="form-control" [placeholder]="inputPlaceholder">
+            <div class="input-group-append">
+                <button mat-flat-button [disabled]="createForm.invalid || createIndicator" (click)="create()" class="btn green-button" type="submit">{{ buttonText }}</button>
+            </div>
+        </form>
+    </div>
+    <div class="spinner-mb" *ngIf="createIndicator">
+        <mat-progress-spinner [diameter]="30" mode="indeterminate" class="spinner"></mat-progress-spinner>
+        <p class="line-height">{{ progressSpinnerText }}</p>
+    </div>
+</div>
