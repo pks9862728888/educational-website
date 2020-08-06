@@ -61,17 +61,21 @@
                 <hr class="invite-top-separator" />
                 <div class="row invite-body">
                     <div class="col-12 margin-bottom-05">
-                        <h3 *ngIf="!mq.matches">Class Incharges:</h3>
-                        <p *ngIf="mq.matches">Class Incharges:</p>
+                        <h3 *ngIf="!mq.matches">Class Incharges: <span *ngIf="!classHasIncharge(class.class_incharges)">Not assigned.</span></h3>
+                        <p *ngIf="mq.matches">Class Incharges: <span *ngIf="!classHasIncharge(class.class_incharges)">Not assigned.</span></p>
                     </div>
-                    <div class="col-12">
-                        <div class="d-flex justify-content-between">
+                    <div class="col-12" *ngIf="classHasIncharge(class.class_incharges)">
+                        <div class="d-flex justify-content-between" *ngFor="let incharge of class.class_incharges; let i=index">
                             <div>
-                                <h3 *ngIf="!mq.matches">1. Deepak Bharman</h3>
-                                <p *ngIf="mq.matches">1. Deepak Bharman</p>
+                                <h3 *ngIf="!mq.matches">
+                                    {{ i + 1 }}. <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span><span *ngIf="incharge.name == ' '">{{ incharge.email }}</span>
+                                </h3>
+                                <p *ngIf="mq.matches">
+                                    {{ i + 1 }}. <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span><span *ngIf="incharge.name == ' '">{{ incharge.email }}</span>
+                                </p>
                             </div>
                             <div>
-                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'">message</mat-icon>
+                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="!userIsSelf(incharge.id)">message</mat-icon>
                                 <mat-icon class="incharge-icon green-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
                             </div>
                         </div>

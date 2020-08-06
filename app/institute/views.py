@@ -1191,8 +1191,9 @@ class CreateClassView(CreateAPIView):
             serializer_.save()
             ins_stat.class_count += 1
             ins_stat.save()
-            serializer_.data['class_incharges'] = []
-            return Response(serializer_.data, status=status.HTTP_201_CREATED)
+            response = serializer_.data
+            response['class_incharges'] = list()
+            return Response(response, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer_.errors, status=status.HTTP_400_BAD_REQUEST)
 

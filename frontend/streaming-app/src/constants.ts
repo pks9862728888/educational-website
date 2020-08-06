@@ -1,6 +1,9 @@
 export const authTokenName = 'auth-token-edu-website';
 export const UNLIMITED = 99999;
 
+// For user
+export const userId = 'user_id';
+
 // For institutes
 export const currentInstituteRole = 'currentInstituteRole';
 export const currentInstituteSlug = 'currentInstituteSlug';

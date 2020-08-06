@@ -1,8 +1,8 @@
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ClassDetailsResponse } from './../../models/class.model';
-import { currentInstituteSlug, currentClassSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE, hasClassPerm } from './../../../constants';
+import { ClassDetailsResponse, ClassInchargeDetails } from './../../models/class.model';
+import { currentInstituteSlug, currentClassSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE, hasClassPerm, userId } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -87,6 +87,7 @@ export class ClassComponent implements OnInit {
       this.createClassForm.disable();
       this.instituteApiService.createInstituteClass(this.currentInstituteSlug, this.createClassForm.value.name).subscribe(
         (result: ClassDetailsResponse) => {
+          console.log(result);
           this.createClassIndicator = false;
           this.successText = 'Class created successfully!';
           this.createClassForm.enable();
@@ -187,6 +188,22 @@ export class ClassComponent implements OnInit {
   unsubscribeDialogData() {
     if (this.subscribedDialogData) {
       this.subscribedDialogData.unsubscribe();
+    }
+  }
+
+  classHasIncharge(inchargeList: ClassInchargeDetails[]) {
+    if (inchargeList.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  userIsSelf(id: number) {
+    if (sessionStorage.getItem(userId) === id.toString()) {
+      return true;
+    } else {
+      return false;
     }
   }
 }
