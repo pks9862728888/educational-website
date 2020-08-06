@@ -1191,6 +1191,7 @@ class CreateClassView(CreateAPIView):
             serializer_.save()
             ins_stat.class_count += 1
             ins_stat.save()
+            serializer_.data['class_incharges'] = []
             return Response(serializer_.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer_.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -1283,10 +1284,28 @@ class ListAllClassView(APIView):
                 class_slug=data.class_slug).first()
             if perm and perm.role == models.InstituteRole.ADMIN or\
                     models.InstituteClassPermission.objects.filter(
-                        invitee=self.request.user, to=class_ ).exists():
+                        invitee=self.request.user, to=class_).exists():
                 class_details['has_class_perm'] = True
             else:
                 class_details['has_class_perm'] = False
+
+            class_incharges = list()
+            incharges = models.InstituteClassPermission.objects.filter(
+                to=class_
+            ).order_by('created_on')
+
+            for incharge in incharges:
+                incharge_details = dict()
+                incharge_details['id'] = incharge.invitee.pk
+                incharge_details['email'] = str(incharge.invitee)
+                invitee = get_user_model().objects.filter(pk=incharge.invitee.pk).first()
+                invitee = models.UserProfile.objects.filter(
+                    user=invitee
+                ).first()
+                incharge_details['name'] = invitee.first_name + ' ' + invitee.last_name
+                class_incharges.append(incharge_details)
+
+            class_details['class_incharges'] = class_incharges
             response.append(class_details)
 
         return Response(response, status=status.HTTP_200_OK)
@@ -1520,7 +1539,8 @@ class CreateSubjectView(APIView):
                 'id': subject.id,
                 'name': subject.name,
                 'type': subject.type,
-                'created_on': subject.created_on
+                'created_on': subject.created_on,
+                'subject_incharges': []
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({'error': _('Subject with same name exists.')},
@@ -1575,7 +1595,7 @@ class ListAllSubjectView(APIView):
                 if models.InstituteSubjectPermission.objects.filter(
                     to=institute_subject,
                     invitee=self.request.user
-                ).first():
+                ).exists():
                     subject_details['has_subject_perm'] = True
                 else:
                     subject_details['has_subject_perm'] = False
@@ -1588,8 +1608,10 @@ class ListAllSubjectView(APIView):
                 incharge_details = dict()
                 incharge_details['id'] = perm.invitee.pk
                 incharge_details['email'] = str(perm.invitee)
+                invitee = get_user_model().objects.filter(
+                    pk=perm.invitee.pk).first()
                 invitee = models.UserProfile.objects.filter(
-                    user=get_user_model().objects.filter(pk=perm.invitee.pk).first()).first()
+                    user=invitee).first()
                 incharge_details['name'] = invitee.first_name + ' ' + invitee.last_name
                 subject_incharges.append(incharge_details)
 
@@ -1780,7 +1802,8 @@ class CreateSectionView(APIView):
             return Response({
                 'name': section.name,
                 'section_slug': section.section_slug,
-                'created_on': section.created_on
+                'created_on': section.created_on,
+                'section_incharges': []
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
             return Response({'error': _('Section with same name exists.')},
@@ -1899,18 +1922,35 @@ class ListAllSectionView(APIView):
             section_details['name'] = section.name
             section_details['section_slug'] = section.section_slug
             section_details['created_on'] = section.created_on
+            sec = models.InstituteSection.objects.filter(
+                section_slug=section.section_slug).first()
+
             if perm and perm.role == models.InstituteRole.ADMIN:
                 section_details['has_section_perm'] = True
             else:
-                sec = models.InstituteSection.objects.filter(
-                    section_slug=section.section_slug).first()
                 if models.InstituteSectionPermission.objects.filter(
                     to=sec,
                     invitee=self.request.user
-                ).first():
+                ).exists():
                     section_details['has_section_perm'] = True
                 else:
                     section_details['has_section_perm'] = False
+
+            section_incharges = list()
+            invites = models.InstituteSectionPermission.objects.filter(
+                to=sec
+            )
+
+            for invite in invites:
+                incharge_details = dict()
+                invitee = get_user_model().objects.filter(pk=invite.invitee.pk).first()
+                invitee = models.UserProfile.objects.filter(user=invitee).first()
+                incharge_details['id'] = invite.invitee.pk
+                incharge_details['email'] = str(invite.invitee)
+                incharge_details['name'] = invitee.first_name + ' ' + invitee.last_name
+                section_incharges.append(incharge_details)
+
+            section_details['section_incharges'] = section_incharges
             response.append(section_details)
         return Response(response, status=status.HTTP_200_OK)
 

@@ -71,10 +71,10 @@
                         <p *ngIf="mq.matches">{{ getSubjectType(subject.type) | titlecase }} Subject</p>
                     </div>
                     <div class="col-12 margin-bottom-05">
-                        <h3 *ngIf="!mq.matches">Subject Incharges:</h3>
-                        <p *ngIf="mq.matches">Subject Incharges:</p>
+                        <h3 *ngIf="!mq.matches">Instructors: <span *ngIf="!hasSubjectIncharge(subject.subject_incharges)">Not assigned.</span></h3>
+                        <p *ngIf="mq.matches">Instructors: <span *ngIf="!hasSubjectIncharge(subject.subject_incharges)">Not assigned.</span></p>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12" *ngIf="hasSubjectIncharge(subject.subject_incharges)">
                         <div class="d-flex justify-content-between">
                             <div>
                                 <h3 *ngIf="!mq.matches">1. Deepak Bharman</h3>

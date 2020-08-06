@@ -206,4 +206,12 @@ export class ClassSubjectsComponent implements OnInit {
   getSubjectType(key: string) {
     return SUBJECT_TYPE[key];
   }
+
+  hasSubjectIncharge(list_: any) {
+    if (list_.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
