@@ -49,12 +49,12 @@
             <p *ngIf="mq.matches">No classes created yet.</p>
         </div>
         <mat-accordion *ngIf="!showLoadingIndicator && !showReloadError && !isClassesListEmpty()">
-            <mat-expansion-panel class="text-color" *ngFor="let class of this.classList" [expanded]="this.classStep === class.id" (opened)="setClassStep(class.id)">
+            <mat-expansion-panel class="text-color" *ngFor="let class of classList" [expanded]="classStep === class.id" (opened)="setClassStep(class.id)">
                 <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
                     <mat-panel-title>
-                        <div class="col-sm-8 col-md-6 col-lg-4">
-                            <h3 class="text-color" *ngIf="!this.mq.matches">{{ class.name | titlecase}}</h3>
-                            <p class="text-color" *ngIf="this.mq.matches">{{ class.name | titlecase}}</p>
+                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                            <h3 *ngIf="!mq.matches">{{ class.name | titlecase}}</h3>
+                            <p *ngIf="mq.matches">{{ class.name | titlecase}}</p>
                         </div>
                     </mat-panel-title>
                 </mat-expansion-panel-header>

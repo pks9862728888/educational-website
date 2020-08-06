@@ -90,16 +90,16 @@ p {
 }
 
 ::ng-deep .mat-expansion-indicator::after {
-    color: #c5c5c5;
-}
-
-h3,
-p {
-    color: #bdbdbd;
+    color: #f2aa4cff;
 }
 
 p {
     font-size: 13px;
+}
+
+.invite-details p,
+.invite-details .col h3 {
+    color: #bdbdbd;
 }
 
 .invite-top-separator,

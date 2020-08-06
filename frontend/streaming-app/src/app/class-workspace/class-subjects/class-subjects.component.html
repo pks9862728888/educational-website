@@ -24,13 +24,13 @@
         </div>
         <hr class="top-separator" />
         <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
-        <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getSubjectList()"></app-ui-reload>
         <div class="margin-bottom-1" *ngIf="errorText">
             <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
         </div>
         <div class="margin-bottom-1" *ngIf="successText">
             <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
         </div>
+        <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getSubjectList()"></app-ui-reload>
         <section *ngIf="mq.matches && showCreateSubjectFormMb && hasClassPerm" class="margin-bottom-1">
             <form class="form-group" [formGroup]="createSubjectForm">
                 <div class="row">
@@ -58,14 +58,18 @@
             <mat-expansion-panel class="text-color" *ngFor="let subject of subjectList" [expanded]="subjectStep === subject.id" (opened)="setSubjectStep(subject.id)">
                 <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
                     <mat-panel-title>
-                        <div class="col-sm-8 col-md-6 col-lg-4">
-                            <h3 class="text-color" *ngIf="!mq.matches">{{ subject.name | titlecase}}</h3>
-                            <p class="text-color" *ngIf="mq.matches">{{ subject.name | titlecase}}</p>
+                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                            <h3 *ngIf="!mq.matches">{{ subject.name | titlecase}}</h3>
+                            <p *ngIf="mq.matches">{{ subject.name | titlecase}}</p>
                         </div>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <hr class="invite-top-separator" />
                 <div class="row invite-body">
+                    <div class="col-12 margin-bottom-05">
+                        <h4 *ngIf="!mq.matches">{{ getSubjectType(subject.type) | titlecase }} Subject</h4>
+                        <p *ngIf="mq.matches">{{ getSubjectType(subject.type) | titlecase }} Subject</p>
+                    </div>
                     <div class="col-12 margin-bottom-05">
                         <h3 *ngIf="!mq.matches">Subject Incharges:</h3>
                         <p *ngIf="mq.matches">Subject Incharges:</p>

@@ -59,6 +59,10 @@ button.active:focus {
     background-color: #d60000;
 }
 
+.expansion-panel-header-color {
+    color: #f2aa4cff;
+}
+
 
 /* Message color globally */
 

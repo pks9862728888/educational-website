@@ -33,12 +33,12 @@
                             <img *ngIf="!incharge.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of class incharge">
                             <img *ngIf="incharge.image" [src]="incharge.image" class="profile-pic" alt="Profile picture of class incharge">
                         </div>
-                        <div class="col-sm-8 col-md-6 col-lg-4">
-                            <h3 class="line-height-center" *ngIf="! mq.matches">
+                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                            <h3 class="line-height-center" *ngIf="!mq.matches">
                                 <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
                                 <span *ngIf="incharge.name == ' '">{{ incharge.email | lowercase }}</span>
                             </h3>
-                            <h4 class="invitee-name-mb" *ngIf=" mq.matches">
+                            <h4 class="invitee-name-mb" *ngIf="mq.matches">
                                 <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
                                 <span *ngIf="incharge.name == ' '">{{ incharge.email | lowercase }}</span>
                             </h4>
@@ -46,7 +46,7 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <hr class="invite-top-separator" />
-                <div class="row invite-body">
+                <div class="row invite-body text-color">
                     <div class="col-12 ">
                         <div class="row invite-details ">
                             <div class="col ">

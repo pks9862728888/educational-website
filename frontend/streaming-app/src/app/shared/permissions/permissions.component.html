@@ -7,13 +7,13 @@
             <ng-template matTabContent>
                 <div class="tab-content">
                     <section class="row padding-bottom-07" *ngIf="this.currentInstituteRole === 'A'">
-                        <div class="col-12 text-center error-text" *ngIf="this.inviteError">
+                        <div class="col-12text-center error-text" *ngIf="this.inviteError">
                             <h3>{{ this.inviteError }}</h3>
                         </div>
-                        <div class="col-12 text-center success-text" *ngIf="this.invitedSuccessfully">
+                        <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
                             <h3>{{ this.invitedSuccessfully }}</h3>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4">
+                        <div class="col-12col-sm-6 col-md-4">
                             <form [formGroup]="this.newInviteForm" class="input-group">
                                 <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
                                 <div class="input-group-append">
@@ -33,73 +33,73 @@
                                             <img *ngIf="!admin.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
                                             <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
                                         </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ admin.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ admin.email }}</p>
+                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ admin.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ admin.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">admin</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">active</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mq.matches ">
+                                <div class="row invite-body" *ngIf="mq.matches ">
                                     <div class="col-12">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Role:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>Admin</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Active Admin:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>True</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Invited By:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p *ngIf="admin.inviter === admin.email">Self</p>
                                                 <p *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Member since:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ admin.request_accepted_on | date }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row  invite-body" *ngIf="!mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Invited By:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3 *ngIf="admin.inviter === admin.email">Self</h3>
                                                 <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Member since:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ admin.request_accepted_on | date}}</h3>
                                             </div>
                                         </div>
@@ -107,10 +107,10 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mq.matches" class="action-row">
+                                    <div *ngIf="!mq.matches" class="action-row">
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
@@ -128,73 +128,73 @@
                                             <img *ngIf="!admin.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
                                             <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
                                         </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ admin.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ admin.email }}</p>
+                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ admin.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ admin.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">admin</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">inactive</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row invite-body" *ngIf="mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Role:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>Admin</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Active Admin:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>False</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Invited By:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p *ngIf="admin.inviter === admin.email">Self</p>
                                                 <p *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Invited on:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ admin.requested_on | date }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row  invite-body" *ngIf="!mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Invited by:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3 *ngIf="admin.inviter === admin.email">Self</h3>
                                                 <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Invited on:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ admin.requested_on | date }}</h3>
                                             </div>
                                         </div>
@@ -202,11 +202,11 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mq.matches" class="action-row">
+                                    <div *ngIf="!mq.matches" class="action-row">
                                         <button mat-button *ngIf="this.currentInstituteRole === 'A'" class="red-button margin-right-1">Cancel Invitation</button>
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
                                         <mat-icon *ngIf="this.currentInstituteRole === 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
@@ -224,13 +224,13 @@
             <ng-template matTabContent>
                 <div class="tab-content">
                     <section class="row padding-bottom-07" *ngIf="this.currentInstituteRole !== 'F'">
-                        <div class="col-12 text-center error-text" *ngIf="this.inviteError">
+                        <div class="col-12text-center error-text" *ngIf="this.inviteError">
                             <h3>{{ this.inviteError }}</h3>
                         </div>
-                        <div class="col-12 text-center success-text" *ngIf="this.invitedSuccessfully">
+                        <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
                             <h3>{{ this.invitedSuccessfully }}</h3>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4 input-group">
+                        <div class="col-12col-sm-6 col-md-4 input-group">
                             <form [formGroup]="this.newInviteForm" class="input-group">
                                 <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
                                 <div class="input-group-append">
@@ -250,71 +250,71 @@
                                             <img *ngIf="!staff.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of active staff">
                                             <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of active staff">
                                         </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ staff.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ staff.email }}</p>
+                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ staff.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ staff.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">staff</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">active</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mq.matches ">
+                                <div class="row invite-body" *ngIf="mq.matches ">
                                     <div class="col-12">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Role:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>Staff</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Active Staff:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>True</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Invited By:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ staff.inviter }}</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Member since:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ staff.request_accepted_on | date }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row  invite-body" *ngIf="!mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Invited By:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ staff.inviter }}</h3>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Member since:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ staff.request_accepted_on | date}}</h3>
                                             </div>
                                         </div>
@@ -322,10 +322,10 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mq.matches" class="action-row">
+                                    <div *ngIf="!mq.matches" class="action-row">
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
@@ -344,70 +344,70 @@
                                             <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of inactive staff">
                                         </div>
                                         <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ staff.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ staff.email }}</p>
+                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ staff.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ staff.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">staff</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">inactive</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row invite-body" *ngIf="mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Role:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>Staff</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Active Staff:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>False</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Invited By:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ staff.inviter }}</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Invited on:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ staff.requested_on | date}}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row invite-body" *ngIf="!mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Invited By:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ staff.inviter }}</h3>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Invited on:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ staff.requested_on | date}}</h3>
                                             </div>
                                         </div>
@@ -415,11 +415,11 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mq.matches" class="action-row">
+                                    <div *ngIf="!mq.matches" class="action-row">
                                         <button *ngIf="this.currentInstituteRole !== 'A'" mat-button class="red-button margin-right-1">Cancel Invitation</button>
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
                                         <mat-icon *ngIf="this.currentInstituteRole !== 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
@@ -437,13 +437,13 @@
             <ng-template matTabContent>
                 <div class="tab-content">
                     <div class="row padding-bottom-07" *ngIf="userNotFaculty()">
-                        <div class="col-12 text-center error-text" *ngIf="this.inviteError">
+                        <div class="col-12text-center error-text" *ngIf="this.inviteError">
                             <h3>{{ this.inviteError }}</h3>
                         </div>
-                        <div class="col-12 text-center success-text" *ngIf="this.invitedSuccessfully">
+                        <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
                             <h3>{{ this.invitedSuccessfully }}</h3>
                         </div>
-                        <div class="col-12 col-sm-6 col-md-4 input-group">
+                        <div class="col-12col-sm-6 col-md-4 input-group">
                             <form [formGroup]="this.newInviteForm" class="input-group">
                                 <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
                                 <div class="input-group-append">
@@ -463,71 +463,71 @@
                                             <img *ngIf="!faculty.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of active faculty">
                                             <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of active faculty">
                                         </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ faculty.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ faculty.email }}</p>
+                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ faculty.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ faculty.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">faculty</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">active</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mq.matches ">
+                                <div class="row invite-body" *ngIf="mq.matches ">
                                     <div class="col-12">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Role:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>Faculty</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Active Faculty:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>True</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Invited By:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ faculty.inviter }}</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Member since:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ faculty.request_accepted_on | date}}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row  invite-body" *ngIf="!mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Invited By:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ faculty.inviter }}</h3>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Member since:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ faculty.request_accepted_on }}</h3>
                                             </div>
                                         </div>
@@ -535,10 +535,10 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mq.matches" class="action-row">
+                                    <div *ngIf="!mq.matches" class="action-row">
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>
                                 </div>
@@ -556,71 +556,71 @@
                                             <img *ngIf="!faculty.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of inactive faculty">
                                             <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of inactive faculty">
                                         </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!this.mq.matches">{{ faculty.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="this.mq.matches">{{ faculty.email }}</p>
+                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ faculty.email }}</h3>
+                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ faculty.email }}</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">faculty</h3>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!this.mq.matches">
+                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
                                             <h3 class="line-height-center">inactive</h3>
                                         </div>
                                     </mat-panel-title>
                                 </mat-expansion-panel-header>
                                 <hr class="invite-top-separator" />
-                                <div class="row invite-body " *ngIf="this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row invite-body" *ngIf="mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Role:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>Faculty</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Active Faculty:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>False</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Invited By:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ faculty.inviter }}</p>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <p>Requested on:</p>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <p>{{ faculty.requested_on | date}}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="row  invite-body " *ngIf="!this.mq.matches ">
-                                    <div class="col-12 ">
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                <div class="row  invite-body" *ngIf="!mq.matches ">
+                                    <div class="col-12">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Invited By:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ faculty.inviter }}</h3>
                                             </div>
                                         </div>
-                                        <div class="row invite-details ">
-                                            <div class="col ">
+                                        <div class="row invite-details">
+                                            <div class="col">
                                                 <h3>Requested on:</h3>
                                             </div>
-                                            <div class="col ">
+                                            <div class="col">
                                                 <h3>{{ faculty.requested_on | date }}</h3>
                                             </div>
                                         </div>
@@ -628,11 +628,11 @@
                                 </div>
                                 <hr class="invite-bottom-separator" />
                                 <div class="col">
-                                    <div *ngIf="!this.mq.matches" class="action-row">
+                                    <div *ngIf="!mq.matches" class="action-row">
                                         <button *ngIf="this.currentInstituteRole === 'A'" mat-button class="red-button margin-right-1">Cancel Invitation</button>
                                         <button mat-button class="green-button">Send Message</button>
                                     </div>
-                                    <div *ngIf="this.mq.matches" class="d-flex justify-content-end">
+                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
                                         <mat-icon *ngIf="this.currentInstituteRole === 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
                                         <mat-icon class="line-height-center yellow-color">email</mat-icon>
                                     </div>

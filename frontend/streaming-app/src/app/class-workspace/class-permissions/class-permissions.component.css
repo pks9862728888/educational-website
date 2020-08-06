@@ -62,11 +62,9 @@ p {
 }
 
 ::ng-deep .mat-expansion-indicator::after {
-    color: #c5c5c5;
+    color: #f2aa4cff;
 }
 
-h3,
-h4,
 p {
     color: #bdbdbd;
 }

@@ -1,4 +1,4 @@
-import { currentClassSlug, SUBJECT_TYPE_REVERSE, hasSubjectPerm, hasClassPerm } from './../../../constants';
+import { currentClassSlug, SUBJECT_TYPE_REVERSE, hasSubjectPerm, hasClassPerm, SUBJECT_TYPE } from './../../../constants';
 import { InstituteSubjectDetails } from './../../models/subject.model';
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -101,10 +101,14 @@ export class ClassSubjectsComponent implements OnInit {
         ).subscribe(
         (result: InstituteSubjectDetails) => {
           this.createSubjectIndicator = false;
+          this.showReloadError = false;
           this.successText = 'Subject created successfully!';
           this.createSubjectForm.enable();
           this.createSubjectForm.reset();
           this.showCreateSubjectFormMb = false;
+          if (!this.subjectList) {
+            this.subjectList = [];
+          }
           this.subjectList.push(result);
         },
         errors => {
@@ -197,5 +201,9 @@ export class ClassSubjectsComponent implements OnInit {
     if (this.subscribedDialogData) {
       this.subscribedDialogData.unsubscribe();
     }
+  }
+
+  getSubjectType(key: string) {
+    return SUBJECT_TYPE[key];
   }
 }
