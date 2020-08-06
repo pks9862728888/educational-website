@@ -233,3 +233,13 @@ export const PAYMENT_PORTAL = {
 export const PAYMENT_PORTAL_REVERSE = {
   RAZORPAY: 'R'
 };
+
+export const SUBJECT_TYPE = {
+  M: 'MANDATORY',
+  O: 'OPTIONAL'
+}
+
+export const SUBJECT_TYPE_REVERSE = {
+  MANDATORY: 'M',
+  OPTIONAL: 'O'
+}

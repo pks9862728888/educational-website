@@ -13,6 +13,7 @@ import { ClassPermittedUserDetails } from 'src/app/models/class.model';
 export class ClassPermissionsComponent implements OnInit {
 
   mq: MediaQueryList;
+  userId: string;
   hasClassPerm: boolean;
   activeInchargeStep: number;
   currentInstituteSlug: string;
@@ -37,6 +38,7 @@ export class ClassPermissionsComponent implements OnInit {
     private instituteApiService: InstituteApiService,
     private formBuilder: FormBuilder ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
+    this.userId = sessionStorage.getItem('user_id');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentInstituteRole = sessionStorage.getItem(currentInstituteRole);
     this.currentClassSlug = sessionStorage.getItem(currentClassSlug);
@@ -49,9 +51,6 @@ export class ClassPermissionsComponent implements OnInit {
 
   ngOnInit(): void {
     this.getInchargeList();
-    this.newInviteForm = this.formBuilder.group({
-      invitee: [null, [Validators.required, Validators.email]]
-    });
   }
 
   getInchargeList() {
@@ -136,5 +135,13 @@ export class ClassPermissionsComponent implements OnInit {
 
   closeSuccessText() {
     this.successText = null;
+  }
+
+  userNotSelf(invitee_id: number) {
+    if (invitee_id.toString() !== this.userId) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

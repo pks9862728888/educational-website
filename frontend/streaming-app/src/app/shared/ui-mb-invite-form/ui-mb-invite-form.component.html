@@ -1,0 +1,14 @@
+<div class="row">
+    <div class="col-12">
+        <form class="input-group" [formGroup]="newInviteForm">
+            <input type="email" formControlName="invitee" class="form-control" [placeholder]="inputPlaceholder">
+            <div class="input-group-append">
+                <button mat-flat-button [disabled]="newInviteForm.invalid || createInviteIndicator" (click)="invite()" class="btn green-button" type="submit">{{ buttonText }}</button>
+            </div>
+        </form>
+    </div>
+    <div class="create-invite-spinner-mb" *ngIf="createInviteIndicator">
+        <mat-progress-spinner [diameter]="30" mode="indeterminate" class="create-invite-spinner"></mat-progress-spinner>
+        <p class="line-height">{{ progressSpinnerText }}</p>
+    </div>
+</div>

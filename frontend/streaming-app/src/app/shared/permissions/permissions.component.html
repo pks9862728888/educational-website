@@ -239,8 +239,8 @@
                             </form>
                         </div>
                     </section>
-                    <hr class="top-separator" />
-                    <section class="padding-top-07">
+                    <hr class="top-separator" *ngIf="userNotFaculty()" />
+                    <section [ngClass]="{'padding-top-07': userNotFaculty()}">
                         <h3>Staffs:</h3>
                         <mat-accordion *ngIf="!isActiveStaffListEmpty()">
                             <mat-expansion-panel *ngFor="let staff of this.activeStaffList" [expanded]="this.activeStaffStep === staff.invitation_id" (opened)="setActiveStaffPanelStep(staff.invitation_id)">
@@ -436,7 +436,7 @@
             </ng-template>
             <ng-template matTabContent>
                 <div class="tab-content">
-                    <div class="row padding-bottom-07">
+                    <div class="row padding-bottom-07" *ngIf="userNotFaculty()">
                         <div class="col-12 text-center error-text" *ngIf="this.inviteError">
                             <h3>{{ this.inviteError }}</h3>
                         </div>
@@ -452,8 +452,8 @@
                             </form>
                         </div>
                     </div>
-                    <hr class="top-separator" />
-                    <section class="padding-top-07">
+                    <hr class="top-separator" *ngIf="userNotFaculty()" />
+                    <section [ngClass]="{'padding-top-07': userNotFaculty()}">
                         <h3>Faculties:</h3>
                         <mat-accordion *ngIf="!isActiveFacultyListEmpty()">
                             <mat-expansion-panel *ngFor="let faculty of this.activeFacultyList" [expanded]="this.activeFacultyStep === faculty.invitation_id" (opened)="setActiveFacultyPanelStep(faculty.invitation_id)">

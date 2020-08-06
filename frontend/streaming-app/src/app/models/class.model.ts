@@ -10,6 +10,7 @@ export interface ClassPermittedUserDetails {
   'id': number;
   'name': string;
   'email': string;
+  'invitee_id': number;
   'inviter_name': string;
   'inviter_email': string;
   'created_on': string;

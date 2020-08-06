@@ -79,16 +79,18 @@
                 <hr class="invite-bottom-separator" />
                 <div class="col">
                     <div *ngIf="!mq.matches" class="action-row">
-                        <div class="margin-right-1" *ngIf="hasClassPerm">
+                        <div [ngClass]="{'margin-right-1': userNotSelf(incharge.invitee_id)}" *ngIf="hasClassPerm">
                             <button mat-button class="red-button">Remove</button>
                         </div>
-                        <button mat-button class="green-button">Send Message</button>
+                        <button mat-button class="green-button" *ngIf="userNotSelf(incharge.invitee_id)">Send Message</button>
                     </div>
                     <div *ngIf="mq.matches" class="d-flex justify-content-end">
-                        <div class="margin-right-1" *ngIf="hasClassPerm">
+                        <div [ngClass]="{'margin-right-1': userNotSelf(incharge.invitee_id)}" *ngIf="hasClassPerm || !userNotSelf(incharge.invitee_id)">
                             <mat-icon class="line-height-center red-color">delete</mat-icon>
                         </div>
-                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                        <div *ngIf="userNotSelf(incharge.invitee_id)">
+                            <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                        </div>
                     </div>
                 </div>
             </mat-expansion-panel>

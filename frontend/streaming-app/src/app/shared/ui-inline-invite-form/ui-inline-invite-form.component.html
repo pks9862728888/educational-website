@@ -1,0 +1,12 @@
+<form class="form-inline" *ngIf="!mq.matches" [formGroup]="newInviteForm">
+    <div class="form-group mx-sm-3 mb-2">
+        <label for="invitee" class="sr-only">{{ inputPlaceholder }}</label>
+        <input type="email" formControlName="invitee" class="form-control" id="invitee" [placeholder]="inputPlaceholder" required/>
+    </div>
+    <button type="submit" *ngIf="!createInviteIndicator" [disabled]="newInviteForm.invalid" mat-flat-button class="green-button mb-2" (click)="invite()">{{ buttonText }}</button>
+    <mat-progress-spinner *ngIf="createInviteIndicator" [diameter]="30" mode="indeterminate" class="create-invite-spinner"></mat-progress-spinner>
+</form>
+<mat-icon *ngIf="mq.matches && hasPerm" [ngClass]="{'add-class': mq.matches}">
+    <span *ngIf="!showInviteFormMb" (click)="showInviteFormMobile_()">add_box</span>
+    <span *ngIf="showInviteFormMb" (click)="hideInviteFormMobile_()">clear</span>
+</mat-icon>

@@ -94,6 +94,14 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${classSlug}/list-class-incharges`;
   }
 
+  createSubjectUrl(subjectSlug: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/create-subject`;
+  }
+
+  getInstituteSubjectListUrl(classSlug: string) {
+    return `${this.instituteBaseUrl}${classSlug}/list-all-subject`;
+  }
+
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
 
@@ -261,6 +269,25 @@ export class InstituteApiService {
       { 'invitee': invitee, 'class_slug': classSlug },
       { headers: this.getAuthHeader() }
     );
+  }
+
+  // To get subject list
+  createSubject(classSlug: string, name: string, type: string) {
+    return this.httpClient.post(
+      this.createSubjectUrl(classSlug),
+      {
+        'name': name,
+        'type': type
+      },
+      { headers: this.getAuthHeader() }
+    )
+  }
+
+  getSubjectList(classSlug: string) {
+    return this.httpClient.get(
+      this.getInstituteSubjectListUrl(classSlug),
+      { headers: this.getAuthHeader() }
+    )
   }
 
   // To load token from storage

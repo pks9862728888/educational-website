@@ -1,0 +1,32 @@
+.add-class {
+    color: #f2aa4cff;
+}
+
+.green-button:disabled,
+.green-button:disabled:hover {
+    color: #fff;
+    background-color: #008000;
+    opacity: 0.6;
+}
+
+::ng-deep.mat-progress-spinner circle,
+.mat-spinner circle {
+    stroke: #f2aa4cff !important;
+}
+
+.form-control {
+    background-color: #3b3b3b;
+    color: #bdbdbd;
+    border-color: #6c757d;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: none;
+    outline: none;
+}
+
+.create-invite-spinner {
+    margin-bottom: 0.5rem;
+    margin-right: 1rem;
+}
