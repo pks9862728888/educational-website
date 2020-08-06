@@ -26,10 +26,11 @@ p {
     color: #f2aa4cff;
 }
 
-.green-button:disabled {
+.green-button:disabled,
+.green-button:disabled:hover {
     color: #fff;
     background-color: #008000;
-    opacity: 0.7;
+    opacity: 0.6;
 }
 
 .header-text {

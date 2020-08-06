@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
+import { ClassPermittedUserDetails } from 'src/app/models/class.model';
 
 @Component({
   selector: 'app-class-permissions',
@@ -25,7 +26,7 @@ export class ClassPermissionsComponent implements OnInit {
   loadingText = 'Fetching Class Incharge Details...';
   showReloadError: boolean;
   showReloadText = 'Unable to fetch class incharge details!';
-  inchargeList = []
+  inchargeList: ClassPermittedUserDetails[];
 
   constructor(
     private media: MediaMatcher,
@@ -45,17 +46,57 @@ export class ClassPermissionsComponent implements OnInit {
   }
 
   getInchargeList() {
-
+    this.showLoadingIndicator = true;
+    this.showReloadError = false;
+    this.errorText = null;
+    this.successText = null;
+    this.instituteApiService.getClassInchargeList(this.currentClassSlug).subscribe(
+      (result: ClassPermittedUserDetails[]) => {
+        this.showLoadingIndicator = false;
+        this.inchargeList = result;
+      },
+      errors => {
+        this.showLoadingIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.errorText = errors.error.error;
+          } else {
+            this.showReloadError = true;
+          }
+        } else {
+          this.showReloadError = true;
+        }
+      }
+    )
   }
 
   invite() {
     this.errorText = null;
     this.successText = null;
-    const payload = {
-      "invitee": this.newInviteForm.value.invitee,
-      "class_slug": 'sdf'
-    };
-    alert('invite clicked');
+    this.createInviteIndicator = true;
+    this.instituteApiService.addClassIncharge(this.newInviteForm.value.invitee,
+                                              this.currentClassSlug).subscribe(
+        (result: ClassPermittedUserDetails) => {
+          this.createInviteIndicator = false;
+          if (!this.inchargeList) {
+            this.inchargeList = [];
+          }
+          this.inchargeList.push(result);
+          this.successText = 'User invited successfully.';
+        },
+        errors => {
+          this.createInviteIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.errorText = errors.error.error;
+            } else {
+              this.errorText = 'Unknown error occured.';
+            }
+          } else {
+            this.errorText = 'Unknown error occured.';
+          }
+        }
+    );
   }
 
   // For handling mat expansion panel
@@ -64,7 +105,11 @@ export class ClassPermissionsComponent implements OnInit {
   }
 
   hasClassIncharge() {
-    return this.inchargeList.length > 0;
+    if (this.inchargeList) {
+      return this.inchargeList.length > 0;
+    } else {
+      return false;
+    }
   }
 
   showInviteFormMobile() {

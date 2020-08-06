@@ -1362,8 +1362,11 @@ class ProvideClassPermissionView(CreateAPIView):
                 'inviter_name': inviter.first_name + ' ' + inviter.last_name,
                 'inviter_email': str(inviter),
                 'created_on': str(perm.created_on),
-                'profile_pic': None
+                'image': None
             }, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({'error': _('User is already class incharge.')},
+                            status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

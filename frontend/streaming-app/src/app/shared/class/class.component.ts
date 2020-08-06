@@ -2,11 +2,12 @@ import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClassDetailsResponse } from './../../models/class.model';
-import { currentInstituteSlug, currentClassSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE } from './../../../constants';
+import { currentInstituteSlug, currentClassSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE, hasClassPerm } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { UiService } from 'src/app/services/ui.service';
+
 
 @Component({
   selector: 'app-class',
@@ -110,8 +111,13 @@ export class ClassComponent implements OnInit {
     }
   }
 
-  openClass(classSlug: string) {
+  openClass(classSlug: string, hasClassPerm_: boolean) {
     sessionStorage.setItem(currentClassSlug, classSlug);
+    if (hasClassPerm_) {
+      sessionStorage.setItem(hasClassPerm, 'true');
+    } else {
+      sessionStorage.setItem(hasClassPerm, 'false');
+    }
     this.router.navigate(['class-workspace/' + classSlug.slice(0, -10) + '/profile']);
   }
 

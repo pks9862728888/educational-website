@@ -6,6 +6,8 @@ export const currentInstituteRole = 'currentInstituteRole';
 export const currentInstituteSlug = 'currentInstituteSlug';
 export const currentInstituteType = 'currentInstituteType';
 export const currentClassSlug = 'currentClassSlug';
+export const hasClassPerm = 'hasClassPerm';
+export const hasSubjectPerm = 'hasSubjectPerm';
 
 // For license
 export const selectedLicenseId = 'selectedLicenseId';

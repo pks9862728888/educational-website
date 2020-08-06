@@ -81,7 +81,7 @@
                 <div class="col">
                     <div class="action-row">
                         <button mat-raised-button class="red-button margin-right-1" *ngIf="userIsAdmin()" (click)="deleteClassClicked(class)">Delete</button>
-                        <button mat-flat-button class="green-button" (click)="openClass(class.class_slug)">Open</button>
+                        <button mat-flat-button class="green-button" (click)="openClass(class.class_slug, class.has_class_perm)">Open</button>
                     </div>
                 </div>
             </mat-expansion-panel>

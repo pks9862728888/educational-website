@@ -51,6 +51,9 @@ export class InstituteApiService {
   createLicensePurchaseOrderUrl = `${this.instituteBaseUrl}create-order`;
   razorpayCallbackUrl = `${this.instituteBaseUrl}razorpay-payment-callback`;
 
+  // Institute class related urls
+  addClassPermissionUrl = `${this.instituteBaseUrl}add-class-permission`;
+
   getInstituteDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}detail/${instituteSlug}`;
   }
@@ -85,6 +88,10 @@ export class InstituteApiService {
 
   createDeleteClassUrl(classSlug: string) {
     return `${this.instituteBaseUrl}${classSlug}/delete-class`;
+  }
+
+  getInstituteClassPermissionListUrl(classSlug: string) {
+    return `${this.instituteBaseUrl}${classSlug}/list-class-incharges`;
   }
 
   constructor( private cookieService: CookieService,
@@ -235,6 +242,23 @@ export class InstituteApiService {
   deleteClass(classSlug: string) {
     return this.httpClient.delete(
       this.createDeleteClassUrl(classSlug),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  // To get list of class incharges
+  getClassInchargeList(classSlug: string) {
+    return this.httpClient.get(
+      this.getInstituteClassPermissionListUrl(classSlug),
+      { headers: this.getAuthHeader()}
+    )
+  }
+
+  // To add class incharge
+  addClassIncharge(invitee: string, classSlug: string) {
+    return this.httpClient.post(
+      this.addClassPermissionUrl,
+      { 'invitee': invitee, 'class_slug': classSlug },
       { headers: this.getAuthHeader() }
     );
   }
