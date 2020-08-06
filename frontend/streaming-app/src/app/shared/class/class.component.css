@@ -69,71 +69,28 @@ p {
     margin-bottom: 1rem;
 }
 
-.add-class {
-    color: #f2aa4cff;
-}
-
 .green-button:disabled {
     color: #fff;
     background-color: #008000;
     opacity: 0.7;
 }
 
-.create-button-mb {
-    color: #fff;
-    background-color: #008000;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.create-button-mb:disabled {
-    color: #fff;
-    background-color: #008000;
-    opacity: 0.3;
-}
-
-.invite-top-separator,
-.invite-bottom-separator {
+.top-separator,
+.bottom-separator {
     background-color: #6c757d;
 }
 
-.invite-top-separator {
+.top-separator {
     margin-bottom: 0.5rem;
 }
 
-.invite-bottom-separator {
+.bottom-separator {
     margin-top: 0.5rem;
-}
-
-.form-control {
-    background-color: #3b3b3b;
-    color: #bdbdbd;
-    border-color: #6c757d;
-}
-
-.form-control:focus {
-    box-shadow: none;
-    border-color: none;
-    outline: none;
 }
 
 ::ng-deep.mat-progress-spinner circle,
 .mat-spinner circle {
     stroke: #f2aa4cff !important;
-}
-
-.create-class-spinner {
-    margin-bottom: 0.5rem;
-}
-
-.create-class-spinner-mb {
-    display: flex;
-    margin-top: 1rem;
-    margin-bottom: 0;
-}
-
-.create-class-spinner-mb .create-class-spinner {
-    margin-right: 1rem;
 }
 
 .line-height {

@@ -1,10 +1,9 @@
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClassDetailsResponse, ClassInchargeDetails } from './../../models/class.model';
 import { currentInstituteSlug, currentClassSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE, hasClassPerm, userId } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { UiService } from 'src/app/services/ui.service';
 
@@ -28,25 +27,30 @@ export class ClassComponent implements OnInit {
   successText: string;
   showCreateClassFormMb: boolean;
   createClassIndicator: boolean;
-  createClassForm: FormGroup;
   subscribedDialogData: Subscription;
+  inputPlaceholder = 'Class Name';
+  createButtonText: string;
+  createProgressSpinnerText = 'Creating class...';
+  maxClassNameLength = 40;
+  formEvent = new Subject<string>();
 
   constructor(
     private media: MediaMatcher,
     private instituteApiService: InstituteApiService,
-    private formBuilder: FormBuilder,
     private router: Router,
     private uiService: UiService
     ) {
     this.mq = this.media.matchMedia('(max-width: 768px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
+    if (this.mq.matches) {
+      this.createButtonText = 'Create';
+    } else {
+      this.createButtonText = 'Create Class';
+    }
   }
 
   ngOnInit(): void {
     this.getClassList();
-    this.createClassForm = this.formBuilder.group({
-      name: [null, [Validators.required, Validators.maxLength(40)]]
-    })
   }
 
   getClassList() {
@@ -75,39 +79,33 @@ export class ClassComponent implements OnInit {
     )
   }
 
-  createClass() {
-    this.createClassForm.patchValue({
-      name: this.createClassForm.value.name.trim()
-    })
+  createClass(className: string) {
     this.createClassIndicator = true;
     this.errorText = null;
     this.successText = null;
-    if (this.createClassForm.value.name.length > 0) {
-      this.createClassForm.disable();
-      this.instituteApiService.createInstituteClass(this.currentInstituteSlug, this.createClassForm.value.name).subscribe(
-        (result: ClassDetailsResponse) => {
-          this.createClassIndicator = false;
-          this.successText = 'Class created successfully!';
-          this.createClassForm.enable();
-          this.createClassForm.reset();
-          this.showCreateClassFormMb = false;
-          this.classList.push(result);
-        },
-        errors => {
-          this.createClassIndicator = false;
-          this.createClassForm.enable();
-          if (errors.error) {
-            if (errors.error.error) {
-              this.errorText = errors.error.error;
-            } else {
-              this.errorText = 'Class with same name exists.';
-            }
+    this.formEvent.next('disable');
+    this.instituteApiService.createInstituteClass(this.currentInstituteSlug, className).subscribe(
+      (result: ClassDetailsResponse) => {
+        this.createClassIndicator = false;
+        this.successText = 'Class created successfully!';
+        this.showCreateClassFormMb = false;
+        this.classList.push(result);
+        this.formEvent.next('reset');
+      },
+      errors => {
+        this.createClassIndicator = false;
+        this.formEvent.next('enable');
+        if (errors.error) {
+          if (errors.error.error) {
+            this.errorText = errors.error.error;
           } else {
-            this.errorText = 'Class creation failed.';
+            this.errorText = 'Class with same name exists.';
           }
+        } else {
+          this.errorText = 'Class creation failed.';
         }
-      )
-    }
+      }
+    )
   }
 
   openClass(classSlug: string, hasClassPerm_: boolean) {

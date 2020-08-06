@@ -4,19 +4,9 @@
             <div>
                 <h3 [ngClass]="{'header-text': !mq.matches}">Classes:</h3>
             </div>
-            <div>
-                <form class="form-inline" *ngIf="!mq.matches" [formGroup]="createClassForm">
-                    <div class="form-group mx-sm-3 mb-2">
-                        <label for="name" class="sr-only">Class Name</label>
-                        <input type="text" formControlName="name" class="form-control" id="name" maxlength="40" placeholder="Class Name" required/>
-                    </div>
-                    <button type="submit" *ngIf="!createClassIndicator" [disabled]="createClassForm.invalid" mat-flat-button class="green-button mb-2" (click)="createClass()">Create Class</button>
-                    <mat-progress-spinner *ngIf="createClassIndicator" [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
-                </form>
-                <mat-icon *ngIf="mq.matches" [ngClass]="{'add-class': mq.matches}">
-                    <span *ngIf="!showCreateClassFormMb" (click)="showCreateClassFormMobile()">add_box</span>
-                    <span *ngIf="showCreateClassFormMb" (click)="hideCreateClassFormMobile()">clear</span>
-                </mat-icon>
+            <div *ngIf="userIsAdmin()">
+                <app-ui-inline-create-form [createIndicator]="createClassIndicator" [showFormMb]="showCreateClassFormMb" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [maxLength]="maxClassNameLength" (showFormMobile)="showCreateClassFormMobile()"
+                    (hideFormMobile)="hideCreateClassFormMobile()" (createEvent)="createClass($event)" [formEvent]="formEvent.asObservable()"></app-ui-inline-create-form>
             </div>
         </div>
         <hr class="top-separator" />
@@ -29,20 +19,8 @@
             <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
         </div>
         <section *ngIf="mq.matches && showCreateClassFormMb" class="margin-bottom-1">
-            <div class="row">
-                <div class="col-12">
-                    <form class="input-group" [formGroup]="createClassForm">
-                        <input type="text" formControlName="name" maxlength="40" class="form-control search-color" placeholder="Enter Class Name" aria-label="Create class">
-                        <div class="input-group-append">
-                            <button mat-flat-button [disabled]="createClassForm.invalid || createClassIndicator" (click)="this.createClass()" class="btn create-button-mb" type="submit">Create</button>
-                        </div>
-                    </form>
-                </div>
-                <div class="create-class-spinner-mb" *ngIf="createClassIndicator">
-                    <mat-progress-spinner [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
-                    <p class="line-height">Creating class...</p>
-                </div>
-            </div>
+            <app-ui-mb-create-form [maxLength]="maxClassNameLength" [createIndicator]="createClassIndicator" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [progressSpinnerText]="createProgressSpinnerText" [formEvent]="formEvent.asObservable()"
+                (createEvent)="createClass($event)"></app-ui-mb-create-form>
         </section>
         <div *ngIf="!showLoadingIndicator && !showReloadError && isClassesListEmpty()" class="margin-bottom-05">
             <h3 *ngIf="!mq.matches">No classes created yet.</h3>
@@ -58,7 +36,7 @@
                         </div>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <hr class="invite-top-separator" />
+                <hr class="top-separator" />
                 <div class="row invite-body">
                     <div class="col-12 margin-bottom-05">
                         <h3 *ngIf="!mq.matches">Class Incharges: <span *ngIf="!classHasIncharge(class.class_incharges)">Not assigned.</span></h3>
@@ -81,7 +59,7 @@
                         </div>
                     </div>
                 </div>
-                <hr class="invite-bottom-separator" />
+                <hr class="bottom-separator" />
                 <div class="col">
                     <div class="action-row">
                         <button mat-raised-button class="red-button margin-right-1" *ngIf="userIsAdmin()" (click)="deleteClassClicked(class)">Delete</button>

@@ -1,9 +1,9 @@
 <div class="row">
     <div class="col-12">
-        <form class="input-group" [formGroup]="newInviteForm">
+        <form class="input-group" [formGroup]="inviteForm">
             <input type="email" formControlName="invitee" class="form-control" [placeholder]="inputPlaceholder">
             <div class="input-group-append">
-                <button mat-flat-button [disabled]="newInviteForm.invalid || createInviteIndicator" (click)="invite()" class="btn green-button" type="submit">{{ buttonText }}</button>
+                <button mat-flat-button [disabled]="inviteForm.invalid || createInviteIndicator" (click)="invite()" class="btn green-button" type="submit">{{ buttonText }}</button>
             </div>
         </form>
     </div>

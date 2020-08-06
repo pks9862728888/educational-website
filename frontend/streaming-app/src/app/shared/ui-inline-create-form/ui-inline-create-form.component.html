@@ -1,12 +1,12 @@
-<form class="form-inline" *ngIf="!mq.matches" [formGroup]="newForm">
+<form class="form-inline" *ngIf="!mq.matches" [formGroup]="createForm">
     <div class="form-group mx-sm-3 mb-2">
         <label for="name" class="sr-only">{{ inputPlaceholder }}</label>
         <input type="text" [maxlength]="maxLength" formControlName="name" class="form-control" id="name" [placeholder]="inputPlaceholder" required/>
     </div>
-    <button type="submit" *ngIf="!createIndicator" [disabled]="newForm.invalid" mat-flat-button class="green-button mb-2" (click)="create()">{{ buttonText }}</button>
+    <button type="submit" *ngIf="!createIndicator" [disabled]="createForm.invalid" mat-flat-button class="green-button mb-2" (click)="create()">{{ buttonText }}</button>
     <mat-progress-spinner *ngIf="createIndicator" [diameter]="30" mode="indeterminate" class="spinner"></mat-progress-spinner>
 </form>
-<mat-icon *ngIf="mq.matches && hasPerm" [ngClass]="{'add-class': mq.matches}">
+<mat-icon *ngIf="mq.matches" [ngClass]="{'add-class': mq.matches}">
     <span *ngIf="!showFormMb" (click)="showFormMobile_()">add_box</span>
     <span *ngIf="showFormMb" (click)="hideFormMobile_()">clear</span>
 </mat-icon>

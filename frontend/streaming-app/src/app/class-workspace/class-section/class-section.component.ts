@@ -2,8 +2,7 @@ import { hasSectionPerm, hasClassPerm, userId, currentClassSlug } from './../../
 import { currentSectionSlug } from '../../../constants';
 import { SectionDetailsResponse, SectionInchargeDetails } from './../../models/section.model';
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
@@ -29,18 +28,17 @@ export class ClassSectionComponent implements OnInit {
   successText: string;
   showCreateSectionFormMb: boolean;
   createSectionIndicator: boolean;
-  createSectionForm: FormGroup;
   subscribedDialogData: Subscription;
   inputPlaceholder = 'Section Name';
   createButtonText = 'Create';
   createProgressSpinnerText = 'Creating section...';
   hasClassPerm: boolean;
   maxSectionNameLength = 20;
+  formEvent = new Subject<string>();
 
   constructor(
     private media: MediaMatcher,
     private instituteApiService: InstituteApiService,
-    private formBuilder: FormBuilder,
     private router: Router,
     private uiService: UiService
     ) {
@@ -55,9 +53,6 @@ export class ClassSectionComponent implements OnInit {
 
   ngOnInit(): void {
     this.getSectionList();
-    this.createSectionForm = this.formBuilder.group({
-      name: [null, [Validators.required, Validators.maxLength(40)]]
-    })
   }
 
   getSectionList() {
@@ -88,19 +83,18 @@ export class ClassSectionComponent implements OnInit {
     this.createSectionIndicator = true;
     this.errorText = null;
     this.successText = null;
-    this.createSectionForm.disable();
+    this.formEvent.next('disable');
     this.instituteApiService.createClassSection(this.currentClassSlug, sectionName).subscribe(
       (result: SectionDetailsResponse) => {
         this.createSectionIndicator = false;
         this.successText = 'Section created successfully!';
-        this.createSectionForm.enable();
-        this.createSectionForm.reset();
+        this.formEvent.next('reset');
         this.showCreateSectionFormMb = false;
         this.sectionList.push(result);
       },
       errors => {
         this.createSectionIndicator = false;
-        this.createSectionForm.enable();
+        this.formEvent.next('enable');
         if (errors.error) {
           if (errors.error.error) {
             this.errorText = errors.error.error;

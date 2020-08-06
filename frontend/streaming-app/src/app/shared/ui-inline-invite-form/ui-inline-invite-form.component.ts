@@ -1,6 +1,7 @@
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-ui-inline-invite-form',
@@ -19,6 +20,8 @@ export class UiInlineInviteFormComponent implements OnInit {
   @Output() showInviteFormMobile = new EventEmitter<void>();
   @Output() hideInviteFormMobile = new EventEmitter<void>();
   @Output() inviteeEmail = new EventEmitter<string>();
+  @Input() formEvent: Observable<string>;
+  private formEventSubscription: Subscription;
 
   constructor( private media: MediaMatcher,
                private formBuilder: FormBuilder ) {
@@ -29,6 +32,18 @@ export class UiInlineInviteFormComponent implements OnInit {
     this.inviteForm = this.formBuilder.group({
       invitee: [null, [Validators.required, Validators.email]]
     });
+    this.formEventSubscription = this.formEvent.subscribe(
+      (status: string) => {
+        if (status === 'enable') {
+          this.inviteForm.enable();
+        } else if (status === 'disable') {
+          this.inviteForm.disable();
+        } else if (status === 'reset') {
+          this.inviteForm.reset();
+          this.inviteForm.enable();
+        }
+      }
+    );
   }
 
   invite() {
@@ -43,4 +58,9 @@ export class UiInlineInviteFormComponent implements OnInit {
     this.hideInviteFormMobile.emit();
   }
 
+  ngOnDestroy() {
+    if (this.formEventSubscription) {
+      this.formEventSubscription.unsubscribe();
+    }
+  }
 }

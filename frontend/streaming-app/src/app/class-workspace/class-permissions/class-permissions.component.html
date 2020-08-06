@@ -4,7 +4,7 @@
             <h3 [ngClass]="{'header-text': !mq.matches && hasClassPerm}">Class Incharges:</h3>
         </div>
         <div *ngIf="hasClassPerm">
-            <app-ui-inline-invite-form [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [showInviteFormMb]="showInviteFormMb" [hasPerm]="hasClassPerm" (showInviteFormMobile)="showInviteFormMobile()"
+            <app-ui-inline-invite-form [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [showInviteFormMb]="showInviteFormMb" [hasPerm]="hasClassPerm" [formEvent]="formEvent.asObservable()" (showInviteFormMobile)="showInviteFormMobile()"
                 (hideInviteFormMobile)="hideInviteFormMobile()" (inviteeEmail)="invite($event)"></app-ui-inline-invite-form>
         </div>
     </div>
@@ -18,7 +18,7 @@
     <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
     <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getInchargeList()"></app-ui-reload>
     <div *ngIf="mq.matches && showInviteFormMb && hasClassPerm" class="margin-bottom-1">
-        <app-ui-mb-invite-form [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [progressSpinnerText]="progressSpinnerText" (inviteeEmail)="invite($event)"></app-ui-mb-invite-form>
+        <app-ui-mb-invite-form [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [progressSpinnerText]="progressSpinnerText" [formEvent]="formEvent.asObservable()" (inviteeEmail)="invite($event)"></app-ui-mb-invite-form>
     </div>
     <section>
         <div *ngIf="!showLoadingIndicator && !showReloadError && !hasClassIncharge()" class="margin-bottom-1">

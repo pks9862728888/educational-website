@@ -1,12 +1,13 @@
-import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, Output, OnDestroy } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-ui-mb-create-form',
   templateUrl: './ui-mb-create-form.component.html',
   styleUrls: ['./ui-mb-create-form.component.css']
 })
-export class UiMbCreateFormComponent implements OnInit {
+export class UiMbCreateFormComponent implements OnInit, OnDestroy {
 
   createForm: FormGroup;
   @Input() maxLength: number;
@@ -15,6 +16,8 @@ export class UiMbCreateFormComponent implements OnInit {
   @Input() buttonText: string;
   @Input() progressSpinnerText: string;
   @Output() createEvent = new EventEmitter<string>();
+  @Input() formEvent: Observable<string>;
+  private formEventSubscription: Subscription;
 
   constructor( private formBuilder: FormBuilder ) { }
 
@@ -22,6 +25,18 @@ export class UiMbCreateFormComponent implements OnInit {
     this.createForm = this.formBuilder.group({
       name: [null, [Validators.required, Validators.maxLength(this.maxLength)]]
     });
+    this.formEventSubscription = this.formEvent.subscribe(
+      (status: string) => {
+        if (status === 'disable') {
+          this.createForm.disable();
+        } else if (status === 'enable') {
+          this.createForm.enable();
+        } else if (status === 'reset') {
+          this.createForm.reset();
+          this.createForm.enable();
+        }
+      }
+    );
   }
 
   create() {
@@ -30,6 +45,12 @@ export class UiMbCreateFormComponent implements OnInit {
     })
     if (this.createForm.value.name.length > 0) {
       this.createEvent.emit(this.createForm.value.name);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.formEventSubscription) {
+      this.formEventSubscription.unsubscribe();
     }
   }
 }

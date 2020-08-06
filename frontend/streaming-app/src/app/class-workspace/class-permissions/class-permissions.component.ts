@@ -4,6 +4,7 @@ import { Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { ClassPermittedUserDetails } from 'src/app/models/class.model';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-class-permissions',
@@ -32,6 +33,7 @@ export class ClassPermissionsComponent implements OnInit {
   inviteButtonText = 'Invite';
   progressSpinnerText = 'Inviting user...';
   inchargeList: ClassPermittedUserDetails[];
+  formEvent = new Subject<string>();
 
   constructor(
     private media: MediaMatcher,
@@ -82,6 +84,7 @@ export class ClassPermissionsComponent implements OnInit {
     this.errorText = null;
     this.successText = null;
     this.createInviteIndicator = true;
+    this.formEvent.next('disable');
     this.instituteApiService.addClassIncharge(inviteeEmail,
                                               this.currentClassSlug).subscribe(
         (result: ClassPermittedUserDetails) => {
@@ -92,9 +95,11 @@ export class ClassPermissionsComponent implements OnInit {
           }
           this.inchargeList.push(result);
           this.successText = 'User invited successfully.';
+          this.formEvent.next('reset');
         },
         errors => {
           this.createInviteIndicator = false;
+          this.formEvent.next('enable');
           if (errors.error) {
             if (errors.error.error) {
               this.errorText = errors.error.error;
