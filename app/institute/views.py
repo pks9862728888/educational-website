@@ -1544,9 +1544,10 @@ class ListAllSubjectView(APIView):
             return Response({'error': _('Class not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        institute = models.Institute.objects.filter(
+                pk=class_.class_institute.pk).first()
         perm = models.InstitutePermission.objects.filter(
-            institute=models.Institute.objects.filter(
-                pk=class_.class_institute.pk).first(),
+            institute=institute,
             invitee=self.request.user,
             active=True
         ).first()
@@ -1578,6 +1579,21 @@ class ListAllSubjectView(APIView):
                     subject_details['has_subject_perm'] = True
                 else:
                     subject_details['has_subject_perm'] = False
+            subject_incharges = list()
+            incharges = models.InstituteSubjectPermission.objects.filter(
+                to=sub
+            ).order_by('created_on')
+
+            for perm in incharges:
+                incharge_details = dict()
+                incharge_details['id'] = perm.invitee.pk
+                incharge_details['email'] = str(perm.invitee)
+                invitee = models.UserProfile.objects.filter(
+                    user=get_user_model().objects.filter(pk=perm.invitee.pk).first()).first()
+                incharge_details['name'] = invitee.first_name + ' ' + invitee.last_name
+                subject_incharges.append(incharge_details)
+
+            subject_details['subject_incharges'] = subject_incharges
             response.append(subject_details)
         return Response(response, status=status.HTTP_200_OK)
 
