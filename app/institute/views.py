@@ -1605,12 +1605,12 @@ class ListAllSubjectView(APIView):
                 to=sub
             ).order_by('created_on')
 
-            for perm in incharges:
+            for perm_ in incharges:
                 incharge_details = dict()
-                incharge_details['id'] = perm.invitee.pk
-                incharge_details['email'] = str(perm.invitee)
+                incharge_details['id'] = perm_.invitee.pk
+                incharge_details['email'] = str(perm_.invitee)
                 invitee = get_user_model().objects.filter(
-                    pk=perm.invitee.pk).first()
+                    pk=perm_.invitee.pk).first()
                 invitee = models.UserProfile.objects.filter(
                     user=invitee).first()
                 incharge_details['name'] = invitee.first_name + ' ' + invitee.last_name
