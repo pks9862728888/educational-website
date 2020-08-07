@@ -37,6 +37,10 @@ export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
           this.activeLink = 'SUBJECT_OVERVIEW';
         } else if (val.url.includes('permissions')) {
           this.activeLink = 'SUBJECT_PERMISSIONS';
+        } else if (val.url.includes('create-course')) {
+          this.activeLink = 'CREATE_COURSE';
+        } else if (val.url.includes('preview-course')) {
+          this.activeLink = 'PREVIEW_COURSE';
         }
       }
     });
@@ -88,6 +92,10 @@ export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
           this.router.navigate([this.baseUrl + '/overview']);
         } else if (link === 'SUBJECT_PERMISSIONS') {
           this.router.navigate([this.baseUrl + '/permissions']);
+        } else if (link === 'CREATE_COURSE') {
+          this.router.navigate([this.baseUrl + '/create-course']);
+        } else if (link === 'PREVIEW_COURSE') {
+          this.router.navigate([this.baseUrl + '/preview-course']);
         }
       }
     }

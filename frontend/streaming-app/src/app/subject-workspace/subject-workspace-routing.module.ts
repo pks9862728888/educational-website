@@ -1,3 +1,5 @@
+import { PreviewCourseComponent } from './preview-course/preview-course.component';
+import { CreateCourseComponent } from './create-course/create-course.component';
 import { SubjectOverviewComponent } from './subject-overview/subject-overview.component';
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
@@ -11,7 +13,9 @@ const routes: Routes = [
     component: SubjectWorkspaceComponent,
     children: [
       { path: ':name/overview', component: SubjectOverviewComponent },
-      { path: ':name/permissions', component: SubjectPermissionComponent }
+      { path: ':name/permissions', component: SubjectPermissionComponent },
+      { path: ':name/create-course', component: CreateCourseComponent },
+      { path: ':name/preview-course', component: PreviewCourseComponent },
     ]
   }
 ];
@@ -26,5 +30,7 @@ export class SubjectWorkspaceRoutingModule {}
 export const subjectWorkspaceRoutingComponents = [
   SubjectWorkspaceComponent,
   SubjectPermissionComponent,
-  SubjectOverviewComponent
+  SubjectOverviewComponent,
+  CreateCourseComponent,
+  PreviewCourseComponent
 ];
