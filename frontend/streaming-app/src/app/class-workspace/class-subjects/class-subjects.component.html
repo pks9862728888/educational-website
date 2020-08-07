@@ -75,13 +75,19 @@
                         <p *ngIf="mq.matches">Instructors: <span *ngIf="!hasSubjectIncharge(subject.subject_incharges)">Not assigned.</span></p>
                     </div>
                     <div class="col-12" *ngIf="hasSubjectIncharge(subject.subject_incharges)">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between" *ngFor="let incharge of subject.subject_incharges; let i=index;">
                             <div>
-                                <h3 *ngIf="!mq.matches">1. Deepak Bharman</h3>
-                                <p *ngIf="mq.matches">1. Deepak Bharman</p>
+                                <h3 *ngIf="!mq.matches">{{ i + 1 }}.
+                                    <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
+                                    <span *ngIf="incharge.name === ' '">{{ incharge.email | lowercase }}</span>
+                                </h3>
+                                <p *ngIf="mq.matches">{{ i + 1 }}.
+                                    <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
+                                    <span *ngIf="incharge.name === ' '">{{ incharge.email | lowercase }}</span>
+                                </p>
                             </div>
                             <div>
-                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'">message</mat-icon>
+                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="userIsNotSelf(incharge.id)">message</mat-icon>
                                 <mat-icon class="incharge-icon green-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
                             </div>
                         </div>

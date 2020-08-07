@@ -1,4 +1,4 @@
-import { currentClassSlug, currentSubjectSlug, SUBJECT_TYPE_REVERSE, hasSubjectPerm, hasClassPerm, SUBJECT_TYPE } from './../../../constants';
+import { currentClassSlug, currentSubjectSlug, SUBJECT_TYPE_REVERSE, hasSubjectPerm, hasClassPerm, SUBJECT_TYPE, userId } from './../../../constants';
 import { InstituteSubjectDetails } from './../../models/subject.model';
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -213,6 +213,14 @@ export class ClassSubjectsComponent implements OnInit {
       return true;
     } else {
       return false;
+    }
+  }
+
+  userIsNotSelf(id: number) {
+    if (id.toString() === sessionStorage.getItem(userId)) {
+      return false;
+    } else {
+      return true;
     }
   }
 }
