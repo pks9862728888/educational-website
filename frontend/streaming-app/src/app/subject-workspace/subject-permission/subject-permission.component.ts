@@ -24,9 +24,9 @@ export class SubjectPermissionComponent implements OnInit {
   createInviteIndicator: boolean;
   showInviteFormMb: boolean;
   showLoadingIndicator: boolean;
-  loadingText = 'Fetching Section Incharge Details...';
+  loadingText = 'Fetching Subject Incharge Details...';
   showReloadError: boolean;
-  showReloadText = 'Unable to fetch section incharge details!';
+  showReloadText = 'Unable to fetch subject incharge details!';
   inputPlaceholder = 'Email of invitee';
   inviteButtonText = 'Invite';
   progressSpinnerText = 'Inviting user...';
