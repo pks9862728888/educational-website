@@ -1,4 +1,4 @@
-import { currentClassSlug, SUBJECT_TYPE_REVERSE, hasSubjectPerm, hasClassPerm, SUBJECT_TYPE } from './../../../constants';
+import { currentClassSlug, currentSubjectSlug, SUBJECT_TYPE_REVERSE, hasSubjectPerm, hasClassPerm, SUBJECT_TYPE } from './../../../constants';
 import { InstituteSubjectDetails } from './../../models/subject.model';
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -7,6 +7,7 @@ import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { UiService } from 'src/app/services/ui.service';
+
 
 @Component({
   selector: 'app-class-subjects',
@@ -128,14 +129,14 @@ export class ClassSubjectsComponent implements OnInit {
     }
   }
 
-  openSubject(classSlug: string, hasSubjectPerm_: boolean) {
-    sessionStorage.setItem(currentClassSlug, classSlug);
-    // if (hasSubjectPerm) {
-    //   sessionStorage.setItem(hasClassPerm, 'true');
-    // } else {
-    //   sessionStorage.setItem(hasClassPerm, 'false');
-    // }
-    // this.router.navigate(['class-workspace/' + classSlug.slice(0, -10) + '/profile']);
+  openSubject(subjectSlug: string, hasSubjectPerm_: boolean) {
+    sessionStorage.setItem(currentSubjectSlug, subjectSlug);
+    if (hasSubjectPerm_) {
+      sessionStorage.setItem(hasSubjectPerm, 'true');
+    } else {
+      sessionStorage.setItem(hasSubjectPerm, 'false');
+    }
+    this.router.navigate(['subject-workspace/' + subjectSlug.slice(0, -10) + '/overview']);
   }
 
   showCreateSubjectFormMobile() {

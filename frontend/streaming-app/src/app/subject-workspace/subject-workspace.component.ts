@@ -1,21 +1,21 @@
-import { currentClassSlug, currentInstituteType, paymentComplete, purchasedLicenseExists, INSTITUTE_TYPE_REVERSE, hasClassPerm } from './../../constants';
+import { currentSubjectSlug, currentInstituteSlug, currentInstituteRole, currentInstituteType, paymentComplete, purchasedLicenseExists, currentClassSlug, hasClassPerm, hasSubjectPerm, INSTITUTE_TYPE_REVERSE } from './../../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Router, NavigationEnd } from '@angular/router';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
-import { Subscription } from 'rxjs';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { currentInstituteSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE } from '../../constants';
 
 @Component({
-  selector: 'app-class-workspace',
-  templateUrl: './class-workspace.component.html',
-  styleUrls: ['./class-workspace.component.css']
+  selector: 'app-subject-workspace',
+  templateUrl: './subject-workspace.component.html',
+  styleUrls: ['./subject-workspace.component.css']
 })
-export class ClassWorkspaceComponent implements OnInit, OnDestroy {
+export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
+
   mq: MediaQueryList;
   currentInstituteSlug: string;
-  currentInstituteRole: string;
-  currentClassSlug: string;
+  currentSubjectSlug: string;
+  currentInstituteType: string;
   baseUrl: string;
   opened: boolean;
   activeLink: string;
@@ -24,28 +24,26 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
   tempBreadcrumbLinkName: string;
   routerEventsSubscription: Subscription;
 
-  constructor( private router: Router,
-               private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService) {
+  constructor(
+    private router: Router,
+    private media: MediaMatcher,
+    private inAppDataTransferService: InAppDataTransferService) {
+
     this.mq = this.media.matchMedia('(max-width: 768px)');
-    this.activeLink = 'CLASS_PROFILE';
+    this.activeLink = 'SUBJECT_OVERVIEW';
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
-        if(val.url.includes('profile')) {
-          this.activeLink = 'CLASS_PROFILE';
-        } else if (val.url.includes('subjects')) {
-          this.activeLink = 'CLASS_SUBJECTS';
+        if(val.url.includes('overview')) {
+          this.activeLink = 'SUBJECT_OVERVIEW';
         } else if (val.url.includes('permissions')) {
-          this.activeLink = 'CLASS_PERMISSIONS';
-        } else if (val.url.includes('sections')) {
-          this.activeLink = 'CLASS_SECTIONS';
+          this.activeLink = 'SUBJECT_PERMISSIONS';
         }
       }
     });
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
-    this.currentInstituteRole = sessionStorage.getItem(currentInstituteRole);
-    this.currentClassSlug = sessionStorage.getItem(currentClassSlug);
-    this.baseUrl = '/class-workspace/' + this.currentClassSlug.slice(0, -10);
+    this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
+    this.baseUrl = '/subject-workspace/' + this.currentSubjectSlug.slice(0, -10);
+    this.currentInstituteType = sessionStorage.getItem(currentInstituteType);
   }
 
   ngOnInit(): void {
@@ -63,12 +61,11 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   navigateToAppropriateInstituteWorkspace(path: string) {
-    const currentInstituteType_ = sessionStorage.getItem(currentInstituteType);
-    if (currentInstituteType_ === INSTITUTE_TYPE_REVERSE['School']) {
+    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['School']) {
       this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + path]);
-    } else if (currentInstituteType_ === INSTITUTE_TYPE_REVERSE['Coaching']) {
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['Coaching']) {
       this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + path]);
-    } else if (currentInstituteType_ === INSTITUTE_TYPE_REVERSE['College']) {
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['College']) {
       this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + path]);
     }
   }
@@ -80,19 +77,17 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
     if (link !== this.activeLink) {
       if (link === 'HOME') {
         this.router.navigate(['/home']);
-      } else if (link === 'EXIT_INSTITUTE') {
+      } else if (link === 'CLASS_SUBJECTS') {
+        this.router.navigate(['/class-workspace/' + sessionStorage.getItem(currentClassSlug).slice(0, -10) + '/subjects']);
+      } else if (link === 'CURRENT_INSTITUTE') {
+        this.navigateToAppropriateInstituteWorkspace('/profile');
+      } else if (link === 'INSTITUTES') {
         this.router.navigate(['/teacher-workspace/institutes']);
-      } else if (link === 'EXIT_CLASS' || link === 'INSTITUTE') {
-        this.navigateToAppropriateInstituteWorkspace('/classes');
       } else {
-        if (link === 'CLASS_PROFILE') {
-          this.router.navigate([this.baseUrl + '/profile']);
-        } else if (link === 'CLASS_PERMISSIONS') {
+        if (link === 'SUBJECT_OVERVIEW') {
+          this.router.navigate([this.baseUrl + '/overview']);
+        } else if (link === 'SUBJECT_PERMISSIONS') {
           this.router.navigate([this.baseUrl + '/permissions']);
-        } else if (link === 'CLASS_SUBJECTS') {
-          this.router.navigate([this.baseUrl + '/subjects']);
-        } else if (link === 'CLASS_SECTIONS') {
-          this.router.navigate([this.baseUrl + '/sections']);
         }
       }
     }

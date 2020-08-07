@@ -8,9 +8,16 @@ export const userId = 'user_id';
 export const currentInstituteRole = 'currentInstituteRole';
 export const currentInstituteSlug = 'currentInstituteSlug';
 export const currentInstituteType = 'currentInstituteType';
+
+// For institute Class
 export const currentClassSlug = 'currentClassSlug';
 export const hasClassPerm = 'hasClassPerm';
+
+// For institute subject
+export const currentSubjectSlug = 'currentSubjectSlug';
 export const hasSubjectPerm = 'hasSubjectPerm';
+
+// For institue section
 export const currentSectionSlug = 'currentSectionSlug';
 export const hasSectionPerm = 'hasSectionPerm';
 

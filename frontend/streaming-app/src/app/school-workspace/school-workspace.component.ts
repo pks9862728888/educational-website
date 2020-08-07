@@ -27,10 +27,12 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
   purchasedLicenseExists: boolean;
   purchasedLicenseSubscription: Subscription;
 
-  constructor( private router: Router,
-               private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService,
-               private instituteApiService: InstituteApiService) {
+  constructor(
+    private router: Router,
+    private media: MediaMatcher,
+    private inAppDataTransferService: InAppDataTransferService,
+    private instituteApiService: InstituteApiService
+    ) {
     this.mq = this.media.matchMedia('(max-width: 768px)');
     this.activeLink = 'SCHOOL_PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
@@ -87,12 +89,7 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
       if (link === 'HOME') {
         this.router.navigate(['/home']);
       } else if (link === 'EXIT' || link === 'INSTITUTES') {
-        sessionStorage.removeItem('currentInstituteSlug');
-        sessionStorage.removeItem('currentInstituteRole');
-        sessionStorage.removeItem('selectedLicenseId');
-        sessionStorage.removeItem('currentInstituteType');
         sessionStorage.removeItem('paymentComplete');
-        sessionStorage.removeItem('purchasedLicenseExists');
         this.router.navigate(['/teacher-workspace/institutes']);
       } else {
         const instituteSlug = sessionStorage.getItem('currentInstituteSlug');

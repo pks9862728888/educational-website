@@ -56,6 +56,10 @@ const routes: Routes = [
     canLoad: [ClassRoutingGuard]
   },
   {
+    path: 'subject-workspace',
+    loadChildren: () => import('./subject-workspace/subject-workspace.module').then(m => m.SubjectWorkspaceModule)
+  },
+  {
     path: 'features',
     loadChildren: () => import('./features/features.module').then(m => m.FeaturesModule)
   },
