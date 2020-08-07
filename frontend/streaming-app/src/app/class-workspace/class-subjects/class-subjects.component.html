@@ -30,7 +30,6 @@
         <div class="margin-bottom-1" *ngIf="successText">
             <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
         </div>
-        <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getSubjectList()"></app-ui-reload>
         <section *ngIf="mq.matches && showCreateSubjectFormMb && hasClassPerm" class="margin-bottom-1">
             <form class="form-group" [formGroup]="createSubjectForm">
                 <div class="row">
@@ -50,6 +49,7 @@
                 <p class="line-height">Creating subject...</p>
             </div>
         </section>
+        <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getSubjectList()"></app-ui-reload>
         <div *ngIf="!showLoadingIndicator && !showReloadError && isSubjectListEmpty()" class="margin-bottom-05">
             <h3 *ngIf="!mq.matches">No subjects created yet.</h3>
             <p *ngIf="mq.matches">No subjects created yet.</p>

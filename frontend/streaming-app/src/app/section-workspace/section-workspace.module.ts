@@ -1,3 +1,4 @@
+import { SharedModule } from './../shared/shared.module';
 import { MaterialSectionWorkspaceModule } from './material-section-workspace';
 import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
@@ -14,7 +15,8 @@ import { sectionWorkspaceRoutingComponents, SectionWorkspaceRoutingModule } from
   imports: [
     CommonModule,
     SectionWorkspaceRoutingModule,
-    MaterialSectionWorkspaceModule
+    MaterialSectionWorkspaceModule,
+    SharedModule
   ],
   providers: [
     InAppDataTransferService,

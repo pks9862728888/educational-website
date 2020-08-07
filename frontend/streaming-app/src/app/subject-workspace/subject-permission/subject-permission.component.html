@@ -1,1 +1,99 @@
-<p>subject-permission works!</p>
+<mat-card>
+    <div class="d-flex justify-content-between">
+        <div>
+            <h3 [ngClass]="{'header-text': !mq.matches && hasClassPerm}">Subject Incharges:</h3>
+        </div>
+        <div *ngIf="hasClassPerm">
+            <app-ui-inline-invite-form [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [showInviteFormMb]="showInviteFormMb" [hasPerm]="hasClassPerm" [formEvent]="formEvent.asObservable()" (showInviteFormMobile)="showInviteFormMobile()"
+                (hideInviteFormMobile)="hideInviteFormMobile()" (inviteeEmail)="invite($event)"></app-ui-inline-invite-form>
+        </div>
+    </div>
+    <hr class="top-separator" />
+    <div class="margin-bottom-1" *ngIf="errorText">
+        <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+    </div>
+    <div class="margin-bottom-1" *ngIf="successText">
+        <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
+    </div>
+    <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
+    <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getInchargeList()"></app-ui-reload>
+    <div *ngIf="mq.matches && showInviteFormMb && hasClassPerm" class="margin-bottom-1">
+        <app-ui-mb-invite-form [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [progressSpinnerText]="progressSpinnerText" [formEvent]="formEvent.asObservable()" (inviteeEmail)="invite($event)"></app-ui-mb-invite-form>
+    </div>
+    <section>
+        <div *ngIf="!showLoadingIndicator && !showReloadError && !hasClassIncharge()" class="margin-bottom-1">
+            <h4 *ngIf="!mq.matches">No Subject Incharge Found!</h4>
+            <p *ngIf="mq.matches">No Subject Incharge Found!</p>
+        </div>
+        <mat-accordion *ngIf="hasClassIncharge()">
+            <mat-expansion-panel *ngFor="let incharge of inchargeList" [expanded]="activeInchargeStep === incharge.id" (opened)="setActiveInchargePanelStep(incharge.id)">
+                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                    <mat-panel-title>
+                        <div>
+                            <img *ngIf="!incharge.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of class incharge">
+                            <img *ngIf="incharge.image" [src]="incharge.image" class="profile-pic" alt="Profile picture of class incharge">
+                        </div>
+                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                            <h3 class="line-height-center" *ngIf="!mq.matches">
+                                <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
+                                <span *ngIf="incharge.name == ' '">{{ incharge.email | lowercase }}</span>
+                            </h3>
+                            <h4 class="invitee-name-mb" *ngIf="mq.matches">
+                                <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
+                                <span *ngIf="incharge.name == ' '">{{ incharge.email | lowercase }}</span>
+                            </h4>
+                        </div>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <hr class="invite-top-separator" />
+                <div class="row invite-body text-color">
+                    <div class="col-12 ">
+                        <div class="row invite-details ">
+                            <div class="col ">
+                                <h3 *ngIf="!mq.matches">Invited By:</h3>
+                                <p *ngIf="mq.matches">Invited By:</p>
+                            </div>
+                            <div class="col">
+                                <div *ngIf="!mq.matches">
+                                    <h3 *ngIf="incharge.inviter_name !== ' '">{{ incharge.inviter_name | titlecase}}</h3>
+                                    <h3 *ngIf="incharge.inviter_name === ' '">{{ incharge.inviter_email | lowercase }}</h3>
+                                </div>
+                                <div *ngIf="mq.matches">
+                                    <p *ngIf="incharge.inviter_name !== ' '">{{ incharge.inviter_name | titlecase}}</p>
+                                    <p *ngIf="incharge.inviter_name === ' '">{{ incharge.inviter_email | lowercase }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row invite-details ">
+                            <div class="col ">
+                                <h3 *ngIf="!mq.matches">Created On:</h3>
+                                <p *ngIf="mq.matches">Created On:</p>
+                            </div>
+                            <div class="col ">
+                                <h3 *ngIf="!mq.matches">{{ incharge.created_on | date}}</h3>
+                                <p *ngIf="mq.matches">{{ incharge.created_on | date}}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr class="invite-bottom-separator" />
+                <div class="col">
+                    <div *ngIf="!mq.matches" class="action-row">
+                        <div [ngClass]="{'margin-right-1': userNotSelf(incharge.invitee_id)}" *ngIf="hasClassPerm">
+                            <button mat-button class="red-button">Remove</button>
+                        </div>
+                        <button mat-button class="green-button" *ngIf="userNotSelf(incharge.invitee_id)">Send Message</button>
+                    </div>
+                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
+                        <div [ngClass]="{'margin-right-1': userNotSelf(incharge.invitee_id)}" *ngIf="hasClassPerm || !userNotSelf(incharge.invitee_id)">
+                            <mat-icon class="line-height-center red-color">delete</mat-icon>
+                        </div>
+                        <div *ngIf="userNotSelf(incharge.invitee_id)">
+                            <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                        </div>
+                    </div>
+                </div>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </section>
+</mat-card>

@@ -22,7 +22,6 @@ export class ClassPermissionsComponent implements OnInit {
   currentClassSlug: string;
   errorText: string;
   successText: string;
-  newInviteForm: FormGroup;
   createInviteIndicator: boolean;
   showInviteFormMb: boolean;
   showLoadingIndicator: boolean;

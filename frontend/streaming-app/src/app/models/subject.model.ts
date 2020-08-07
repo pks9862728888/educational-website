@@ -13,3 +13,14 @@ export interface InstituteSubjectDetails {
   has_subject_perm: boolean;
   subject_incharges: SubjectInchargeDetails[]
 }
+
+export interface SubjectPermittedUserDetails {
+  id: number;
+  email: string;
+  name?: string;
+  invitee_id: string;
+  inviter_name?: string;
+  inviter_email?: string;
+  created_on: string;
+  image?: string;
+}

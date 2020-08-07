@@ -54,6 +54,9 @@ export class InstituteApiService {
   // Institute class related urls
   addClassPermissionUrl = `${this.instituteBaseUrl}add-class-permission`;
 
+  // Institute subject related urls
+  addSubjectInchargeUrl = `${this.instituteBaseUrl}add-subject-permission`;
+
   getInstituteDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}detail/${instituteSlug}`;
   }
@@ -108,6 +111,10 @@ export class InstituteApiService {
 
   getSectionListUrl(classSlug: string) {
     return `${this.instituteBaseUrl}${classSlug}/list-all-section`;
+  }
+
+  getSubjectInchargeListUrl(subjectSlug: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/list-subject-instructors`;
   }
 
   constructor( private cookieService: CookieService,
@@ -279,7 +286,7 @@ export class InstituteApiService {
     );
   }
 
-  // To get subject list
+  // Subject related methods
   createSubject(classSlug: string, name: string, type: string) {
     return this.httpClient.post(
       this.createSubjectUrl(classSlug),
@@ -288,14 +295,29 @@ export class InstituteApiService {
         'type': type
       },
       { headers: this.getAuthHeader() }
-    )
+    );
   }
 
   getSubjectList(classSlug: string) {
     return this.httpClient.get(
       this.getInstituteSubjectListUrl(classSlug),
       { headers: this.getAuthHeader() }
-    )
+    );
+  }
+
+  getInstituteSubjectInchargeList(subjectSlug: string) {
+    return this.httpClient.get(
+      this.getSubjectInchargeListUrl(subjectSlug),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addSubjectIncharge(invitee: string, subjectSlug: string) {
+    return this.httpClient.post(
+      this.addSubjectInchargeUrl,
+      { 'invitee': invitee, 'subject_slug': subjectSlug },
+      { headers: this.getAuthHeader() }
+    );
   }
 
   // To create institute section
