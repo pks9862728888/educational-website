@@ -108,14 +108,14 @@ export class ClassSectionComponent implements OnInit {
     )
   }
 
-  openSection(classSlug: string, hasSectionPerm_: boolean) {
-    sessionStorage.setItem(currentSectionSlug, classSlug);
+  openSection(sectionSlug: string, hasSectionPerm_: boolean) {
+    sessionStorage.setItem(currentSectionSlug, sectionSlug);
     if (hasSectionPerm_) {
       sessionStorage.setItem(hasSectionPerm, 'true');
     } else {
       sessionStorage.setItem(hasSectionPerm, 'false');
     }
-    // this.router.navigate(['class-workspace/' + classSlug.slice(0, -10) + '/profile']);
+    this.router.navigate(['/section-workspace/' + sectionSlug.slice(0, -9) + '/permissions']);
   }
 
   showCreateSectionFormMobile() {

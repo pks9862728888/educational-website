@@ -60,6 +60,10 @@ const routes: Routes = [
     loadChildren: () => import('./subject-workspace/subject-workspace.module').then(m => m.SubjectWorkspaceModule)
   },
   {
+    path: 'section-workspace',
+    loadChildren: () => import('./section-workspace/section-workspace.module').then(m => m.SectionWorkspaceModule)
+  },
+  {
     path: 'features',
     loadChildren: () => import('./features/features.module').then(m => m.FeaturesModule)
   },
