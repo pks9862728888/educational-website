@@ -54,7 +54,7 @@ def create_institute(user, name='Temp Name ola'):
 def create_class(institute, name='temp class'):
     """Creates and returns a class"""
     return models.InstituteClass.objects.create(
-        institute=institute,
+        class_institute=institute,
         name=name
     )
 
@@ -833,3 +833,97 @@ def accept_invite(institute, invitee, role):
 #         self.assertEqual(res.inviter, self.user)
 #         self.assertEqual(res.invitee, admin)
 #         self.assertEqual(res.to, section)
+#
+#
+# class MeetYourInstructorModelTests(TestCase):
+#     """Tests for meet your instructor model"""
+#
+#     def setUp(self):
+#         self.user = get_user_model().objects.create_user(
+#             email='usersff@gmail.com',
+#             username='sdjfkjsfj',
+#             password='slkdjfsjfjj'
+#         )
+#         self.user.is_teacher = True
+#         self.user.save()
+#
+#     def test_insert_external_link_in_meet_your_instructor_model_success(self):
+#         """Test that inserting data is success"""
+#         institute = create_institute(self.user)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         payload = {
+#             'subject': subject,
+#             'order': 1,
+#             'file_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+#             'title': 'External url',
+#             'url': 'https://www.google.com',
+#             'target_date': '1997-12-02'
+#         }
+#         res = models.MeetYourInstructor.objects.create(
+#             title=payload['title'],
+#             file_type=payload['file_type'],
+#             order=payload['order'],
+#             url=payload['url'],
+#             meet_instructor_subject=payload['subject'],
+#             target_date=payload['target_date']
+#         )
+#         self.assertEqual(res.title, payload['title'])
+#         self.assertEqual(res.file_type, payload['file_type'])
+#         self.assertEqual(res.order, payload['order'])
+#         self.assertEqual(res.url, payload['url'])
+#         self.assertEqual(res.meet_instructor_subject, payload['subject'])
+#         self.assertEqual(res.target_date, payload['target_date'])
+#         self.assertEqual(res.file, None)
+#
+#     @patch('uuid.uuid4')
+#     def test_upload_file_location_success_in_meet_your_instructor_model(self, mock_url):
+#         """Test that file is uploaded in correct location"""
+#         uuid = 'test-uuid'
+#         mock_url.return_value = uuid
+#         file_path = models.meet_your_instructor_file_path(None, 'img.jpg')
+#         dt = datetime.date.today()
+#         path = 'institute/uploads/content/meet_your_instructor'
+#         expected_path = f'{path}/{dt.year}/{dt.month}/{dt.day}/{uuid}.jpg'
+#         self.assertEqual(file_path, expected_path)
+#
+#     def test_title_required(self):
+#         """Test that inserting invalid data fails"""
+#         institute = create_institute(self.user)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         payload = {
+#             'subject': subject,
+#             'order': 1,
+#             'file_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+#             'url': 'https://www.google.com'
+#         }
+#         with self.assertRaises(ValueError):
+#             models.MeetYourInstructor.objects.create(
+#                 file_type=payload['file_type'],
+#                 order=payload['order'],
+#                 url=payload['url'],
+#                 meet_instructor_subject=payload['subject'],
+#             )
+#
+#     def test_filetype_required(self):
+#         """Test that inserting data is success"""
+#         institute = create_institute(self.user)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         payload = {
+#             'title': 'sdfsfd',
+#             'subject': subject,
+#             'order': 1,
+#             'url': 'https://www.google.com'
+#         }
+#         with self.assertRaises(ValueError):
+#             models.MeetYourInstructor.objects.create(
+#                 title=payload['title'],
+#                 order=payload['order'],
+#                 url=payload['url'],
+#                 meet_instructor_subject=payload['subject'],
+#             )

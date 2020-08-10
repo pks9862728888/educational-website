@@ -1,4 +1,4 @@
-import { currentInstituteSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE } from './../../constants';
+import { currentInstituteSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE, webAppName } from './../../constants';
 import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -15,6 +15,7 @@ import { Subscription } from 'rxjs';
 export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
+  title = webAppName;
   currentInstituteSlug: string;
   currentInstituteRole: string;
   baseUrl: string;

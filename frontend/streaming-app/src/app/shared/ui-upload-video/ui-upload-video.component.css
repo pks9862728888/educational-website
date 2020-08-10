@@ -1,0 +1,58 @@
+.row,
+.col-12,
+h3,
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.form-control {
+    width: 100%;
+    background-color: #3b3b3b;
+    color: #bdbdbd;
+    border-color: #6c756c;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: none;
+    outline: none;
+}
+
+.green-button:disabled,
+.green-button:disabled:hover {
+    color: #fff;
+    background-color: #008000;
+    opacity: 0.6;
+}
+
+.file::-webkit-file-upload-button {
+    color: #fff;
+    display: inline-block;
+    background: #008697;
+    padding: 7px 15px;
+    border-radius: 5px;
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none !important;
+    outline-style: none !important;
+    border: none;
+}
+
+.datepicker-icon {
+    transform: translateY(-1.95rem);
+    right: 5px;
+    position: absolute;
+}
+
+.pick-date-icon {
+    color: #6c7576;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-b-07 {
+    margin-bottom: 0.7rem;
+}

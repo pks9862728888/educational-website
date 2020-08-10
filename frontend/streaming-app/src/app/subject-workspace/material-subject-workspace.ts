@@ -25,7 +25,7 @@ import { MatListModule } from '@angular/material/list';
     MatListModule,
     MatExpansionModule,
     MatCardModule,
-    MatProgressSpinnerModule,
+    MatProgressSpinnerModule
   ]
 })
 export class MaterialSubjectWorkspaceModule {}

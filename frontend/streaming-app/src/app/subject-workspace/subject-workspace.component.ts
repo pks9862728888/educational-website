@@ -1,4 +1,4 @@
-import { currentSubjectSlug, currentInstituteSlug, currentInstituteRole, currentInstituteType, paymentComplete, purchasedLicenseExists, currentClassSlug, hasClassPerm, hasSubjectPerm, INSTITUTE_TYPE_REVERSE } from './../../constants';
+import { currentSubjectSlug, currentInstituteSlug, currentInstituteRole, currentInstituteType, paymentComplete, purchasedLicenseExists, currentClassSlug, hasClassPerm, hasSubjectPerm, INSTITUTE_TYPE_REVERSE, webAppName } from './../../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router, NavigationEnd } from '@angular/router';
@@ -13,6 +13,7 @@ import { MediaMatcher } from '@angular/cdk/layout';
 export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
+  title = webAppName;
   currentInstituteSlug: string;
   currentSubjectSlug: string;
   currentInstituteType: string;

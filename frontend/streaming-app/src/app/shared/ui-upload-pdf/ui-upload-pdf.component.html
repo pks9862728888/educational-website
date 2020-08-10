@@ -1,0 +1,24 @@
+<div class="m-b-07">
+    <h3 *ngIf="!mq.matches">Upload Pdf:</h3>
+    <p *ngIf="mq.matches">Upload Pdf:</p>
+</div>
+<form [formGroup]="uploadPdfForm">
+    <div class="row">
+        <div class="col-12 input-field">
+            <input type="text" formControlName="title" maxlength="30" class="form-control" placeholder="Title" aria-label="File name">
+        </div>
+        <div class="col-12 m-b-1" *ngIf="showDeadline">
+            <input class="form-control" formControlName="deadline" (click)="datepicker.open()" [matDatepicker]="datepicker" placeholder="Choose Deadline">
+            <div class="datepicker-icon">
+                <mat-icon (click)="datepicker.open()" class="pick-date-icon">today</mat-icon>
+                <mat-datepicker touchUi #datepicker></mat-datepicker>
+            </div>
+        </div>
+        <div class="col-12 input-field">
+            <input type="file" mat-flat-button formControlName="file" class="file" id="pdf-file">
+        </div>
+        <div class="col-12">
+            <button mat-flat-button [disabled]="uploadPdfForm.invalid" class="green-button" type="submit" (click)="processVideo()">Upload</button>
+        </div>
+    </div>
+</form>

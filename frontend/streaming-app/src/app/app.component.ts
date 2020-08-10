@@ -1,5 +1,5 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import { authTokenName } from './../constants';
+import { authTokenName, webAppName } from './../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from './services/auth.service';
@@ -29,7 +29,8 @@ export class SnackbarLoggedOutComponent { }
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, OnDestroy {
-  title = 'streaming-app';
+
+  title = webAppName;
 
   // For tracking whether device is mobile
   mobileQuery: MediaQueryList;

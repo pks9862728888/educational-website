@@ -6,7 +6,7 @@
 
             <!-- Sidenav contents -->
             <mat-nav-list>
-                <h1 *ngIf="mq.matches" class="website-name">EduWeb</h1>
+                <h1 *ngIf="mq.matches" class="website-name">{{ title }}</h1>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PROFILE'" (click)="performAction('SCHOOL_PROFILE')">School Profile</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,

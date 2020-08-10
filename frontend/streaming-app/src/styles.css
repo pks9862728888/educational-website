@@ -1,5 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
-
+@import "~@danielmoncada/angular-datetime-picker/assets/style/picker.min.css";
 html,
 body {
     padding: 0px;
@@ -61,6 +60,18 @@ button.active:focus {
 
 .expansion-panel-header-color {
     color: #f2aa4cff;
+}
+
+.reorder-icon {
+    color: #03dac5;
+}
+
+.edit-icon {
+    color: #bb86fc;
+}
+
+.delete-icon {
+    color: #ff0266;
 }
 
 

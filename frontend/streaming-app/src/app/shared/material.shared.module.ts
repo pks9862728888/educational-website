@@ -1,3 +1,4 @@
+import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,6 +19,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatExpansionModule,
     MatCardModule,
     MatFormFieldModule,
+    MatInputModule,
     MatTooltipModule,
     MatTabsModule,
     MatDialogModule
@@ -29,9 +31,10 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatExpansionModule,
     MatCardModule,
     MatFormFieldModule,
+    MatInputModule,
     MatTooltipModule,
     MatTabsModule,
-    MatDialogModule
+    MatDialogModule,
   ]
 })
 export class MaterialSharedModule {}

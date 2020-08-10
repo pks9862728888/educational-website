@@ -1,0 +1,38 @@
+h2,
+li,
+ul {
+    margin: 0;
+    padding: 0;
+}
+
+.text-color {
+    color: #bdbdbd;
+}
+
+.hint-container {
+    border: 1px dashed #bdbdbd;
+    border-radius: 5px;
+    padding: 1rem;
+}
+
+ul {
+    padding-left: 2rem;
+    padding-right: 1.5rem;
+}
+
+li {
+    padding-top: 1rem;
+    font-size: 16px;
+    text-align: justify;
+}
+
+ul:last-child {
+    padding-bottom: 1rem;
+}
+
+@media screen and (max-width: 600px) {
+    ul {
+        padding-left: 1rem;
+        padding-right: 0.5rem;
+    }
+}

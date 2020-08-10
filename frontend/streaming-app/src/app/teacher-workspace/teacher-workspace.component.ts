@@ -1,3 +1,4 @@
+import { webAppName } from './../../constants';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
@@ -13,6 +14,7 @@ export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
 
   // For showing sidenav toolbar
   mq: MediaQueryList;
+  title = webAppName;
   opened: boolean;
   activeLink: string;
   showTempNamesSubscription: Subscription;

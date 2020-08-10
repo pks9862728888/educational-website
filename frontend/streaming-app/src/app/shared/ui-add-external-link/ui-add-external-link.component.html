@@ -1,0 +1,17 @@
+<div class="m-b-07">
+    <h3 *ngIf="!mq.matches">Add External Link:</h3>
+    <p *ngIf="mq.matches">Add External Link:</p>
+</div>
+<form [formGroup]="addExternalLinkForm">
+    <div class="row">
+        <div class="col-12 input-field">
+            <input type="text" formControlName="title" maxlength="30" class="form-control" placeholder="Title" aria-label="File name">
+        </div>
+        <div class="col-12 input-field">
+            <input type="text" formControlName="link" maxlength="100" class="form-control" placeholder="Paste link" aria-label="Paste link">
+        </div>
+        <div class="col-12">
+            <button mat-flat-button [disabled]="addExternalLinkForm.invalid" class="green-button" type="submit" (click)="upload()">Upload</button>
+        </div>
+    </div>
+</form>

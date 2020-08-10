@@ -1,7 +1,8 @@
 <div class="row">
     <div class="col-12 success-text">
         <div class="d-flex justify-content-between success-content">
-            <h3 class="coupon-success-text">{{ successText }}</h3>
+            <h3 *ngIf="!mq.matches" class="coupon-success-text">{{ successText }}</h3>
+            <p *ngIf="mq.matches" class="coupon-success-text">{{ successText }}</p>
             <div>
                 <mat-icon class="highlight-icon" (click)="hideSuccessText()">highlight_off</mat-icon>
             </div>

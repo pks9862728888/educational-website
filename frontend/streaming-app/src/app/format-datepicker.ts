@@ -26,3 +26,16 @@ export const APP_DATE_FORMATS: MatDateFormats = {
     monthYearA11yLabel: { year: 'numeric', month: 'long' },
   }
 };
+
+export function formatDate(date_) {
+  const date = new Date(date_);
+  let month = '' + (date.getMonth() + 1);
+  let day = '' + date.getDate();
+  if (month.length < 2) {
+    month = '0' + month;
+  }
+  if (day.length < 2) {
+      day = '0' + day;
+  }
+  return date.getFullYear() + '-' + month + '-' + day;
+}

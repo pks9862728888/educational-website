@@ -64,9 +64,11 @@ export class UploadProfilePictureComponent implements OnInit {
   // For cropping image to visible ratio
   imageChangedEvent: any = '';
 
-  constructor( private media: MediaMatcher,
-               private apiService: ApiService) {
-    this.mobileQuery = media.matchMedia('(max-width: 600px)');
+  constructor(
+    private media: MediaMatcher,
+    private apiService: ApiService
+  ) {
+    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {}
@@ -147,16 +149,17 @@ export class UploadProfilePictureComponent implements OnInit {
           }
         },
         errors => {
-          if (errors.error.non_field_errors) {
-            this.choosePictureTarget = errors.error.non_field_errors[0];
-          } else {
-            console.log(errors);
-            this.choosePictureTarget = 'Error!! Unable to upload profile picture.';
+          if (errors.error) {
+            if (errors.error.non_field_errors) {
+              this.choosePictureTarget = errors.error.non_field_errors[0];
+            } else {
+              this.choosePictureTarget = 'Error!! Unable to upload profile picture.';
+            }
           }
         }
       );
     } else {
-      this.choosePictureTarget = 'Select where you want to apply the picture';
+      this.choosePictureTarget = 'Select where you want to apply the picture.';
     }
   }
 }

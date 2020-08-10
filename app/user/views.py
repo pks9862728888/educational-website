@@ -98,9 +98,6 @@ class UploadProfilePictureView(APIView):
 
         class_profile_picture = request.data.get('class_profile_picture')
         public_profile_picture = request.data.get('public_profile_picture')
-        print(request.data)
-        print(request.headers)
-        print(user)
 
         if serialize.is_valid():
             # Setting previous image to inactive
@@ -150,7 +147,7 @@ class SetDeleteProfilePictureView(APIView):
     def post(self, request, *args, **kwargs):
         """To save the profile picture"""
         user = get_user_model().objects.get(email=request.user)
-        id = request.data.get('id', None)
+        id_ = request.data.get('id', None)
         class_profile_picture = request.data.get(
             'class_profile_picture', None)
         public_profile_picture = request.data.get(
@@ -164,7 +161,7 @@ class SetDeleteProfilePictureView(APIView):
 
         # Validating id
         try:
-            picture = ProfilePictures.objects.get(id=id)
+            picture = ProfilePictures.objects.get(id=id_)
         except Exception:
             errors['id'] = ['Please send a valid id.']
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
@@ -177,8 +174,8 @@ class SetDeleteProfilePictureView(APIView):
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
 
         # Creating data dict to serialize
-        data = {}
-        data['id'] = id
+        data = dict()
+        data['id'] = id_
         data['image'] = picture.image
         data['uploaded_on'] = picture.uploaded_on
         if public_profile_picture:

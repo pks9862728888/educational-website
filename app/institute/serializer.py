@@ -6,7 +6,8 @@ from django_countries.serializers import CountryFieldMixin
 from core.models import Institute, InstituteProfile, InstituteLogo,\
                         InstituteBanner, InstitutePermission,\
                         InstituteRole, InstituteLicense, Billing,\
-                        InstituteClass, InstituteClassPermission
+                        InstituteClass, InstituteClassPermission,\
+                        MeetYourInstructor
 
 
 class InstituteLicenseListSerializer(serializers.ModelSerializer):
@@ -400,3 +401,14 @@ class InstituteClassSerializer(serializers.ModelSerializer):
         fields = ('id', 'class_institute', 'name', 'class_slug',
                   'created_on')
         read_only_fields = ('id', 'class_slug', 'created_on')
+
+
+class ClassMeetInstructorFileDataUploadSerializer(serializers.ModelSerializer):
+    """Serializer for saving file data input"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = MeetYourInstructor
+        fields = ('id', 'meet_instructor_subject', 'order', 'file',
+                  'file_type', 'uploaded_on', 'target_date', 'title')
+        read_only_fields = ('id', 'uploaded_on')

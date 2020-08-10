@@ -1,3 +1,4 @@
+export const webAppName = 'ScholarDiet';
 export const authTokenName = 'auth-token-edu-website';
 export const UNLIMITED = 99999;
 

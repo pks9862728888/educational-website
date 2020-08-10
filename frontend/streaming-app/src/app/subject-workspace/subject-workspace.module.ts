@@ -1,3 +1,5 @@
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
 import { SharedModule } from './../shared/shared.module';
@@ -5,7 +7,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { subjectWorkspaceRoutingComponents, SubjectWorkspaceRoutingModule } from './subject-workspace-routing.module';
 import { MaterialSubjectWorkspaceModule } from './material-subject-workspace';
-
 
 
 @NgModule({
@@ -16,7 +17,9 @@ import { MaterialSubjectWorkspaceModule } from './material-subject-workspace';
     CommonModule,
     SubjectWorkspaceRoutingModule,
     MaterialSubjectWorkspaceModule,
-    SharedModule
+    SharedModule,
+    MatInputModule,
+    ReactiveFormsModule
   ],
   providers: [
     InstituteApiService,

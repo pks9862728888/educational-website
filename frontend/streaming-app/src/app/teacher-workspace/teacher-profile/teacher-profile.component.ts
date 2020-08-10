@@ -4,10 +4,10 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { ApiService } from '../../services/api.service';
 import { GENDER, COUNTRY, LANGUAGE, LANGUAGE_REVERSE, GENDER_REVERSE, COUNTRY_REVERSE } from '../../../constants';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { UploadProfilePictureComponent } from './upload-profile-picture/upload-profile-picture.component';
 import { ChooseFromExistingComponent } from './choose-from-existing/choose-from-existing.component';
+import { formatDate } from '../../format-datepicker';
 
 interface TeacherProfileDetails {
   id: number;
@@ -86,7 +86,6 @@ export class TeacherProfileComponent implements OnInit {
                private apiService: ApiService,
                private uiService: UiService,
                private formBuilder: FormBuilder,
-               private snackBar: MatSnackBar,
                private dialog: MatDialog ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
     this.maxDate = new Date();         // For selecting max date as today
@@ -223,17 +222,7 @@ export class TeacherProfileComponent implements OnInit {
     const editProfileDetailsData = this.editProfileForm.value;
     if (editProfileDetailsData.user_profile.date_of_birth) {
       // Formatting date of birth in YYYY-MM-DD
-      const date = new Date(this.editProfileForm.value.user_profile.date_of_birth);
-      let month = '' + (date.getMonth() + 1);
-      let day = '' + date.getDate();
-      if (month.length < 2) {
-        month = '0' + month;
-      }
-      if (day.length < 2) {
-          day = '0' + day;
-      }
-      const dateFormatted = date.getFullYear() + '-' + month + '-' + day;
-      editProfileDetailsData.user_profile.date_of_birth = dateFormatted;
+      editProfileDetailsData.user_profile.date_of_birth = formatDate(this.editProfileForm.value.user_profile.date_of_birth);
     }
 
     this.apiService.patchTeacherProfileDetails(editProfileDetailsData).subscribe(

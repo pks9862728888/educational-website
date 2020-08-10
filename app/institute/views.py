@@ -1,10 +1,15 @@
 import os
+from decimal import Decimal
+import filetype
+
+from PIL import Image
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
+
 from razorpay.errors import SignatureVerificationError
 
 from rest_framework.authentication import TokenAuthentication
@@ -14,14 +19,14 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, CreateAPIView,\
     RetrieveAPIView, DestroyAPIView
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser, MultiPartParser
 
 from . import serializer
 from app.settings import client
-
 from core import models
 
 
-def has_paid_unexpired_license(institute):
+def get_unexpired_license(institute):
     """
     Returns order if institute has unexpired institute license,
     else returns None
@@ -29,7 +34,12 @@ def has_paid_unexpired_license(institute):
     order = models.InstituteLicenseOrderDetails.objects.filter(
         institute=institute,
         paid=True
-    ).first()
+    )
+
+    if order.filter(active=True).exists():
+        order = order.filter(active=True).first()
+    else:
+        order = order.order_by('-order_created_on').first()
 
     if not order or (order.active and order.end_date < timezone.now()):
         return None
@@ -736,7 +746,7 @@ class InstituteProvidePermissionView(APIView):
             invitee=inviter,
             active=True
         ).first()
-        license_ = has_paid_unexpired_license(institute)
+        license_ = get_unexpired_license(institute)
 
         if not license_:
             return Response({'error': _('License expired or not found.')},
@@ -1266,7 +1276,7 @@ class ListAllClassView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not has_paid_unexpired_license(institute):
+        if not get_unexpired_license(institute):
             return Response({'error': _('License expired or not purchased.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -2009,3 +2019,157 @@ class ListSectionInchargesView(APIView):
             response.append(invite_details)
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSubjectUploadCourseContentView(APIView):
+    """Creates institute subject upload course content view"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+    parser_classes = (JSONParser, MultiPartParser)
+
+    def _get_stats(self, subject, size):
+        # For updating storage
+        class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
+        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+        stats = models.InstituteStatistics.objects.filter(institute=institute).first()
+        order = get_unexpired_license(institute)
+        if not order:
+            return Response({'error': _('License not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif stats.storage_count > order.selected_license.storage:
+            return Response({'error': _('Maximum storage limit reached. To get more storage contact us.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif stats.storage_count + Decimal(size) > order.selected_license.storage:
+            return Response({'error': _('File size too large. Storage limit will get exceeded. To get more storage contact us.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return stats
+
+    def _validate_image_file(self, file):
+        """Checking whether the file is an image file"""
+        try:
+            Image.open(file).verify()
+        except Exception:
+            return Response({'error': _(
+                'Upload a valid image. The file you uploaded was either not an image or a corrupted image.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+    def _validate_video_file(self, file):
+        """Checking whether the file is video file"""
+        try:
+            if not filetype.is_video(file):
+                return Response({'error': _('Not a valid video file.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('An internal error occurred')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def _validate_pdf_file(self, file, raw_file):
+        """Checking whether the file is pdf file"""
+        try:
+            if not filetype.is_archive(file):
+                return Response({'error': _('Not a valid pdf file.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                kind = os.path.splitext(raw_file)[1]
+                if not kind.endswith('.pdf'):
+                    return Response({'error': _('Not a valid pdf file.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('An internal error occurred')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('order'):
+            return Response({'error': _('Order is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('file_type'):
+            return Response({'error': _('File type is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('title'):
+            return Response({'error': _('Title is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not request.data.get('model'):
+            return Response({'error': _('Model is required. Please contact us.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if request.data.get('file_type') != models.StudyMaterialContentType.EXTERNAL_LINK and\
+                not request.data.get('size'):
+            return Response({'error': _('Bad request. Please contact us.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Content type is link
+        if request.data.get('file_type') == models.StudyMaterialContentType.EXTERNAL_LINK:
+            if not request.data.get('url'):
+                return Response({'error': _('Url is required.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            try:
+                content = None
+                if request.data.get('model') == models.StudyMaterialModel.MEET_YOUR_INSTRUCTOR:
+                    content = models.MeetYourInstructor.objects.create(
+                        meet_instructor_subject=subject,
+                        order=int(request.data.get('order')),
+                        title=request.data.get('title'),
+                        file_type=request.data.get('file_type'),
+                        url=request.data.get('url'),
+                        target_date=request.data.get('target_date')
+                    )
+                return Response({
+                    'id': content.pk,
+                    'order': content.order,
+                    'uploaded_on': content.uploaded_on,
+                    'title': content.title,
+                    'file_type': content.file_type,
+                    'url': content.url,
+                    'target_date': content.target_date
+                }, status=status.HTTP_201_CREATED)
+            except:
+                return Response({'error': _('Internal server error.')},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            error_response = None
+            if request.data.get('file_type') == models.StudyMaterialContentType.IMAGE:
+                error_response = self._validate_image_file(request.data.get('file'))
+            elif request.data.get('file_type') == models.StudyMaterialContentType.VIDEO:
+                error_response = self._validate_video_file(request.data.get('file'))
+            elif request.data.get('file_type') == models.StudyMaterialContentType.PDF:
+                error_response = self._validate_pdf_file(request.data.get('file'), str(request.FILES['file']))
+
+            if error_response:
+                return error_response
+
+            stats = self._get_stats(subject, request.data.get('size'))
+            ser = None
+            if request.data.get('model') == models.StudyMaterialModel.MEET_YOUR_INSTRUCTOR:
+                ser = serializer.ClassMeetInstructorFileDataUploadSerializer(
+                    data={
+                        'meet_instructor_subject': subject.pk,
+                        'order': int(request.data.get('order')),
+                        'file_type': request.data.get('file_type'),
+                        'target_date': request.data.get('target_date'),
+                        'file': request.data.get('file'),
+                        'title': request.data.get('title')
+                    }, context={"request": request})
+            if ser.is_valid():
+                ser.save()
+                stats.storage_count += Decimal(request.data.get('size'))
+                stats.save()
+                return Response(ser.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

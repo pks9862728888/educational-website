@@ -7,7 +7,7 @@
             <!-- Sidenav contents -->
             <mat-nav-list>
                 <div *ngIf="mq.matches">
-                    <h1 class="website-name">EduWeb</h1>
+                    <h1 class="website-name">{{ title }}</h1>
                     <mat-divider></mat-divider>
                 </div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,

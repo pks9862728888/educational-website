@@ -1,3 +1,4 @@
+import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
@@ -7,10 +8,15 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 })
 export class UiSuccessTextComponent {
 
+  mq: MediaQueryList;
   @Input() successText: string;
   @Output() closeSuccessTextEvent = new EventEmitter<void>();
 
-  constructor() { }
+  constructor(
+    private media: MediaMatcher
+  ) {
+    this.mq = this.media.matchMedia('(max-width: 600px)');
+  }
 
   hideSuccessText() {
     this.closeSuccessTextEvent.emit();

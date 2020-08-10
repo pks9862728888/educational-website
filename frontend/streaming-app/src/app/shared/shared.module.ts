@@ -15,7 +15,13 @@ import { UiInlineInviteFormComponent } from './ui-inline-invite-form/ui-inline-i
 import { UiMbInviteFormComponent } from './ui-mb-invite-form/ui-mb-invite-form.component';
 import { UiInlineCreateFormComponent } from './ui-inline-create-form/ui-inline-create-form.component';
 import { UiMbCreateFormComponent } from './ui-mb-create-form/ui-mb-create-form.component';
-
+import { UiUploadVideoComponent } from './ui-upload-video/ui-upload-video.component';
+import { UiUploadImageComponent } from './ui-upload-image/ui-upload-image.component';
+import { UiUploadPdfComponent } from './ui-upload-pdf/ui-upload-pdf.component';
+import { UiAddExternalLinkComponent } from './ui-add-external-link/ui-add-external-link.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
+import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
 
 
 @NgModule({
@@ -31,12 +37,18 @@ import { UiMbCreateFormComponent } from './ui-mb-create-form/ui-mb-create-form.c
     UiMbInviteFormComponent,
     UiInlineCreateFormComponent,
     UiMbCreateFormComponent,
+    UiUploadVideoComponent,
+    UiUploadImageComponent,
+    UiUploadPdfComponent,
+    UiAddExternalLinkComponent,
   ],
   imports: [
     CommonModule,
     MaterialSharedModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   exports: [
     UiReloadComponent,
@@ -48,11 +60,17 @@ import { UiMbCreateFormComponent } from './ui-mb-create-form/ui-mb-create-form.c
     UiInlineInviteFormComponent,
     UiMbInviteFormComponent,
     UiInlineCreateFormComponent,
-    UiMbCreateFormComponent
+    UiMbCreateFormComponent,
+    UiUploadVideoComponent,
+    UiUploadImageComponent,
+    UiUploadPdfComponent,
+    UiAddExternalLinkComponent
   ],
   providers: [
     InstituteApiService,
-    UiService
+    UiService,
+    {provide: DateAdapter, useClass: AppDateAdapter},
+    {provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS}
   ]
 })
 export class SharedModule { }
