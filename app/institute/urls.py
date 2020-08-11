@@ -98,6 +98,9 @@ urlpatterns = [
     path('<slug:subject_slug>/subject-course-content-min-statistics',
          views.InstituteSubjectMinStatisticsView.as_view(),
          name='subject-course-content-min-statistics'),
+    path('<slug:subject_slug>/<slug:view>/list-subject-specific-view-course-contents',
+         views.InstituteSubjectSpecificViewCourseContentView.as_view(),
+         name='list-subject-specific-view-course-contents'),
     # Institute section
     path('<slug:class_slug>/create-section',
          views.CreateSectionView.as_view(),

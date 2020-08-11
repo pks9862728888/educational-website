@@ -11,6 +11,7 @@ temp_test/
 live_streaming_test.py
 .idea/
 app/core/migrations/
+vol/
 
 # Distribution / packaging
 .Python

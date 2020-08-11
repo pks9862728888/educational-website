@@ -2304,3 +2304,66 @@ class InstituteSubjectMinStatisticsView(APIView):
         ).count()
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSubjectSpecificViewCourseContentView(APIView):
+    """View for getting course content of a specific subject view"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': 'Subject not found.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
+        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    role=models.InstituteRole.ADMIN,
+                    invitee=self.request.user,
+                    active=True,
+            ).exists():
+                return Response({'error': 'Permission denied.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        data = models.InstituteSubjectCourseContent.objects.filter(
+            course_content_subject=subject,
+            view=kwargs.get('view').upper()
+        ).order_by('order')
+        response = list()
+
+        for d in data:
+            res = dict()
+            res['id'] = d.id
+            res['title'] = d.title
+            res['order'] = d.order
+            res['content_type'] = d.content_type
+            res['uploaded_on'] = str(d.uploaded_on)
+            res['target_date'] = str(d.target_date)
+            res['view'] = d.view
+            data_dict = dict()
+
+            if d.content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
+                data_dict['url'] = models.SubjectExternalLinkStudyMaterial.objects.filter(
+                    pk=d.id
+                ).first().url
+            elif d.content_type == models.StudyMaterialContentType.IMAGE:
+                data_dict['file'] = self.request.build_absolute_uri(models.SubjectImageStudyMaterial.objects.filter(
+                    pk=d.id
+                ).first().file)
+                print(data_dict)
+
+            res['data'] = data_dict
+            response.append(res)
+
+        return Response(response, status=status.HTTP_200_OK)

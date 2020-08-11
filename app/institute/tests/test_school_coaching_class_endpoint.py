@@ -81,6 +81,11 @@ def get_subject_course_content_min_statistics_url(subject_slug):
                    kwargs={'subject_slug': subject_slug})
 
 
+def get_subject_course_content_for_specific_view_url(subject_slug, view):
+    return reverse("institute:list-subject-specific-view-course-contents",
+                   kwargs={'subject_slug': subject_slug, 'view': view})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -1844,9 +1849,69 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #         payload)
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_list_all_subject_min_statistics_success_by_admin(self):
+    #     """Test that listing all subject min statistics success by admin"""
+    #     institute = create_institute(self.user)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     create_subject_course_content(subject, 21)
+    #
+    #     res = self.client.get(
+    #         get_subject_course_content_min_statistics_url(subject.subject_slug))
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR], 1)
+    #     self.assertEqual(res.data[models.StudyMaterialView.COURSE_OVERVIEW], 0)
+    #     self.assertEqual(res.data['storage_used'], 0.0)
+    #     self.assertEqual(res.data['total_storage'], 100.0)
+    #
+    # def test_list_all_subject_min_statistics_success_by_faculty(self):
+    #     """Test that listing all subject min statistics success by admin"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     create_subject_course_content(subject, 21)
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #
+    #     res = self.client.get(
+    #         get_subject_course_content_min_statistics_url(subject.subject_slug))
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR], 1)
+    #     self.assertEqual(res.data[models.StudyMaterialView.COURSE_OVERVIEW], 0)
+    #     self.assertEqual(res.data['storage_used'], 0.0)
+    #     self.assertEqual(res.data['total_storage'], 100.0)
+    #
+    # def test_list_all_subject_min_statistics_fails_by_non_permitted_user(self):
+    #     """Test that listing all subject min statistics fails"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     create_subject_course_content(subject, 21)
+    #
+    #     res = self.client.get(
+    #         get_subject_course_content_min_statistics_url(subject.subject_slug))
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
 
-    def test_list_all_subject_min_statistics_success_by_admin(self):
-        """Test that listing all subject min statistics success by admin"""
+    def test_get_subject_materials_for_specific_view_success_by_admin(self):
+        """Test that study materials for specific view success by admin"""
         institute = create_institute(self.user)
         order = create_order(create_institute_license(institute, self.payload), institute)
         order.paid = True
@@ -1857,16 +1922,24 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         create_subject_course_content(subject, 21)
 
         res = self.client.get(
-            get_subject_course_content_min_statistics_url(subject.subject_slug))
+            get_subject_course_content_for_specific_view_url(
+                subject.subject_slug, models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
+        )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR], 1)
-        self.assertEqual(res.data[models.StudyMaterialView.COURSE_OVERVIEW], 0)
-        self.assertEqual(res.data['storage_used'], 0.0)
-        self.assertEqual(res.data['total_storage'], 100.0)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['view'], models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
+        self.assertEqual(res.data[0]['title'], 'Temp tile')
+        self.assertEqual(res.data[0]['content_type'], models.StudyMaterialContentType.EXTERNAL_LINK)
+        self.assertEqual(res.data[0]['target_date'], '2000-12-12')
+        self.assertEqual(res.data[0]['order'], 21)
+        self.assertEqual(res.data[0]['data']['url'], 'www.google.com')
+        self.assertIn('id', res.data[0])
+        self.assertIn('order', res.data[0])
+        self.assertIn('uploaded_on', res.data[0])
 
-    def test_list_all_subject_min_statistics_success_by_faculty(self):
-        """Test that listing all subject min statistics success by admin"""
+    def test_get_subject_materials_for_specific_view_success_by_permitted_user(self):
+        """Test that study materials for specific view success by permitted user"""
         admin = create_teacher()
         institute = create_institute(admin)
         order = create_order(create_institute_license(institute, self.payload), institute)
@@ -1879,16 +1952,24 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         create_institute_subject_permission(admin, self.user, subject)
 
         res = self.client.get(
-            get_subject_course_content_min_statistics_url(subject.subject_slug))
+            get_subject_course_content_for_specific_view_url(
+                subject.subject_slug, models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
+        )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR], 1)
-        self.assertEqual(res.data[models.StudyMaterialView.COURSE_OVERVIEW], 0)
-        self.assertEqual(res.data['storage_used'], 0.0)
-        self.assertEqual(res.data['total_storage'], 100.0)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['view'], models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
+        self.assertEqual(res.data[0]['title'], 'Temp tile')
+        self.assertEqual(res.data[0]['content_type'], models.StudyMaterialContentType.EXTERNAL_LINK)
+        self.assertEqual(res.data[0]['target_date'], '2000-12-12')
+        self.assertEqual(res.data[0]['order'], 21)
+        self.assertEqual(res.data[0]['data']['url'], 'www.google.com')
+        self.assertIn('id', res.data[0])
+        self.assertIn('order', res.data[0])
+        self.assertIn('uploaded_on', res.data[0])
 
-    def test_list_all_subject_min_statistics_fails_by_non_permitted_user(self):
-        """Test that listing all subject min statistics fails"""
+    def test_get_subject_materials_for_specific_view_fails_by_unpermitted_user(self):
+        """Test that study materials for specific view fails by unpermitted user"""
         admin = create_teacher()
         institute = create_institute(admin)
         order = create_order(create_institute_license(institute, self.payload), institute)
@@ -1898,9 +1979,14 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         class_ = create_class(institute)
         subject = create_subject(class_)
         create_subject_course_content(subject, 21)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+        create_institute_class_permission(admin, self.user, class_)
 
         res = self.client.get(
-            get_subject_course_content_min_statistics_url(subject.subject_slug))
+            get_subject_course_content_for_specific_view_url(
+                subject.subject_slug, models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
+        )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'], 'Permission denied.')
