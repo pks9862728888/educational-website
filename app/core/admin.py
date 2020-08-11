@@ -131,7 +131,7 @@ class CustomSystemMessages(admin.ModelAdmin):
 
 class CustomInstituteStatistics(admin.ModelAdmin):
     model = models.InstituteStatistics
-    list_display = ['institute', 'storage_count', 'no_of_admins',
+    list_display = ['institute', 'storage', 'no_of_admins',
                     'no_of_staffs', 'no_of_faculties', 'class_count',
                     'department_count']
     search_fields = ['institute__name']
@@ -289,3 +289,8 @@ admin.site.register(models.InstituteClassPermission)
 admin.site.register(models.InstituteSubjectPermission)
 admin.site.register(models.InstituteSectionPermission)
 admin.site.register(models.MeetYourInstructor)
+admin.site.register(models.InstituteSubjectCourseContent)
+admin.site.register(models.SubjectExternalLinkStudyMaterial)
+admin.site.register(models.SubjectImageStudyMaterial)
+admin.site.register(models.SubjectVideoStudyMaterial)
+admin.site.register(models.SubjectPdfStudyMaterial)

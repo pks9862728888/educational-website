@@ -3,18 +3,14 @@ from rest_framework import serializers
 from django_countries.serializer_fields import CountryField
 from django_countries.serializers import CountryFieldMixin
 
-from core.models import Institute, InstituteProfile, InstituteLogo,\
-                        InstituteBanner, InstitutePermission,\
-                        InstituteRole, InstituteLicense, Billing,\
-                        InstituteClass, InstituteClassPermission,\
-                        MeetYourInstructor
+from core import models
 
 
 class InstituteLicenseListSerializer(serializers.ModelSerializer):
     """Serializer for getting list of institute licenses"""
 
     class Meta:
-        model = InstituteLicense
+        model = models.InstituteLicense
         fields = ('id', 'billing', 'type', 'amount', 'discount_percent', 'storage',
                   'no_of_admin', 'no_of_staff', 'no_of_faculty',
                   'no_of_student', 'video_call_max_attendees',
@@ -34,7 +30,7 @@ class InstituteLogoPictureOnlySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(read_only=True)
 
     class Meta:
-        model = InstituteLogo
+        model = models.InstituteLogo
         fields = ('image', )
         read_only_fields = ('image', )
 
@@ -44,7 +40,7 @@ class InstituteBannerPictureOnlySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(read_only=True)
 
     class Meta:
-        model = InstituteBanner
+        model = models.InstituteBanner
         fields = ('image', )
         read_only_fields = ('image', )
 
@@ -53,7 +49,7 @@ class InstituteProfileMinDetailsSerializer(serializers.ModelSerializer):
     """Serializer for getting min details by teacher"""
 
     class Meta:
-        model = InstituteProfile
+        model = models.InstituteProfile
         fields = ('motto', 'email', 'phone', 'website_url',
                   'recognition', 'state', )
         read_only_fields = ('motto', 'email', 'phone', 'website_url',
@@ -70,7 +66,7 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
     role = serializers.SerializerMethodField()
 
     class Meta:
-        model = Institute
+        model = models.Institute
         fields = ('id', 'name', 'country', 'role',
                   'institute_category', 'type', 'created_date',
                   'institute_slug', 'institute_profile',
@@ -96,23 +92,23 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
 
     def get_institute_statistics(self, instance):
         """Finds and returns institute statistics"""
-        institute_permissions = InstitutePermission.objects.filter(
+        institute_permissions = models.InstitutePermission.objects.filter(
             institute=instance.id,
             active=True
         )
         return {
             'no_of_students': 0,
             'no_of_faculties': institute_permissions.filter(
-                role=InstituteRole.FACULTY).count(),
+                role=models.InstituteRole.FACULTY).count(),
             'no_of_staff': institute_permissions.filter(
-                role=InstituteRole.STAFF).count(),
+                role=models.InstituteRole.STAFF).count(),
             'no_of_admin': institute_permissions.filter(
-                role=InstituteRole.ADMIN).count()
+                role=models.InstituteRole.ADMIN).count()
         }
 
     def get_role(self, instance):
         """Returns role of the teacher"""
-        return InstitutePermission.objects.filter(
+        return models.InstitutePermission.objects.filter(
             institute=instance,
             invitee=self.context['user'],
             active=True
@@ -130,7 +126,7 @@ class InstitutePendingInviteMinDetailsSerializer(CountryFieldMixin,
     invited_by = serializers.SerializerMethodField()
 
     class Meta:
-        model = Institute
+        model = models.Institute
         fields = ('id', 'name', 'country', 'role', 'type',
                   'invited_by', 'institute_category', 'created_date',
                   'institute_slug', 'institute_profile',
@@ -156,23 +152,23 @@ class InstitutePendingInviteMinDetailsSerializer(CountryFieldMixin,
 
     def get_institute_statistics(self, instance):
         """Finds and returns institute statistics"""
-        institute_permissions = InstitutePermission.objects.filter(
+        institute_permissions = models.InstitutePermission.objects.filter(
             institute=instance.id,
             active=True
         )
         return {
             'no_of_students': 0,
             'no_of_faculties': institute_permissions.filter(
-                role=InstituteRole.FACULTY).count(),
+                role=models.InstituteRole.FACULTY).count(),
             'no_of_staff': institute_permissions.filter(
-                role=InstituteRole.STAFF).count(),
+                role=models.InstituteRole.STAFF).count(),
             'no_of_admin': institute_permissions.filter(
-                role=InstituteRole.ADMIN).count()
+                role=models.InstituteRole.ADMIN).count()
         }
 
     def get_role(self, instance):
         """Returns role of the teacher"""
-        return InstitutePermission.objects.filter(
+        return models.InstitutePermission.objects.filter(
             institute=instance,
             invitee=self.context['user'],
             active=False
@@ -180,7 +176,7 @@ class InstitutePendingInviteMinDetailsSerializer(CountryFieldMixin,
 
     def get_invited_by(self, instance):
         """Returns the email of the inviter"""
-        return str(InstitutePermission.objects.filter(
+        return str(models.InstitutePermission.objects.filter(
             institute=instance,
             invitee=self.context['user'],
             active=False
@@ -197,7 +193,7 @@ class InstitutesJoinedMinDetailsTeacher(CountryFieldMixin,
     role = serializers.SerializerMethodField()
 
     class Meta:
-        model = Institute
+        model = models.Institute
         fields = ('id', 'name', 'country', 'role',
                   'institute_category', 'type', 'created_date',
                   'institute_slug', 'institute_profile',
@@ -223,23 +219,23 @@ class InstitutesJoinedMinDetailsTeacher(CountryFieldMixin,
 
     def get_institute_statistics(self, instance):
         """Finds and returns institute statistics"""
-        institute_permissions = InstitutePermission.objects.filter(
+        institute_permissions = models.InstitutePermission.objects.filter(
             institute=instance.id,
             active=True
         )
         return {
             'no_of_students': 0,
             'no_of_faculties': institute_permissions.filter(
-                role=InstituteRole.FACULTY).count(),
+                role=models.InstituteRole.FACULTY).count(),
             'no_of_staff': institute_permissions.filter(
-                role=InstituteRole.STAFF).count(),
+                role=models.InstituteRole.STAFF).count(),
             'no_of_admin': institute_permissions.filter(
-                role=InstituteRole.ADMIN).count()
+                role=models.InstituteRole.ADMIN).count()
         }
 
     def get_role(self, instance):
         """Returns role of the teacher"""
-        return InstitutePermission.objects.filter(
+        return models.InstitutePermission.objects.filter(
             institute=instance,
             invitee=self.context['user'],
             active=True
@@ -250,7 +246,7 @@ class InstituteProfileSerializer(serializers.ModelSerializer):
     """Serializer class for creating institute profile"""
 
     class Meta:
-        model = InstituteProfile
+        model = models.InstituteProfile
         fields = ('motto', 'email', 'phone', 'website_url',
                   'state', 'pin', 'address', 'recognition',
                   'primary_language', 'secondary_language',
@@ -265,7 +261,7 @@ class CreateInstituteSerializer(CountryFieldMixin,
     url = serializers.SerializerMethodField()
 
     class Meta:
-        model = Institute
+        model = models.Institute
         fields = ('name', 'country', 'institute_category', 'type',
                   'institute_slug', 'institute_profile', 'url')
         read_only_fields = ('institute_slug', )
@@ -274,10 +270,10 @@ class CreateInstituteSerializer(CountryFieldMixin,
         """Create method for saving nested fields"""
         institute_profile = validated_data.pop('institute_profile', None)
         user = self.context['user']
-        institute = Institute.objects.create(user=user, **validated_data)
+        institute = models.Institute.objects.create(user=user, **validated_data)
 
         if institute:
-            profile = InstituteProfile.objects.get(institute=institute)
+            profile = models.InstituteProfile.objects.get(institute=institute)
             profile.motto = institute_profile.get('motto', '')
             profile.email = institute_profile.get('email', '')
             profile.phone = institute_profile.get('phone', '')
@@ -308,7 +304,7 @@ class FullInstituteProfileSerializer(serializers.ModelSerializer):
     """Serializer class for creating institute profile"""
 
     class Meta:
-        model = InstituteProfile
+        model = models.InstituteProfile
         fields = ('motto', 'email', 'phone', 'website_url',
                   'state', 'pin', 'address', 'recognition',
                   'primary_language', 'secondary_language',
@@ -329,7 +325,7 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
 
     class Meta:
-        model = Institute
+        model = models.Institute
         fields = ('user', 'name', 'country', 'institute_category', 'type',
                   'role', 'institute_slug', 'created_date', 'institute_profile',
                   'institute_statistics', 'institute_logo', 'institute_banner')
@@ -377,7 +373,7 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
 
     def get_role(self, instance):
         """Returns role of the teacher"""
-        return InstitutePermission.objects.filter(
+        return models.InstitutePermission.objects.filter(
             institute=instance,
             invitee=self.context['user'],
             active=True
@@ -388,7 +384,7 @@ class InstituteProvidePermissionSerializer(serializers.ModelSerializer):
     """Serializer class for providing permission of institute to user"""
 
     class Meta:
-        model = InstitutePermission
+        model = models.InstitutePermission
         fields = ('institute', 'inviter', 'invitee', 'active', 'role',
                   'request_accepted_on')
 
@@ -397,7 +393,7 @@ class InstituteClassSerializer(serializers.ModelSerializer):
     """Serializer for creating institute class"""
 
     class Meta:
-        model = InstituteClass
+        model = models.InstituteClass
         fields = ('id', 'class_institute', 'name', 'class_slug',
                   'created_on')
         read_only_fields = ('id', 'class_slug', 'created_on')
@@ -408,7 +404,56 @@ class ClassMeetInstructorFileDataUploadSerializer(serializers.ModelSerializer):
     file = serializers.FileField(allow_null=False, use_url=True)
 
     class Meta:
-        model = MeetYourInstructor
+        model = models.MeetYourInstructor
         fields = ('id', 'meet_instructor_subject', 'order', 'file',
                   'file_type', 'uploaded_on', 'target_date', 'title')
         read_only_fields = ('id', 'uploaded_on')
+
+
+class SubjectCourseContentCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating course content"""
+
+    class Meta:
+        model = models.InstituteSubjectCourseContent
+        fields = ('id', 'course_content_subject', 'order', 'title',
+                  'content_type', 'view', 'target_date', 'uploaded_on')
+        read_only_fields = ('id', 'uploaded_on')
+
+
+class SubjectExternalLinkStudyMaterialSerializer(serializers.ModelSerializer):
+    """Serializer for creating course content"""
+
+    class Meta:
+        model = models.SubjectExternalLinkStudyMaterial
+        fields = ('id', 'external_link_study_material', 'url')
+        read_only_fields = ('id', )
+
+
+class ImageStudyMaterialSerializer(serializers.ModelSerializer):
+    """Serializer for creating course content"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = models.SubjectImageStudyMaterial
+        fields = ('id', 'image_study_material', 'file')
+        read_only_fields = ('id',)
+
+
+class VideoStudyMaterialSerializer(serializers.ModelSerializer):
+    """Serializer for creating course content"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = models.SubjectVideoStudyMaterial
+        fields = ('id', 'video_study_material', 'file')
+        read_only_fields = ('id',)
+
+
+class PdfStudyMaterialSerializer(serializers.ModelSerializer):
+    """Serializer for creating course content"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = models.SubjectPdfStudyMaterial
+        fields = ('id', 'pdf_study_material', 'file')
+        read_only_fields = ('id',)

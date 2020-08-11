@@ -240,9 +240,14 @@ class StudyMaterialContentType:
     ]
 
 
-class StudyMaterialModel:
+class StudyMaterialView:
     MEET_YOUR_INSTRUCTOR = 'MI'
     COURSE_OVERVIEW = 'CO'
+
+    STUDY_MATERIAL_VIEW_TYPES = [
+        (MEET_YOUR_INSTRUCTOR, _(u'MEET_YOUR_INSTRUCTOR')),
+        (COURSE_OVERVIEW, _(u'COURSE_OVERVIEW'))
+    ]
 
 
 def user_profile_picture_upload_file_path(instance, filename):
@@ -287,6 +292,39 @@ def meet_your_instructor_file_path(instance, filename):
     file_name = f'{uuid.uuid4()}.{extension}'
     date = datetime.date.today()
     path = 'institute/uploads/content/meet_your_instructor'
+    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
+    full_path = os.path.join(ini_path, file_name)
+    return full_path
+
+
+def subject_img_study_material_upload_file_path(instance, filename):
+    """Generates file path for uploading institute image study material"""
+    extension = filename.split('.')[-1]
+    file_name = f'{uuid.uuid4()}.{extension}'
+    date = datetime.date.today()
+    path = 'institute/uploads/content/image'
+    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
+    full_path = os.path.join(ini_path, file_name)
+    return full_path
+
+
+def subject_video_study_material_upload_file_path(instance, filename):
+    """Generates file path for uploading institute video study material"""
+    extension = filename.split('.')[-1]
+    file_name = f'{uuid.uuid4()}.{extension}'
+    date = datetime.date.today()
+    path = 'institute/uploads/content/video'
+    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
+    full_path = os.path.join(ini_path, file_name)
+    return full_path
+
+
+def subject_pdf_study_material_upload_file_path(instance, filename):
+    """Generates file path for uploading institute pdf study material"""
+    extension = filename.split('.')[-1]
+    file_name = f'{uuid.uuid4()}.{extension}'
+    date = datetime.date.today()
+    path = 'institute/uploads/content/pdf'
     ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
     full_path = os.path.join(ini_path, file_name)
     return full_path
@@ -1024,8 +1062,12 @@ class InstituteStatistics(models.Model):
     department_count = models.PositiveSmallIntegerField(_('Department Count'), default=0)
     class_count = models.PositiveSmallIntegerField(_('Class Count'), default=0)
     section_count = models.PositiveSmallIntegerField(_('Section Count'), default=0)
-    storage_count = models.DecimalField(_('Storage Count in Gb'), default=0.0,
-                                        max_digits=9, decimal_places=4)
+    storage = models.DecimalField(_('Storage in Gb'), default=0.0,
+                                  max_digits=12, decimal_places=6)
+    uploaded_video_duration = models.PositiveIntegerField(
+        _('Uploaded video duration in seconds'), default=0)
+    uploaded_pdf_read_duration = models.PositiveIntegerField(
+        _('Uploaded pdf reading duration in seconds'), default=0)
 
     def __str__(self):
         return self.institute.name
@@ -1127,6 +1169,27 @@ class InstituteSubject(models.Model):
 def add_subject_slug(instance, *args, **kwargs):
     if not instance.subject_slug:
         instance.subject_slug = unique_slug_generator_for_subject(instance)
+
+
+@receiver(post_save, sender=InstituteSubject)
+def create_institute_subject_statistics_instance(sender, instance, created, *args, **kwargs):
+    if created:
+        InstituteSubjectStatistics.objects.create(
+            statistics_subject=instance)
+
+
+class InstituteSubjectStatistics(models.Model):
+    """Stores Institute Subject Statistics"""
+    statistics_subject = models.OneToOneField(
+        InstituteSubject, on_delete=models.CASCADE, related_name='statistics_subject')
+    storage = models.DecimalField(
+        _('Storage used'), max_digits=12, decimal_places=6, default=0.0, blank=True)
+    uploaded_video_duration = models.PositiveIntegerField(
+        _('Uploaded Video Duration in seconds'), default=0, blank=True)
+    uploaded_pdf_duration = models.PositiveIntegerField(
+        _('Uploaded Video Duration in seconds'), default=0, blank=True)
+    max_order = models.PositiveIntegerField(
+        _('Max Order'), default=0, blank=True)
 
 
 class InstituteSection(models.Model):
@@ -1261,3 +1324,138 @@ class MeetYourInstructor(models.Model):
 
     def __str__(self):
         return str(self.title)
+
+
+class InstituteSubjectCourseContent(models.Model):
+    """Model for storing subject content"""
+    course_content_subject = models.ForeignKey(
+        to='InstituteSubject', related_name='course_content_subject',
+        on_delete=models.CASCADE)
+    order = models.IntegerField(_('Order'), blank=False, null=False)
+    title = models.CharField(
+        _('Title'), max_length=30, blank=False, null=False)
+    content_type = models.CharField(
+        _('Content Type'),
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=StudyMaterialContentType.CONTENT_TYPE_IN_CONTENT_TYPES)
+    view = models.CharField(
+        _('View name'),
+        max_length=3,
+        null=False,
+        blank=False,
+        choices=StudyMaterialView.STUDY_MATERIAL_VIEW_TYPES)
+    target_date = models.DateField(
+        _('Target Date'), max_length=10, blank=True, null=True)
+    uploaded_on = models.DateTimeField(
+        _('Uploaded on'), default=timezone.now, editable=False)
+
+    def save(self, *args, **kwargs):
+        if not self.title:
+            raise ValueError({'error': _('Subject is required.')})
+        if not self.content_type:
+            raise ValueError({'error': _('Content type is required.')})
+        if not self.order:
+            raise ValueError({'error': _('Order is required.')})
+        if not self.view:
+            raise ValueError({'error': _('View is required.')})
+        self.title = self.title.strip()
+        super(InstituteSubjectCourseContent, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.title)
+
+
+class SubjectExternalLinkStudyMaterial(models.Model):
+    """Model for storing link for institute subject study material"""
+    external_link_study_material = models.OneToOneField(
+        to='InstituteSubjectCourseContent', related_name='external_link_study_material',
+        on_delete=models.CASCADE)
+    url = models.CharField(_('Url'), max_length=256, blank=False, null=False)
+
+    def save(self, *args, **kwargs):
+        if not self.url:
+            raise ValueError({'error': _('Url is required.')})
+        self.url = self.url.strip()
+        super(SubjectExternalLinkStudyMaterial, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.external_link_study_material)
+
+
+class SubjectImageStudyMaterial(models.Model):
+    """Model for storing image study material"""
+    image_study_material = models.OneToOneField(
+        to='InstituteSubjectCourseContent', related_name='image_study_material',
+        on_delete=models.CASCADE)
+    file = models.FileField(
+        _('File'),
+        upload_to=subject_img_study_material_upload_file_path,
+        null=False,
+        blank=False,
+        max_length=1024,
+        unique=True)
+
+    def save(self, *args, **kwargs):
+        if not self.file:
+            raise ValueError({'error': _('File is required.')})
+        super(SubjectImageStudyMaterial, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.image_study_material)
+
+
+class SubjectVideoStudyMaterial(models.Model):
+    """Model for storing video study material"""
+    video_study_material = models.OneToOneField(
+        to='InstituteSubjectCourseContent', related_name='video_study_material',
+        on_delete=models.CASCADE)
+    file = models.FileField(
+        _('File'),
+        upload_to=subject_video_study_material_upload_file_path,
+        null=False,
+        blank=False,
+        max_length=1024,
+        unique=True)
+    size = models.DecimalField(
+        _('File size in Gb'), max_digits=12,
+        decimal_places=6, null=True, blank=True)
+    bit_rate = models.PositiveIntegerField(
+        _('Bit Rate'), null=True, blank=True)
+    duration = models.PositiveIntegerField(
+        _('Duration in seconds'), null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.file:
+            raise ValueError({'error': _('File is required.')})
+        super(SubjectVideoStudyMaterial, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.video_study_material)
+
+
+class SubjectPdfStudyMaterial(models.Model):
+    """Model for storing pdf study material"""
+    pdf_study_material = models.OneToOneField(
+        to='InstituteSubjectCourseContent', related_name='pdf_study_material',
+        on_delete=models.CASCADE)
+    file = models.FileField(
+        _('File'),
+        upload_to=subject_pdf_study_material_upload_file_path,
+        null=False,
+        blank=False,
+        max_length=1024,
+        unique=True)
+    duration = models.PositiveIntegerField(
+        _('Duration in seconds'), null=True, blank=True)
+    total_pages = models.PositiveIntegerField(
+        _('Total pages'), null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.file:
+            raise ValueError({'error': _('File is required.')})
+        super(SubjectPdfStudyMaterial, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.pdf_study_material)

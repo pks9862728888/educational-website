@@ -99,6 +99,23 @@ def accept_invite(institute, invitee, role):
     role.save()
 
 
+def create_institute_subject_content(course_content_subject,
+                                     order,
+                                     view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+                                     content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
+                                     title='sdf',
+                                     target_date=timezone.now()):
+    if view == models.StudyMaterialView.MEET_YOUR_INSTRUCTOR:
+        return models.InstituteSubjectCourseContent.objects.create(
+            course_content_subject=course_content_subject,
+            title=title,
+            order=order,
+            content_type=content_type,
+            target_date=target_date,
+            view=view,
+        )
+
+
 # class InstituteModelTests(TestCase):
 #     """Test the institute model"""
 #
@@ -927,3 +944,139 @@ def accept_invite(institute, invitee, role):
 #                 url=payload['url'],
 #                 meet_instructor_subject=payload['subject'],
 #             )
+#
+# class InstituteSubjectCourseContentModelTests(TestCase):
+#     """Tests for subject course content model"""
+#
+#     def setUp(self):
+#         self.user = get_user_model().objects.create_user(
+#             email='usersff@gmail.com',
+#             username='sdjfkjsfj',
+#             password='slkdjfsjfjj'
+#         )
+#         self.user.is_teacher = True
+#         self.user.save()
+#
+#     def test_add_content_for_meet_instructor_view_success_with_date(self):
+#         """Test that adding data is success"""
+#         institute = create_institute(self.user)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         payload = {
+#             'course_content_subject': subject,
+#             'title': 'adfds',
+#             'order': 1,
+#             'content_type': models.StudyMaterialContentType.VIDEO,
+#             'target_date': '2343-02-02',
+#             'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR
+#         }
+#         res = models.InstituteSubjectCourseContent.objects.create(
+#             course_content_subject=payload['course_content_subject'],
+#             title=payload['title'],
+#             order=payload['order'],
+#             content_type=payload['content_type'],
+#             target_date=payload['target_date'],
+#             view=payload['view'],
+#         )
+#         self.assertEqual(res.course_content_subject, payload['course_content_subject'])
+#         self.assertEqual(res.title, payload['title'])
+#         self.assertEqual(res.order, payload['order'])
+#         self.assertEqual(res.content_type, payload['content_type'])
+#         self.assertEqual(res.target_date, payload['target_date'])
+#         self.assertEqual(res.view, payload['view'])
+#
+#     def test_add_content_for_meet_instructor_view_success_with_no_date(self):
+#         """Test that adding data is success"""
+#         institute = create_institute(self.user)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         payload = {
+#             'course_content_subject': subject,
+#             'title': 'adfds',
+#             'order': 1,
+#             'content_type': models.StudyMaterialContentType.VIDEO,
+#             'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR
+#         }
+#         res = models.InstituteSubjectCourseContent.objects.create(
+#             course_content_subject=payload['course_content_subject'],
+#             title=payload['title'],
+#             order=payload['order'],
+#             content_type=payload['content_type'],
+#             view=payload['view'],
+#         )
+#         self.assertEqual(res.course_content_subject, payload['course_content_subject'])
+#         self.assertEqual(res.title, payload['title'])
+#         self.assertEqual(res.order, payload['order'])
+#         self.assertEqual(res.content_type, payload['content_type'])
+#         self.assertEqual(res.target_date, None)
+#         self.assertEqual(res.view, payload['view'])
+#
+#
+# class TestExternalLinkStudyMaterialModelTest(TestCase):
+#
+#     def setUp(self):
+#         self.user = get_user_model().objects.create_user(
+#             email='usersff@gmail.com',
+#             username='sdjfkjsfj',
+#             password='slkdjfsjfjj'
+#         )
+#         self.user.is_teacher = True
+#         self.user.save()
+#
+#     def test_post_external_link_success(self):
+#         """Test that posting external link success"""
+#         institute = create_institute(self.user)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#         subject_content = create_institute_subject_content(subject, 1)
+#         url = 'www.google.com'
+#
+#         res = models.SubjectExternalLinkStudyMaterial.objects.create(
+#             external_link_study_material=subject_content,
+#             url=url)
+#
+#         self.assertEqual(res.url, url)
+#
+#
+# class SubjectImageStudyMaterialTest(TestCase):
+#
+#     @patch('uuid.uuid4')
+#     def test_subject_course_material_image_is_saved_in_correct_location(self, mock_url):
+#         """Test that image will be saved in correct location"""
+#         uuid = 'test-uuid'
+#         mock_url.return_value = uuid
+#         file_path = models.subject_img_study_material_upload_file_path(None, 'image.jpg')
+#         dt = datetime.date.today()
+#         path = 'institute/uploads/content/image'
+#         expected_path = f'{path}/{dt.year}/{dt.month}/{dt.day}/{uuid}.jpg'
+#         self.assertEqual(file_path, expected_path)
+#
+#
+# class SubjectVideoStudyMaterialTest(TestCase):
+#
+#     @patch('uuid.uuid4')
+#     def test_subject_course_material_video_is_saved_in_correct_location(self, mock_url):
+#         """Test that video will be saved in correct location"""
+#         uuid = 'test-uuid'
+#         mock_url.return_value = uuid
+#         file_path = models.subject_video_study_material_upload_file_path(None, 'video.mp4')
+#         dt = datetime.date.today()
+#         path = 'institute/uploads/content/video'
+#         expected_path = f'{path}/{dt.year}/{dt.month}/{dt.day}/{uuid}.mp4'
+#         self.assertEqual(file_path, expected_path)
+#
+#
+# class SubjectPdfStudyMaterialTest(TestCase):
+#
+#     @patch('uuid.uuid4')
+#     def test_subject_course_material_pdf_is_saved_in_correct_location(self, mock_url):
+#         """Test that pdf will be saved in correct location"""
+#         uuid = 'test-uuid'
+#         mock_url.return_value = uuid
+#         file_path = models.subject_pdf_study_material_upload_file_path(None, 'doc.pdf')
+#         dt = datetime.date.today()
+#         path = 'institute/uploads/content/pdf'
+#         expected_path = f'{path}/{dt.year}/{dt.month}/{dt.day}/{uuid}.pdf'
+#         self.assertEqual(file_path, expected_path)

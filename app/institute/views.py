@@ -1,6 +1,7 @@
 import os
 from decimal import Decimal
 import filetype
+import time
 
 from PIL import Image
 
@@ -45,6 +46,25 @@ def get_unexpired_license(institute):
         return None
     else:
         return order
+
+
+def get_institute_stats_and_validate(institute, size=None):
+    """
+    Returns institute statistics if validation success else return error response
+    """
+    stats = models.InstituteStatistics.objects.filter(institute=institute).first()
+    order = get_unexpired_license(institute)
+    if not order:
+        return Response({'error': _('License not found.')},
+                        status=status.HTTP_400_BAD_REQUEST)
+    elif size:
+        if stats.storage > order.selected_license.storage:
+            return Response({'error': _('Maximum storage limit reached. To get more storage contact us.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif stats.storage + size > order.selected_license.storage:
+            return Response({'error': _('File size too large. Allowed storage limit will get exceeded. To get more storage contact us.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+    return stats
 
 
 class IsTeacher(permissions.BasePermission):
@@ -2021,32 +2041,18 @@ class ListSectionInchargesView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class InstituteSubjectUploadCourseContentView(APIView):
-    """Creates institute subject upload course content view"""
+class InstituteSubjectAddCourseContentView(APIView):
+    """Creates institute subject add course content view"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
     parser_classes = (JSONParser, MultiPartParser)
 
-    def _get_stats(self, subject, size):
-        # For updating storage
-        class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
-        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
-        stats = models.InstituteStatistics.objects.filter(institute=institute).first()
-        order = get_unexpired_license(institute)
-        if not order:
-            return Response({'error': _('License not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-        elif stats.storage_count > order.selected_license.storage:
-            return Response({'error': _('Maximum storage limit reached. To get more storage contact us.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-        elif stats.storage_count + Decimal(size) > order.selected_license.storage:
-            return Response({'error': _('File size too large. Storage limit will get exceeded. To get more storage contact us.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-        return stats
-
     def _validate_image_file(self, file):
         """Checking whether the file is an image file"""
         try:
+            if not file:
+                return Response({'error': _('File is required.')},
+                                status=status.HTTP_400_BAD_REQUEST)
             Image.open(file).verify()
         except Exception:
             return Response({'error': _(
@@ -2056,17 +2062,23 @@ class InstituteSubjectUploadCourseContentView(APIView):
     def _validate_video_file(self, file):
         """Checking whether the file is video file"""
         try:
-            if not filetype.is_video(file):
+            if not file:
+                return Response({'error': _('File is required.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            elif not filetype.is_video(file):
                 return Response({'error': _('Not a valid video file.')},
                                 status=status.HTTP_400_BAD_REQUEST)
         except Exception:
-            return Response({'error': _('An internal error occurred')},
+            return Response({'error': _('Error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def _validate_pdf_file(self, file, raw_file):
         """Checking whether the file is pdf file"""
         try:
-            if not filetype.is_archive(file):
+            if not file:
+                return Response({'error': _('File is required.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            elif not filetype.is_archive(file):
                 return Response({'error': _('Not a valid pdf file.')},
                                 status=status.HTTP_400_BAD_REQUEST)
             else:
@@ -2093,83 +2105,149 @@ class InstituteSubjectUploadCourseContentView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not request.data.get('order'):
-            return Response({'error': _('Order is required.')},
-                            status=status.HTTP_400_BAD_REQUEST)
+        subject_stats = models.InstituteSubjectStatistics.objects.filter(
+            statistics_subject=subject
+        ).first()
 
-        if not request.data.get('file_type'):
-            return Response({'error': _('File type is required.')},
-                            status=status.HTTP_400_BAD_REQUEST)
+        course_content_serializer = serializer.SubjectCourseContentCreateSerializer(
+            data={
+                'title': request.data.get('title'),
+                'content_type': request.data.get('content_type'),
+                'view': request.data.get('view'),
+                'order': subject_stats.max_order + 1,
+                'target_date': request.data.get('target_date'),
+                'course_content_subject': subject.pk
+            })
 
-        if not request.data.get('title'):
-            return Response({'error': _('Title is required.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not request.data.get('model'):
-            return Response({'error': _('Model is required. Please contact us.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if request.data.get('file_type') != models.StudyMaterialContentType.EXTERNAL_LINK and\
-                not request.data.get('size'):
-            return Response({'error': _('Bad request. Please contact us.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        # Content type is link
-        if request.data.get('file_type') == models.StudyMaterialContentType.EXTERNAL_LINK:
-            if not request.data.get('url'):
-                return Response({'error': _('Url is required.')},
-                                status=status.HTTP_400_BAD_REQUEST)
-            try:
-                content = None
-                if request.data.get('model') == models.StudyMaterialModel.MEET_YOUR_INSTRUCTOR:
-                    content = models.MeetYourInstructor.objects.create(
-                        meet_instructor_subject=subject,
-                        order=int(request.data.get('order')),
-                        title=request.data.get('title'),
-                        file_type=request.data.get('file_type'),
-                        url=request.data.get('url'),
-                        target_date=request.data.get('target_date')
-                    )
-                return Response({
-                    'id': content.pk,
-                    'order': content.order,
-                    'uploaded_on': content.uploaded_on,
-                    'title': content.title,
-                    'file_type': content.file_type,
-                    'url': content.url,
-                    'target_date': content.target_date
-                }, status=status.HTTP_201_CREATED)
-            except:
-                return Response({'error': _('Internal server error.')},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if course_content_serializer.is_valid():
+            course_content_serializer.save()
         else:
-            error_response = None
-            if request.data.get('file_type') == models.StudyMaterialContentType.IMAGE:
-                error_response = self._validate_image_file(request.data.get('file'))
-            elif request.data.get('file_type') == models.StudyMaterialContentType.VIDEO:
-                error_response = self._validate_video_file(request.data.get('file'))
-            elif request.data.get('file_type') == models.StudyMaterialContentType.PDF:
-                error_response = self._validate_pdf_file(request.data.get('file'), str(request.FILES['file']))
+            return Response(course_content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            if error_response:
-                return error_response
+        if request.data.get('content_type') == models.StudyMaterialContentType.EXTERNAL_LINK:
+            url = request.data.get('url')
 
-            stats = self._get_stats(subject, request.data.get('size'))
-            ser = None
-            if request.data.get('model') == models.StudyMaterialModel.MEET_YOUR_INSTRUCTOR:
-                ser = serializer.ClassMeetInstructorFileDataUploadSerializer(
-                    data={
-                        'meet_instructor_subject': subject.pk,
-                        'order': int(request.data.get('order')),
-                        'file_type': request.data.get('file_type'),
-                        'target_date': request.data.get('target_date'),
-                        'file': request.data.get('file'),
-                        'title': request.data.get('title')
-                    }, context={"request": request})
-            if ser.is_valid():
-                ser.save()
-                stats.storage_count += Decimal(request.data.get('size'))
-                stats.save()
-                return Response(ser.data, status=status.HTTP_201_CREATED)
+            if not url:
+                return Response({'error': _('Url is required')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            external_link_serializer = serializer.SubjectExternalLinkStudyMaterialSerializer(
+                data={
+                    'external_link_study_material': course_content_serializer.data['id'],
+                    'url': url
+                })
+            if external_link_serializer.is_valid():
+                external_link_serializer.save()
+                subject_stats.max_order += 1
+                subject_stats.save()
+                response = course_content_serializer.data
+                response.pop('course_content_subject')
+                response['url'] = external_link_serializer.data['url']
+                return Response(response, status=status.HTTP_201_CREATED)
             else:
-                return Response(ser.errors, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                models.InstituteSubjectCourseContent.objects.filter(
+                    pk=course_content_serializer.data['id']).first().delete()
+                return Response(external_link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            size = request.data.get('size')
+
+            if not size:
+                return Response({'error': _('Error occurred. ERROR_CODE: SIZE. Please contact us.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                size = Decimal(size)
+
+            class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
+            institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+            institute_stats = get_institute_stats_and_validate(institute, size)
+
+            if not isinstance(institute_stats, models.InstituteStatistics):
+                return institute_stats
+
+            # Image file
+            if request.data.get('content_type') == models.StudyMaterialContentType.IMAGE:
+                validate = self._validate_image_file(request.data.get('file'))
+
+                if validate:
+                    return validate
+
+                image_serializer = serializer.ImageStudyMaterialSerializer(
+                    data={
+                        'image_study_material': course_content_serializer.data['id'],
+                        'file': request.data.get('file')
+                    }, context={"request": request})
+
+                if image_serializer.is_valid():
+                    image_serializer.save()
+                    subject_stats.max_order += 1
+                    subject_stats.storage += size
+                    subject_stats.save()
+                    institute_stats.storage += size
+                    institute_stats.save()
+                    response = course_content_serializer.data
+                    response.pop('course_content_subject')
+                    response['data'] = image_serializer.data['file']
+                    return Response(response, status=status.HTTP_201_CREATED)
+                else:
+                    models.InstituteSubjectCourseContent.objects.filter(
+                        pk=course_content_serializer.data['id']).first().delete()
+                    return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Video file
+            elif request.data.get('content_type') == models.StudyMaterialContentType.VIDEO:
+                validate = self._validate_video_file(request.data.get('file'))
+
+                if validate:
+                    return validate
+
+                video_serializer = serializer.VideoStudyMaterialSerializer(
+                    data={
+                        'video_study_material': course_content_serializer.data['id'],
+                        'file': request.data.get('file')
+                    }, context={"request": request})
+
+                if video_serializer.is_valid():
+                    video_serializer.save()
+                    subject_stats.max_order += 1
+                    subject_stats.storage += size
+                    subject_stats.save()
+                    institute_stats.storage += size
+                    institute_stats.save()
+                    response = course_content_serializer.data
+                    response.pop('course_content_subject')
+                    response['data'] = video_serializer.data['file']
+                    return Response(response, status=status.HTTP_201_CREATED)
+                else:
+                    models.InstituteSubjectCourseContent.objects.filter(
+                        pk=course_content_serializer.data['id']).first().delete()
+                    return Response(video_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Pdf file
+            elif request.data.get('content_type') == models.StudyMaterialContentType.PDF:
+                validate = self._validate_pdf_file(request.data.get('file'), str(request.FILES['file']))
+
+                if validate:
+                    return validate
+
+                pdf_serializer = serializer.PdfStudyMaterialSerializer(
+                    data={
+                        'pdf_study_material': course_content_serializer.data['id'],
+                        'file': request.data.get('file')
+                    }, context={"request": request})
+
+                if pdf_serializer.is_valid():
+                    pdf_serializer.save()
+                    subject_stats.max_order += 1
+                    subject_stats.storage += size
+                    subject_stats.save()
+                    institute_stats.storage += size
+                    institute_stats.save()
+                    response = course_content_serializer.data
+                    response.pop('course_content_subject')
+                    response['data'] = pdf_serializer.data['file']
+                    return Response(response, status=status.HTTP_201_CREATED)
+                else:
+                    models.InstituteSubjectCourseContent.objects.filter(
+                        pk=course_content_serializer.data['id']).first().delete()
+                    return Response(pdf_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

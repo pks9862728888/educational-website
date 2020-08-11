@@ -72,7 +72,7 @@ def get_institute_section_permission_list_url(section_slug):
 
 
 def get_subject_create_course_url(subject_slug):
-    return reverse("institute:upload-subject-course-content",
+    return reverse("institute:add-subject-course-content",
                    kwargs={'subject_slug': subject_slug})
 
 
@@ -1735,27 +1735,30 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
 
         payload = {
             'subject': subject.subject_slug,
-            'order': 1,
             'title': 'temp title',
-            'file_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'url': 'https://www.google.com/',
+            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
             'target_date': '2000-12-12',
-            'model': 'MI',
-            'size': '0.01'
+            'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+            'url': 'https://www.google.com/'
         }
 
         res = self.client.post(
             get_subject_create_course_url(subject.subject_slug),
-            payload
+            payload, format='json'
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['order'], payload['order'])
         self.assertEqual(res.data['title'], payload['title'])
-        self.assertEqual(res.data['file_type'], payload['file_type'])
-        self.assertEqual(res.data['url'], payload['url'])
+        self.assertEqual(res.data['content_type'], payload['content_type'])
         self.assertEqual(res.data['target_date'], payload['target_date'])
         self.assertIn('uploaded_on', res.data)
+        self.assertIn('order', res.data)
+        self.assertEqual(res.data['url'], payload['url'])
         self.assertNotIn('file', res.data)
+        stats = models.InstituteSubjectStatistics.objects.filter(
+            statistics_subject=subject
+        ).first()
+        self.assertEqual(stats.max_order, 1)
+        self.assertEqual(stats.storage, 0.0)
 
     def test_upload_meet_your_instructor_link_success_without_target_date(self):
         """Test that permitted user can upload link content"""
@@ -1769,25 +1772,28 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
 
         payload = {
             'subject': subject.subject_slug,
-            'order': 1,
             'title': 'temp title',
-            'file_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'url': 'https://www.google.com/',
-            'model': 'MI'
+            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+            'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+            'url': 'https://www.google.com/'
         }
 
         res = self.client.post(
             get_subject_create_course_url(subject.subject_slug),
-            payload
+            payload, format='json'
         )
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['order'], payload['order'])
         self.assertEqual(res.data['title'], payload['title'])
-        self.assertEqual(res.data['file_type'], payload['file_type'])
-        self.assertEqual(res.data['url'], payload['url'])
+        self.assertEqual(res.data['content_type'], payload['content_type'])
         self.assertIn('uploaded_on', res.data)
+        self.assertIn('order', res.data)
+        self.assertEqual(res.data['url'], payload['url'])
         self.assertNotIn('file', res.data)
-        self.assertEqual(res.data['target_date'], None)
+        stats = models.InstituteSubjectStatistics.objects.filter(
+            statistics_subject=subject
+        ).first()
+        self.assertEqual(stats.max_order, 1)
+        self.assertEqual(stats.storage, 0.0)
 
     def test_upload_meet_your_instructor_link_fails_by_unpermitted_user(self):
         """Test that unpermitted user can not upload link content"""
@@ -1800,17 +1806,16 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
 
         payload = {
             'subject': subject.subject_slug,
-            'order': 1,
             'title': 'temp title',
-            'file_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'url': 'https://www.google.com/',
+            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
             'target_date': '2000-12-12',
-            'model': 'MI'
+            'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+            'url': 'https://www.google.com/',
+            'size': '0.01',
         }
 
         res = self.client.post(
             get_subject_create_course_url(subject.subject_slug),
-            payload
-        )
+            payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'], 'Permission denied.')
