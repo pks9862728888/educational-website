@@ -2142,7 +2142,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                 subject_stats.save()
                 response = course_content_serializer.data
                 response.pop('course_content_subject')
-                response['url'] = external_link_serializer.data['url']
+                response['data'] = {'url': external_link_serializer.data['url']}
                 return Response(response, status=status.HTTP_201_CREATED)
             else:
                 models.InstituteSubjectCourseContent.objects.filter(
@@ -2187,7 +2187,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                     institute_stats.save()
                     response = course_content_serializer.data
                     response.pop('course_content_subject')
-                    response['data'] = image_serializer.data['file']
+                    response['data'] = {'file': image_serializer.data['file']}
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
                     models.InstituteSubjectCourseContent.objects.filter(
@@ -2216,7 +2216,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                     institute_stats.save()
                     response = course_content_serializer.data
                     response.pop('course_content_subject')
-                    response['data'] = video_serializer.data['file']
+                    response['data'] = {'file': video_serializer.data['file']}
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
                     models.InstituteSubjectCourseContent.objects.filter(
@@ -2245,7 +2245,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                     institute_stats.save()
                     response = course_content_serializer.data
                     response.pop('course_content_subject')
-                    response['data'] = pdf_serializer.data['file']
+                    response['data'] = {'file': pdf_serializer.data['file']}
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
                     models.InstituteSubjectCourseContent.objects.filter(
@@ -2333,7 +2333,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                     invitee=self.request.user,
                     active=True,
             ).exists():
-                return Response({'error': 'Permission denied.'},
+                return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
         data = models.InstituteSubjectCourseContent.objects.filter(
@@ -2383,3 +2383,72 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             response.append(res)
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteDeleteSubjectCourseContentView(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, request, *args, **kwargs):
+        course_content = models.InstituteSubjectCourseContent.objects.filter(
+            pk=kwargs.get('pk')
+        ).first()
+
+        if not course_content:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        subject = models.InstituteSubject.objects.filter(
+            pk=course_content.course_content_subject.pk
+        ).first()
+        class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
+        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    role=models.InstituteRole.ADMIN,
+                    invitee=self.request.user,
+                    active=True,
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if course_content.content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
+                models.SubjectExternalLinkStudyMaterial.objects.filter(
+                    external_link_study_material__pk=course_content.pk).first().delete()
+            else:
+                subject_stat = models.InstituteSubjectStatistics.objects.filter(
+                    statistics_subject=subject
+                ).first()
+                institute_stat = models.InstituteStatistics.objects.filter(
+                    institute=institute
+                ).first()
+                size = 0
+                if course_content.content_type == models.StudyMaterialContentType.IMAGE:
+                    file_data = models.SubjectImageStudyMaterial.objects.filter(
+                        image_study_material__pk=course_content.pk).first()
+                    size = file_data.file.size/1000000000 # In Gb
+                    file_data.delete()
+                elif course_content.content_type == models.StudyMaterialContentType.VIDEO:
+                    file_data = models.SubjectVideoStudyMaterial.objects.filter(
+                        video_study_material__pk=course_content.pk).first()
+                    size = file_data.file.size / 1000000000 # In Gb
+                    file_data.delete()
+                elif course_content.content_type == models.StudyMaterialContentType.PDF:
+                    file_data = models.SubjectPdfStudyMaterial.objects.filter(
+                        pdf_study_material__pk=course_content.pk).first()
+                    size = file_data.file.size / 1000000000 # In Gb
+                    file_data.delete()
+                course_content.delete()
+                subject_stat.storage -= Decimal(size)
+                subject_stat.save()
+                institute_stat.storage -= Decimal(size)
+                institute_stat.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response({'error': _('Internal server error. Kindly refresh and try again.')},
+                            status=status.HTTP_400_BAD_REQUEST)

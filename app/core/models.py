@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.dispatch import receiver
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
 from app import settings
@@ -1063,7 +1063,7 @@ class InstituteStatistics(models.Model):
     class_count = models.PositiveSmallIntegerField(_('Class Count'), default=0)
     section_count = models.PositiveSmallIntegerField(_('Section Count'), default=0)
     storage = models.DecimalField(_('Storage in Gb'), default=0.0,
-                                  max_digits=12, decimal_places=6)
+                                  max_digits=14, decimal_places=9)
     uploaded_video_duration = models.PositiveIntegerField(
         _('Uploaded video duration in seconds'), default=0)
     uploaded_pdf_read_duration = models.PositiveIntegerField(
@@ -1183,7 +1183,7 @@ class InstituteSubjectStatistics(models.Model):
     statistics_subject = models.OneToOneField(
         InstituteSubject, on_delete=models.CASCADE, related_name='statistics_subject')
     storage = models.DecimalField(
-        _('Storage used'), max_digits=12, decimal_places=6, default=0.0, blank=True)
+        _('Storage used'), max_digits=14, decimal_places=9, default=0.0, blank=True)
     uploaded_video_duration = models.PositiveIntegerField(
         _('Uploaded Video Duration in seconds'), default=0, blank=True)
     uploaded_pdf_duration = models.PositiveIntegerField(
@@ -1406,6 +1406,13 @@ class SubjectImageStudyMaterial(models.Model):
         return str(self.image_study_material)
 
 
+@receiver(post_delete, sender=SubjectImageStudyMaterial)
+def auto_delete_image_file_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
 class SubjectVideoStudyMaterial(models.Model):
     """Model for storing video study material"""
     video_study_material = models.OneToOneField(
@@ -1435,6 +1442,13 @@ class SubjectVideoStudyMaterial(models.Model):
         return str(self.video_study_material)
 
 
+@receiver(post_delete, sender=SubjectVideoStudyMaterial)
+def auto_delete_video_file_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
 class SubjectPdfStudyMaterial(models.Model):
     """Model for storing pdf study material"""
     pdf_study_material = models.OneToOneField(
@@ -1459,3 +1473,10 @@ class SubjectPdfStudyMaterial(models.Model):
 
     def __str__(self):
         return str(self.pdf_study_material)
+
+
+@receiver(post_delete, sender=SubjectPdfStudyMaterial)
+def auto_delete_pdf_file_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
