@@ -2251,3 +2251,56 @@ class InstituteSubjectAddCourseContentView(APIView):
                     models.InstituteSubjectCourseContent.objects.filter(
                         pk=course_content_serializer.data['id']).first().delete()
                     return Response(pdf_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteSubjectMinStatisticsView(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """Get institute statistics"""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).first()
+
+        if not subject:
+            return Response({'error': 'Subject not found.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
+        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                role=models.InstituteRole.ADMIN,
+                invitee=self.request.user,
+                active=True,
+            ).exists():
+                return Response({'error': 'Permission denied.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        order = get_unexpired_license(institute)
+
+        if not order:
+            return Response({'error': _('License expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        response = dict()
+        response['total_storage'] = float(order.selected_license.storage)
+        response['storage_used'] = float(models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).first().storage)
+
+        response[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR] = models.InstituteSubjectCourseContent.objects.filter(
+            course_content_subject=subject,
+            view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR
+        ).count()
+        response[models.StudyMaterialView.COURSE_OVERVIEW] = models.InstituteSubjectCourseContent.objects.filter(
+            course_content_subject=subject,
+            view=models.StudyMaterialView.COURSE_OVERVIEW
+        ).count()
+
+        return Response(response, status=status.HTTP_200_OK)
