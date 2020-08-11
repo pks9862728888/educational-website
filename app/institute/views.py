@@ -23,7 +23,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
 
 from . import serializer
-from app.settings import client
+from app.settings import client, MEDIA_URL
 from core import models
 
 
@@ -2355,13 +2355,29 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
 
             if d.content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
                 data_dict['url'] = models.SubjectExternalLinkStudyMaterial.objects.filter(
-                    pk=d.id
+                    external_link_study_material__pk=d.id
                 ).first().url
             elif d.content_type == models.StudyMaterialContentType.IMAGE:
-                data_dict['file'] = self.request.build_absolute_uri(models.SubjectImageStudyMaterial.objects.filter(
-                    pk=d.id
-                ).first().file)
-                print(data_dict)
+                data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
+                    models.SubjectImageStudyMaterial.objects.filter(
+                        image_study_material__pk=d.id
+                    ).first().file)
+            elif d.content_type == models.StudyMaterialContentType.VIDEO:
+                query_data = models.SubjectVideoStudyMaterial.objects.filter(
+                        video_study_material__pk=d.id
+                    ).first()
+                data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
+                    query_data.file)
+                data_dict['bit_rate'] = query_data.bit_rate
+                data_dict['duration'] = query_data.duration
+            elif d.content_type == models.StudyMaterialContentType.PDF:
+                query_data = models.SubjectPdfStudyMaterial.objects.filter(
+                        pdf_study_material__pk=d.id
+                    ).first()
+                data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
+                    query_data.file)
+                data_dict['total_pages'] = query_data.total_pages
+                data_dict['duration'] = query_data.duration
 
             res['data'] = data_dict
             response.append(res)

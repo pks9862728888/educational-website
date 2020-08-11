@@ -457,3 +457,12 @@ class PdfStudyMaterialSerializer(serializers.ModelSerializer):
         model = models.SubjectPdfStudyMaterial
         fields = ('id', 'pdf_study_material', 'file')
         read_only_fields = ('id',)
+
+
+class GetImageStudyMaterialSerializer(serializers.ModelSerializer):
+    """Serializer for creating course content"""
+
+    class Meta:
+        model = models.SubjectImageStudyMaterial
+        fields = ('id', 'image_study_material', 'file')
+        read_only_fields = ('image_study_material', 'file')
