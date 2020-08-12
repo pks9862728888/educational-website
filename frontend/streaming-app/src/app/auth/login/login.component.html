@@ -6,7 +6,7 @@
 </div>
 
 <section class="login-form">
-    <form (submit)="login()" fxLayout="column" fxLayoutAlign="center center" id="set-screen-height-background">
+    <form fxLayout="column" fxLayoutAlign="center center" id="set-screen-height-background">
         <div id="sign-in-banner">
             <h1 id="sign-in-text">Log In</h1>
         </div>
@@ -27,14 +27,17 @@
 
                 <mat-form-field>
                     <mat-label>Your password</mat-label>
-                    <input type="password" matInput formControlName="password">
+                    <input type="password" matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'">
+                    <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
+                      <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
 
                     <mat-error *ngIf="loginForm.controls.password.errors?.required">
                         Password is required.
                     </mat-error>
                 </mat-form-field>
                 <mat-hint *ngIf="errorText" class="error-red auth-error">{{ errorText }}</mat-hint>
-                <button [disabled]="loginForm.invalid" mat-raised-button color="primary">Log in</button>
+                <button [disabled]="loginForm.invalid" mat-raised-button color="primary" (click)="login()">Log in</button>
                 <mat-divider></mat-divider>
                 <p class="mat-caption" class="bottom-hint">
                     <strong><a routerLink="/auth/forgot-password">Forgot password</a></strong>

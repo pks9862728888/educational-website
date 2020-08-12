@@ -23,8 +23,9 @@ interface ServerResponse {
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  loginForm: FormGroup;
 
+  loginForm: FormGroup;
+  hidePassword = true;
   // For showing error
   errorText: string;
 

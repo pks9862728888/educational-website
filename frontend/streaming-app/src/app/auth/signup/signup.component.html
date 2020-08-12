@@ -6,7 +6,7 @@
 </div>
 
 <section class="signup-form">
-    <form (submit)="signUp()" fxLayout="column" fxLayoutAlign="center center" id="set-screen-height-background">
+    <form fxLayout="column" fxLayoutAlign="center center" id="set-screen-height-background">
         <div id="sign-up-banner">
             <h1 id="sign-up-text">Sign Up</h1>
         </div>
@@ -41,8 +41,10 @@
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Your password</mat-label>
-                    <input type="password" matInput formControlName="password" placeholder="Password should be at least 8 characters long.">
-
+                    <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" placeholder="Password should be at least 8 characters long.">
+                    <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
+                      <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
                     <mat-error *ngIf="signupForm.controls.password.errors &&
                                      !signupForm.controls.password.errors?.required">
                         Password should be at least 8 characters long.
@@ -59,8 +61,10 @@
                 </mat-form-field>
                 <mat-form-field>
                     <mat-label>Confirm password</mat-label>
-                    <input type="password" matInput formControlName="confirmPassword" placeholder="Passwords should match.">
-
+                    <input [type]="hideConfirmPassword ? 'password' : 'text'" matInput formControlName="confirmPassword" placeholder="Passwords should match.">
+                    <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideConfirmPassword">
+                      <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
                     <mat-error *ngIf="signupForm.controls.confirmPassword.errors?.required">
                         This field is required.
                     </mat-error>
@@ -88,7 +92,7 @@
                     </mat-hint>
                 </div>
 
-                <button [disabled]="signupForm.invalid" mat-raised-button color="primary">Sign up</button>
+                <button [disabled]="signupForm.invalid" (click)="signUp()" mat-raised-button color="primary">Sign up</button>
                 <p class="mat-caption" id="login">
                     Already have an account? <strong><a routerLink="/auth/login">Click here to login</a></strong>
                 </p>

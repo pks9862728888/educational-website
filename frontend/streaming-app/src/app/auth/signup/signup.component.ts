@@ -11,6 +11,9 @@ import { Router } from '@angular/router';
 })
 export class SignupComponent implements OnInit {
 
+  hidePassword = true;
+  hideConfirmPassword = true;
+
   constructor( private formBuilder: FormBuilder,
                private authService: AuthService,
                private router: Router ) {}
