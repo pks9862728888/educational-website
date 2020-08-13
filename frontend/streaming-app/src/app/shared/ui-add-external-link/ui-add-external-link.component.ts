@@ -48,7 +48,7 @@ export class UiAddExternalLinkComponent implements OnInit, OnDestroy {
           this.addExternalLinkForm.enable();
         }
       }
-    )
+    );
   }
 
   upload() {

@@ -8,7 +8,7 @@
             <input type="text" formControlName="title" maxlength="20" class="form-control" placeholder="Title" aria-label="File name">
         </div>
         <div class="col-12 m-b-1" *ngIf="showTargetDate">
-            <input class="form-control" formControlName="target_date" (click)="datepicker.open()" [matDatepicker]="datepicker" placeholder="Choose Target Date">
+            <input class="form-control" formControlName="target_date" (click)="datepicker.open()" [matDatepicker]="datepicker" placeholder="Set Target Date (optional)">
             <div class="datepicker-icon">
                 <mat-icon (click)="datepicker.open()" class="pick-date-icon">today</mat-icon>
                 <mat-datepicker touchUi #datepicker></mat-datepicker>

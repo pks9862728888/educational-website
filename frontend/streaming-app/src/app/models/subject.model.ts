@@ -51,6 +51,11 @@ export interface StudyMaterialDetails {
   view: string;
   content_type: string;
   data: {
-    url: string;
+    url?: string;
+    file?: string;
+    bit_rate?: number;
+    duration?: number;
+    total_pages?: number;
+    size?: number;
   };
 }

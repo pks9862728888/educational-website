@@ -2117,7 +2117,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                 'order': subject_stats.max_order + 1,
                 'target_date': request.data.get('target_date'),
                 'course_content_subject': subject.pk
-            });
+            })
 
         if course_content_serializer.is_valid():
             course_content_serializer.save()
@@ -2187,7 +2187,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                     institute_stats.save()
                     response = course_content_serializer.data
                     response.pop('course_content_subject')
-                    response['data'] = {'file': image_serializer.data['file']}
+                    response['data'] = {
+                        'file': image_serializer.data['file'],
+                        'size': float(size)
+                    }
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
                     models.InstituteSubjectCourseContent.objects.filter(
@@ -2216,7 +2219,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                     institute_stats.save()
                     response = course_content_serializer.data
                     response.pop('course_content_subject')
-                    response['data'] = {'file': video_serializer.data['file']}
+                    response['data'] = {
+                        'file': video_serializer.data['file'],
+                        'size': float(size)
+                    }
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
                     models.InstituteSubjectCourseContent.objects.filter(
@@ -2245,7 +2251,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                     institute_stats.save()
                     response = course_content_serializer.data
                     response.pop('course_content_subject')
-                    response['data'] = {'file': pdf_serializer.data['file']}
+                    response['data'] = {
+                        'file': pdf_serializer.data['file'],
+                        'size': float(size)
+                    }
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
                     models.InstituteSubjectCourseContent.objects.filter(
@@ -2358,10 +2367,12 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                     external_link_study_material__pk=d.id
                 ).first().url
             elif d.content_type == models.StudyMaterialContentType.IMAGE:
-                data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
-                    models.SubjectImageStudyMaterial.objects.filter(
+                query_data = models.SubjectImageStudyMaterial.objects.filter(
                         image_study_material__pk=d.id
-                    ).first().file)
+                    ).first()
+                data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
+                    query_data.file)
+                data_dict['size'] = query_data.file.size / 1000000000  #In Gb
             elif d.content_type == models.StudyMaterialContentType.VIDEO:
                 query_data = models.SubjectVideoStudyMaterial.objects.filter(
                         video_study_material__pk=d.id
@@ -2370,6 +2381,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                     query_data.file)
                 data_dict['bit_rate'] = query_data.bit_rate
                 data_dict['duration'] = query_data.duration
+                data_dict['size'] = query_data.file.size / 1000000000  # In Gb
             elif d.content_type == models.StudyMaterialContentType.PDF:
                 query_data = models.SubjectPdfStudyMaterial.objects.filter(
                         pdf_study_material__pk=d.id
@@ -2378,6 +2390,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                     query_data.file)
                 data_dict['total_pages'] = query_data.total_pages
                 data_dict['duration'] = query_data.duration
+                data_dict['size'] = query_data.file.size / 1000000000  # In Gb
 
             res['data'] = data_dict
             response.append(res)
@@ -2445,9 +2458,9 @@ class InstituteDeleteSubjectCourseContentView(APIView):
                     size = file_data.file.size / 1000000000 # In Gb
                     file_data.delete()
                 course_content.delete()
-                subject_stat.storage -= Decimal(size)
+                subject_stat.storage = max(0, subject_stat.storage - Decimal(size))
                 subject_stat.save()
-                institute_stat.storage -= Decimal(size)
+                institute_stat.storage = max(0, institute_stat.storage - Decimal(size))
                 institute_stat.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception:

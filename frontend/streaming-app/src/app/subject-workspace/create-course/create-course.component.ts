@@ -27,16 +27,17 @@ export class CreateCourseComponent implements OnInit {
   loadingContentText = 'Fetching Content...';
   showReload: boolean;
   reloadText = 'Unable to load course details.';
-  errorText: string;
-  contentSuccessText: string;
-  contentError: string;
+  errorText: string;            // For showing fetching data error
+  contentSuccessText: string;   // For showing upload success
+  actionSuccessText: string;    // For showing reorder, shuffle, edit success
+  contentError: string;         // For showing upload error
   contentReload: boolean;
   contentReloadText = 'Unable to load content.';
   viewOrder = ['MI', 'CO'];
   actionControlDialogDataSubscription: Subscription;
   allowTargetDateSetting = true;
   uploadingEvent = new Subject<String>();
-  trueValue = true;
+  hideCloseContentLoadingErrorButton = true;
   deleteDialogDataSubscription: Subscription;
 
   // Data
@@ -67,6 +68,7 @@ export class CreateCourseComponent implements OnInit {
 
   getMinCourseDetails() {
     this.showLoadingIndicator = true;
+    this.hideCloseContentLoadingErrorButton = true;
     this.showReload = false;
     this.errorText = null;
     this.instituteApiService.getMinCourseDetails(this.currentSubjectSlug).subscribe(
@@ -149,14 +151,20 @@ export class CreateCourseComponent implements OnInit {
   deleteClicked(content: StudyMaterialDetails) {
     this.actionContent = content;
     this.actionView = this.viewOrder[this.openedPanelStep];
+    this.actionSuccessText = null;
+    this.contentError = null;
     this.deleteDialogDataSubscription = this.uiService.dialogData$.subscribe(
       result => {
         if (result) {
           this.instituteApiService.deleteClassCourseContent(content.id.toString()).subscribe(
             () => {
-              this.contentSuccessText = 'Delete successful.';
+              this.actionSuccessText = 'Delete successful.';
+              this.hideCloseContentLoadingErrorButton = false;
               this.viewData[this.actionView].splice(this.actionContent, 1);
-              this.courseDetailsMinStat[this.actionView] -= 1;
+              this.courseDetailsMinStat[this.actionView] = Math.max(0, this.courseDetailsMinStat[this.actionView] - 1);
+              if (this.actionContent.data.size) {
+                this.storage.storage_used = Math.max(0, this.storage.storage_used - this.actionContent.data.size);
+              }
               this.actionView = null;
               this.actionContent = null;
             },
@@ -337,6 +345,10 @@ export class CreateCourseComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  closeActionSuccess() {
+    this.actionSuccessText = null;
   }
 
 }

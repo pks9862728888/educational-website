@@ -1,3 +1,4 @@
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatInputModule } from '@angular/material/input';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -23,6 +24,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatTooltipModule,
     MatTabsModule,
     MatDialogModule,
+    MatProgressBarModule
   ],
   exports: [
     MatButtonModule,
@@ -35,6 +37,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatTooltipModule,
     MatTabsModule,
     MatDialogModule,
+    MatProgressBarModule
   ]
 })
 export class MaterialSharedModule {}

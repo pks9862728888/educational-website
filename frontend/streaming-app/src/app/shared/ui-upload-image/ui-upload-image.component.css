@@ -1,5 +1,7 @@
 .row,
-.col-12 {
+.col-12,
+h3,
+p {
     margin: 0;
     padding: 0;
 }
@@ -51,6 +53,26 @@
     margin-bottom: 1rem;
 }
 
+:host ::ng-deep .mat-progress-bar-fill::after {
+    background-color: #008697;
+}
+
+.m-t-02 {
+    margin-top: 0.2rem;
+}
+
+.m-b-02 {
+    margin-bottom: 0.2rem;
+}
+
 .m-b-07 {
     margin-bottom: 0.7rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
 }
