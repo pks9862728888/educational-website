@@ -108,6 +108,22 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${classSlug}/list-all-subject`;
   }
 
+  getCourseMinDetailsUrl(subjectSlug: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/subject-course-content-min-statistics`;
+  }
+
+  addSubjectCourseContentUrl(subjectSlug: string){
+    return `${this.instituteBaseUrl}${subjectSlug}/add-subject-course-content`;
+  }
+
+  getCourseContentOfSpecificViewUrl(subjectSlug: string, view: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${view}/list-subject-specific-view-course-contents`;
+  }
+
+  getDeleteCourseContentUrl(pk: string) {
+    return `${this.instituteBaseUrl}${pk}/delete-subject-course-content`;
+  }
+
   createSectionUrl(classSlug: string) {
     return `${this.instituteBaseUrl}${classSlug}/create-section`;
   }
@@ -354,6 +370,36 @@ export class InstituteApiService {
     return this.httpClient.post(
       this.addSectionInchargeUrl,
       { 'invitee': invitee, 'section_slug': sectionSlug },
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  // To create course
+  getMinCourseDetails(subjectSlug: string) {
+    return this.httpClient.get(
+      this.getCourseMinDetailsUrl(subjectSlug),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addSubjectExternalLinkCourseContent(subjectSlug: string, data: any) {
+    return this.httpClient.post(
+      this.addSubjectCourseContentUrl(subjectSlug),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getCourseContentOfSpecificView(subjectSlug: string, view: string) {
+    return this.httpClient.get(
+      this.getCourseContentOfSpecificViewUrl(subjectSlug, view),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteClassCourseContent(pk: string) {
+    return this.httpClient.delete(
+      this.getDeleteCourseContentUrl(pk),
       { headers: this.getAuthHeader() }
     );
   }

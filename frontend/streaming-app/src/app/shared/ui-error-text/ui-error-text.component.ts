@@ -10,6 +10,7 @@ export class UiErrorTextComponent {
 
   mq: MediaQueryList;
   @Input() errorText: string;
+  @Input() hideCloseButton: boolean;
   @Output() closeErrorTextEvent = new EventEmitter<void>();
 
   constructor(

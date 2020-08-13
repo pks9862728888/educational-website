@@ -1,5 +1,7 @@
 .row,
-.col-12 {
+.col-12,
+h3,
+p {
     margin: 0;
     padding: 0;
 }
@@ -32,6 +34,33 @@
     margin-bottom: 1rem;
 }
 
+.datepicker-icon {
+    transform: translateY(-1.95rem);
+    right: 5px;
+    position: absolute;
+}
+
+.pick-date-icon {
+    color: #6c7576;
+}
+
+.indicator {
+    display: flex;
+    align-items: center;
+}
+
 .m-b-07 {
     margin-bottom: 0.7rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.l-h-30 {
+    line-height: 30px;
 }

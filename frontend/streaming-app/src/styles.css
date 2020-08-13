@@ -62,6 +62,12 @@ button.active:focus {
     color: #f2aa4cff;
 }
 
+.reorder-icon,
+.edit-icon,
+.delete-icon {
+    cursor: pointer;
+}
+
 .reorder-icon {
     color: #03dac5;
 }

@@ -4,6 +4,7 @@ import { SnackbarComponent } from '../teacher-workspace/teacher-institute/teache
 import { MatDialog } from '@angular/material/dialog';
 import { UiDialogComponent } from '../shared/ui-dialog/ui-dialog.component';
 import { Observable, Subject } from 'rxjs';
+import { UiActionControlsComponent } from '../shared/ui-action-controls/ui-action-controls.component';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,9 @@ export class UiService {
 
   private dialogData = new Subject<any>();
   dialogData$ = this.dialogData.asObservable();
+
+  private actionControlDialogData = new Subject<string>();
+  actionControlDialogData$ = this.actionControlDialogData.asObservable();
 
   constructor(
     private _snackBar: MatSnackBar,
@@ -31,6 +35,17 @@ export class UiService {
         this.dialogData.next(result);
       } else {
         this.dialogData.next();
+      }
+    });
+  }
+
+  openReorderEditDeleteDialog() {
+    const dialogRef = this.dialog.open(UiActionControlsComponent);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.actionControlDialogData.next(result);
+      } else {
+        this.actionControlDialogData.next();
       }
     });
   }

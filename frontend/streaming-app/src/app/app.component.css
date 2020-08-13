@@ -1,36 +1,9 @@
 /* Styling navbar */
 
-
-/*
-#nav-background {
-    background-color: #9C27B0;
+.mat-toolbar {
+    background: #008080;
+    color: #fff;
 }
-
-.navbar-brand {
-    color: rgb(255, 255, 255);
-}
-
-
-
-.navbar {
-    -webkit-box-shadow: 0 8px 6px -6px #999;
-    -moz-box-shadow: 0 8px 6px -6px #999;
-    box-shadow: 0px 8px 6px -6px #999;
-} */
-
-
-/* .mat-icon {
-    height: 14px;
-    width: 14px;
-    margin-right: 8px;
-} */
-
-
-/* ::ng-deep .mat-badge-content {
-    width: auto;
-    left: 0.9rem;
-}
-*/
 
 
 /* Styling mat menu */

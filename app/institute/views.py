@@ -2117,7 +2117,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                 'order': subject_stats.max_order + 1,
                 'target_date': request.data.get('target_date'),
                 'course_content_subject': subject.pk
-            })
+            });
 
         if course_content_serializer.is_valid():
             course_content_serializer.save()
@@ -2420,6 +2420,7 @@ class InstituteDeleteSubjectCourseContentView(APIView):
             if course_content.content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
                 models.SubjectExternalLinkStudyMaterial.objects.filter(
                     external_link_study_material__pk=course_content.pk).first().delete()
+                course_content.delete()
             else:
                 subject_stat = models.InstituteSubjectStatistics.objects.filter(
                     statistics_subject=subject

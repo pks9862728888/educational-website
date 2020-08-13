@@ -256,3 +256,28 @@ export const SUBJECT_TYPE_REVERSE = {
   MANDATORY: 'M',
   OPTIONAL: 'O'
 }
+
+export const STUDY_MATERIAL_CONTENT_TYPE = {
+  V: 'VIDEO',
+  I: 'IMAGE',
+  P: 'PDF',
+  L: 'EXTERNAL_LINK'
+};
+
+export const STUDY_MATERIAL_CONTENT_TYPE_REVERSE = {
+  VIDEO: 'V',
+  IMAGE: 'I',
+  PDF: 'P',
+  EXTERNAL_LINK: 'L'
+};
+
+
+export const STUDY_MATERIAL_VIEW = {
+  MI: 'MEET YOUR INSTRUCTOR',
+  CO: 'COURSE OVERVIEW'
+};
+
+export const STUDY_MATERIAL_VIEW_REVERSE = {
+  MEET_YOUR_INSTRUCTOR: 'MI',
+  COURSE_OVERVIEW: 'CO'
+};

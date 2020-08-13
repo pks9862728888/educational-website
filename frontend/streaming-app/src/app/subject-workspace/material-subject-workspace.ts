@@ -8,6 +8,9 @@ import { NgModule } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 
 
+// PrimeNg Modules
+import { ProgressBarModule } from 'primeng/progressbar';
+
 @NgModule({
   imports: [
     MatButtonModule,
@@ -16,7 +19,10 @@ import { MatListModule } from '@angular/material/list';
     MatListModule,
     MatExpansionModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+
+    // PrimeNgModules
+    ProgressBarModule
   ],
   exports: [
     MatButtonModule,
@@ -25,7 +31,10 @@ import { MatListModule } from '@angular/material/list';
     MatListModule,
     MatExpansionModule,
     MatCardModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+
+    // PrimeNgModules
+    ProgressBarModule
   ]
 })
 export class MaterialSubjectWorkspaceModule {}

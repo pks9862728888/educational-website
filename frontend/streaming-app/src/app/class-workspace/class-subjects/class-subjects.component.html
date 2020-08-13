@@ -97,7 +97,7 @@
                 <div class="col">
                     <div class="action-row">
                         <button mat-raised-button class="red-button margin-right-1" *ngIf="hasClassPerm" (click)="deleteSubjectClicked(subject)">Delete</button>
-                        <button mat-flat-button class="green-button" *ngIf="subject.has_subject_perm" (click)="openSubject(subject.subject_slug, subject.has_subject_perm)">Open</button>
+                        <button mat-flat-button class="green-button" *ngIf="subject.has_subject_perm || userIsAdmin()" (click)="openSubject(subject.subject_slug, subject.has_subject_perm)">Open</button>
                     </div>
                 </div>
             </mat-expansion-panel>

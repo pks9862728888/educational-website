@@ -196,8 +196,26 @@ p {
     color: #f2aa4cff;
 }
 
+.storage {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.1rem;
+}
+
+:host ::ng-deep .custom-progress .p-progressbar {
+    background-color: #6c757d;
+}
+
+:host ::ng-deep .custom-progress .p-progressbar-label {
+    color: rgb(211, 211, 211);
+}
+
 
 /* Margins and padding */
+
+.m-b-01 {
+    margin-bottom: 0.1rem;
+}
 
 .m-b-1 {
     margin-bottom: 1rem;

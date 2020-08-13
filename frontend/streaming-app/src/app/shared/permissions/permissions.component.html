@@ -15,7 +15,7 @@
                         </div>
                         <div class="col-12col-sm-6 col-md-4">
                             <form [formGroup]="this.newInviteForm" class="input-group">
-                                <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                                <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Provide permission">
                                 <div class="input-group-append">
                                     <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
                                 </div>

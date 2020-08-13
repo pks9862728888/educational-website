@@ -22,6 +22,7 @@ import { UiAddExternalLinkComponent } from './ui-add-external-link/ui-add-extern
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
+import { UiActionControlsComponent } from './ui-action-controls/ui-action-controls.component';
 
 
 @NgModule({
@@ -41,6 +42,7 @@ import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
     UiUploadImageComponent,
     UiUploadPdfComponent,
     UiAddExternalLinkComponent,
+    UiActionControlsComponent,
   ],
   imports: [
     CommonModule,

@@ -24,3 +24,33 @@ export interface SubjectPermittedUserDetails {
   created_on: string;
   image?: string;
 }
+
+export interface SubjectCourseMinDetails {
+  total_storage: number; // In Gb
+  storage_used: number;  // In Gb
+  MI: number;            // Meet your instructor
+  CO: number;            // Course overview
+};
+
+export interface SubjectCourseViewDetails {
+  MI: number;
+  CO: number;
+}
+
+export interface StorageStatistics {
+  total_storage: number;
+  storage_used: number;
+}
+
+export interface StudyMaterialDetails {
+  id: number;
+  order: number;
+  target_data?: string;
+  title: string;
+  uploaded_on: string;
+  view: string;
+  content_type: string;
+  data: {
+    url: string;
+  };
+}

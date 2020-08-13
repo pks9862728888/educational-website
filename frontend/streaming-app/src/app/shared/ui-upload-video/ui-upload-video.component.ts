@@ -22,7 +22,6 @@ export class UiUploadVideoComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
-    this.showDeadline = true;
   }
 
   ngOnInit(): void {

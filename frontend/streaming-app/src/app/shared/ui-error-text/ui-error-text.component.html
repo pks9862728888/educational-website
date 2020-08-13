@@ -3,7 +3,7 @@
         <div class="d-flex justify-content-between error-content">
             <h3 *ngIf="!mq.matches" class="coupon-error-text">{{ errorText }}</h3>
             <p *ngIf="mq.matches" class="coupon-error-text">{{ errorText }}</p>
-            <div>
+            <div *ngIf="!hideCloseButton">
                 <mat-icon class="highlight-icon" (click)="hideErrorText()">highlight_off</mat-icon>
             </div>
         </div>

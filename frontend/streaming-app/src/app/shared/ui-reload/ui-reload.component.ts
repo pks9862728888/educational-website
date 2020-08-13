@@ -8,13 +8,13 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 export class UiReloadComponent implements OnInit {
 
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
 
   @Input() errorText: string;
   @Output() retryEvent = new EventEmitter<void>();
 
   constructor( private media: MediaMatcher) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
+    this.mq = this.media.matchMedia('(max-width: 540px)');
   }
 
   ngOnInit(): void {}

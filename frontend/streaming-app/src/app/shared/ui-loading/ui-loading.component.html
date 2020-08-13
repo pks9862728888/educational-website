@@ -3,6 +3,7 @@
         <div class="progress-spinner-center">
             <mat-progress-spinner mode="indeterminate" [diameter]="diameter"></mat-progress-spinner>
         </div>
-        <h3 class="text-center">{{ actionText }}</h3>
+        <h3 *ngIf="!mq.matches" class="text-center">{{ actionText }}</h3>
+        <p *ngIf="mq.matches" class="text-center">{{ actionText }}</p>
     </div>
 </div>

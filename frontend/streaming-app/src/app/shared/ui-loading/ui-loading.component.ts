@@ -1,3 +1,4 @@
+import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
@@ -7,12 +8,22 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class UiLoadingComponent implements OnInit {
 
-  diameter = 70;
+  mq: MediaQueryList;
+  diameter: number;
   @Input() actionText: string;
 
-  constructor() { }
+  constructor(
+    private media: MediaMatcher
+  ) {
+    this.mq = this.media.matchMedia('(max-width: 600px)');
+  }
 
   ngOnInit(): void {
+    if (this.mq.matches) {
+      this.diameter = 50;
+    } else {
+      this.diameter = 70;
+    }
   }
 
 }

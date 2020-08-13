@@ -26,7 +26,7 @@
                         "styles": [
                             "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
                             "./node_modules/bootstrap/dist/css/bootstrap.min.css",
-                            "./node_modules/primeng/resources/themes/saga-blue/theme.css",
+                            "./node_modules/primeng/resources/themes/saga-green/theme.css",
                             "./node_modules/primeng/resources/primeng.min.css",
                             "./node_modules/primeicons/primeicons.css",
                             "src/styles.css"
@@ -34,7 +34,8 @@
                         "scripts": [
                             "./src/assets/bootstrap4.4.1/scripts/jquery-3.4.1.slim.min.js",
                             "./node_modules/popper.js/dist/umd/popper.min.js",
-                            "./node_modules/bootstrap/dist/js/bootstrap.min.js"
+                            "./node_modules/bootstrap/dist/js/bootstrap.min.js",
+                            "./node_modules/chart.js/dist/Chart.js"
                         ]
                     },
                     "configurations": {
