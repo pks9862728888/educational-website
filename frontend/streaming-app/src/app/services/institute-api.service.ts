@@ -390,6 +390,18 @@ export class InstituteApiService {
     );
   }
 
+  uploadStudyMaterial(subjectSlug: string, data: any) {
+    return this.httpClient.post(
+      this.addSubjectCourseContentUrl(subjectSlug),
+      data,
+      {
+        headers: this.getAuthHeader(),
+        reportProgress: true,
+        observe: 'events'
+      }
+    );
+  }
+
   getCourseContentOfSpecificView(subjectSlug: string, view: string) {
     return this.httpClient.get(
       this.getCourseContentOfSpecificViewUrl(subjectSlug, view),

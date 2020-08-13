@@ -2150,116 +2150,132 @@ class InstituteSubjectAddCourseContentView(APIView):
                 return Response(external_link_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         else:
-            size = request.data.get('size')
+            try:
+                size = request.data.get('size')
 
-            if not size:
-                return Response({'error': _('Error occurred. ERROR_CODE: SIZE. Please contact us.')},
+                if not size:
+                    models.InstituteSubjectCourseContent.objects.filter(
+                        pk=course_content_serializer.data['id']).first().delete()
+                    return Response({'error': _('Error occurred. ERROR_CODE: SIZE. Please contact us.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    size = Decimal(size)
+
+                class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
+                institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
+                institute_stats = get_institute_stats_and_validate(institute, size)
+
+                if not isinstance(institute_stats, models.InstituteStatistics):
+                    models.InstituteSubjectCourseContent.objects.filter(
+                        pk=course_content_serializer.data['id']).first().delete()
+                    return institute_stats
+
+                # Image file
+                if request.data.get('content_type') == models.StudyMaterialContentType.IMAGE:
+                    validate = self._validate_image_file(request.data.get('file'))
+
+                    if validate:
+                        models.InstituteSubjectCourseContent.objects.filter(
+                            pk=course_content_serializer.data['id']).first().delete()
+                        return validate
+
+                    image_serializer = serializer.ImageStudyMaterialSerializer(
+                        data={
+                            'image_study_material': course_content_serializer.data['id'],
+                            'file': request.data.get('file')
+                        }, context={"request": request})
+
+                    if image_serializer.is_valid():
+                        image_serializer.save()
+                        subject_stats.max_order += 1
+                        subject_stats.storage += size
+                        subject_stats.save()
+                        institute_stats.storage += size
+                        institute_stats.save()
+                        response = course_content_serializer.data
+                        response.pop('course_content_subject')
+                        response['data'] = {
+                            'file': image_serializer.data['file'],
+                            'size': float(size)
+                        }
+                        return Response(response, status=status.HTTP_201_CREATED)
+                    else:
+                        models.InstituteSubjectCourseContent.objects.filter(
+                            pk=course_content_serializer.data['id']).first().delete()
+                        return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+                # Video file
+                elif request.data.get('content_type') == models.StudyMaterialContentType.VIDEO:
+                    validate = self._validate_video_file(request.data.get('file'))
+
+                    if validate:
+                        models.InstituteSubjectCourseContent.objects.filter(
+                            pk=course_content_serializer.data['id']).first().delete()
+                        return validate
+
+                    video_serializer = serializer.VideoStudyMaterialSerializer(
+                        data={
+                            'video_study_material': course_content_serializer.data['id'],
+                            'file': request.data.get('file')
+                        }, context={"request": request})
+
+                    if video_serializer.is_valid():
+                        video_serializer.save()
+                        subject_stats.max_order += 1
+                        subject_stats.storage += size
+                        subject_stats.save()
+                        institute_stats.storage += size
+                        institute_stats.save()
+                        response = course_content_serializer.data
+                        response.pop('course_content_subject')
+                        response['data'] = {
+                            'file': video_serializer.data['file'],
+                            'size': float(size)
+                        }
+                        return Response(response, status=status.HTTP_201_CREATED)
+                    else:
+                        models.InstituteSubjectCourseContent.objects.filter(
+                            pk=course_content_serializer.data['id']).first().delete()
+                        return Response(video_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+                # Pdf file
+                elif request.data.get('content_type') == models.StudyMaterialContentType.PDF:
+                    validate = self._validate_pdf_file(request.data.get('file'), str(request.FILES['file']))
+
+                    if validate:
+                        models.InstituteSubjectCourseContent.objects.filter(
+                            pk=course_content_serializer.data['id']).first().delete()
+                        return validate
+
+                    pdf_serializer = serializer.PdfStudyMaterialSerializer(
+                        data={
+                            'pdf_study_material': course_content_serializer.data['id'],
+                            'file': request.data.get('file')
+                        }, context={"request": request})
+
+                    if pdf_serializer.is_valid():
+                        pdf_serializer.save()
+                        subject_stats.max_order += 1
+                        subject_stats.storage += size
+                        subject_stats.save()
+                        institute_stats.storage += size
+                        institute_stats.save()
+                        response = course_content_serializer.data
+                        response.pop('course_content_subject')
+                        response['data'] = {
+                            'file': pdf_serializer.data['file'],
+                            'size': float(size)
+                        }
+                        return Response(response, status=status.HTTP_201_CREATED)
+                    else:
+                        models.InstituteSubjectCourseContent.objects.filter(
+                            pk=course_content_serializer.data['id']).first().delete()
+                        return Response(pdf_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except Exception:
+                models.InstituteSubjectCourseContent.objects.filter(
+                    pk=course_content_serializer.data['id']).first().delete()
+                return Response({'error': _('Error occurred.')},
                                 status=status.HTTP_400_BAD_REQUEST)
-            else:
-                size = Decimal(size)
-
-            class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
-            institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
-            institute_stats = get_institute_stats_and_validate(institute, size)
-
-            if not isinstance(institute_stats, models.InstituteStatistics):
-                return institute_stats
-
-            # Image file
-            if request.data.get('content_type') == models.StudyMaterialContentType.IMAGE:
-                validate = self._validate_image_file(request.data.get('file'))
-
-                if validate:
-                    return validate
-
-                image_serializer = serializer.ImageStudyMaterialSerializer(
-                    data={
-                        'image_study_material': course_content_serializer.data['id'],
-                        'file': request.data.get('file')
-                    }, context={"request": request})
-
-                if image_serializer.is_valid():
-                    image_serializer.save()
-                    subject_stats.max_order += 1
-                    subject_stats.storage += size
-                    subject_stats.save()
-                    institute_stats.storage += size
-                    institute_stats.save()
-                    response = course_content_serializer.data
-                    response.pop('course_content_subject')
-                    response['data'] = {
-                        'file': image_serializer.data['file'],
-                        'size': float(size)
-                    }
-                    return Response(response, status=status.HTTP_201_CREATED)
-                else:
-                    models.InstituteSubjectCourseContent.objects.filter(
-                        pk=course_content_serializer.data['id']).first().delete()
-                    return Response(image_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            # Video file
-            elif request.data.get('content_type') == models.StudyMaterialContentType.VIDEO:
-                validate = self._validate_video_file(request.data.get('file'))
-
-                if validate:
-                    return validate
-
-                video_serializer = serializer.VideoStudyMaterialSerializer(
-                    data={
-                        'video_study_material': course_content_serializer.data['id'],
-                        'file': request.data.get('file')
-                    }, context={"request": request})
-
-                if video_serializer.is_valid():
-                    video_serializer.save()
-                    subject_stats.max_order += 1
-                    subject_stats.storage += size
-                    subject_stats.save()
-                    institute_stats.storage += size
-                    institute_stats.save()
-                    response = course_content_serializer.data
-                    response.pop('course_content_subject')
-                    response['data'] = {
-                        'file': video_serializer.data['file'],
-                        'size': float(size)
-                    }
-                    return Response(response, status=status.HTTP_201_CREATED)
-                else:
-                    models.InstituteSubjectCourseContent.objects.filter(
-                        pk=course_content_serializer.data['id']).first().delete()
-                    return Response(video_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-            # Pdf file
-            elif request.data.get('content_type') == models.StudyMaterialContentType.PDF:
-                validate = self._validate_pdf_file(request.data.get('file'), str(request.FILES['file']))
-
-                if validate:
-                    return validate
-
-                pdf_serializer = serializer.PdfStudyMaterialSerializer(
-                    data={
-                        'pdf_study_material': course_content_serializer.data['id'],
-                        'file': request.data.get('file')
-                    }, context={"request": request})
-
-                if pdf_serializer.is_valid():
-                    pdf_serializer.save()
-                    subject_stats.max_order += 1
-                    subject_stats.storage += size
-                    subject_stats.save()
-                    institute_stats.storage += size
-                    institute_stats.save()
-                    response = course_content_serializer.data
-                    response.pop('course_content_subject')
-                    response['data'] = {
-                        'file': pdf_serializer.data['file'],
-                        'size': float(size)
-                    }
-                    return Response(response, status=status.HTTP_201_CREATED)
-                else:
-                    models.InstituteSubjectCourseContent.objects.filter(
-                        pk=course_content_serializer.data['id']).first().delete()
-                    return Response(pdf_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InstituteSubjectMinStatisticsView(APIView):

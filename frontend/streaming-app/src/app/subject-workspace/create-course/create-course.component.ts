@@ -1,3 +1,4 @@
+import { HttpEventType } from '@angular/common/http';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
 import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, STUDY_MATERIAL_VIEW_REVERSE, STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from './../../../constants';
@@ -236,7 +237,21 @@ export class CreateCourseComponent implements OnInit {
   }
 
   uploadImage(data: any) {
-
+    data['view'] = this.viewOrder[this.openedPanelStep];
+    console.log(data);
+    this.instituteApiService.uploadStudyMaterial(this.currentSubjectSlug, data).subscribe(
+      result => {
+        if (result.type === HttpEventType.UploadProgress) {
+          const percentDone = Math.round(100 * result.loaded / result.total);
+          console.log('Progress ' + percentDone + '%');
+        } else if (result.type === HttpEventType.Response) {
+          console.log(result);
+        }
+      },
+      errors => {
+        console.log(errors);
+      }
+    )
   }
 
   uploadPdf(data: any) {

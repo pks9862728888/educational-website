@@ -3,6 +3,7 @@ import { Component, OnInit, EventEmitter, Output, Input, OnDestroy } from '@angu
 import { Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { formatDate } from '../../format-datepicker';
 import { Subscription, Observable } from 'rxjs';
+import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from '../../../constants';
 
 @Component({
   selector: 'app-ui-upload-image',
@@ -19,6 +20,7 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
   @Output() fileError = new EventEmitter<string>();
   @Input() formEvent: Observable<String>;
   private formEventSubscription: Subscription;
+  private fileSize: number;
 
   constructor(
     private media: MediaMatcher,
@@ -52,8 +54,6 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
 
   upload() {
     const file: File = (<HTMLInputElement>document.getElementById('image-file')).files[0];
-    console.log(file);
-    console.log(formatDate(this.uploadImageForm.value.target_date));
 
     if (!file.type.includes('image/jpeg') && !file.type.includes('image/jpg') && !file.type.includes('image/png') && !file.type.includes('image/webp')) {
       this.fileError.emit('Only .jpeg, .jpg, .webp, and .png formats are supported.');
@@ -61,8 +61,26 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
         file: null
       });
     } else {
-      alert(file.size / 1000000);
-      this.formData.emit(file.size / 1000000000 + ' GB');
+      this.fileSize = file.size;
+      let data = this.uploadImageForm.value;
+      if (this.uploadImageForm.value.target_date) {
+        data['target_date'] = formatDate(this.uploadImageForm.value.target_date);
+      }
+      data['size'] = file.size / 1000000000;
+      data['content_type'] = STUDY_MATERIAL_CONTENT_TYPE_REVERSE['IMAGE'];
+      this.formData.emit(data);
+    }
+  }
+
+  getFileSize() {
+    if (this.fileSize >= 1000000000) {
+      return this.fileSize / 1000000000 + ' GB';
+    } else if (this.fileSize >= 1000000) {
+      return this.fileSize / 1000000 + ' MB';
+    } else if (this.fileSize >= 1000) {
+      return this.fileSize / 1000 + ' KB';
+    } else {
+      return this.fileSize + ' bytes';
     }
   }
 
