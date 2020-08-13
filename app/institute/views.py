@@ -2390,7 +2390,8 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             res['order'] = d.order
             res['content_type'] = d.content_type
             res['uploaded_on'] = str(d.uploaded_on)
-            res['target_date'] = str(d.target_date)
+            if d.target_date:
+                res['target_date'] = str(d.target_date)
             res['view'] = d.view
             data_dict = dict()
 

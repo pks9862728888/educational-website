@@ -82,7 +82,7 @@
                                             <span *ngIf="isContentTypeVideo(content.content_type)">Video</span>
                                             <span *ngIf="isContentTypePdf(content.content_type)">Pdf</span>
                                             <span *ngIf="isContentTypeLink(content.content_type)">Link</span>
-                                            <span *ngIf="content.target_date !== 'None' && content.target_date"> | {{ content.target_date | date}} </span>
+                                            <span *ngIf="content.target_date"> | {{ content.target_date | date}} </span>
                                         </p>
                                     </div>
                                 </div>
