@@ -4,6 +4,7 @@ import { Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { formatDate } from '../../format-datepicker';
 import { Subscription, Observable } from 'rxjs';
 import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from '../../../constants';
+import { getFileSize } from '../utilityFunctions';
 
 @Component({
   selector: 'app-ui-upload-image',
@@ -13,14 +14,18 @@ import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from '../../../constants';
 export class UiUploadImageComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
-  uploadImageForm: FormGroup;
+  uploadForm: FormGroup;
   showIndicator: boolean;
+  progress = 0;
   @Input() showTargetDate: boolean;
   @Output() formData = new EventEmitter<any>();
   @Output() fileError = new EventEmitter<string>();
   @Input() formEvent: Observable<String>;
   private formEventSubscription: Subscription;
-  private fileSize: number;
+  @Input() uploadProgressEvent: Observable<{loaded: number, total: number}>;
+  private progressEventSubscription: Subscription;
+  totalFileSize: number;
+  loadedFileSize: number;
 
   constructor(
     private media: MediaMatcher,
@@ -30,7 +35,7 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.uploadImageForm = this.formBuilder.group({
+    this.uploadForm = this.formBuilder.group({
       title: [null, [Validators.required, Validators.maxLength(30)]],
       file: [null, [Validators.required]],
       target_date: [null]
@@ -39,15 +44,22 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
       (data: string) => {
         if (data === 'ENABLE') {
           this.showIndicator = false;
-          this.uploadImageForm.enable();
+          this.uploadForm.enable();
         } else if (data === 'DISABLE') {
           this.showIndicator = true;
-          this.uploadImageForm.disable();
+          this.uploadForm.disable();
         } else if (data === 'RESET') {
           this.showIndicator = false;
-          this.uploadImageForm.reset();
-          this.uploadImageForm.enable();
+          this.uploadForm.reset();
+          this.uploadForm.enable();
         }
+      }
+    );
+    this.progressEventSubscription = this.uploadProgressEvent.subscribe(
+      (result: {loaded: number, total: number}) => {
+        this.progress = Math.round(100 * result.loaded / result.total);
+        this.loadedFileSize = result.loaded;
+        this.totalFileSize = result.total;
       }
     );
   }
@@ -57,14 +69,15 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
 
     if (!file.type.includes('image/jpeg') && !file.type.includes('image/jpg') && !file.type.includes('image/png') && !file.type.includes('image/webp')) {
       this.fileError.emit('Only .jpeg, .jpg, .webp, and .png formats are supported.');
-      this.uploadImageForm.patchValue({
+      this.uploadForm.patchValue({
         file: null
       });
     } else {
-      this.fileSize = file.size;
-      let data = this.uploadImageForm.value;
-      if (this.uploadImageForm.value.target_date) {
-        data['target_date'] = formatDate(this.uploadImageForm.value.target_date);
+      let data = {};
+      data['title'] = this.uploadForm.value.title;
+      data['file'] = file;
+      if (this.uploadForm.value.target_date) {
+        data['target_date'] = formatDate(this.uploadForm.value.target_date);
       }
       data['size'] = file.size / 1000000000;
       data['content_type'] = STUDY_MATERIAL_CONTENT_TYPE_REVERSE['IMAGE'];
@@ -72,21 +85,16 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
     }
   }
 
-  getFileSize() {
-    if (this.fileSize >= 1000000000) {
-      return this.fileSize / 1000000000 + ' GB';
-    } else if (this.fileSize >= 1000000) {
-      return this.fileSize / 1000000 + ' MB';
-    } else if (this.fileSize >= 1000) {
-      return this.fileSize / 1000 + ' KB';
-    } else {
-      return this.fileSize + ' bytes';
-    }
+  getFileSize_(size: number) {
+    return getFileSize(size);
   }
 
   ngOnDestroy() {
     if (this.formEventSubscription) {
       this.formEventSubscription.unsubscribe();
+    }
+    if (this.progressEventSubscription) {
+      this.progressEventSubscription.unsubscribe();
     }
   }
 }

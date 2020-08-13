@@ -1759,78 +1759,78 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
     #
-    # def test_upload_meet_your_instructor_link_success_by_permitted_user(self):
-    #     """Test that permitted user can upload link content"""
-    #     institute = create_institute(self.user)
-    #     order = create_order(create_institute_license(institute, self.payload), institute)
-    #     order.paid = True
-    #     order.payment_date = timezone.now()
-    #     order.save()
-    #     subject = create_subject(create_class(institute))
-    #     create_institute_subject_permission(self.user, self.user, subject)
-    #
-    #     payload = {
-    #         'subject': subject.subject_slug,
-    #         'title': 'temp title',
-    #         'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-    #         'target_date': '2000-12-12',
-    #         'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
-    #         'url': 'https://www.google.com/'
-    #     }
-    #
-    #     res = self.client.post(
-    #         get_subject_create_course_url(subject.subject_slug),
-    #         payload, format='json'
-    #     )
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-    #     self.assertEqual(res.data['title'], payload['title'])
-    #     self.assertEqual(res.data['content_type'], payload['content_type'])
-    #     self.assertEqual(res.data['target_date'], payload['target_date'])
-    #     self.assertIn('uploaded_on', res.data)
-    #     self.assertIn('order', res.data)
-    #     self.assertEqual(res.data['url'], payload['url'])
-    #     self.assertNotIn('file', res.data)
-    #     stats = models.InstituteSubjectStatistics.objects.filter(
-    #         statistics_subject=subject
-    #     ).first()
-    #     self.assertEqual(stats.max_order, 1)
-    #     self.assertEqual(stats.storage, 0.0)
-    #
-    # def test_upload_meet_your_instructor_link_success_without_target_date(self):
-    #     """Test that permitted user can upload link content"""
-    #     institute = create_institute(self.user)
-    #     order = create_order(create_institute_license(institute, self.payload), institute)
-    #     order.paid = True
-    #     order.payment_date = timezone.now()
-    #     order.save()
-    #     subject = create_subject(create_class(institute))
-    #     create_institute_subject_permission(self.user, self.user, subject)
-    #
-    #     payload = {
-    #         'subject': subject.subject_slug,
-    #         'title': 'temp title',
-    #         'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-    #         'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
-    #         'url': 'https://www.google.com/'
-    #     }
-    #
-    #     res = self.client.post(
-    #         get_subject_create_course_url(subject.subject_slug),
-    #         payload, format='json'
-    #     )
-    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-    #     self.assertEqual(res.data['title'], payload['title'])
-    #     self.assertEqual(res.data['content_type'], payload['content_type'])
-    #     self.assertIn('uploaded_on', res.data)
-    #     self.assertIn('order', res.data)
-    #     self.assertEqual(res.data['url'], payload['url'])
-    #     self.assertNotIn('file', res.data)
-    #     stats = models.InstituteSubjectStatistics.objects.filter(
-    #         statistics_subject=subject
-    #     ).first()
-    #     self.assertEqual(stats.max_order, 1)
-    #     self.assertEqual(stats.storage, 0.0)
-    #
+    def test_upload_meet_your_instructor_link_success_by_permitted_user(self):
+        """Test that permitted user can upload link content"""
+        institute = create_institute(self.user)
+        order = create_order(create_institute_license(institute, self.payload), institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        subject = create_subject(create_class(institute))
+        create_institute_subject_permission(self.user, self.user, subject)
+
+        payload = {
+            'subject': subject.subject_slug,
+            'title': 'temp title',
+            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+            'target_date': '2000-12-12',
+            'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+            'url': 'https://www.google.com/'
+        }
+
+        res = self.client.post(
+            get_subject_create_course_url(subject.subject_slug),
+            payload, format='json'
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['title'], payload['title'])
+        self.assertEqual(res.data['content_type'], payload['content_type'])
+        self.assertEqual(res.data['target_date'], payload['target_date'])
+        self.assertIn('uploaded_on', res.data)
+        self.assertIn('order', res.data)
+        self.assertEqual(res.data['data']['url'], payload['url'])
+        self.assertNotIn('file', res.data)
+        stats = models.InstituteSubjectStatistics.objects.filter(
+            statistics_subject=subject
+        ).first()
+        self.assertEqual(stats.max_order, 1)
+        self.assertEqual(stats.storage, 0.0)
+
+    def test_upload_meet_your_instructor_link_success_without_target_date(self):
+        """Test that permitted user can upload link content"""
+        institute = create_institute(self.user)
+        order = create_order(create_institute_license(institute, self.payload), institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        subject = create_subject(create_class(institute))
+        create_institute_subject_permission(self.user, self.user, subject)
+
+        payload = {
+            'subject': subject.subject_slug,
+            'title': 'temp title',
+            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+            'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+            'url': 'https://www.google.com/'
+        }
+
+        res = self.client.post(
+            get_subject_create_course_url(subject.subject_slug),
+            payload, format='json'
+        )
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['title'], payload['title'])
+        self.assertEqual(res.data['content_type'], payload['content_type'])
+        self.assertIn('uploaded_on', res.data)
+        self.assertIn('order', res.data)
+        self.assertEqual(res.data['data']['url'], payload['url'])
+        self.assertNotIn('file', res.data)
+        stats = models.InstituteSubjectStatistics.objects.filter(
+            statistics_subject=subject
+        ).first()
+        self.assertEqual(stats.max_order, 1)
+        self.assertEqual(stats.storage, 0.0)
+
     # def test_upload_meet_your_instructor_link_fails_by_unpermitted_user(self):
     #     """Test that unpermitted user can not upload link content"""
     #     institute = create_institute(self.user)
@@ -1996,98 +1996,98 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
-
-    def test_delete_study_materials_success_by_admin(self):
-        """Test that admin can delete study materials"""
-        institute = create_institute(self.user)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        subject = create_subject(class_)
-        content = create_subject_course_content(subject, 21)
-
-        res = self.client.delete(
-            get_study_material_delete_url(content.pk)
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
-        self.assertFalse(models.SubjectExternalLinkStudyMaterial.objects.filter(
-            external_link_study_material__pk=content.pk).exists())
-
-    def test_delete_study_materials_success_by_permitted_user(self):
-        """Test that permitted faculty can delete study materials"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        subject = create_subject(class_)
-        content = create_subject_course_content(subject, 21)
-        create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
-        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-        create_institute_subject_permission(admin, self.user, subject)
-
-        res = self.client.delete(
-            get_study_material_delete_url(content.pk)
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
-        self.assertFalse(models.SubjectExternalLinkStudyMaterial.objects.filter(
-            external_link_study_material__pk=content.pk).exists())
-
-    def test_delete_study_materials_fails_by_unpermitted_faculty(self):
-        """Test that non permitted faculty can not delete study materials"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        subject = create_subject(class_)
-        content = create_subject_course_content(subject, 21)
-        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
-        accept_invite(institute, self.user, models.InstituteRole.STAFF)
-
-        res = self.client.delete(
-            get_study_material_delete_url(content.pk)
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
-        self.assertTrue(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
-        self.assertTrue(models.SubjectExternalLinkStudyMaterial.objects.filter(
-            external_link_study_material__pk=content.pk).exists())
-
-    def test_can_not_delete_twice(self):
-        """Test that permitted faculty can delete study materials twice"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        subject = create_subject(class_)
-        content = create_subject_course_content(subject, 21)
-        create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
-        accept_invite(institute, self.user, models.InstituteRole.FACULTY)
-        create_institute_subject_permission(admin, self.user, subject)
-
-        self.client.delete(
-            get_study_material_delete_url(content.pk)
-        )
-        res = self.client.delete(
-            get_study_material_delete_url(content.pk)
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
-        self.assertFalse(models.SubjectExternalLinkStudyMaterial.objects.filter(
-            external_link_study_material__pk=content.pk).exists())
+    #
+    # def test_delete_study_materials_success_by_admin(self):
+    #     """Test that admin can delete study materials"""
+    #     institute = create_institute(self.user)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     content = create_subject_course_content(subject, 21)
+    #
+    #     res = self.client.delete(
+    #         get_study_material_delete_url(content.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #     self.assertFalse(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
+    #     self.assertFalse(models.SubjectExternalLinkStudyMaterial.objects.filter(
+    #         external_link_study_material__pk=content.pk).exists())
+    #
+    # def test_delete_study_materials_success_by_permitted_user(self):
+    #     """Test that permitted faculty can delete study materials"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     content = create_subject_course_content(subject, 21)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
+    #     accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #
+    #     res = self.client.delete(
+    #         get_study_material_delete_url(content.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #     self.assertFalse(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
+    #     self.assertFalse(models.SubjectExternalLinkStudyMaterial.objects.filter(
+    #         external_link_study_material__pk=content.pk).exists())
+    #
+    # def test_delete_study_materials_fails_by_unpermitted_faculty(self):
+    #     """Test that non permitted faculty can not delete study materials"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     content = create_subject_course_content(subject, 21)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+    #     accept_invite(institute, self.user, models.InstituteRole.STAFF)
+    #
+    #     res = self.client.delete(
+    #         get_study_material_delete_url(content.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #     self.assertTrue(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
+    #     self.assertTrue(models.SubjectExternalLinkStudyMaterial.objects.filter(
+    #         external_link_study_material__pk=content.pk).exists())
+    #
+    # def test_can_not_delete_twice(self):
+    #     """Test that permitted faculty can delete study materials twice"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     content = create_subject_course_content(subject, 21)
+    #     create_invite(institute, admin, self.user, models.InstituteRole.FACULTY)
+    #     accept_invite(institute, self.user, models.InstituteRole.FACULTY)
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #
+    #     self.client.delete(
+    #         get_study_material_delete_url(content.pk)
+    #     )
+    #     res = self.client.delete(
+    #         get_study_material_delete_url(content.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #     self.assertFalse(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
+    #     self.assertFalse(models.SubjectExternalLinkStudyMaterial.objects.filter(
+    #         external_link_study_material__pk=content.pk).exists())

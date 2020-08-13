@@ -74,7 +74,6 @@ export class ApiService {
   }
 
   uploadProfilePicture(data) {
-    // Preparing data for uploading
     const formData = new FormData();
     formData.append('image', data.profilePictureToUpload, data.profilePictureToUpload.name);
     formData.append('class_profile_picture', data.class_profile_picture);

@@ -13,7 +13,7 @@ import { formatDate } from '../../format-datepicker';
 export class UiAddExternalLinkComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
-  addExternalLinkForm: FormGroup;
+  uploadForm: FormGroup;
   showIndicator: boolean;
   @Input() showTargetDate: boolean;
   @Output() formFieldError = new EventEmitter<string>();
@@ -29,7 +29,7 @@ export class UiAddExternalLinkComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.addExternalLinkForm = this.formBuilder.group({
+    this.uploadForm = this.formBuilder.group({
       title: [null, [Validators.required, Validators.maxLength(20)]],
       url: [null, [Validators.required, Validators.maxLength(100)]],
       target_date: [null]
@@ -38,30 +38,30 @@ export class UiAddExternalLinkComponent implements OnInit, OnDestroy {
       (data: string) => {
         if (data === 'ENABLE') {
           this.showIndicator = false;
-          this.addExternalLinkForm.enable();
+          this.uploadForm.enable();
         } else if (data === 'DISABLE') {
           this.showIndicator = true;
-          this.addExternalLinkForm.disable();
+          this.uploadForm.disable();
         } else if (data === 'RESET') {
           this.showIndicator = false;
-          this.addExternalLinkForm.reset();
-          this.addExternalLinkForm.enable();
+          this.uploadForm.reset();
+          this.uploadForm.enable();
         }
       }
     );
   }
 
   upload() {
-    this.addExternalLinkForm.patchValue({
-      title: this.addExternalLinkForm.value.title.trim(),
-      url: this.addExternalLinkForm.value.url.trim()
+    this.uploadForm.patchValue({
+      title: this.uploadForm.value.title.trim(),
+      url: this.uploadForm.value.url.trim()
     })
-    if (!this.addExternalLinkForm.value.title) {
+    if (!this.uploadForm.value.title) {
       this.formFieldError.emit('Title can not be blank.');
-    } else if (!this.addExternalLinkForm.value.url) {
+    } else if (!this.uploadForm.value.url) {
       this.formFieldError.emit('url can not be blank.');
     } else {
-      let data = this.addExternalLinkForm.value;
+      let data = this.uploadForm.value;
       if (data['target_date']) {
         data['target_date'] = formatDate(data['target_date']);
       }

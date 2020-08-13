@@ -2,7 +2,7 @@
     <h3 *ngIf="!mq.matches">Upload Image:</h3>
     <p *ngIf="mq.matches">Upload Image:</p>
 </div>
-<form [formGroup]="uploadImageForm">
+<form [formGroup]="uploadForm">
     <div class="row">
         <div class="col-12 input-field">
             <input type="text" formControlName="title" maxlength="30" class="form-control" placeholder="Title" aria-label="File name">
@@ -18,13 +18,13 @@
             <input type="file" mat-flat-button formControlName="file" class="file" id="image-file">
         </div>
         <div class="col-12 m-b-07">
-            <button mat-flat-button *ngIf="!showIndicator" [disabled]="uploadImageForm.invalid" class="green-button m-r-05" type="submit" (click)="upload()">Upload</button>
+            <button mat-flat-button *ngIf="!showIndicator" [disabled]="uploadForm.invalid" class="green-button m-r-05" type="submit" (click)="upload()">Upload</button>
             <div *ngIf="showIndicator">
                 <h3 *ngIf="!mq.matches" class="m-b-02">Uploading...</h3>
                 <p *ngIf="mq.matches" class="m-b-02">Uploading...</p>
-                <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
+                <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
                 <div class="d-flex justify-content-end m-t-02">
-                    {{ getFileSize() }}
+                    {{ getFileSize_(loadedFileSize) }} / {{ getFileSize_(totalFileSize) }}
                 </div>
             </div>
         </div>

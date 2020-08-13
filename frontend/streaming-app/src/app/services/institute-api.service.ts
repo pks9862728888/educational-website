@@ -391,11 +391,22 @@ export class InstituteApiService {
   }
 
   uploadStudyMaterial(subjectSlug: string, data: any) {
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('view', data.view);
+    formData.append('size', data.size);
+    formData.append('file', data.file);
+    formData.append('content_type', data.content_type);
+
+    if (data.target_date) {
+      formData.append('target_date', data.target_date);
+    }
+
     return this.httpClient.post(
       this.addSubjectCourseContentUrl(subjectSlug),
-      data,
+      formData,
       {
-        headers: this.getAuthHeader(),
+        headers: this.getAuthTokenHeader(),
         reportProgress: true,
         observe: 'events'
       }

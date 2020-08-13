@@ -71,6 +71,14 @@ p {
     color: #f2aa4cff;
 }
 
+:host ::ng-deep .mat-expansion-panel-body {
+    padding: 0 1rem 1rem;
+}
+
+.mat-expansion-panel-header {
+    padding: 0 1rem;
+}
+
 .content-container .content {
     margin-bottom: 1rem;
 }

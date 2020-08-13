@@ -2143,6 +2143,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                 response = course_content_serializer.data
                 response.pop('course_content_subject')
                 response['data'] = {'url': external_link_serializer.data['url']}
+
+                if not response['target_date']:
+                    response.pop('target_date')
+
                 return Response(response, status=status.HTTP_201_CREATED)
             else:
                 models.InstituteSubjectCourseContent.objects.filter(
@@ -2198,6 +2202,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                             'file': image_serializer.data['file'],
                             'size': float(size)
                         }
+
+                        if not response['target_date']:
+                            response.pop('target_date')
+
                         return Response(response, status=status.HTTP_201_CREATED)
                     else:
                         models.InstituteSubjectCourseContent.objects.filter(
@@ -2232,6 +2240,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                             'file': video_serializer.data['file'],
                             'size': float(size)
                         }
+
+                        if not response['target_date']:
+                            response.pop('target_date')
+
                         return Response(response, status=status.HTTP_201_CREATED)
                     else:
                         models.InstituteSubjectCourseContent.objects.filter(
@@ -2266,6 +2278,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                             'file': pdf_serializer.data['file'],
                             'size': float(size)
                         }
+
+                        if not response['target_date']:
+                            response.pop('target_date')
+
                         return Response(response, status=status.HTTP_201_CREATED)
                     else:
                         models.InstituteSubjectCourseContent.objects.filter(

@@ -40,6 +40,7 @@ export class CreateCourseComponent implements OnInit {
   uploadingEvent = new Subject<String>();
   hideCloseContentLoadingErrorButton = true;
   deleteDialogDataSubscription: Subscription;
+  uploadProgressEvent = new Subject<{loaded: number, total: number}>();
 
   // Data
   storage: StorageStatistics;
@@ -123,7 +124,6 @@ export class CreateCourseComponent implements OnInit {
           for(const content of result) {
             this.viewData[this.viewOrder[this.openedPanelStep]].push(content);
           }
-          console.log(this.viewData);
         },
         errors => {
           this.showContentLoadingIndicator = false;
@@ -161,7 +161,7 @@ export class CreateCourseComponent implements OnInit {
             () => {
               this.actionSuccessText = 'Delete successful.';
               this.hideCloseContentLoadingErrorButton = false;
-              this.viewData[this.actionView].splice(this.actionContent, 1);
+              this.viewData[this.actionView].splice(this.viewData[this.actionView].indexOf(this.actionContent), 1);
               this.courseDetailsMinStat[this.actionView] = Math.max(0, this.courseDetailsMinStat[this.actionView] - 1);
               if (this.actionContent.data.size) {
                 this.storage.storage_used = Math.max(0, this.storage.storage_used - this.actionContent.data.size);
@@ -232,30 +232,43 @@ export class CreateCourseComponent implements OnInit {
     this.selectedSidenav = text;
   }
 
-  uploadVideo(data: any) {
-
-  }
-
-  uploadImage(data: any) {
+  uploadMediaFile(data: any) {
     data['view'] = this.viewOrder[this.openedPanelStep];
-    console.log(data);
+    this.uploadError = null;
+    this.contentSuccessText = null;
+    this.uploadingEvent.next('DISABLE');
+    this.uploadProgressEvent.next({
+      'total': data.size,
+      'loaded': 0,
+    });
     this.instituteApiService.uploadStudyMaterial(this.currentSubjectSlug, data).subscribe(
       result => {
         if (result.type === HttpEventType.UploadProgress) {
-          const percentDone = Math.round(100 * result.loaded / result.total);
-          console.log('Progress ' + percentDone + '%');
+          this.uploadProgressEvent.next({
+            'total': result.total,
+            'loaded': result.loaded,
+          });
         } else if (result.type === HttpEventType.Response) {
-          console.log(result);
+          this.uploadingEvent.next('RESET');
+          this.contentSuccessText = 'Upload successful.';
+          this.viewData[result.body['view']].push(result.body);
+          this.storage.storage_used += result.body['data']['size'];
+          this.courseDetailsMinStat[result.body['view']] += 1;
         }
       },
       errors => {
-        console.log(errors);
+        this.uploadingEvent.next('ENABLE');
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uploadError = errors.error.error;
+          } else {
+            this.uploadError = 'Upload failed.';
+          }
+        } else {
+          this.uploadError = 'Upload failed.';
+        }
       }
     )
-  }
-
-  uploadPdf(data: any) {
-
   }
 
   uploadExternalLink(data: any) {
@@ -268,8 +281,8 @@ export class CreateCourseComponent implements OnInit {
         (result: StudyMaterialDetails) => {
           this.uploadingEvent.next('RESET');
           this.contentSuccessText = 'Uploaded Successfully.';
-          this.viewData[this.viewOrder[this.openedPanelStep]].push(result);
-          console.log(this.viewData[this.viewOrder[this.openedPanelStep]]);
+          this.viewData[result.view].push(result);
+          this.courseDetailsMinStat[result.view] += 1;
         },
         errors => {
           this.uploadingEvent.next('ENABLE');
@@ -315,7 +328,7 @@ export class CreateCourseComponent implements OnInit {
   }
 
   getStoragePercentFilled() {
-    return 100 * this.storage.storage_used / this.storage.total_storage;
+    return (100 * this.storage.storage_used / this.storage.total_storage).toFixed(3);
   }
 
   closeUploadSuccess() {
