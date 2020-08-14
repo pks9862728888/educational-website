@@ -1,0 +1,60 @@
+<div class="d-flex">
+    <div *ngIf="!mq.matches" [ngClass]="{'m-b-05': !mq.matches}">
+        <button mat-flat-button class="m-r-05 blue-button" (click)="back()">Back</button>
+        <button mat-flat-button class="m-r-05 green-button" (click)="toggleEditForm()">
+          <span *ngIf="!showEditForm">Edit</span>
+          <span *ngIf="showEditForm">Close Form</span>
+        </button>
+        <button mat-flat-button class="red-button" (click)="delete()">Delete</button>
+    </div>
+    <div *ngIf="mq.matches" class="d-flex">
+        <div class="m-r-05 back-icon">
+            <mat-icon (click)="back()">arrow_back_ios</mat-icon>
+        </div>
+        <div class="edit-icon m-r-05">
+            <mat-icon (click)="toggleEditForm()">
+                <span *ngIf="!showEditForm">edit</span>
+                <span *ngIf="showEditForm">close</span>
+            </mat-icon>
+        </div>
+        <div class="delete-icon">
+            <mat-icon (click)="delete()">delete</mat-icon>
+        </div>
+    </div>
+</div>
+<hr class="top-separator" />
+<app-ui-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+<app-ui-success-text *ngIf="successText" [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
+<div *ngIf="showEditForm">
+    <app-ui-edit-study-material [formEvent]="formControlEvent.asObservable()" [filledFormText]="content" [showTargetDate]="true" (formData)="edit($event)"></app-ui-edit-study-material>
+</div>
+<div class="m-t-1 m-b-1 description">
+    <h1 *ngIf="!mq.matches">{{ content.title | titlecase }}</h1>
+    <h2 *ngIf="mq.matches">{{ content.title | titlecase }}</h2>
+</div>
+<div class="m-b-1">
+    <mat-card>
+        <img class="image" [ngClass]="{'disable-download': !content.data.can_download}" [src]="content.data.file" [alt]="content.title" onContextMenu="return false;">
+    </mat-card>
+    <mat-icon *ngIf="mq.matches && content.data.can_download === true" class="download-mb" (click)="download()">get_app</mat-icon>
+    <div *ngIf="!mq.matches && content.data.can_download === true" class="download download-color" (click)="download()">
+        <p>Download</p>
+        <mat-icon>get_app</mat-icon>
+    </div>
+</div>
+<div class="description">
+    <h3 *ngIf="!mq.matches" class="text-justify">
+        Description:
+        <span *ngIf="content.description">{{ content.description }}</span>
+        <span *ngIf="!content.description">N/A</span>
+    </h3>
+    <p *ngIf="mq.matches" class="text-justify">{{ content.description }}</p>
+    <br/>
+    <p>Target Date:
+        <span *ngIf="content.target_date">{{ content.target_date }}</span>
+        <span *ngIf="!content.target_date">N/A</span>
+    </p>
+    <br />
+    <p>Content Created On: {{ content.uploaded_on | date }}</p>
+</div>
+<a #downloadFile class="d-none"></a>

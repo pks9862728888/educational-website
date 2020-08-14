@@ -1,0 +1,50 @@
+.row,
+.col-12,
+h3,
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.form-control {
+    width: 100%;
+    background-color: #3b3b3b;
+    color: #bdbdbd;
+    border-color: #6c756c;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: none;
+    outline: none;
+}
+
+.green-button:disabled,
+.green-button:disabled:hover {
+    color: #fff;
+    background-color: #008000;
+    opacity: 0.6;
+}
+
+.datepicker-icon {
+    transform: translateY(-1.95rem);
+    right: 5px;
+    position: absolute;
+}
+
+.pick-date-icon {
+    color: #6c7576;
+}
+
+.indicator {
+    display: flex;
+    align-items: center;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
