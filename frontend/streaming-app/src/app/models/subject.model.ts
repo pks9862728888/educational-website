@@ -51,7 +51,6 @@ export interface StudyMaterialDetails {
   view: string;
   content_type: string;
   description?: string;
-  can_download?: boolean;
   data: {
     url?: string;
     file?: string;
@@ -59,5 +58,6 @@ export interface StudyMaterialDetails {
     duration?: number;
     total_pages?: number;
     size?: number;
+    can_download?: boolean;
   };
 }

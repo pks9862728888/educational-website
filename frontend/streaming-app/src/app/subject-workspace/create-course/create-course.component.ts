@@ -5,7 +5,7 @@ import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, S
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SubjectCourseMinDetails, StorageStatistics, SubjectCourseViewDetails, StudyMaterialDetails } from '../../models/subject.model';
 
 @Component({
@@ -13,7 +13,7 @@ import { SubjectCourseMinDetails, StorageStatistics, SubjectCourseViewDetails, S
   templateUrl: './create-course.component.html',
   styleUrls: ['./create-course.component.css']
 })
-export class CreateCourseComponent implements OnInit {
+export class CreateCourseComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
   currentSubjectSlug: string;
@@ -407,6 +407,11 @@ export class CreateCourseComponent implements OnInit {
 
   closeActionSuccess() {
     this.actionSuccessText = null;
+  }
+
+  ngOnDestroy() {
+    sessionStorage.removeItem(actionContent);
+    sessionStorage.removeItem(activeCreateCourseView);
   }
 
 }
