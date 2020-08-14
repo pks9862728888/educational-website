@@ -2116,7 +2116,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                 'view': request.data.get('view'),
                 'order': subject_stats.max_order + 1,
                 'target_date': request.data.get('target_date'),
-                'course_content_subject': subject.pk
+                'course_content_subject': subject.pk,
+                'description': request.data.get('description')
             })
 
         if course_content_serializer.is_valid():
@@ -2186,7 +2187,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                     image_serializer = serializer.ImageStudyMaterialSerializer(
                         data={
                             'image_study_material': course_content_serializer.data['id'],
-                            'file': request.data.get('file')
+                            'file': request.data.get('file'),
+                            'can_download': request.data.get('can_download')
                         }, context={"request": request})
 
                     if image_serializer.is_valid():
@@ -2200,7 +2202,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                         response.pop('course_content_subject')
                         response['data'] = {
                             'file': image_serializer.data['file'],
-                            'size': float(size)
+                            'size': float(size),
+                            'can_download': image_serializer.data['can_download']
                         }
 
                         if not response['target_date']:
@@ -2224,7 +2227,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                     video_serializer = serializer.VideoStudyMaterialSerializer(
                         data={
                             'video_study_material': course_content_serializer.data['id'],
-                            'file': request.data.get('file')
+                            'file': request.data.get('file'),
+                            'can_download': request.data.get('can_download')
                         }, context={"request": request})
 
                     if video_serializer.is_valid():
@@ -2238,7 +2242,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                         response.pop('course_content_subject')
                         response['data'] = {
                             'file': video_serializer.data['file'],
-                            'size': float(size)
+                            'size': float(size),
+                            'can_download': video_serializer.data['can_download']
                         }
 
                         if not response['target_date']:
@@ -2262,7 +2267,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                     pdf_serializer = serializer.PdfStudyMaterialSerializer(
                         data={
                             'pdf_study_material': course_content_serializer.data['id'],
-                            'file': request.data.get('file')
+                            'file': request.data.get('file'),
+                            'can_download': request.data.get('can_download')
                         }, context={"request": request})
 
                     if pdf_serializer.is_valid():
@@ -2276,7 +2282,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                         response.pop('course_content_subject')
                         response['data'] = {
                             'file': pdf_serializer.data['file'],
-                            'size': float(size)
+                            'size': float(size),
+                            'can_download': pdf_serializer.data['can_download']
                         }
 
                         if not response['target_date']:
@@ -2389,6 +2396,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             res['title'] = d.title
             res['order'] = d.order
             res['content_type'] = d.content_type
+            res['description'] = d.description
             res['uploaded_on'] = str(d.uploaded_on)
             if d.target_date:
                 res['target_date'] = str(d.target_date)
@@ -2403,6 +2411,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 query_data = models.SubjectImageStudyMaterial.objects.filter(
                         image_study_material__pk=d.id
                     ).first()
+                data_dict['can_download'] = query_data.can_download
                 data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
                     query_data.file)
                 data_dict['size'] = query_data.file.size / 1000000000  #In Gb
@@ -2410,6 +2419,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 query_data = models.SubjectVideoStudyMaterial.objects.filter(
                         video_study_material__pk=d.id
                     ).first()
+                data_dict['can_download'] = query_data.can_download
                 data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
                     query_data.file)
                 data_dict['bit_rate'] = query_data.bit_rate
@@ -2419,6 +2429,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 query_data = models.SubjectPdfStudyMaterial.objects.filter(
                         pdf_study_material__pk=d.id
                     ).first()
+                data_dict['can_download'] = query_data.can_download
                 data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
                     query_data.file)
                 data_dict['total_pages'] = query_data.total_pages

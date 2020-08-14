@@ -23,6 +23,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core';
 import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
 import { UiActionControlsComponent } from './ui-action-controls/ui-action-controls.component';
+import { UiEditStudyMaterialComponent } from './ui-edit-study-material/ui-edit-study-material.component';
 
 
 @NgModule({
@@ -43,6 +44,7 @@ import { UiActionControlsComponent } from './ui-action-controls/ui-action-contro
     UiUploadPdfComponent,
     UiAddExternalLinkComponent,
     UiActionControlsComponent,
+    UiEditStudyMaterialComponent,
   ],
   imports: [
     CommonModule,
@@ -66,7 +68,8 @@ import { UiActionControlsComponent } from './ui-action-controls/ui-action-contro
     UiUploadVideoComponent,
     UiUploadImageComponent,
     UiUploadPdfComponent,
-    UiAddExternalLinkComponent
+    UiAddExternalLinkComponent,
+    UiEditStudyMaterialComponent
   ],
   providers: [
     InstituteApiService,

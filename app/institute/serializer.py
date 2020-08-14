@@ -416,7 +416,8 @@ class SubjectCourseContentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.InstituteSubjectCourseContent
         fields = ('id', 'course_content_subject', 'order', 'title',
-                  'content_type', 'view', 'target_date', 'uploaded_on')
+                  'content_type', 'view', 'target_date', 'uploaded_on',
+                  'description')
         read_only_fields = ('id', 'uploaded_on')
 
 
@@ -435,7 +436,7 @@ class ImageStudyMaterialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.SubjectImageStudyMaterial
-        fields = ('id', 'image_study_material', 'file')
+        fields = ('id', 'image_study_material', 'file', 'can_download')
         read_only_fields = ('id',)
 
 
@@ -445,7 +446,7 @@ class VideoStudyMaterialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.SubjectVideoStudyMaterial
-        fields = ('id', 'video_study_material', 'file')
+        fields = ('id', 'video_study_material', 'file', 'can_download')
         read_only_fields = ('id',)
 
 
@@ -455,7 +456,7 @@ class PdfStudyMaterialSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.SubjectPdfStudyMaterial
-        fields = ('id', 'pdf_study_material', 'file')
+        fields = ('id', 'pdf_study_material', 'file', 'can_download')
         read_only_fields = ('id',)
 
 

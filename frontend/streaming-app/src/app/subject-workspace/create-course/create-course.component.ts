@@ -1,7 +1,7 @@
 import { HttpEventType } from '@angular/common/http';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
-import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, STUDY_MATERIAL_VIEW_REVERSE, STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from './../../../constants';
+import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, STUDY_MATERIAL_VIEW_REVERSE, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -42,6 +42,8 @@ export class CreateCourseComponent implements OnInit {
   deleteDialogDataSubscription: Subscription;
   uploadProgressEvent = new Subject<{loaded: number, total: number}>();
 
+  showView: string;
+
   // Data
   storage: StorageStatistics;
   courseDetailsMinStat: SubjectCourseViewDetails;
@@ -61,6 +63,10 @@ export class CreateCourseComponent implements OnInit {
     this.mq = media.matchMedia('(max-width: 600px)');
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
     this.openedPanelStep = 0;
+    this.showView = sessionStorage.getItem(activeCreateCourseView);
+    if (!this.showView) {
+      this.showView = 'CREATE';
+    }
   }
 
 
@@ -145,9 +151,7 @@ export class CreateCourseComponent implements OnInit {
     this.showGuidelines = !this.showGuidelines;
   }
 
-  editClicked() {
-
-  }
+  editClicked() {}
 
   deleteClicked(content: StudyMaterialDetails) {
     this.actionContent = content;
@@ -200,9 +204,7 @@ export class CreateCourseComponent implements OnInit {
     }
   }
 
-  reorderClicked() {
-
-  }
+  reorderClicked() {}
 
   // For mobile view
   showActionsClicked(content: StudyMaterialDetails) {
@@ -311,8 +313,36 @@ export class CreateCourseComponent implements OnInit {
       this.addFilesDialog = !this.addFilesDialog;
   }
 
-  contentClicked() {
-    console.log('clicked');
+  contentClicked(content: StudyMaterialDetails) {
+    if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
+      window.open('//' + content.data.url, '_blank');
+    } else if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['IMAGE']) {
+      this.showView = 'VIEW_IMAGE';
+      sessionStorage.setItem(activeCreateCourseView, 'VIEW_IMAGE');
+      sessionStorage.setItem(actionContent, JSON.stringify(content));
+    } else if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['VIDEO']) {
+      this.showView = 'VIEW_VIDEO';
+      sessionStorage.setItem(activeCreateCourseView, 'VIEW_VIDEO');
+      sessionStorage.setItem(actionContent, JSON.stringify(content));
+    } else if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['PDF']) {
+      this.showView = 'VIEW_PDF';
+      sessionStorage.setItem(activeCreateCourseView, 'VIEW_VIDEO');
+      sessionStorage.setItem(actionContent, JSON.stringify(content));
+    }
+  }
+
+  showCreateView(event: string | void) {
+    if (event === 'DELETED') {
+      const content: StudyMaterialDetails = JSON.parse(sessionStorage.getItem(actionContent));
+      this.viewData[content.view].splice(
+        this.viewData[content.view].indexOf(content), 1
+      );
+      this.actionSuccessText = 'Delete successful.';
+      sessionStorage.removeItem(actionContent);
+    }
+    this.showView = 'CREATE';
+    sessionStorage.removeItem(actionContent);
+    sessionStorage.removeItem(activeCreateCourseView);
   }
 
   closeErrorText() {

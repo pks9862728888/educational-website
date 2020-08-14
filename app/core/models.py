@@ -1350,6 +1350,8 @@ class InstituteSubjectCourseContent(models.Model):
         _('Target Date'), max_length=10, blank=True, null=True)
     uploaded_on = models.DateTimeField(
         _('Uploaded on'), default=timezone.now, editable=False)
+    description = models.TextField(
+        _('Description'), blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.title:
@@ -1396,6 +1398,8 @@ class SubjectImageStudyMaterial(models.Model):
         blank=False,
         max_length=1024,
         unique=True)
+    can_download = models.BooleanField(
+        _('Can Download'), blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.file:
@@ -1432,6 +1436,8 @@ class SubjectVideoStudyMaterial(models.Model):
         _('Bit Rate'), null=True, blank=True)
     duration = models.PositiveIntegerField(
         _('Duration in seconds'), null=True, blank=True)
+    can_download = models.BooleanField(
+        _('Can Download'), blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.file:
@@ -1465,6 +1471,8 @@ class SubjectPdfStudyMaterial(models.Model):
         _('Duration in seconds'), null=True, blank=True)
     total_pages = models.PositiveIntegerField(
         _('Total pages'), null=True, blank=True)
+    can_download = models.BooleanField(
+        _('Can Download'), blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.file:

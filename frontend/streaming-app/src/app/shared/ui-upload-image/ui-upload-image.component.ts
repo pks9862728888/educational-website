@@ -38,7 +38,9 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
     this.uploadForm = this.formBuilder.group({
       title: [null, [Validators.required, Validators.maxLength(30)]],
       file: [null, [Validators.required]],
-      target_date: [null]
+      target_date: [null],
+      description: [null],
+      can_download: [true]
     });
     this.formEventSubscription = this.formEvent.subscribe(
       (data: string) => {
@@ -76,6 +78,8 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
       let data = {};
       data['title'] = this.uploadForm.value.title;
       data['file'] = file;
+      data['description'] = this.uploadForm.value.description;
+      data['can_download'] = this.uploadForm.value.can_download;
       if (this.uploadForm.value.target_date) {
         data['target_date'] = formatDate(this.uploadForm.value.target_date);
       }

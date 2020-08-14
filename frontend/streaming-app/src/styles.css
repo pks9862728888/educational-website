@@ -32,13 +32,14 @@ button.active:focus {
 }
 
 .green-button,
-.red-button {
+.red-button,
+.blue-button {
     color: #ffffff;
     box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .green-button:hover,
-.red-button:hover {
+.red-button:hover .blue-button:hover {
     box-shadow: none;
 }
 
@@ -48,6 +49,14 @@ button.active:focus {
 
 .green-button:hover {
     background-color: #3a9b0d;
+}
+
+.blue-button {
+    background-color: #0784fa;
+}
+
+.blue-button:hover {
+    background-color: #0873d8;
 }
 
 .red-button {
@@ -78,6 +87,10 @@ button.active:focus {
 
 .delete-icon {
     color: #ff0266;
+}
+
+.back-icon {
+    color: #f2aa4cff;
 }
 
 

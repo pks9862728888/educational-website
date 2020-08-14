@@ -45,11 +45,13 @@ export interface StorageStatistics {
 export interface StudyMaterialDetails {
   id: number;
   order: number;
-  target_data?: string;
+  target_date?: string;
   title: string;
   uploaded_on: string;
   view: string;
   content_type: string;
+  description?: string;
+  can_download?: boolean;
   data: {
     url?: string;
     file?: string;

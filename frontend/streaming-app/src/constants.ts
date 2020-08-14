@@ -17,6 +17,8 @@ export const hasClassPerm = 'hasClassPerm';
 // For institute subject
 export const currentSubjectSlug = 'currentSubjectSlug';
 export const hasSubjectPerm = 'hasSubjectPerm';
+export const actionContent = 'actionContent';
+export const activeCreateCourseView = 'createCourseView';
 
 // For institue section
 export const currentSectionSlug = 'currentSectionSlug';

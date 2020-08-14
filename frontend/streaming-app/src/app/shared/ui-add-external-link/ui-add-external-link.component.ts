@@ -32,7 +32,9 @@ export class UiAddExternalLinkComponent implements OnInit, OnDestroy {
     this.uploadForm = this.formBuilder.group({
       title: [null, [Validators.required, Validators.maxLength(20)]],
       url: [null, [Validators.required, Validators.maxLength(100)]],
-      target_date: [null]
+      target_date: [null],
+      description: [null],
+      can_download: [true],
     });
     this.formEventSubscription = this.formEvent.subscribe(
       (data: string) => {
@@ -54,7 +56,8 @@ export class UiAddExternalLinkComponent implements OnInit, OnDestroy {
   upload() {
     this.uploadForm.patchValue({
       title: this.uploadForm.value.title.trim(),
-      url: this.uploadForm.value.url.trim()
+      url: this.uploadForm.value.url.trim(),
+      description: this.uploadForm.value.description.trim()
     })
     if (!this.uploadForm.value.title) {
       this.formFieldError.emit('Title can not be blank.');

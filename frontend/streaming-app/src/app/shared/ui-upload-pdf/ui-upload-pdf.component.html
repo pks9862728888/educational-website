@@ -4,7 +4,7 @@
 </div>
 <form [formGroup]="uploadForm">
     <div class="row">
-        <div class="col-12 input-field">
+        <div class="col-12 m-b-1">
             <input type="text" formControlName="title" maxlength="30" class="form-control" placeholder="Title" aria-label="File name">
         </div>
         <div class="col-12 m-b-1" *ngIf="showTargetDate">
@@ -14,8 +14,14 @@
                 <mat-datepicker touchUi #datepicker></mat-datepicker>
             </div>
         </div>
-        <div class="col-12 input-field">
+        <div class="col-12 m-b-1">
+            <textarea type="text" formControlName="description" rows="5" maxlength="500" class="form-control" placeholder="Description (optional)" aria-label="Description"></textarea>
+        </div>
+        <div class="col-12 m-b-1">
             <input type="file" mat-flat-button formControlName="file" class="file" id="pdf-file">
+        </div>
+        <div class="col-12 m-b-1">
+            <mat-slide-toggle formControlName="can_download">Can Download Content</mat-slide-toggle>
         </div>
         <div class="col-12 m-b-07">
             <button mat-flat-button *ngIf="!showIndicator" [disabled]="uploadForm.invalid" class="green-button m-r-05" type="submit" (click)="upload()">Upload</button>
