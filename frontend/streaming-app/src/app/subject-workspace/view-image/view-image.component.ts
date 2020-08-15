@@ -35,9 +35,7 @@ export class ViewImageComponent implements OnInit {
     this.content = JSON.parse(sessionStorage.getItem(actionContent));
   }
 
-  ngOnInit(): void {
-    console.log(this.content);
-  }
+  ngOnInit(): void {}
 
   back() {
     this.closeViewEvent.emit();

@@ -1350,8 +1350,7 @@ class InstituteSubjectCourseContent(models.Model):
         _('Target Date'), max_length=10, blank=True, null=True)
     uploaded_on = models.DateTimeField(
         _('Uploaded on'), default=timezone.now, editable=False)
-    description = models.TextField(
-        _('Description'), blank=True, null=True)
+    description = models.TextField(_('Description'), default='')
 
     def save(self, *args, **kwargs):
         if not self.title:

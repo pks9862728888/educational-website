@@ -2128,7 +2128,8 @@ class InstituteSubjectAddCourseContentView(APIView):
         response = course_content_serializer.data
         response.pop('course_content_subject')
 
-        if not response['description'] == 'null':
+        if not response['description'] and\
+                response['content_type'] == models.StudyMaterialContentType.EXTERNAL_LINK:
             response.pop('description')
 
         if not response['target_date']:
@@ -2388,7 +2389,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             res['uploaded_on'] = str(d.uploaded_on)
             res['view'] = d.view
 
-            if d.description != 'null':
+            if d.description and d.content_type != models.StudyMaterialContentType.EXTERNAL_LINK:
                 res['description'] = d.description
 
             if d.target_date:

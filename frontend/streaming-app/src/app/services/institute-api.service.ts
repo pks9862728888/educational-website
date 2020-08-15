@@ -397,8 +397,14 @@ export class InstituteApiService {
     formData.append('size', data.size);
     formData.append('file', data.file);
     formData.append('content_type', data.content_type);
-    formData.append('description', data.description);
-    formData.append('can_download', data.can_download);
+
+    if (data.description) {
+      formData.append('description', data.description);
+    }
+
+    if (data.can_download) {
+      formData.append('can_download', data.can_download);
+    }
 
     if (data.target_date) {
       formData.append('target_date', data.target_date);
