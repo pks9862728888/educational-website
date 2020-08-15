@@ -2109,6 +2109,11 @@ class InstituteSubjectAddCourseContentView(APIView):
             statistics_subject=subject
         ).first()
 
+        if request.data.get('description'):
+            description = request.data.get('description')
+        else:
+            description = ' '
+
         course_content_serializer = serializer.SubjectCourseContentCreateSerializer(
             data={
                 'title': request.data.get('title'),
@@ -2117,12 +2122,13 @@ class InstituteSubjectAddCourseContentView(APIView):
                 'order': subject_stats.max_order + 1,
                 'target_date': request.data.get('target_date'),
                 'course_content_subject': subject.pk,
-                'description': request.data.get('description')
+                'description': description
             })
 
         if course_content_serializer.is_valid():
             course_content_serializer.save()
         else:
+            print(course_content_serializer.errors)
             return Response(course_content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         response = course_content_serializer.data

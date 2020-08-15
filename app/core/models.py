@@ -1350,7 +1350,7 @@ class InstituteSubjectCourseContent(models.Model):
         _('Target Date'), max_length=10, blank=True, null=True)
     uploaded_on = models.DateTimeField(
         _('Uploaded on'), default=timezone.now, editable=False)
-    description = models.TextField(_('Description'), default='')
+    description = models.TextField(_('Description'), default='', blank=True)
 
     def save(self, *args, **kwargs):
         if not self.title:
@@ -1362,6 +1362,7 @@ class InstituteSubjectCourseContent(models.Model):
         if not self.view:
             raise ValueError({'error': _('View is required.')})
         self.title = self.title.strip()
+        self.description = self.description.strip()
         super(InstituteSubjectCourseContent, self).save(*args, **kwargs)
 
     def __str__(self):
