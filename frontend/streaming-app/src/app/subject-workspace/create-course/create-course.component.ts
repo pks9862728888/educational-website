@@ -326,7 +326,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
       sessionStorage.setItem(actionContent, JSON.stringify(content));
     } else if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['PDF']) {
       this.showView = 'VIEW_PDF';
-      sessionStorage.setItem(activeCreateCourseView, 'VIEW_VIDEO');
+      sessionStorage.setItem(activeCreateCourseView, 'VIEW_PDF');
       sessionStorage.setItem(actionContent, JSON.stringify(content));
     }
   }

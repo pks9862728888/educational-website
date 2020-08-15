@@ -5,7 +5,8 @@ import { actionContent } from './../../../constants';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, EventEmitter, Output, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { StudyMaterialDetails } from '../../models/subject.model';
-import { Subject, Subscription, ObjectUnsubscribedError } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-view-image',
@@ -27,7 +28,6 @@ export class ViewImageComponent implements OnInit {
 
   constructor(
     private media: MediaMatcher,
-    private downloadService: DownloadService,
     private uiService: UiService,
     private instituteApiService: InstituteApiService
   ) {
@@ -81,15 +81,10 @@ export class ViewImageComponent implements OnInit {
     );
   }
 
-  public async download(): Promise<void> {
-    const blob = await this.downloadService.downloadFile(this.content.data.file);
-    const url = window.URL.createObjectURL(blob);
-    const link = this.downloadLink.nativeElement;
-    link.href = url;
+  download() {
     const ext = this.content.data.file.split('.');
-    link.download = this.content.title.toLowerCase().replace(' ', '_') + '.' + ext[ext.length - 1];
-    link.click();
-    window.URL.revokeObjectURL(url);
+    saveAs(
+      this.content.data.file, this.content.title.toLowerCase().replace(' ', '_') + '.' + ext[ext.length - 1]);
   }
 
   closeErrorText() {

@@ -10,9 +10,9 @@ export class DownloadService {
     private httpClient: HttpClient
   ) { }
 
-  public async downloadFile(url: string): Promise<Blob> {
-    return await this.httpClient.get<Blob>(
-      url, {responseType: 'blob' as 'json'}
-    ).toPromise();
+  public downloadFile(url: string) {
+    return this.httpClient.get(
+      url, {responseType: 'blob' }
+    );
   }
 }

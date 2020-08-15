@@ -52,6 +52,7 @@ export interface StudyMaterialDetails {
   content_type: string;
   description?: string;
   data: {
+    id?: number;
     url?: string;
     file?: string;
     bit_rate?: number;

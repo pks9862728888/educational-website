@@ -2210,6 +2210,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                         institute_stats.storage += size
                         institute_stats.save()
                         response['data'] = {
+                            'id': image_serializer.data['id'],
                             'file': image_serializer.data['file'],
                             'size': float(size),
                             'can_download': image_serializer.data['can_download']
@@ -2245,6 +2246,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                         institute_stats.storage += size
                         institute_stats.save()
                         response['data'] = {
+                            'id': video_serializer.data['id'],
                             'file': video_serializer.data['file'],
                             'size': float(size),
                             'can_download': video_serializer.data['can_download']
@@ -2280,6 +2282,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                         institute_stats.storage += size
                         institute_stats.save()
                         response['data'] = {
+                            'id': pdf_serializer.data['id'],
                             'file': pdf_serializer.data['file'],
                             'size': float(size),
                             'can_download': pdf_serializer.data['can_download']
@@ -2411,6 +2414,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 query_data = models.SubjectImageStudyMaterial.objects.filter(
                         image_study_material__pk=d.id
                     ).first()
+                data_dict['id'] = query_data.id
                 data_dict['can_download'] = query_data.can_download
                 data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
                     query_data.file)
@@ -2419,6 +2423,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 query_data = models.SubjectVideoStudyMaterial.objects.filter(
                         video_study_material__pk=d.id
                     ).first()
+                data_dict['id'] = query_data.id
                 data_dict['can_download'] = query_data.can_download
                 data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
                     query_data.file)
@@ -2429,6 +2434,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 query_data = models.SubjectPdfStudyMaterial.objects.filter(
                         pdf_study_material__pk=d.id
                     ).first()
+                data_dict['id'] = query_data.id
                 data_dict['can_download'] = query_data.can_download
                 data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
                     query_data.file)

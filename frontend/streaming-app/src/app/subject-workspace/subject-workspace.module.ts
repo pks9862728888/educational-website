@@ -1,5 +1,5 @@
 import { DownloadService } from './../services/download.service';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
@@ -12,6 +12,8 @@ import { ViewVideoComponent } from './view-video/view-video.component';
 import { ViewPdfComponent } from './view-pdf/view-pdf.component';
 import { ViewImageComponent } from './view-image/view-image.component';
 
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+
 
 @NgModule({
   declarations: [
@@ -22,11 +24,13 @@ import { ViewImageComponent } from './view-image/view-image.component';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     SubjectWorkspaceRoutingModule,
     MaterialSubjectWorkspaceModule,
     SharedModule,
     MatInputModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    PdfViewerModule
   ],
   providers: [
     InstituteApiService,
