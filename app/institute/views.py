@@ -2091,6 +2091,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')).first()
 
@@ -2148,6 +2149,9 @@ class InstituteSubjectAddCourseContentView(APIView):
                 if not response['target_date']:
                     response.pop('target_date')
 
+                if not response['description'] == 'null':
+                    response['description'] = ''
+
                 return Response(response, status=status.HTTP_201_CREATED)
             else:
                 models.InstituteSubjectCourseContent.objects.filter(
@@ -2200,6 +2204,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                         institute_stats.save()
                         response = course_content_serializer.data
                         response.pop('course_content_subject')
+
+                        if response['description'] == 'null':
+                            response['description'] = ''
+
                         response['data'] = {
                             'file': image_serializer.data['file'],
                             'size': float(size),
@@ -2240,6 +2248,10 @@ class InstituteSubjectAddCourseContentView(APIView):
                         institute_stats.save()
                         response = course_content_serializer.data
                         response.pop('course_content_subject')
+
+                        if response['description'] == 'null':
+                            response['description'] = ''
+
                         response['data'] = {
                             'file': video_serializer.data['file'],
                             'size': float(size),
@@ -2288,6 +2300,9 @@ class InstituteSubjectAddCourseContentView(APIView):
 
                         if not response['target_date']:
                             response.pop('target_date')
+
+                        if response['description'] == 'null':
+                            response['description'] = ''
 
                         return Response(response, status=status.HTTP_201_CREATED)
                     else:
@@ -2396,7 +2411,10 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             res['title'] = d.title
             res['order'] = d.order
             res['content_type'] = d.content_type
-            res['description'] = d.description
+            if d.description != 'null':
+                res['description'] = d.description
+            else:
+                res['description'] = ''
             res['uploaded_on'] = str(d.uploaded_on)
             if d.target_date:
                 res['target_date'] = str(d.target_date)
