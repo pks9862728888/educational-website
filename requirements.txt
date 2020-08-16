@@ -14,5 +14,6 @@ django-phonenumber-field>=4.0.0,<4.1.0
 django-countries>=6.1.2,<=6.2.0
 Pillow>=7.2.0,<=7.3.0
 filetype>=1.0.7,<2.0.0
+python-ffmpeg-video-streaming>=0.1,<0.2
 
 flake8>=3.8.3,<3.9.0

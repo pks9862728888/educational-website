@@ -13,6 +13,7 @@ import { ViewPdfComponent } from './view-pdf/view-pdf.component';
 import { ViewImageComponent } from './view-image/view-image.component';
 
 import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { PdfViewerModule } from 'ng2-pdf-viewer';
     SharedModule,
     MatInputModule,
     ReactiveFormsModule,
-    PdfViewerModule
+    PdfViewerModule,
+    NgxExtendedPdfViewerModule
   ],
   providers: [
     InstituteApiService,

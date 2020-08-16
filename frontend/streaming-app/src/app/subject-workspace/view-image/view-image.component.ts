@@ -24,8 +24,6 @@ export class ViewImageComponent implements OnInit {
   public formControlEvent = new Subject<string>();
   deleteConfirmationSubscription: Subscription;
 
-  @ViewChild('downloadFile') private downloadLink: ElementRef;
-
   constructor(
     private media: MediaMatcher,
     private uiService: UiService,

@@ -56,6 +56,7 @@
     </div>
     <pdf-viewer [src]="content.data.file" [render-text]="true" [render-text-mode]="2" [fit-to-page]="true" [zoom]="zoom" [show-all]="true" [(page)]="page" [show-borders]="true" (after-load-complete)="afterLoadComplete($event)" (on-progress)="onProgress($event)"
         style="display: block; height: 80vh;"></pdf-viewer>
+    <!-- <ngx-extended-pdf-viewer [src]="content.data.file" useBrowserLocale="false" height="80vh"></ngx-extended-pdf-viewer> -->
 </div>
 <div class="description">
     <h3 *ngIf="!mq.matches" class="text-justify">

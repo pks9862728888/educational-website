@@ -3,10 +3,12 @@ LABEL maintainer='Hackedlings'
 
 ENV PYTHONUNBUFFERED 1
 
+RUN apk update
 COPY ./requirements.txt /requirements.txt
 RUN apk add --update --no-cache postgresql-client jpeg-dev
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
     libffi-dev gcc libc-dev linux-headers postgresql-dev musl-dev zlib zlib-dev
+RUN apk add --no-cache ffmpeg
 RUN pip install -r /requirements.txt
 RUN apk del .tmp-build-deps
 
