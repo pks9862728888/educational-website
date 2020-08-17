@@ -330,6 +330,23 @@ def subject_pdf_study_material_upload_file_path(instance, filename):
     return full_path
 
 
+def hls_encoded_video_saving_file_name_path(filename):
+    """Generates file name and path for uploading hls encoded media"""
+    extension = filename.split('.')[-1]
+    name = filename.split('/')[-1].strip('.' + extension)
+    path = settings.MEDIA_ROOT + '/' + 'institute/uploads/content/video/hls/' + name + '/'
+    full_path = os.path.join(path, name + '.m3u8')
+    return full_path
+
+
+def hls_key_saving_path(filename):
+    """Generates path to save keys"""
+    extension = filename.split('.')[-1]
+    name = filename.split('/')[-1].strip('.' + extension)
+    full_path = settings.MEDIA_ROOT + '/' + 'institute/uploads/content/video/hls-encryption-keys/' + name + '/key'
+    return full_path
+
+
 def random_string_generator(size=10,
                             chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -1399,7 +1416,7 @@ class SubjectImageStudyMaterial(models.Model):
         max_length=1024,
         unique=True)
     can_download = models.BooleanField(
-        _('Can Download'), blank=True, null=True)
+        _('Can Download'), blank=True, default=True)
 
     def save(self, *args, **kwargs):
         if not self.file:
@@ -1434,10 +1451,14 @@ class SubjectVideoStudyMaterial(models.Model):
         decimal_places=6, null=True, blank=True)
     bit_rate = models.PositiveIntegerField(
         _('Bit Rate'), null=True, blank=True)
-    duration = models.PositiveIntegerField(
-        _('Duration in seconds'), null=True, blank=True)
+    duration = models.DecimalField(
+        _('Duration in seconds'), max_digits=10, decimal_places=2, blank=True, null=True)
+    stream_file = models.CharField(
+        _('HLS encoded stream file'), max_length=1024, blank=True)
     can_download = models.BooleanField(
-        _('Can Download'), blank=True, null=True)
+        _('Can Download'), blank=True, default=True)
+    error_transcoding = models.BooleanField(
+        _('Error in transcoding'), default=False, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.file:
@@ -1472,7 +1493,7 @@ class SubjectPdfStudyMaterial(models.Model):
     total_pages = models.PositiveIntegerField(
         _('Total pages'), null=True, blank=True)
     can_download = models.BooleanField(
-        _('Can Download'), blank=True, null=True)
+        _('Can Download'), blank=True, default=True)
 
     def save(self, *args, **kwargs):
         if not self.file:
