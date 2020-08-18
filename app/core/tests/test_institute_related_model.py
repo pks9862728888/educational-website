@@ -852,75 +852,83 @@ def create_institute_subject_content(course_content_subject,
 #         self.assertEqual(res.to, section)
 #
 #
-# class InstituteSubjectCourseContentModelTests(TestCase):
-#     """Tests for subject course content model"""
-#
-#     def setUp(self):
-#         self.user = get_user_model().objects.create_user(
-#             email='usersff@gmail.com',
-#             username='sdjfkjsfj',
-#             password='slkdjfsjfjj'
-#         )
-#         self.user.is_teacher = True
-#         self.user.save()
-#
-#     def test_add_content_for_meet_instructor_view_success_with_date(self):
-#         """Test that adding data is success"""
-#         institute = create_institute(self.user)
-#         class_ = create_class(institute)
-#         subject = create_subject(class_)
-#
-#         payload = {
-#             'course_content_subject': subject,
-#             'title': 'adfds',
-#             'order': 1,
-#             'content_type': models.StudyMaterialContentType.VIDEO,
-#             'target_date': '2343-02-02',
-#             'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR
-#         }
-#         res = models.InstituteSubjectCourseContent.objects.create(
-#             course_content_subject=payload['course_content_subject'],
-#             title=payload['title'],
-#             order=payload['order'],
-#             content_type=payload['content_type'],
-#             target_date=payload['target_date'],
-#             view=payload['view'],
-#         )
-#         self.assertEqual(res.course_content_subject, payload['course_content_subject'])
-#         self.assertEqual(res.title, payload['title'])
-#         self.assertEqual(res.order, payload['order'])
-#         self.assertEqual(res.content_type, payload['content_type'])
-#         self.assertEqual(res.target_date, payload['target_date'])
-#         self.assertEqual(res.view, payload['view'])
-#
-#     def test_add_content_for_meet_instructor_view_success_with_no_date(self):
-#         """Test that adding data is success"""
-#         institute = create_institute(self.user)
-#         class_ = create_class(institute)
-#         subject = create_subject(class_)
-#
-#         payload = {
-#             'course_content_subject': subject,
-#             'title': 'adfds',
-#             'order': 1,
-#             'content_type': models.StudyMaterialContentType.VIDEO,
-#             'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR
-#         }
-#         res = models.InstituteSubjectCourseContent.objects.create(
-#             course_content_subject=payload['course_content_subject'],
-#             title=payload['title'],
-#             order=payload['order'],
-#             content_type=payload['content_type'],
-#             view=payload['view'],
-#         )
-#         self.assertEqual(res.course_content_subject, payload['course_content_subject'])
-#         self.assertEqual(res.title, payload['title'])
-#         self.assertEqual(res.order, payload['order'])
-#         self.assertEqual(res.content_type, payload['content_type'])
-#         self.assertEqual(res.target_date, None)
-#         self.assertEqual(res.view, payload['view'])
-#
-#
+class InstituteSubjectCourseContentModelTests(TestCase):
+    """Tests for subject course content model"""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email='usersff@gmail.com',
+            username='sdjfkjsfj',
+            password='slkdjfsjfjj'
+        )
+        self.user.is_teacher = True
+        self.user.save()
+
+    def test_add_content_for_meet_instructor_view_success_with_date(self):
+        """Test that adding data is success"""
+        institute = create_institute(self.user)
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key='MI'
+        ).first()
+
+        payload = {
+            'course_content_subject': subject,
+            'title': 'adfds',
+            'order': 1,
+            'content_type': models.StudyMaterialContentType.VIDEO,
+            'target_date': '2343-02-02',
+            'view': view
+        }
+        res = models.InstituteSubjectCourseContent.objects.create(
+            course_content_subject=payload['course_content_subject'],
+            title=payload['title'],
+            order=payload['order'],
+            content_type=payload['content_type'],
+            target_date=payload['target_date'],
+            view=payload['view'],
+        )
+        self.assertEqual(res.course_content_subject, payload['course_content_subject'])
+        self.assertEqual(res.title, payload['title'])
+        self.assertEqual(res.order, payload['order'])
+        self.assertEqual(res.content_type, payload['content_type'])
+        self.assertEqual(res.target_date, payload['target_date'])
+        self.assertEqual(res.view, payload['view'])
+
+    def test_add_content_for_meet_instructor_view_success_with_no_date(self):
+        """Test that adding data is success"""
+        institute = create_institute(self.user)
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key='CO'
+        ).first()
+
+        payload = {
+            'course_content_subject': subject,
+            'title': 'adfds',
+            'order': 1,
+            'content_type': models.StudyMaterialContentType.VIDEO,
+            'view': view
+        }
+        res = models.InstituteSubjectCourseContent.objects.create(
+            course_content_subject=payload['course_content_subject'],
+            title=payload['title'],
+            order=payload['order'],
+            content_type=payload['content_type'],
+            view=payload['view'],
+        )
+        self.assertEqual(res.course_content_subject, payload['course_content_subject'])
+        self.assertEqual(res.title, payload['title'])
+        self.assertEqual(res.order, payload['order'])
+        self.assertEqual(res.content_type, payload['content_type'])
+        self.assertEqual(res.target_date, None)
+        self.assertEqual(res.view, payload['view'])
+
+
 # class TestExternalLinkStudyMaterialModelTest(TestCase):
 #
 #     def setUp(self):
@@ -989,27 +997,27 @@ def create_institute_subject_content(course_content_subject,
 #         self.assertEqual(file_path, expected_path)
 #
 #
-class SubjectViewNamesTest(TestCase):
-
-    def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            email='usersff@gmail.com',
-            username='sdjfkjsfj',
-            password='slkdjfsjfjj'
-        )
-        self.user.is_teacher = True
-        self.user.save()
-
-    def test_creating_subject_module_name_success(self):
-        """Test that creating subject module name is success"""
-        institute = create_institute(self.user)
-        class_ = create_class(institute)
-        subject = create_subject(class_)
-
-        res = models.SubjectViewNames.objects.create(
-            view_subject=subject,
-            key='ABC',
-            name='TEMP')
-
-        self.assertEqual(res.key, 'ABC')
-        self.assertEqual(res.name, 'TEMP')
+# class SubjectViewNamesTest(TestCase):
+#
+#     def setUp(self):
+#         self.user = get_user_model().objects.create_user(
+#             email='usersff@gmail.com',
+#             username='sdjfkjsfj',
+#             password='slkdjfsjfjj'
+#         )
+#         self.user.is_teacher = True
+#         self.user.save()
+#
+#     def test_creating_subject_module_name_success(self):
+#         """Test that creating subject module name is success"""
+#         institute = create_institute(self.user)
+#         class_ = create_class(institute)
+#         subject = create_subject(class_)
+#
+#         res = models.SubjectViewNames.objects.create(
+#             view_subject=subject,
+#             key='ABC',
+#             name='TEMP')
+#
+#         self.assertEqual(res.key, 'ABC')
+#         self.assertEqual(res.name, 'TEMP')

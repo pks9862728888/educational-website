@@ -1365,12 +1365,8 @@ class InstituteSubjectCourseContent(models.Model):
         null=False,
         blank=False,
         choices=StudyMaterialContentType.CONTENT_TYPE_IN_CONTENT_TYPES)
-    view = models.CharField(
-        _('View name'),
-        max_length=3,
-        null=False,
-        blank=False,
-        choices=StudyMaterialView.STUDY_MATERIAL_VIEW_TYPES)
+    view = models.ForeignKey(
+        SubjectViewNames, on_delete=models.CASCADE, related_name='view')
     target_date = models.DateField(
         _('Target Date'), max_length=10, blank=True, null=True)
     uploaded_on = models.DateTimeField(
