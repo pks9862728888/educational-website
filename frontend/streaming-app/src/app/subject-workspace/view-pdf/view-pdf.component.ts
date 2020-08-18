@@ -1,7 +1,7 @@
 import { DownloadService } from './../../services/download.service';
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { StudyMaterialDetails } from '../../models/subject.model';
-import { actionContent } from '../../../constants';
+import { actionContent, currentSubjectSlug } from '../../../constants';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
@@ -24,6 +24,7 @@ export class ViewPdfComponent implements OnInit {
   showEditForm = false;
   public formControlEvent = new Subject<string>();
   deleteConfirmationSubscription: Subscription;
+  contentEdited: boolean;
 
   // For pdf viewer
   page = 1;
@@ -47,15 +48,47 @@ export class ViewPdfComponent implements OnInit {
   ngOnInit(): void {}
 
   back() {
-    this.closeViewEvent.emit();
+    if (this.contentEdited) {
+      this.closeViewEvent.emit(this.content);
+    } else {
+      this.closeViewEvent.emit();
+    }
   }
 
   toggleEditForm() {
     this.showEditForm = !this.showEditForm;
   }
 
-  edit(event) {
-    alert('edit value');
+  edit(eventData) {
+    this.formControlEvent.next('DISABLE');
+    this.closeErrorText();
+    this.closeSuccessText();
+    this.instituteApiService.editSubjectCourseContent(
+      eventData,
+      sessionStorage.getItem(currentSubjectSlug),
+      this.content.id
+      ).subscribe(
+        (result: StudyMaterialDetails) => {
+          this.formControlEvent.next('RESET');
+          this.showEditForm = false;
+          this.successText = 'Content modified successfully!';
+          this.content = result;
+          this.contentEdited = true;
+          sessionStorage.setItem(actionContent, JSON.stringify(this.content));
+        },
+        errors => {
+          this.formControlEvent.next('ENABLE');
+          if (errors.error) {
+            if (errors.error.error) {
+              this.errorText = errors.error.error;
+            } else {
+              this.errorText = 'Unable to edit at the moment.';
+            }
+          } else {
+            this.errorText = 'Unable to edit at the moment.';
+          }
+        }
+      )
   }
 
   delete() {

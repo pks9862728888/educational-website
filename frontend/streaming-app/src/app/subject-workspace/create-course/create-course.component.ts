@@ -331,14 +331,29 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     }
   }
 
-  showCreateView(event: string | void) {
+  findIdInArray(array, id) {
+    for(let idx in array) {
+      const arr = array[idx]
+      if (arr['id'] === id) {
+        return idx;
+      }
+    }
+    return -1;
+  }
+
+  showCreateView(event: any) {
     if (event === 'DELETED') {
       const content: StudyMaterialDetails = JSON.parse(sessionStorage.getItem(actionContent));
       this.viewData[content.view].splice(
-        this.viewData[content.view].indexOf(content), 1
+        this.findIdInArray(this.viewData[content.view], content.id), 1
       );
       this.actionSuccessText = 'Delete successful.';
-      sessionStorage.removeItem(actionContent);
+    } else if (event) {
+      this.viewData[event.view].splice(
+        this.findIdInArray(this.viewData[event.view], event.id),
+        1,
+        event
+      );
     }
     this.showView = 'CREATE';
     sessionStorage.removeItem(actionContent);

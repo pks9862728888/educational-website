@@ -72,6 +72,7 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
 
   submit() {
     const data = this.editForm.value;
+    data['content_type'] = this.filledFormText.content_type
     if (data.target_date) {
       data['target_date'] = formatDate(data['target_date'])
     }

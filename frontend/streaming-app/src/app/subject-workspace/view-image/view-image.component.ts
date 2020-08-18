@@ -23,6 +23,7 @@ export class ViewImageComponent implements OnInit {
   showEditForm = false;
   public formControlEvent = new Subject<string>();
   deleteConfirmationSubscription: Subscription;
+  contentEdited: boolean;
 
   constructor(
     private media: MediaMatcher,
@@ -31,13 +32,18 @@ export class ViewImageComponent implements OnInit {
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.content = JSON.parse(sessionStorage.getItem(actionContent));
+  }
+
+  ngOnInit(): void {
     console.log(this.content);
   }
 
-  ngOnInit(): void {}
-
   back() {
-    this.closeViewEvent.emit();
+    if (this.contentEdited) {
+      this.closeViewEvent.emit(this.content);
+    } else {
+      this.closeViewEvent.emit();
+    }
   }
 
   toggleEditForm() {
@@ -53,18 +59,13 @@ export class ViewImageComponent implements OnInit {
       sessionStorage.getItem(currentSubjectSlug),
       this.content.id
       ).subscribe(
-        result => {
+        (result: StudyMaterialDetails) => {
           this.formControlEvent.next('RESET');
           this.showEditForm = false;
           this.successText = 'Content modified successfully!';
-          this.content.title = eventData.title;
-          this.content.description = eventData.description;
-          if (eventData.target_date) {
-            this.content.target_date = eventData.target_date;
-          }
-          this.content.data.can_download = eventData.can_download;
-          console.log(eventData);
-          console.log(this.content);
+          this.content = result;
+          this.contentEdited = true;
+          sessionStorage.setItem(actionContent, JSON.stringify(this.content));
         },
         errors => {
           this.formControlEvent.next('ENABLE');
@@ -77,7 +78,6 @@ export class ViewImageComponent implements OnInit {
           } else {
             this.errorText = 'Unable to edit at the moment.';
           }
-          console.log(errors);
         }
       )
   }

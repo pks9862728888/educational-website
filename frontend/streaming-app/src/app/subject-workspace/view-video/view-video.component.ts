@@ -1,5 +1,5 @@
-import { actionContent } from './../../../constants';
-import { Component, OnInit, Input, EventEmitter, Output, ElementRef, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { actionContent, currentSubjectSlug } from './../../../constants';
+import { Component, OnInit, EventEmitter, Output, OnDestroy, } from '@angular/core';
 import { StudyMaterialDetails } from '../../models/subject.model';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription, Subject } from 'rxjs';
@@ -13,8 +13,7 @@ declare const videojs: any;
 @Component({
   selector: 'app-view-video',
   templateUrl: './view-video.component.html',
-  styleUrls: ['./view-video.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./view-video.component.css']
 })
 export class ViewVideoComponent implements OnInit, OnDestroy {
 
@@ -27,6 +26,7 @@ export class ViewVideoComponent implements OnInit, OnDestroy {
   public formControlEvent = new Subject<string>();
   deleteConfirmationSubscription: Subscription;
   player: any;
+  contentEdited: boolean;
 
 
   constructor(
@@ -50,15 +50,46 @@ export class ViewVideoComponent implements OnInit, OnDestroy {
   }
 
   back() {
-    this.closeViewEvent.emit();
+    if (this.contentEdited) {
+      this.closeViewEvent.emit(this.content);
+    } else {
+      this.closeViewEvent.emit();
+    }
   }
 
   toggleEditForm() {
     this.showEditForm = !this.showEditForm;
   }
 
-  edit(event) {
-    alert('edit value');
+  edit(eventData) {
+    this.formControlEvent.next('DISABLE');
+    this.closeErrorText();
+    this.closeSuccessText();
+    this.instituteApiService.editSubjectCourseContent(
+      eventData,
+      sessionStorage.getItem(currentSubjectSlug),
+      this.content.id
+      ).subscribe(
+        (result: StudyMaterialDetails) => {
+          this.formControlEvent.next('RESET');
+          this.showEditForm = false;
+          this.successText = 'Content modified successfully!';
+          this.content = result;
+          this.contentEdited = true;
+        },
+        errors => {
+          this.formControlEvent.next('ENABLE');
+          if (errors.error) {
+            if (errors.error.error) {
+              this.errorText = errors.error.error;
+            } else {
+              this.errorText = 'Unable to edit at the moment.';
+            }
+          } else {
+            this.errorText = 'Unable to edit at the moment.';
+          }
+        }
+      )
   }
 
   delete() {

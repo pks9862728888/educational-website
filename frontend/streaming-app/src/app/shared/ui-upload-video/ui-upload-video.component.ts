@@ -47,6 +47,7 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
     this.formEventSubscription = this.formEvent.subscribe(
       (data: string) => {
         if (data === 'ENABLE') {
+          this.showProcessingIndicator = false;
           this.showIndicator = false;
           this.uploadForm.enable();
         } else if (data === 'DISABLE') {

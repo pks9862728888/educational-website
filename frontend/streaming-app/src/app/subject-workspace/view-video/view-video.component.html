@@ -28,7 +28,7 @@
 <div *ngIf="showEditForm">
     <app-ui-edit-study-material [formEvent]="formControlEvent.asObservable()" [filledFormText]="content" [showTargetDate]="true" (formData)="edit($event)"></app-ui-edit-study-material>
 </div>
-<div class="m-t-1 m-b-1 description">
+<div class="m-b-1 description">
     <h1 *ngIf="!mq.matches">{{ content.title | titlecase }}</h1>
     <h2 *ngIf="mq.matches">{{ content.title | titlecase }}</h2>
 </div>
