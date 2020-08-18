@@ -135,14 +135,14 @@ def get_image_study_material_data(data, data_notation, base_url, size=None):
     if data_notation == 'SER':
         return {
             'id': data['id'],
-            'file': base_url + data['file'],
+            'file': str(data['file']),
             'size': size,
             'can_download': data['can_download']
         }
     elif data_notation == 'OBJ':
         return {
             'id': data.pk,
-            'file': base_url + data.file,
+            'file': base_url + str(data.file),
             'size': float(data.file.size) / 1000000000,
             'can_download': data.can_download
         }
@@ -163,10 +163,10 @@ def get_video_study_material_data(data, data_notation, base_url):
         response['error_transcoding'] = data.error_transcoding
 
         if data.stream_file:
-            response['stream_file'] = base_url + data.stream_file
+            response['stream_file'] = base_url + str(data.stream_file)
 
         if data.can_download or data.error_transcoding:
-            response['file'] = base_url + data.file
+            response['file'] = base_url + str(data.file)
 
     return response
 
@@ -179,14 +179,14 @@ def get_pdf_study_material_data(data, data_notation, base_url, size=None):
     if data_notation == 'SER':
         return {
             'id': data['id'],
-            'file': base_url + data['file'],
+            'file': str(data['file']),
             'size': size,
             'can_download': data['can_download']
         }
     elif data_notation == 'OBJ':
         return {
             'id': data.pk,
-            'file': base_url + data.file,
+            'file': base_url + str(data.file),
             'size': float(data.file.size) / 1000000000,
             'can_download': data.can_download
         }
@@ -2709,9 +2709,9 @@ class InstituteSubjectEditCourseContentView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if 'title' in request.data.keys():
+        if request.data.get('title'):
             study_material.title = request.data.get('title')
-        if 'description' in request.data.keys():
+        if request.data.get('description'):
             study_material.description = request.data.get('description')
         if 'target_date' in request.data.keys():
             if request.data.get('target_date'):
@@ -2756,6 +2756,8 @@ class InstituteSubjectEditCourseContentView(APIView):
                     image_study_material=study_material
                 ).first()
                 content.can_download = request.data.get('data')['can_download']
+
+                print(content.can_download)
                 content.save()
                 response['data'] = get_image_study_material_data(
                     content,
@@ -2765,5 +2767,6 @@ class InstituteSubjectEditCourseContentView(APIView):
 
             return Response(response, status=status.HTTP_200_OK)
         except Exception as e:
+            print(e)
             return Response({'error': 'Bad Request'},
                             status=status.HTTP_400_BAD_REQUEST)
