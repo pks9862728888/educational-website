@@ -2545,66 +2545,43 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
         response = list()
 
         for d in data:
-            res = dict()
-            res['id'] = d.id
-            res['title'] = d.title
-            res['order'] = d.order
-            res['content_type'] = d.content_type
-            res['uploaded_on'] = str(d.uploaded_on)
-            res['view'] = d.view
-
-            if d.description and d.content_type != models.StudyMaterialContentType.EXTERNAL_LINK:
-                res['description'] = d.description
-
-            if d.target_date:
-                res['target_date'] = str(d.target_date)
-
-            data_dict = dict()
+            res = get_study_material_content_details(d, 'OBJ')
 
             if d.content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
-                data_dict['url'] = models.SubjectExternalLinkStudyMaterial.objects.filter(
+                query_data = models.SubjectExternalLinkStudyMaterial.objects.filter(
                     external_link_study_material__pk=d.id
-                ).first().url
+                ).first()
+                res['data'] = get_external_link_study_material_data(
+                    query_data,
+                    'OBJ'
+                )
             elif d.content_type == models.StudyMaterialContentType.IMAGE:
                 query_data = models.SubjectImageStudyMaterial.objects.filter(
                         image_study_material__pk=d.id
                     ).first()
-                data_dict['id'] = query_data.id
-                data_dict['can_download'] = query_data.can_download
-                data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
-                    query_data.file)
-                data_dict['size'] = query_data.file.size / 1000000000  #In Gb
+                res['data'] = get_image_study_material_data(
+                    query_data,
+                    'OBJ',
+                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                )
             elif d.content_type == models.StudyMaterialContentType.VIDEO:
                 query_data = models.SubjectVideoStudyMaterial.objects.filter(
                         video_study_material__pk=d.id
                     ).first()
-                data_dict['id'] = query_data.id
-                data_dict['can_download'] = query_data.can_download
-                data_dict['bit_rate'] = query_data.bit_rate
-                data_dict['error_transcoding'] = query_data.error_transcoding
-                data_dict['size'] = query_data.file.size / 1000000000  # In Gb
-                data_dict['stream_file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
-                        query_data.stream_file)
-                if query_data.can_download or query_data.error_transcoding:
-                    data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
-                        query_data.file)
-
-                if query_data.duration:
-                    data_dict['duration'] = float(query_data.duration)
-
+                res['data'] = get_video_study_material_data(
+                    query_data,
+                    'OBJ',
+                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                )
             elif d.content_type == models.StudyMaterialContentType.PDF:
                 query_data = models.SubjectPdfStudyMaterial.objects.filter(
                         pdf_study_material__pk=d.id
                     ).first()
-                data_dict['id'] = query_data.id
-                data_dict['can_download'] = query_data.can_download
-                data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
-                    query_data.file)
-                data_dict['total_pages'] = query_data.total_pages
-                data_dict['duration'] = query_data.duration
-                data_dict['size'] = query_data.file.size / 1000000000  # In Gb
-
-            res['data'] = data_dict
+                res['data'] = get_pdf_study_material_data(
+                    query_data,
+                    'OBJ',
+                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                )
             response.append(res)
 
         return Response(response, status=status.HTTP_200_OK)
