@@ -53,12 +53,14 @@ export interface StudyMaterialDetails {
   description?: string;
   data: {
     id?: number;
-    url?: string;
-    file?: string;
-    bit_rate?: number;
+    url?: string;         // For external link
+    file?: string;        // For image and video file download
+    bit_rate?: number;    // For video file
     duration?: number;
-    total_pages?: number;
+    stream_file?: string;
+    error_transcoding?: boolean;
     size?: number;
     can_download?: boolean;
+    total_pages?: number; // For pdf
   };
 }

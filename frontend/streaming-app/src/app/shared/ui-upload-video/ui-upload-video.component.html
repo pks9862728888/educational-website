@@ -24,7 +24,7 @@
             <mat-slide-toggle formControlName="can_download">Can Download Content</mat-slide-toggle>
         </div>
         <div class="col-12 m-b-07">
-            <button mat-flat-button *ngIf="!showIndicator" [disabled]="uploadForm.invalid" class="green-button m-r-05" type="submit" (click)="upload()">Upload</button>
+            <button mat-flat-button *ngIf="!showIndicator && !showProcessingIndicator" [disabled]="uploadForm.invalid" class="green-button m-r-05" type="submit" (click)="upload()">Upload</button>
             <div *ngIf="showIndicator">
                 <h3 *ngIf="!mq.matches" class="m-b-02">Uploading...</h3>
                 <p *ngIf="mq.matches" class="m-b-02">Uploading...</p>
@@ -32,6 +32,11 @@
                 <div class="d-flex justify-content-end m-t-02">
                     {{ getFileSize_(loadedFileSize) }} / {{ getFileSize_(totalFileSize) }}
                 </div>
+            </div>
+            <div *ngIf="showProcessingIndicator">
+                <h3 *ngIf="!mq.matches" class="m-b-02 color-g">Please wait.<br/>Processing video.<br/>This might take some time.</h3>
+                <p *ngIf="mq.matches" class="m-b-02 color-g">Please wait.<br/>Processing video.<br/>This might take some time.</p>
+                <mat-progress-bar mode="buffer" class="color-y"></mat-progress-bar>
             </div>
         </div>
     </div>

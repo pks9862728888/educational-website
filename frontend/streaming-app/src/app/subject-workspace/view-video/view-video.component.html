@@ -32,8 +32,15 @@
     <h1 *ngIf="!mq.matches">{{ content.title | titlecase }}</h1>
     <h2 *ngIf="mq.matches">{{ content.title | titlecase }}</h2>
 </div>
-<div class="m-b-1">
-
+<div class="m-b-1 video-container">
+    <video id="video-player" class="video-js vjs-default-skin video-player" controls preload="auto" poster="" data-setup='{}'>
+        <p class="vjs-no-js">
+            To view this video please enable JavaScript, and consider upgrading to a web browser that
+            <a href="https://videojs.com/html5-video-support/" target="_blank">
+            supports HTML5 video
+            </a>
+        </p>
+    </video>
 </div>
 <div class="description">
     <h3 *ngIf="!mq.matches" class="text-justify">

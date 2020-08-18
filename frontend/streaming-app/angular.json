@@ -34,13 +34,17 @@
                             "./node_modules/primeng/resources/themes/saga-green/theme.css",
                             "./node_modules/primeng/resources/primeng.min.css",
                             "./node_modules/primeicons/primeicons.css",
+                            "./node_modules/video.js/dist/video-js.min.css",
                             "src/styles.css"
                         ],
                         "scripts": [
                             "./src/assets/bootstrap4.4.1/scripts/jquery-3.4.1.slim.min.js",
                             "./node_modules/popper.js/dist/umd/popper.min.js",
                             "./node_modules/bootstrap/dist/js/bootstrap.min.js",
-                            "./node_modules/chart.js/dist/Chart.js"
+                            "./node_modules/chart.js/dist/Chart.js",
+                            "./node_modules/video.js/dist/video.min.js",
+                            "./node_modules/videojs-contrib-quality-levels/dist/videojs-contrib-quality-levels.min.js",
+                            "./node_modules/videojs-hls-quality-selector/dist/videojs-hls-quality-selector.min.js"
                         ]
                     },
                     "configurations": {

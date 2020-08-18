@@ -1,8 +1,9 @@
 import os
 import sys
+import datetime
 from decimal import Decimal
 import time
-import datetime
+import subprocess
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
@@ -2577,4 +2578,73 @@ class InstituteDeleteSubjectCourseContentView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception:
             return Response({'error': _('Internal server error. Kindly refresh and try again.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteSubjectEditCourseContentView(APIView):
+    """View for modifying course content details"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        study_material = models.InstituteSubjectCourseContent.objects.filter(
+            pk=kwargs.get('pk')
+        ).first()
+
+        if not study_material:
+            return Response({'error': _('Study material not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if 'title' in request.data.keys():
+            study_material.title = request.data.get('title')
+        if 'description' in request.data.keys():
+            study_material.description = request.data.get('description')
+        if 'target_date' in request.data.keys():
+            study_material.title = request.data.get('target_date')
+        if 'data' in request.data.keys():
+            if request.data.get('content_type') == models.StudyMaterialContentType.EXTERNAL_LINK:
+                content = models.SubjectExternalLinkStudyMaterial.objects.filter(
+                    external_link_study_material=study_material
+                ).first()
+                content.url = request.data.get('data')['url']
+                content.save()
+            else:
+                content = None
+                if request.data.get('content_type') == models.StudyMaterialContentType.VIDEO:
+                    content = models.SubjectVideoStudyMaterial.objects.filter(
+                        video_study_material=study_material
+                    ).first()
+                elif request.data.get('content_type') == models.StudyMaterialContentType.PDF:
+                    content = models.SubjectPdfStudyMaterial.objects.filter(
+                        pdf_study_material=study_material
+                    ).first()
+                elif request.data.get('content_type') == models.StudyMaterialContentType.IMAGE:
+                    content = models.SubjectImageStudyMaterial.objects.filter(
+                        image_study_material=study_material
+                    ).first()
+                if content:
+                    content.can_download = request.data.get('data')['can_download']
+                    content.save()
+
+        try:
+            study_material.save()
+            study_material.refresh_from_db()
+            return Response({'status': 'OK'}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'error': 'Bad Request'},
                             status=status.HTTP_400_BAD_REQUEST)

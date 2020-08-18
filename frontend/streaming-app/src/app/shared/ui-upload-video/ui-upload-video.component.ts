@@ -27,6 +27,7 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
   private progressEventSubscription: Subscription;
   totalFileSize: number;
   loadedFileSize: number;
+  showProcessingIndicator: boolean;
 
   constructor(
     private media: MediaMatcher,
@@ -52,7 +53,7 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
           this.showIndicator = true;
           this.uploadForm.disable();
         } else if (data === 'RESET') {
-          this.showIndicator = false;
+          this.showProcessingIndicator = false;
           this.uploadForm.reset();
           this.uploadForm.enable();
         }
@@ -63,6 +64,10 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
         this.progress = Math.round(100 * result.loaded / result.total);
         this.loadedFileSize = result.loaded;
         this.totalFileSize = result.total;
+        if (this.progress === 100) {
+          this.showIndicator = false;
+          this.showProcessingIndicator = true;
+        }
       }
     );
   }

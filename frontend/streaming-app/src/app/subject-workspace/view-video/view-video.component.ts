@@ -1,17 +1,22 @@
 import { actionContent } from './../../../constants';
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, ElementRef, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { StudyMaterialDetails } from '../../models/subject.model';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription, Subject } from 'rxjs';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 
+
+declare const videojs: any;
+
+
 @Component({
   selector: 'app-view-video',
   templateUrl: './view-video.component.html',
-  styleUrls: ['./view-video.component.css']
+  styleUrls: ['./view-video.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
-export class ViewVideoComponent implements OnInit {
+export class ViewVideoComponent implements OnInit, OnDestroy {
 
   content: StudyMaterialDetails;
   @Output() closeViewEvent = new EventEmitter();
@@ -21,6 +26,7 @@ export class ViewVideoComponent implements OnInit {
   showEditForm = false;
   public formControlEvent = new Subject<string>();
   deleteConfirmationSubscription: Subscription;
+  player: any;
 
 
   constructor(
@@ -32,7 +38,16 @@ export class ViewVideoComponent implements OnInit {
     this.content = JSON.parse(sessionStorage.getItem(actionContent));
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.player = videojs(document.getElementById('video-player'));
+    this.player.src({
+      src: this.content.data.stream_file,
+      type: 'application/x-mpegURL'
+    });
+    this.player.hlsQualitySelector({
+      displayCurrentQuality: true,
+    });
+  }
 
   back() {
     this.closeViewEvent.emit();
@@ -96,6 +111,10 @@ export class ViewVideoComponent implements OnInit {
     if (this.deleteConfirmationSubscription) {
       this.deleteConfirmationSubscription.unsubscribe();
     }
+  }
+
+  ngOnDestroy() {
+    this.player.dispose();
   }
 
 }

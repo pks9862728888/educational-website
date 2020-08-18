@@ -53,6 +53,10 @@ p {
     background-color: #008697;
 }
 
+.color-g {
+    color: rgb(130, 255, 130);
+}
+
 .m-t-02 {
     margin-top: 0.2rem;
 }

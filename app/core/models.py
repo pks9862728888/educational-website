@@ -286,17 +286,6 @@ def institute_banner_upload_file_path(instance, filename):
     return full_path
 
 
-def meet_your_instructor_file_path(instance, filename):
-    """Generates file path for uploading institute meet your instructor content"""
-    extension = filename.split('.')[-1]
-    file_name = f'{uuid.uuid4()}.{extension}'
-    date = datetime.date.today()
-    path = 'institute/uploads/content/meet_your_instructor'
-    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
-    full_path = os.path.join(ini_path, file_name)
-    return full_path
-
-
 def subject_img_study_material_upload_file_path(instance, filename):
     """Generates file path for uploading institute image study material"""
     extension = filename.split('.')[-1]
@@ -1302,45 +1291,6 @@ class InstituteSectionPermission(models.Model):
 
     class Meta:
         unique_together = ('to', 'invitee')
-
-
-class MeetYourInstructor(models.Model):
-    """Model for storing institute meet your instructor content"""
-    meet_instructor_subject = models.ForeignKey(
-        to='InstituteSubject', related_name='meet_instructor_subject',
-        on_delete=models.CASCADE)
-    order = models.IntegerField(_('Order'), blank=False, null=False)
-    title = models.CharField(
-        _('Title'), max_length=30, blank=False, null=False)
-    file_type = models.CharField(
-        _('File Type'),
-        max_length=1,
-        null=False,
-        blank=False,
-        choices=StudyMaterialContentType.CONTENT_TYPE_IN_CONTENT_TYPES)
-    url = models.CharField(
-        _('Url'), blank=True, null=True, max_length=100)
-    file = models.FileField(
-        _('File'),
-        upload_to=meet_your_instructor_file_path,
-        null=True,
-        blank=True,
-        max_length=1024)
-    target_date = models.DateField(
-        _('Target Date'), max_length=10, blank=True, null=True)
-    uploaded_on = models.DateTimeField(
-        _('Uploaded on'), default=timezone.now, editable=False)
-
-    def save(self, *args, **kwargs):
-        if not self.title:
-            raise ValueError({'error': _('Subject is required.')})
-        if not self.file_type:
-            raise ValueError({'error': _('File type is required.')})
-        self.title = self.title.strip()
-        super(MeetYourInstructor, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return str(self.title)
 
 
 class InstituteSubjectCourseContent(models.Model):

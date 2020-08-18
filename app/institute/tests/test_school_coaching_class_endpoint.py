@@ -86,6 +86,11 @@ def get_subject_course_content_for_specific_view_url(subject_slug, view):
                    kwargs={'subject_slug': subject_slug, 'view': view})
 
 
+def edit_institute_study_material_url(subject_slug, pk_):
+    return reverse("institute:edit-subject-course-content",
+                   kwargs={'subject_slug': subject_slug, 'pk': pk_})
+
+
 def get_study_material_delete_url(pk):
     return reverse("institute:delete-subject-course-content",
                    kwargs={'pk': pk})
@@ -1759,103 +1764,103 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
     #
-    def test_upload_meet_your_instructor_link_success_by_permitted_user(self):
-        """Test that permitted user can upload link content"""
-        institute = create_institute(self.user)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        subject = create_subject(create_class(institute))
-        create_institute_subject_permission(self.user, self.user, subject)
-
-        payload = {
-            'subject': subject.subject_slug,
-            'title': 'temp title',
-            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'target_date': '2000-12-12',
-            'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
-            'url': 'https://www.google.com/'
-        }
-
-        res = self.client.post(
-            get_subject_create_course_url(subject.subject_slug),
-            payload, format='json'
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['title'], payload['title'])
-        self.assertEqual(res.data['content_type'], payload['content_type'])
-        self.assertEqual(res.data['target_date'], payload['target_date'])
-        self.assertIn('uploaded_on', res.data)
-        self.assertIn('order', res.data)
-        self.assertEqual(res.data['data']['url'], payload['url'])
-        self.assertNotIn('file', res.data)
-        stats = models.InstituteSubjectStatistics.objects.filter(
-            statistics_subject=subject
-        ).first()
-        self.assertEqual(stats.max_order, 1)
-        self.assertEqual(stats.storage, 0.0)
-
-    def test_upload_meet_your_instructor_link_success_without_target_date(self):
-        """Test that permitted user can upload link content"""
-        institute = create_institute(self.user)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        subject = create_subject(create_class(institute))
-        create_institute_subject_permission(self.user, self.user, subject)
-
-        payload = {
-            'subject': subject.subject_slug,
-            'title': 'temp title',
-            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
-            'url': 'https://www.google.com/',
-        }
-
-        res = self.client.post(
-            get_subject_create_course_url(subject.subject_slug),
-            payload, format='json'
-        )
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['title'], payload['title'])
-        self.assertEqual(res.data['content_type'], payload['content_type'])
-        self.assertIn('uploaded_on', res.data)
-        self.assertIn('order', res.data)
-        self.assertEqual(res.data['data']['url'], payload['url'])
-        self.assertNotIn('file', res.data)
-        stats = models.InstituteSubjectStatistics.objects.filter(
-            statistics_subject=subject
-        ).first()
-        self.assertEqual(stats.max_order, 1)
-        self.assertEqual(stats.storage, 0.0)
-
-    def test_upload_meet_your_instructor_link_fails_by_unpermitted_user(self):
-        """Test that unpermitted user can not upload link content"""
-        institute = create_institute(self.user)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        subject = create_subject(create_class(institute))
-
-        payload = {
-            'subject': subject.subject_slug,
-            'title': 'temp title',
-            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'target_date': '2000-12-12',
-            'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
-            'url': 'https://www.google.com/',
-            'size': '0.01',
-        }
-
-        res = self.client.post(
-            get_subject_create_course_url(subject.subject_slug),
-            payload)
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
-
+    # def test_upload_meet_your_instructor_link_success_by_permitted_user(self):
+    #     """Test that permitted user can upload link content"""
+    #     institute = create_institute(self.user)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     subject = create_subject(create_class(institute))
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #
+    #     payload = {
+    #         'subject': subject.subject_slug,
+    #         'title': 'temp title',
+    #         'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         'target_date': '2000-12-12',
+    #         'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+    #         'url': 'https://www.google.com/'
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_subject_create_course_url(subject.subject_slug),
+    #         payload, format='json'
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['title'], payload['title'])
+    #     self.assertEqual(res.data['content_type'], payload['content_type'])
+    #     self.assertEqual(res.data['target_date'], payload['target_date'])
+    #     self.assertIn('uploaded_on', res.data)
+    #     self.assertIn('order', res.data)
+    #     self.assertEqual(res.data['data']['url'], payload['url'])
+    #     self.assertNotIn('file', res.data)
+    #     stats = models.InstituteSubjectStatistics.objects.filter(
+    #         statistics_subject=subject
+    #     ).first()
+    #     self.assertEqual(stats.max_order, 1)
+    #     self.assertEqual(stats.storage, 0.0)
+    #
+    # def test_upload_meet_your_instructor_link_success_without_target_date(self):
+    #     """Test that permitted user can upload link content"""
+    #     institute = create_institute(self.user)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     subject = create_subject(create_class(institute))
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #
+    #     payload = {
+    #         'subject': subject.subject_slug,
+    #         'title': 'temp title',
+    #         'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+    #         'url': 'https://www.google.com/',
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_subject_create_course_url(subject.subject_slug),
+    #         payload, format='json'
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['title'], payload['title'])
+    #     self.assertEqual(res.data['content_type'], payload['content_type'])
+    #     self.assertIn('uploaded_on', res.data)
+    #     self.assertIn('order', res.data)
+    #     self.assertEqual(res.data['data']['url'], payload['url'])
+    #     self.assertNotIn('file', res.data)
+    #     stats = models.InstituteSubjectStatistics.objects.filter(
+    #         statistics_subject=subject
+    #     ).first()
+    #     self.assertEqual(stats.max_order, 1)
+    #     self.assertEqual(stats.storage, 0.0)
+    #
+    # def test_upload_meet_your_instructor_link_fails_by_unpermitted_user(self):
+    #     """Test that unpermitted user can not upload link content"""
+    #     institute = create_institute(self.user)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     subject = create_subject(create_class(institute))
+    #
+    #     payload = {
+    #         'subject': subject.subject_slug,
+    #         'title': 'temp title',
+    #         'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         'target_date': '2000-12-12',
+    #         'view': models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+    #         'url': 'https://www.google.com/',
+    #         'size': '0.01',
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_subject_create_course_url(subject.subject_slug),
+    #         payload)
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
     # def test_list_all_subject_min_statistics_success_by_admin(self):
     #     """Test that listing all subject min statistics success by admin"""
     #     institute = create_institute(self.user)
@@ -2091,3 +2096,64 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     self.assertFalse(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
     #     self.assertFalse(models.SubjectExternalLinkStudyMaterial.objects.filter(
     #         external_link_study_material__pk=content.pk).exists())
+
+    def test_permitted_user_can_edit_existing_study_material_details(self):
+        """Test that editing study material details is successful"""
+        institute = create_institute(self.user)
+        order = create_order(create_institute_license(institute, self.payload), institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        subject = create_subject(create_class(institute))
+        create_institute_subject_permission(self.user, self.user, subject)
+        study_material = models.InstituteSubjectCourseContent.objects.create(
+            course_content_subject=subject,
+            order=1,
+            title='aaa',
+            content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
+            view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR
+        )
+
+        payload = {
+            'title': 'bbb',
+            'description': 'decsdf'
+        }
+
+        res = self.client.patch(
+            edit_institute_study_material_url(subject.subject_slug, study_material.pk),
+            payload
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['status'], 'OK')
+
+        material = models.InstituteSubjectCourseContent.objects.filter(pk=study_material.pk).first()
+        self.assertEqual(material.title, payload['title'])
+        self.assertEqual(material.description, payload['description'])
+
+    def test_unpermitted_user_can_not_edit_existing_study_material_details(self):
+        """Test that editing study material details is successful"""
+        institute = create_institute(self.user)
+        order = create_order(create_institute_license(institute, self.payload), institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        subject = create_subject(create_class(institute))
+        study_material = models.InstituteSubjectCourseContent.objects.create(
+            course_content_subject=subject,
+            order=1,
+            title='aaa',
+            content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
+            view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR
+        )
+
+        payload = {
+            'title': 'bbb',
+            'description': 'aaa'
+        }
+
+        res = self.client.patch(
+            edit_institute_study_material_url(subject.subject_slug, study_material.pk),
+            payload
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')

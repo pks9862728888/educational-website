@@ -104,6 +104,9 @@ urlpatterns = [
     path('<int:pk>/delete-subject-course-content',
          views.InstituteDeleteSubjectCourseContentView.as_view(),
          name='delete-subject-course-content'),
+    path('<slug:subject_slug>/<int:pk>/edit-subject-course-content',
+         views.InstituteSubjectEditCourseContentView.as_view(),
+         name='edit-subject-course-content'),
     # Institute section
     path('<slug:class_slug>/create-section',
          views.CreateSectionView.as_view(),

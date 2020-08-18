@@ -399,17 +399,6 @@ class InstituteClassSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'class_slug', 'created_on')
 
 
-class ClassMeetInstructorFileDataUploadSerializer(serializers.ModelSerializer):
-    """Serializer for saving file data input"""
-    file = serializers.FileField(allow_null=False, use_url=True)
-
-    class Meta:
-        model = models.MeetYourInstructor
-        fields = ('id', 'meet_instructor_subject', 'order', 'file',
-                  'file_type', 'uploaded_on', 'target_date', 'title')
-        read_only_fields = ('id', 'uploaded_on')
-
-
 class SubjectCourseContentCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating course content"""
 
