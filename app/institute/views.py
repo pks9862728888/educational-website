@@ -2502,22 +2502,24 @@ class InstituteSubjectMinStatisticsView(APIView):
         ).order_by('order')
 
         view_order = list()
-        view_name = dict()
+        view_statistics = dict()
+
         for view in views:
             view_order.append(view.key)
-            view_name[view.key] = view.name
+            subject_view_model = models.SubjectViewNames.objects.filter(
+                view_subject=subject,
+                key=view.key
+            ).first()
+            view_statistics[view.key] = {
+                'name': view.name,
+                'count': models.InstituteSubjectCourseContent.objects.filter(
+                    course_content_subject=subject,
+                    view=subject_view_model
+                ).count()
+            }
 
         response['view_order'] = view_order
-        response['view_name'] = view_name
-
-        response[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR] = models.InstituteSubjectCourseContent.objects.filter(
-            course_content_subject=subject,
-            view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR
-        ).count()
-        response[models.StudyMaterialView.COURSE_OVERVIEW] = models.InstituteSubjectCourseContent.objects.filter(
-            course_content_subject=subject,
-            view=models.StudyMaterialView.COURSE_OVERVIEW
-        ).count()
+        response['view_statistics'] = view_statistics
 
         return Response(response, status=status.HTTP_200_OK)
 
