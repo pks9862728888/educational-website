@@ -1,4 +1,4 @@
-import { ViewNameDetails } from './../../models/subject.model';
+import { ViewDetails } from './../../models/subject.model';
 import { HttpEventType } from '@angular/common/http';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
@@ -46,9 +46,8 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   // Data
   storage: StorageStatistics;
-  viewName: ViewNameDetails[];
+  viewDetails: ViewDetails;
   viewOrder: Array<string>;
-  courseDetailsMinStat: SubjectCourseViewDetails;
   viewData = {};
   actionContent: StudyMaterialDetails;
   actionView: string;
@@ -61,7 +60,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   ) {
     this.mq = media.matchMedia('(max-width: 600px)');
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
-    this.openedPanelStep = 0;
     this.showView = sessionStorage.getItem(activeCreateCourseView);
     if (!this.showView) {
       this.showView = 'CREATE';
@@ -80,22 +78,19 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.errorText = null;
     this.instituteApiService.getMinCourseDetails(this.currentSubjectSlug).subscribe(
       (result: SubjectCourseMinDetails) => {
+        console.log(result)
         this.showLoadingIndicator = false;
         this.storage = result.storage;
         this.viewOrder = result.view_order;
-        this.viewName = result.view_name;
-        this.courseDetailsMinStat = {
-          'CO': result.CO,
-          'MI': result.MI,
-        };
+        this.viewDetails = result.view_details;
+
         for(let view in this.viewOrder) {
           this.viewData[this.viewOrder[view]] = [];
         }
         console.log(this.viewData);
         console.log(this.storage);
         console.log(this.viewOrder)
-        console.log(this.viewName);
-        console.log(this.courseDetailsMinStat);
+        console.log(this.viewDetails);
       },
       errors => {
         this.showLoadingIndicator = false;
@@ -172,7 +167,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
               this.actionSuccessText = 'Delete successful.';
               this.hideCloseContentLoadingErrorButton = false;
               this.viewData[this.actionView].splice(this.viewData[this.actionView].indexOf(this.actionContent), 1);
-              this.courseDetailsMinStat[this.actionView] = Math.max(0, this.courseDetailsMinStat[this.actionView] - 1);
+              //************Decrease 1 from total */
               if (this.actionContent.data.size) {
                 this.storage.storage_used = Math.max(0, this.storage.storage_used - this.actionContent.data.size);
               }
@@ -261,7 +256,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
           this.contentSuccessText = 'Upload successful.';
           this.viewData[result.body['view']].push(result.body);
           this.storage.storage_used += result.body['data']['size'];
-          this.courseDetailsMinStat[result.body['view']] += 1;
+          //********************increase 1 to total */
         }
       },
       errors => {
@@ -290,7 +285,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
           this.uploadingEvent.next('RESET');
           this.contentSuccessText = 'Uploaded Successfully.';
           this.viewData[result.view].push(result);
-          this.courseDetailsMinStat[result.view] += 1;
+          // ****************Increase 1 to total
         },
         errors => {
           this.uploadingEvent.next('ENABLE');
@@ -371,11 +366,11 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   getViewName(key: string) {
-    return this.viewName[key];
+    return this.viewDetails[key]['name'];
   }
 
   getStudyMaterialCount(view: string) {
-    return this.courseDetailsMinStat[view];
+    return this.viewDetails[view]['count'];
   }
 
   getStoragePercentFilled() {

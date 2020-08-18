@@ -26,9 +26,15 @@ export interface SubjectPermittedUserDetails {
 }
 
 
-export interface ViewNameDetails {
-  key: string;
-  name: string;
+export interface ViewDetails {
+  key: {
+    name: string;
+    count: number;
+    week_1_count?: number;
+    week_2_count?: number;
+    week_3_count?: number;
+    week_4_count?: number;
+  }
 }
 
 
@@ -38,7 +44,7 @@ export interface SubjectCourseMinDetails {
     storage_used: number;  // In Gb
   };
   view_order: Array<string>;
-  view_name: ViewNameDetails[];
+  view_details: ViewDetails;
   MI: number;            // Meet your instructor
   CO: number;            // Course overview
 };
