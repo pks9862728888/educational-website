@@ -23,8 +23,12 @@
     </div>
 </div>
 <hr class="top-separator" />
-<app-ui-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
-<app-ui-success-text *ngIf="successText" [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
+<div class="m-b-1">
+    <app-ui-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+</div>
+<div class="m-b-1">
+    <app-ui-success-text *ngIf="successText" [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
+</div>
 <div *ngIf="showEditForm">
     <app-ui-edit-study-material [formEvent]="formControlEvent.asObservable()" [filledFormText]="content" [showTargetDate]="true" (formData)="edit($event)"></app-ui-edit-study-material>
 </div>

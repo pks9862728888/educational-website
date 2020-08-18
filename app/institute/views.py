@@ -78,6 +78,120 @@ def monitor(ffmpeg, duration, time_, time_left, process):
     print('*' * per + str(per) + '% completed')
 
 
+def get_study_material_content_details(data, data_notation):
+    """
+    Creates and returns study material data.
+    """
+    if data_notation == 'SER':
+        data.pop('course_content_subject')
+
+        if not data['description']:
+            data.pop('description')
+
+        if not data['target_date']:
+            data.pop('target_date')
+
+        return data
+
+    elif data_notation == 'OBJ':
+        response = dict()
+        response['id'] = data.pk
+        response['title'] = data.title
+        response['order'] = data.order
+        response['content_type'] = data.content_type
+        response['view'] = data.view
+        response['uploaded_on'] = str(data.uploaded_on)
+
+        if data.description:
+            response['description'] = data.description
+
+        if data.target_date:
+            response['target_date'] = str(data.target_date)
+
+        return response
+
+
+def get_external_link_study_material_data(data, data_notation):
+    """
+    Creates and returns external link study material data.
+    """
+    if data_notation == 'SER':
+        return {
+            'id': data['id'],
+            'url': data['url']
+        }
+    elif data_notation == 'OBJ':
+        return {
+            'id': data.pk,
+            'url': data.url
+        }
+
+
+def get_image_study_material_data(data, data_notation, base_url, size=None):
+    """
+    Creates and returns image content data dict,
+    size is in GB
+    """
+    if data_notation == 'SER':
+        return {
+            'id': data['id'],
+            'file': base_url + data['file'],
+            'size': size,
+            'can_download': data['can_download']
+        }
+    elif data_notation == 'OBJ':
+        return {
+            'id': data.pk,
+            'file': base_url + data.file,
+            'size': float(data.file.size) / 1000000000,
+            'can_download': data.can_download
+        }
+
+
+def get_video_study_material_data(data, data_notation, base_url):
+    """
+    Creates and returns video study material data,
+    size is in GB
+    """
+    response = dict()
+    if data_notation == 'OBJ':
+        response['id'] = data.id
+        response['size'] = float(data.file.size) / 1000000000
+        response['can_download'] = data.can_download
+        response['bit_rate'] = data.bit_rate
+        response['duration'] = data.duration
+        response['error_transcoding'] = data.error_transcoding
+
+        if data.stream_file:
+            response['stream_file'] = base_url + data.stream_file
+
+        if data.can_download or data.error_transcoding:
+            response['file'] = base_url + data.file
+
+    return response
+
+
+def get_pdf_study_material_data(data, data_notation, base_url, size=None):
+    """
+    Creates and returns pdf content data dict,
+    size is in GB
+    """
+    if data_notation == 'SER':
+        return {
+            'id': data['id'],
+            'file': base_url + data['file'],
+            'size': size,
+            'can_download': data['can_download']
+        }
+    elif data_notation == 'OBJ':
+        return {
+            'id': data.pk,
+            'file': base_url + data.file,
+            'size': float(data.file.size) / 1000000000,
+            'can_download': data.can_download
+        }
+
+
 class IsTeacher(permissions.BasePermission):
     """Permission that allows only teacher to access this view"""
 
@@ -2141,15 +2255,7 @@ class InstituteSubjectAddCourseContentView(APIView):
         else:
             return Response(course_content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        response = course_content_serializer.data
-        response.pop('course_content_subject')
-
-        if not response['description'] and\
-                response['content_type'] == models.StudyMaterialContentType.EXTERNAL_LINK:
-            response.pop('description')
-
-        if not response['target_date']:
-            response.pop('target_date')
+        response = get_study_material_content_details(course_content_serializer.data, 'SER')
 
         if request.data.get('content_type') == models.StudyMaterialContentType.EXTERNAL_LINK:
             url = request.data.get('url')
@@ -2167,8 +2273,9 @@ class InstituteSubjectAddCourseContentView(APIView):
                 external_link_serializer.save()
                 subject_stats.max_order += 1
                 subject_stats.save()
-                response['data'] = {'url': external_link_serializer.data['url']}
 
+                response_data = get_external_link_study_material_data(external_link_serializer.data, 'SER')
+                response['data'] = response_data
                 return Response(response, status=status.HTTP_201_CREATED)
             else:
                 models.InstituteSubjectCourseContent.objects.filter(
@@ -2219,13 +2326,13 @@ class InstituteSubjectAddCourseContentView(APIView):
                     subject_stats.save()
                     institute_stats.storage += size
                     institute_stats.save()
-                    response['data'] = {
-                        'id': image_serializer.data['id'],
-                        'file': image_serializer.data['file'],
-                        'size': float(size),
-                        'can_download': image_serializer.data['can_download']
-                    }
 
+                    response['data'] = get_image_study_material_data(
+                        image_serializer.data,
+                        'SER',
+                        self.request.build_absolute_uri('/').strip("/") + MEDIA_URL,
+                        float(size)
+                    )
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
                     models.InstituteSubjectCourseContent.objects.filter(
@@ -2255,12 +2362,6 @@ class InstituteSubjectAddCourseContentView(APIView):
                     subject_stats.save()
                     institute_stats.storage += size
                     institute_stats.save()
-                    response['data'] = {
-                        'id': video_serializer.data['id'],
-                        'file': video_serializer.data['file'],
-                        'size': float(size),
-                        'can_download': video_serializer.data['can_download']
-                    }
 
                     # Creating steamable files
                     file_obj = models.SubjectVideoStudyMaterial.objects.filter(
@@ -2294,19 +2395,17 @@ class InstituteSubjectAddCourseContentView(APIView):
                         file_obj.duration = Decimal(duration)
                         file_obj.bit_rate = bit_rate
                         file_obj.stream_file = rel_file_path
+                        file_obj.save()
+
+                        response['data'] = get_video_study_material_data(
+                            file_obj,
+                            'OBJ',
+                            self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                        )
                     except Exception:
                         file_obj.error_transcoding = True
                         file_obj.save()
                         raise Exception()
-
-                    file_obj.save()
-                    file_obj.refresh_from_db()
-
-                    response['data']['stream_file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + file_obj.stream_file
-                    response['data']['bit_rate'] = file_obj.bit_rate
-
-                    if file_obj.duration:
-                        response['data']['duration'] = float(file_obj.duration)
 
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
@@ -2337,12 +2436,12 @@ class InstituteSubjectAddCourseContentView(APIView):
                     subject_stats.save()
                     institute_stats.storage += size
                     institute_stats.save()
-                    response['data'] = {
-                        'id': pdf_serializer.data['id'],
-                        'file': pdf_serializer.data['file'],
-                        'size': float(size),
-                        'can_download': pdf_serializer.data['can_download']
-                    }
+                    response['data'] = get_pdf_study_material_data(
+                        pdf_serializer.data,
+                        'SER',
+                        self.request.build_absolute_uri('/').strip("/") + MEDIA_URL,
+                        float(size)
+                    )
 
                     return Response(response, status=status.HTTP_201_CREATED)
                 else:
@@ -2615,36 +2714,56 @@ class InstituteSubjectEditCourseContentView(APIView):
         if 'description' in request.data.keys():
             study_material.description = request.data.get('description')
         if 'target_date' in request.data.keys():
-            study_material.target_date = request.data.get('target_date')
-        if 'data' in request.data.keys():
+            if request.data.get('target_date'):
+                study_material.target_date = request.data.get('target_date')
+            else:
+                study_material.target_date = None
+
+        try:
+            study_material.save()
+            response = get_study_material_content_details(study_material, 'OBJ')
             if request.data.get('content_type') == models.StudyMaterialContentType.EXTERNAL_LINK:
                 content = models.SubjectExternalLinkStudyMaterial.objects.filter(
                     external_link_study_material=study_material
                 ).first()
                 content.url = request.data.get('data')['url']
                 content.save()
-            else:
-                content = None
-                if request.data.get('content_type') == models.StudyMaterialContentType.VIDEO:
-                    content = models.SubjectVideoStudyMaterial.objects.filter(
-                        video_study_material=study_material
-                    ).first()
-                elif request.data.get('content_type') == models.StudyMaterialContentType.PDF:
-                    content = models.SubjectPdfStudyMaterial.objects.filter(
-                        pdf_study_material=study_material
-                    ).first()
-                elif request.data.get('content_type') == models.StudyMaterialContentType.IMAGE:
-                    content = models.SubjectImageStudyMaterial.objects.filter(
-                        image_study_material=study_material
-                    ).first()
-                if content:
-                    content.can_download = request.data.get('data')['can_download']
-                    content.save()
+                response['data'] = get_external_link_study_material_data(content, 'OBJ')
+            elif request.data.get('content_type') == models.StudyMaterialContentType.VIDEO:
+                content = models.SubjectVideoStudyMaterial.objects.filter(
+                    video_study_material=study_material
+                ).first()
+                content.can_download = request.data.get('data')['can_download']
+                content.save()
+                response['data'] = get_video_study_material_data(
+                    content,
+                    'OBJ',
+                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                )
+            elif request.data.get('content_type') == models.StudyMaterialContentType.PDF:
+                content = models.SubjectPdfStudyMaterial.objects.filter(
+                    pdf_study_material=study_material
+                ).first()
+                content.can_download = request.data.get('data')['can_download']
+                content.save()
+                response['data'] = get_pdf_study_material_data(
+                    content,
+                    'OBJ',
+                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                )
+            elif request.data.get('content_type') == models.StudyMaterialContentType.IMAGE:
+                content = models.SubjectImageStudyMaterial.objects.filter(
+                    image_study_material=study_material
+                ).first()
+                content.can_download = request.data.get('data')['can_download']
+                content.save()
+                response['data'] = get_image_study_material_data(
+                    content,
+                    'OBJ',
+                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                )
 
-        try:
-            study_material.save()
-            study_material.refresh_from_db()
-            return Response({'status': 'OK'}, status=status.HTTP_200_OK)
-        except Exception:
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception as e:
             return Response({'error': 'Bad Request'},
                             status=status.HTTP_400_BAD_REQUEST)

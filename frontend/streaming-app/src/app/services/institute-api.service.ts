@@ -1,3 +1,4 @@
+import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from 'src/constants';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { baseUrl } from '../../urls';
 import { CookieService } from 'ngx-cookie-service';
@@ -114,6 +115,10 @@ export class InstituteApiService {
 
   addSubjectCourseContentUrl(subjectSlug: string){
     return `${this.instituteBaseUrl}${subjectSlug}/add-subject-course-content`;
+  }
+
+  editSubjectCourseContentUrl(subjectSlug: string, pk: number) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${pk}/edit-subject-course-content`;
   }
 
   getCourseContentOfSpecificViewUrl(subjectSlug: string, view: string) {
@@ -402,7 +407,7 @@ export class InstituteApiService {
       formData.append('description', data.description);
     }
 
-    if (data.can_download) {
+    if (data.content_type !== STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
       formData.append('can_download', data.can_download);
     }
 
@@ -418,6 +423,14 @@ export class InstituteApiService {
         reportProgress: true,
         observe: 'events'
       }
+    );
+  }
+
+  editSubjectCourseContent(data: any, subjectSlug:string, pk: number) {
+    return this.httpClient.patch(
+      this.editSubjectCourseContentUrl(subjectSlug, pk),
+      data,
+      { headers: this.getAuthHeader() }
     );
   }
 

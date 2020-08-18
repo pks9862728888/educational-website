@@ -1,7 +1,7 @@
 import { InstituteApiService } from './../../services/institute-api.service';
 import { UiService } from './../../services/ui.service';
 import { DownloadService } from './../../services/download.service';
-import { actionContent } from './../../../constants';
+import { actionContent, currentSubjectSlug } from './../../../constants';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, EventEmitter, Output, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { StudyMaterialDetails } from '../../models/subject.model';
@@ -31,6 +31,7 @@ export class ViewImageComponent implements OnInit {
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.content = JSON.parse(sessionStorage.getItem(actionContent));
+    console.log(this.content);
   }
 
   ngOnInit(): void {}
@@ -43,8 +44,42 @@ export class ViewImageComponent implements OnInit {
     this.showEditForm = !this.showEditForm;
   }
 
-  edit(event) {
-    alert('edit value');
+  edit(eventData) {
+    this.formControlEvent.next('DISABLE');
+    this.closeErrorText();
+    this.closeSuccessText();
+    this.instituteApiService.editSubjectCourseContent(
+      eventData,
+      sessionStorage.getItem(currentSubjectSlug),
+      this.content.id
+      ).subscribe(
+        result => {
+          this.formControlEvent.next('RESET');
+          this.showEditForm = false;
+          this.successText = 'Content modified successfully!';
+          this.content.title = eventData.title;
+          this.content.description = eventData.description;
+          if (eventData.target_date) {
+            this.content.target_date = eventData.target_date;
+          }
+          this.content.data.can_download = eventData.can_download;
+          console.log(eventData);
+          console.log(this.content);
+        },
+        errors => {
+          this.formControlEvent.next('ENABLE');
+          if (errors.error) {
+            if (errors.error.error) {
+              this.errorText = errors.error.error;
+            } else {
+              this.errorText = 'Unable to edit at the moment.';
+            }
+          } else {
+            this.errorText = 'Unable to edit at the moment.';
+          }
+          console.log(errors);
+        }
+      )
   }
 
   delete() {
@@ -98,5 +133,4 @@ export class ViewImageComponent implements OnInit {
       this.deleteConfirmationSubscription.unsubscribe();
     }
   }
-
 }

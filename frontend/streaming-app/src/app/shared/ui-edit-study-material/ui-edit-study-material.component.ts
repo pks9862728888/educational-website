@@ -1,3 +1,4 @@
+import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from './../../../constants';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
@@ -33,9 +34,25 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
     this.editForm = this.formBuilder.group({
       title: [this.filledFormText.title, [Validators.required]],
       description: [this.filledFormText.description],
-      can_download: [this.filledFormText.data.can_download],
-      target_date: [this.filledFormText.target_date]
+      target_date: [this.filledFormText.target_date],
+      data: this.formBuilder.group({
+        can_download: [],
+        url: [],
+      })
     });
+    if (this.notExternalLinkView()) {
+      this.editForm.patchValue({
+        data: {
+          can_download: this.filledFormText.data.can_download
+        }
+      })
+    } else {
+      this.editForm.patchValue({
+        data: {
+          url: this.filledFormText.data.url
+        }
+      })
+    }
     this.formEventSubscription = this.formEvent.subscribe(
       (data: string) => {
         if (data === 'ENABLE') {
@@ -55,13 +72,23 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
 
   submit() {
     const data = this.editForm.value;
-    data['view'] = this.filledFormText.view;
     if (data.target_date) {
       data['target_date'] = formatDate(data['target_date'])
-    } else {
-      data.pop('target_date');
     }
-    this.formData.emit();
+    if (this.notExternalLinkView()) {
+      delete data['data']['url'];
+    } else {
+      delete data['data']['can_download'];
+    }
+    this.formData.emit(data);
+  }
+
+  notExternalLinkView() {
+    if (this.filledFormText.content_type !== STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   ngOnDestroy(): void {

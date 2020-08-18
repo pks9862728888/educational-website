@@ -14,7 +14,10 @@
         <div class="col-12 m-b-1">
             <textarea type="text" formControlName="description" rows="5" maxlength="500" class="form-control" placeholder="Description (optional)" aria-label="Description"></textarea>
         </div>
-        <div class="col-12 m-b-1">
+        <div class="col-12 m-b-1" formGroupName="data" *ngIf="!notExternalLinkView()">
+            <input type="text" formControlName="url" maxlength="256" class="form-control" placeholder="Paste Url" aria-label="Url">
+        </div>
+        <div class="col-12 m-b-1" formGroupName="data" *ngIf="notExternalLinkView()">
             <mat-slide-toggle formControlName="can_download">Can Download Content</mat-slide-toggle>
         </div>
         <div class="col-12 indicator m-b-1">
