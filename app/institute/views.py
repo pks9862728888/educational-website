@@ -2491,6 +2491,7 @@ class InstituteSubjectMinStatisticsView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         response = dict()
+        response['storage'] = dict()
         response['storage']['total_storage'] = float(order.selected_license.storage)
         response['storage']['storage_used'] = float(models.InstituteStatistics.objects.filter(
             institute=institute
@@ -2501,10 +2502,13 @@ class InstituteSubjectMinStatisticsView(APIView):
         ).order_by('order')
 
         view_order = list()
+        view_name = dict()
         for module in modules:
-            view_order.append({module.key: module.name})
+            view_order.append(module.key)
+            view_name[module.key] = module.name
 
         response['view_order'] = view_order
+        response['view_name'] = view_name
 
         response[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR] = models.InstituteSubjectCourseContent.objects.filter(
             course_content_subject=subject,
