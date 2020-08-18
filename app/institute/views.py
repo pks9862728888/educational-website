@@ -2287,8 +2287,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                         url = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + hls_key_saving_rel_path
 
                         hls = video.hls(Formats.h264())
-                        hls.representations(_144p, _240p)
-                        hls.encryption(hls_key_saving_abs_path, url, 10)
+                        hls.representations(_144p, _240p, _360p, _480p, _720p)
+                        hls.encryption(hls_key_saving_abs_path, url, 5)
                         hls.output(abs_file_path, monitor=monitor)
 
                         file_obj.duration = Decimal(duration)
@@ -2482,10 +2482,10 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 data_dict['id'] = query_data.id
                 data_dict['can_download'] = query_data.can_download
                 data_dict['bit_rate'] = query_data.bit_rate
-                data_dict['stream_file'] = query_data.stream_file
                 data_dict['error_transcoding'] = query_data.error_transcoding
                 data_dict['size'] = query_data.file.size / 1000000000  # In Gb
-
+                data_dict['stream_file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
+                        query_data.stream_file)
                 if query_data.can_download or query_data.error_transcoding:
                     data_dict['file'] = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + str(
                         query_data.file)
