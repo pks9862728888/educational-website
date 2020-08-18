@@ -1,3 +1,4 @@
+import { ViewNameDetails } from './../../models/subject.model';
 import { HttpEventType } from '@angular/common/http';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
@@ -34,7 +35,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   contentError: string;         // For showing upload error
   contentReload: boolean;
   contentReloadText = 'Unable to load content.';
-  viewOrder = ['MI', 'CO'];
   actionControlDialogDataSubscription: Subscription;
   allowTargetDateSetting = true;
   uploadingEvent = new Subject<String>();
@@ -46,11 +46,10 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   // Data
   storage: StorageStatistics;
+  viewName: ViewNameDetails[];
+  viewOrder: Array<string>;
   courseDetailsMinStat: SubjectCourseViewDetails;
-  viewData = {
-    MI: [],
-    CO: []
-  };
+  viewData = {};
   actionContent: StudyMaterialDetails;
   actionView: string;
 
@@ -80,16 +79,23 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.showReload = false;
     this.errorText = null;
     this.instituteApiService.getMinCourseDetails(this.currentSubjectSlug).subscribe(
-      ( result: SubjectCourseMinDetails ) => {
+      (result: SubjectCourseMinDetails) => {
         this.showLoadingIndicator = false;
-        this.storage = {
-          'storage_used': result.storage_used,
-          'total_storage': result.total_storage
-        }
+        this.storage = result.storage;
+        this.viewOrder = result.view_order;
+        this.viewName = result.view_name;
         this.courseDetailsMinStat = {
           'CO': result.CO,
-          'MI': result.MI
+          'MI': result.MI,
         };
+        for(let view in this.viewOrder) {
+          this.viewData[this.viewOrder[view]] = [];
+        }
+        console.log(this.viewData);
+        console.log(this.storage);
+        console.log(this.viewOrder)
+        console.log(this.viewName);
+        console.log(this.courseDetailsMinStat);
       },
       errors => {
         this.showLoadingIndicator = false;
@@ -365,7 +371,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   getViewName(key: string) {
-    return STUDY_MATERIAL_VIEW[key];
+    return this.viewName[key];
   }
 
   getStudyMaterialCount(view: string) {

@@ -989,27 +989,27 @@ def create_institute_subject_content(course_content_subject,
 #         self.assertEqual(file_path, expected_path)
 #
 #
-# class SubjectModuleNamesTest(TestCase):
-#
-#     def setUp(self):
-#         self.user = get_user_model().objects.create_user(
-#             email='usersff@gmail.com',
-#             username='sdjfkjsfj',
-#             password='slkdjfsjfjj'
-#         )
-#         self.user.is_teacher = True
-#         self.user.save()
-#
-#     def test_creating_subject_module_name_success(self):
-#         """Test that creating subject module name is success"""
-#         institute = create_institute(self.user)
-#         class_ = create_class(institute)
-#         subject = create_subject(class_)
-#
-#         res = models.SubjectModuleNames.objects.create(
-#             module_subject=subject,
-#             key='ABC',
-#             name='TEMP')
-#
-#         self.assertEqual(res.key, 'ABC')
-#         self.assertEqual(res.name, 'TEMP')
+class SubjectViewNamesTest(TestCase):
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            email='usersff@gmail.com',
+            username='sdjfkjsfj',
+            password='slkdjfsjfjj'
+        )
+        self.user.is_teacher = True
+        self.user.save()
+
+    def test_creating_subject_module_name_success(self):
+        """Test that creating subject module name is success"""
+        institute = create_institute(self.user)
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+
+        res = models.SubjectViewNames.objects.create(
+            view_subject=subject,
+            key='ABC',
+            name='TEMP')
+
+        self.assertEqual(res.key, 'ABC')
+        self.assertEqual(res.name, 'TEMP')

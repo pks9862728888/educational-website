@@ -1,4 +1,4 @@
-import { currentSectionSlug, currentInstituteSlug, currentInstituteRole, currentSubjectSlug, hasSectionPerm, hasClassPerm } from './../../../constants';
+import { currentSectionSlug, currentInstituteSlug, currentInstituteRole, currentSubjectSlug, hasSectionPerm, hasClassPerm, INSTITUTE_ROLE_REVERSE } from './../../../constants';
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -138,6 +138,14 @@ export class SubjectPermissionComponent implements OnInit {
 
   closeSuccessText() {
     this.successText = null;
+  }
+
+  userIsAdmin() {
+    if (sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE['Admin']) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   userNotSelf(invitee_id: number) {

@@ -25,9 +25,20 @@ export interface SubjectPermittedUserDetails {
   image?: string;
 }
 
+
+export interface ViewNameDetails {
+  key: string;
+  name: string;
+}
+
+
 export interface SubjectCourseMinDetails {
-  total_storage: number; // In Gb
-  storage_used: number;  // In Gb
+  storage: {
+    total_storage: number; // In Gb
+    storage_used: number;  // In Gb
+  };
+  view_order: Array<string>;
+  view_name: ViewNameDetails[];
   MI: number;            // Meet your instructor
   CO: number;            // Course overview
 };

@@ -1198,16 +1198,16 @@ def create_institute_subject_statistics_instance(sender, instance, created, *arg
     if created:
         InstituteSubjectStatistics.objects.create(
             statistics_subject=instance)
-        SubjectModuleNames.objects.create(
-            module_subject=instance,
+        SubjectViewNames.objects.create(
+            view_subject=instance,
             key='MI',
             name='Meet Your Instructor')
-        SubjectModuleNames.objects.create(
-            module_subject=instance,
+        SubjectViewNames.objects.create(
+            view_subject=instance,
             key='CO',
             name='Course Overview')
-        SubjectModuleNames.objects.create(
-            module_subject=instance,
+        SubjectViewNames.objects.create(
+            view_subject=instance,
             key='M1',
             name='Module 1')
 
@@ -1321,10 +1321,10 @@ class InstituteSectionPermission(models.Model):
         unique_together = ('to', 'invitee')
 
 
-class SubjectModuleNames(models.Model):
-    """For storing module name of subjects"""
-    module_subject = models.ForeignKey(
-        InstituteSubject, on_delete=models.CASCADE, related_name='module_subject')
+class SubjectViewNames(models.Model):
+    """For storing view name of subjects"""
+    view_subject = models.ForeignKey(
+        InstituteSubject, on_delete=models.CASCADE, related_name='view_subject')
     key = models.CharField(_('Key'), max_length=4, blank=False)
     name = models.CharField(_('Name'), max_length=25, blank=False)
     order = models.PositiveIntegerField(_('Order'), blank=True, null=True)
@@ -1335,16 +1335,16 @@ class SubjectModuleNames(models.Model):
         if not self.name:
             raise ValueError({'error': 'Name is required.'})
         self.key = self.key.upper()
-        super(SubjectModuleNames, self).save(*args, **kwargs)
+        super(SubjectViewNames, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.key
 
     class Meta:
-        unique_together = ('module_subject', 'key')
+        unique_together = ('view_subject', 'key')
 
 
-@receiver(post_save, sender=SubjectModuleNames)
+@receiver(post_save, sender=SubjectViewNames)
 def set_order_automatically(sender, instance, created, *args, **kwargs):
     if created:
         instance.order = instance.pk

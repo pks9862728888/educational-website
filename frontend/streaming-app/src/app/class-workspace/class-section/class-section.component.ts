@@ -1,4 +1,4 @@
-import { hasSectionPerm, hasClassPerm, userId, currentClassSlug } from './../../../constants';
+import { hasSectionPerm, hasClassPerm, userId, currentClassSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE } from './../../../constants';
 import { currentSectionSlug } from '../../../constants';
 import { SectionDetailsResponse, SectionInchargeDetails } from './../../models/section.model';
 import { Component, OnInit } from '@angular/core';
@@ -185,6 +185,14 @@ export class ClassSectionComponent implements OnInit {
 
   sectionHasIncharge(inchargeList: SectionInchargeDetails[]) {
     if (inchargeList.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  userIsAdmin() {
+    if (sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE['Admin']) {
       return true;
     } else {
       return false;

@@ -2,9 +2,9 @@
     <section class="padding-bottom-07 text-color">
         <div class="d-flex justify-content-between" [ngClass]="{'header-mb': mq.matches, 'header': !mq.matches}">
             <div>
-                <h3 [ngClass]="{'header-text': !mq.matches}">Sections:</h3>
+                <h3 [ngClass]="{'header-text': !mq.matches && (hasClassPerm || userIsAdmin())}">Sections:</h3>
             </div>
-            <div *ngIf="hasClassPerm">
+            <div *ngIf="hasClassPerm || userIsAdmin()">
                 <app-ui-inline-create-form [createIndicator]="createSectionIndicator" [showFormMb]="showCreateSectionFormMb" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [maxLength]="maxSectionNameLength" [formEvent]="formEvent.asObservable()"
                     (showFormMobile)="showCreateSectionFormMobile()" (hideFormMobile)="hideCreateSectionFormMobile()" (createEvent)="createSection($event)"></app-ui-inline-create-form>
             </div>

@@ -1,9 +1,9 @@
 <mat-card>
     <div class="d-flex justify-content-between">
         <div>
-            <h3 [ngClass]="{'header-text': !mq.matches && hasClassPerm}">Class Incharges:</h3>
+            <h3 [ngClass]="{'header-text': !mq.matches && (hasClassPerm || userIsAdmin())}">Class Incharges:</h3>
         </div>
-        <div *ngIf="hasClassPerm">
+        <div *ngIf="hasClassPerm || userIsAdmin()">
             <app-ui-inline-invite-form [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [showInviteFormMb]="showInviteFormMb" [hasPerm]="hasClassPerm" [formEvent]="formEvent.asObservable()" (showInviteFormMobile)="showInviteFormMobile()"
                 (hideInviteFormMobile)="hideInviteFormMobile()" (inviteeEmail)="invite($event)"></app-ui-inline-invite-form>
         </div>

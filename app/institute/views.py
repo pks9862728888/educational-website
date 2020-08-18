@@ -2497,15 +2497,15 @@ class InstituteSubjectMinStatisticsView(APIView):
             institute=institute
         ).first().storage)
 
-        modules = models.SubjectModuleNames.objects.filter(
-            module_subject=subject
+        views = models.SubjectViewNames.objects.filter(
+            view_subject=subject
         ).order_by('order')
 
         view_order = list()
         view_name = dict()
-        for module in modules:
-            view_order.append(module.key)
-            view_name[module.key] = module.name
+        for view in views:
+            view_order.append(view.key)
+            view_name[view.key] = view.name
 
         response['view_order'] = view_order
         response['view_name'] = view_name

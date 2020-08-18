@@ -1,4 +1,4 @@
-import { currentInstituteSlug, currentClassSlug, currentInstituteRole, hasClassPerm } from './../../../constants';
+import { currentInstituteSlug, currentClassSlug, currentInstituteRole, hasClassPerm, INSTITUTE_ROLE_REVERSE } from './../../../constants';
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -139,6 +139,14 @@ export class ClassPermissionsComponent implements OnInit {
 
   closeSuccessText() {
     this.successText = null;
+  }
+
+  userIsAdmin() {
+    if (sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE['Admin']) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   userNotSelf(invitee_id: number) {

@@ -2,9 +2,9 @@
     <section class="padding-bottom-07 text-color">
         <div class="d-flex justify-content-between" [ngClass]="{'header-mb': mq.matches, 'header': !mq.matches}">
             <div>
-                <h3 [ngClass]="{'header-text': !mq.matches}">Subjects:</h3>
+                <h3 [ngClass]="{'header-text': !mq.matches && (hasClassPerm || userIsAdmin())}">Subjects:</h3>
             </div>
-            <div *ngIf="hasClassPerm">
+            <div *ngIf="hasClassPerm || userIsAdmin()">
                 <form class="form-inline" *ngIf="!mq.matches" [formGroup]="createSubjectForm">
                     <div class="form-group mx-sm-3 mb-2">
                         <label for="name" class="sr-only">Subject Name</label>
