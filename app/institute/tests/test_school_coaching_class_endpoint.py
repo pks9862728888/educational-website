@@ -2096,138 +2096,138 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     self.assertFalse(models.InstituteSubjectCourseContent.objects.filter(pk=content.pk).exists())
     #     self.assertFalse(models.SubjectExternalLinkStudyMaterial.objects.filter(
     #         external_link_study_material__pk=content.pk).exists())
-
-    def test_permitted_user_can_edit_existing_study_material_details(self):
-        """Test that editing study material details is successful"""
-        institute = create_institute(self.user)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        subject = create_subject(create_class(institute))
-        create_institute_subject_permission(self.user, self.user, subject)
-        study_material = models.InstituteSubjectCourseContent.objects.create(
-            course_content_subject=subject,
-            order=1,
-            title='aaa',
-            content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
-            view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
-        models.SubjectExternalLinkStudyMaterial.objects.create(
-            external_link_study_material=study_material,
-            url='a'
-        )
-
-        payload = {
-            'title': 'bbb',
-            'description': 'acvd',
-            'target_date': '2020-12-12',
-            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'data': {
-                'url': 'a'
-            }
-        }
-
-        res = self.client.patch(
-            edit_institute_study_material_url(subject.subject_slug, study_material.pk),
-            payload,
-            format='json'
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['data']['url'], payload['data']['url'])
-        self.assertEqual(res.data['id'], study_material.pk)
-        self.assertEqual(res.data['order'], study_material.order)
-        self.assertEqual(res.data['content_type'], study_material.content_type)
-        self.assertEqual(res.data['view'], study_material.view)
-        self.assertEqual(res.data['description'], payload['description'])
-        self.assertEqual(res.data['title'], payload['title'])
-        self.assertIn('target_date', res.data)
-        self.assertEqual(res.data['target_date'], payload['target_date'])
-
-        material = models.InstituteSubjectCourseContent.objects.filter(pk=study_material.pk).first()
-        self.assertEqual(material.title, payload['title'])
-        self.assertEqual(material.description, payload['description'])
-        self.assertEqual(str(material.target_date), payload['target_date'])
-
-    def test_permitted_user_can_edit_existing_study_material_details_no_target_date(self):
-        """Test that editing study material details is successful"""
-        institute = create_institute(self.user)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        subject = create_subject(create_class(institute))
-        create_institute_subject_permission(self.user, self.user, subject)
-        study_material = models.InstituteSubjectCourseContent.objects.create(
-            course_content_subject=subject,
-            order=1,
-            title='aaa',
-            content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
-            view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
-            target_date='2020-12-12')
-        models.SubjectExternalLinkStudyMaterial.objects.create(
-            external_link_study_material=study_material,
-            url='a'
-        )
-
-        payload = {
-            'title': 'bbb',
-            'description': 'decsdf',
-            'target_date': '',
-            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'data': {
-                'url': 'b'
-            }
-        }
-
-        res = self.client.patch(
-            edit_institute_study_material_url(subject.subject_slug, study_material.pk),
-            payload,
-            format='json'
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['id'], study_material.pk)
-        self.assertEqual(res.data['order'], study_material.order)
-        self.assertEqual(res.data['content_type'], study_material.content_type)
-        self.assertEqual(res.data['view'], study_material.view)
-        self.assertEqual(res.data['description'], payload['description'])
-        self.assertEqual(res.data['title'], payload['title'])
-        self.assertNotIn('target_date', res.data)
-        self.assertEqual(res.data['data']['url'], payload['data']['url'])
-
-        material = models.InstituteSubjectCourseContent.objects.filter(pk=study_material.pk).first()
-        self.assertEqual(material.title, payload['title'])
-        self.assertEqual(material.description, payload['description'])
-        self.assertEqual(material.target_date, None)
-
-    def test_unpermitted_user_can_not_edit_existing_study_material_details(self):
-        """Test that editing study material details is successful"""
-        institute = create_institute(self.user)
-        order = create_order(create_institute_license(institute, self.payload), institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        subject = create_subject(create_class(institute))
-        study_material = models.InstituteSubjectCourseContent.objects.create(
-            course_content_subject=subject,
-            order=1,
-            title='aaa',
-            content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
-            view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
-
-        payload = {
-            'title': 'bbb',
-            'description': 'aaa',
-            'target_date': '',
-            'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
-            'data': {
-                'url': 'b'
-            }
-        }
-
-        res = self.client.patch(
-            edit_institute_study_material_url(subject.subject_slug, study_material.pk),
-            payload,
-            format='json'
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_permitted_user_can_edit_existing_study_material_details(self):
+    #     """Test that editing study material details is successful"""
+    #     institute = create_institute(self.user)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     subject = create_subject(create_class(institute))
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     study_material = models.InstituteSubjectCourseContent.objects.create(
+    #         course_content_subject=subject,
+    #         order=1,
+    #         title='aaa',
+    #         content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
+    #     models.SubjectExternalLinkStudyMaterial.objects.create(
+    #         external_link_study_material=study_material,
+    #         url='a'
+    #     )
+    #
+    #     payload = {
+    #         'title': 'bbb',
+    #         'description': 'acvd',
+    #         'target_date': '2020-12-12',
+    #         'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         'data': {
+    #             'url': 'a'
+    #         }
+    #     }
+    #
+    #     res = self.client.patch(
+    #         edit_institute_study_material_url(subject.subject_slug, study_material.pk),
+    #         payload,
+    #         format='json'
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['data']['url'], payload['data']['url'])
+    #     self.assertEqual(res.data['id'], study_material.pk)
+    #     self.assertEqual(res.data['order'], study_material.order)
+    #     self.assertEqual(res.data['content_type'], study_material.content_type)
+    #     self.assertEqual(res.data['view'], study_material.view)
+    #     self.assertEqual(res.data['description'], payload['description'])
+    #     self.assertEqual(res.data['title'], payload['title'])
+    #     self.assertIn('target_date', res.data)
+    #     self.assertEqual(res.data['target_date'], payload['target_date'])
+    #
+    #     material = models.InstituteSubjectCourseContent.objects.filter(pk=study_material.pk).first()
+    #     self.assertEqual(material.title, payload['title'])
+    #     self.assertEqual(material.description, payload['description'])
+    #     self.assertEqual(str(material.target_date), payload['target_date'])
+    #
+    # def test_permitted_user_can_edit_existing_study_material_details_no_target_date(self):
+    #     """Test that editing study material details is successful"""
+    #     institute = create_institute(self.user)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     subject = create_subject(create_class(institute))
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     study_material = models.InstituteSubjectCourseContent.objects.create(
+    #         course_content_subject=subject,
+    #         order=1,
+    #         title='aaa',
+    #         content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR,
+    #         target_date='2020-12-12')
+    #     models.SubjectExternalLinkStudyMaterial.objects.create(
+    #         external_link_study_material=study_material,
+    #         url='a'
+    #     )
+    #
+    #     payload = {
+    #         'title': 'bbb',
+    #         'description': 'decsdf',
+    #         'target_date': '',
+    #         'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         'data': {
+    #             'url': 'b'
+    #         }
+    #     }
+    #
+    #     res = self.client.patch(
+    #         edit_institute_study_material_url(subject.subject_slug, study_material.pk),
+    #         payload,
+    #         format='json'
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['id'], study_material.pk)
+    #     self.assertEqual(res.data['order'], study_material.order)
+    #     self.assertEqual(res.data['content_type'], study_material.content_type)
+    #     self.assertEqual(res.data['view'], study_material.view)
+    #     self.assertEqual(res.data['description'], payload['description'])
+    #     self.assertEqual(res.data['title'], payload['title'])
+    #     self.assertNotIn('target_date', res.data)
+    #     self.assertEqual(res.data['data']['url'], payload['data']['url'])
+    #
+    #     material = models.InstituteSubjectCourseContent.objects.filter(pk=study_material.pk).first()
+    #     self.assertEqual(material.title, payload['title'])
+    #     self.assertEqual(material.description, payload['description'])
+    #     self.assertEqual(material.target_date, None)
+    #
+    # def test_unpermitted_user_can_not_edit_existing_study_material_details(self):
+    #     """Test that editing study material details is successful"""
+    #     institute = create_institute(self.user)
+    #     order = create_order(create_institute_license(institute, self.payload), institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     subject = create_subject(create_class(institute))
+    #     study_material = models.InstituteSubjectCourseContent.objects.create(
+    #         course_content_subject=subject,
+    #         order=1,
+    #         title='aaa',
+    #         content_type=models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         view=models.StudyMaterialView.MEET_YOUR_INSTRUCTOR)
+    #
+    #     payload = {
+    #         'title': 'bbb',
+    #         'description': 'aaa',
+    #         'target_date': '',
+    #         'content_type': models.StudyMaterialContentType.EXTERNAL_LINK,
+    #         'data': {
+    #             'url': 'b'
+    #         }
+    #     }
+    #
+    #     res = self.client.patch(
+    #         edit_institute_study_material_url(subject.subject_slug, study_material.pk),
+    #         payload,
+    #         format='json'
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')

@@ -2491,10 +2491,20 @@ class InstituteSubjectMinStatisticsView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         response = dict()
-        response['total_storage'] = float(order.selected_license.storage)
-        response['storage_used'] = float(models.InstituteStatistics.objects.filter(
+        response['storage']['total_storage'] = float(order.selected_license.storage)
+        response['storage']['storage_used'] = float(models.InstituteStatistics.objects.filter(
             institute=institute
         ).first().storage)
+
+        modules = models.SubjectModuleNames.objects.filter(
+            module_subject=subject
+        ).order_by('order')
+
+        response_view_order = list()
+        for module in modules:
+            response_view_order.append(module.key)
+
+        response['response_view_order'] = response_view_order
 
         response[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR] = models.InstituteSubjectCourseContent.objects.filter(
             course_content_subject=subject,

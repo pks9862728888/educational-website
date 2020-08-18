@@ -250,6 +250,22 @@ class StudyMaterialView:
     ]
 
 
+class Weeks:
+    NONE = 'NO'
+    WEEK_1 = 'W1'
+    WEEK_2 = 'W2'
+    WEEK_3 = 'W3'
+    WEEK_4 = 'W4'
+
+    WEEK_IN_WEEK_TYPES = [
+        (NONE, _(u'NONE')),
+        (WEEK_1, _(u'WEEK_1')),
+        (WEEK_2, _(u'WEEK_2')),
+        (WEEK_3, _(u'WEEK_3')),
+        (WEEK_4, _(u'WEEK_4')),
+    ]
+
+
 def user_profile_picture_upload_file_path(instance, filename):
     """Generates file path for uploading images in user profile"""
     extension = filename.split('.')[-1]
@@ -1311,6 +1327,7 @@ class SubjectModuleNames(models.Model):
         InstituteSubject, on_delete=models.CASCADE, related_name='module_subject')
     key = models.CharField(_('Key'), max_length=4, blank=False)
     name = models.CharField(_('Name'), max_length=25, blank=False)
+    order = models.PositiveIntegerField(_('Order'), blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.key:
@@ -1325,6 +1342,13 @@ class SubjectModuleNames(models.Model):
 
     class Meta:
         unique_together = ('module_subject', 'key')
+
+
+@receiver(post_save, sender=SubjectModuleNames)
+def set_order_automatically(sender, instance, created, *args, **kwargs):
+    if created:
+        instance.order = instance.pk
+        instance.save()
 
 
 class InstituteSubjectCourseContent(models.Model):
@@ -1352,6 +1376,13 @@ class InstituteSubjectCourseContent(models.Model):
     uploaded_on = models.DateTimeField(
         _('Uploaded on'), default=timezone.now, editable=False)
     description = models.TextField(_('Description'), default='', blank=True)
+    week = models.CharField(
+        'Week',
+        choices=Weeks.WEEK_IN_WEEK_TYPES,
+        default=Weeks.NONE,
+        blank=True,
+        max_length=2
+    )
 
     def save(self, *args, **kwargs):
         if not self.title:
@@ -1362,8 +1393,10 @@ class InstituteSubjectCourseContent(models.Model):
             raise ValueError({'error': _('Order is required.')})
         if not self.view:
             raise ValueError({'error': _('View is required.')})
+        if self.description:
+            self.description = self.description.strip()
+
         self.title = self.title.strip()
-        self.description = self.description.strip()
         super(InstituteSubjectCourseContent, self).save(*args, **kwargs)
 
     def __str__(self):
