@@ -2500,11 +2500,11 @@ class InstituteSubjectMinStatisticsView(APIView):
             module_subject=subject
         ).order_by('order')
 
-        response_view_order = list()
+        view_order = list()
         for module in modules:
-            response_view_order.append(module.key)
+            view_order.append(module.key)
 
-        response['response_view_order'] = response_view_order
+        response['view_order'] = view_order
 
         response[models.StudyMaterialView.MEET_YOUR_INSTRUCTOR] = models.InstituteSubjectCourseContent.objects.filter(
             course_content_subject=subject,
