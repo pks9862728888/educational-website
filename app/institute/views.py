@@ -2502,7 +2502,7 @@ class InstituteSubjectMinStatisticsView(APIView):
 
         view_order = list()
         for module in modules:
-            view_order.append(module.key)
+            view_order.append({module.key: module.name})
 
         response['view_order'] = view_order
 
