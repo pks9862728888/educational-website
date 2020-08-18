@@ -2615,7 +2615,7 @@ class InstituteSubjectEditCourseContentView(APIView):
         if 'description' in request.data.keys():
             study_material.description = request.data.get('description')
         if 'target_date' in request.data.keys():
-            study_material.title = request.data.get('target_date')
+            study_material.target_date = request.data.get('target_date')
         if 'data' in request.data.keys():
             if request.data.get('content_type') == models.StudyMaterialContentType.EXTERNAL_LINK:
                 content = models.SubjectExternalLinkStudyMaterial.objects.filter(
