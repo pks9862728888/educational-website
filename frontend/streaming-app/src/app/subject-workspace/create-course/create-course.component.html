@@ -27,16 +27,6 @@
         <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
         <app-ui-reload *ngIf="showReload" [errorText]="reloadText" (retryEvent)="getMinCourseDetails()"></app-ui-reload>
         <section *ngIf="!showLoadingIndicator && !showReload">
-            <div class="m-b-1 text-color">
-                <div class="m-b-01">
-                    <h3 *ngIf="!mq.matches">Storage used:</h3>
-                    <p *ngIf="mq.matches">Storage used:</p>
-                </div>
-                <p-progressBar [value]="getStoragePercentFilled()" class="custom-progress"></p-progressBar>
-                <div class="storage">
-                    <p>{{ storage.storage_used | number }} / {{ storage.total_storage | number }} GB</p>
-                </div>
-            </div>
             <div class="m-b-1" *ngFor="let view of viewOrder; let i=index">
                 <mat-accordion>
                     <mat-expansion-panel class="text-color" [expanded]="openedPanelStep === i" (opened)="setOpenedPanelStep(i)">
@@ -169,6 +159,16 @@
                         </section>
                     </mat-expansion-panel>
                 </mat-accordion>
+            </div>
+            <div class="m-b-1 text-color">
+                <div class="m-b-01">
+                    <h3 *ngIf="!mq.matches">Storage used:</h3>
+                    <p *ngIf="mq.matches">Storage used:</p>
+                </div>
+                <p-progressBar [value]="getStoragePercentFilled()" class="custom-progress"></p-progressBar>
+                <div class="storage">
+                    <p>{{ storage.storage_used | number }} / {{ storage.total_storage | number }} GB</p>
+                </div>
             </div>
         </section>
     </section>

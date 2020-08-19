@@ -54,6 +54,9 @@ export class UiUploadPdfComponent implements OnInit {
           this.showIndicator = false;
           this.uploadForm.reset();
           this.uploadForm.enable();
+          this.uploadForm.patchValue({
+            can_download: true
+          });
         }
       }
     );

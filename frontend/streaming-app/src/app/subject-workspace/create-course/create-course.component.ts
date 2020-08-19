@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SubjectCourseMinDetails, StorageStatistics, SubjectCourseViewDetails, StudyMaterialDetails } from '../../models/subject.model';
+import { WeekDay } from '@angular/common';
 
 @Component({
   selector: 'app-create-course',
@@ -161,8 +162,8 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   editClicked() {}
 
   deleteClicked(content: StudyMaterialDetails) {
-    this.actionContent = content;
-    this.actionView = this.viewOrder[this.openedPanelStep];
+    const actionContent = content;
+    const actionView = this.viewOrder[this.openedPanelStep];
     this.actionSuccessText = null;
     this.contentError = null;
     this.deleteDialogDataSubscription = this.uiService.dialogData$.subscribe(
@@ -172,17 +173,19 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
             () => {
               this.actionSuccessText = 'Delete successful.';
               this.hideCloseContentLoadingErrorButton = false;
-              this.viewData[this.actionView].splice(this.viewData[this.actionView].indexOf(this.actionContent), 1);
-              //************Decrease 1 from total */
-              if (this.actionContent.data.size) {
-                this.storage.storage_used = Math.max(0, this.storage.storage_used - this.actionContent.data.size);
+              if (actionContent.week) {
+                this.viewData[actionView][actionContent.week].splice(
+                  this.findIdInArray(this.viewData[actionView][actionContent.week], actionContent.id), 1);
+                this.viewDetails[actionContent.view][actionContent.week] -= 1;
+              } else {
+                this.viewData[actionView].splice(this.viewData[actionView].indexOf(actionContent), 1);
               }
-              this.actionView = null;
-              this.actionContent = null;
+              this.viewDetails[actionContent.view]['count'] -= 1;
+              if (actionContent.data.size) {
+                this.storage.storage_used = Math.max(0, this.storage.storage_used - actionContent.data.size);
+              }
             },
             errors => {
-              this.actionView = null;
-              this.actionContent = null;
               if (errors.error) {
                 if (errors.error.error) {
                   this.contentError = errors.error.error;

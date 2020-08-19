@@ -17,8 +17,11 @@
                 <span *ngIf="showEditForm">close</span>
             </mat-icon>
         </div>
-        <div class="delete-icon">
+        <div class="delete-icon m-r-05">
             <mat-icon (click)="delete()">delete</mat-icon>
+        </div>
+        <div class="back-icon" (click)="download()">
+            <mat-icon *ngIf="mq.matches">get_app</mat-icon>
         </div>
     </div>
 </div>
@@ -28,9 +31,15 @@
 <div *ngIf="showEditForm">
     <app-ui-edit-study-material [formEvent]="formControlEvent.asObservable()" [filledFormText]="content" [showTargetDate]="true" (formData)="edit($event)"></app-ui-edit-study-material>
 </div>
-<div class="m-b-1 description">
+<div class="m-b-1 description d-flex justify-content-between">
     <h1 *ngIf="!mq.matches">{{ content.title | titlecase }}</h1>
     <h2 *ngIf="mq.matches">{{ content.title | titlecase }}</h2>
+    <div *ngIf="content.data.can_download === true && !mq.matches" (click)="download()">
+        <div class="download download-color">
+            <p>Download</p>
+            <mat-icon>get_app</mat-icon>
+        </div>
+    </div>
 </div>
 <div class="m-b-1 video-container">
     <video id="video-player" class="video-js vjs-default-skin video-player" controls preload="auto" poster="" data-setup='{}'>
@@ -48,7 +57,10 @@
         <span *ngIf="content.description">{{ content.description }}</span>
         <span *ngIf="!content.description">N/A</span>
     </h3>
-    <p *ngIf="mq.matches" class="text-justify">{{ content.description }}</p>
+    <p *ngIf="mq.matches" class="text-justify">Description:
+        <span *ngIf="content.description">{{ content.description }}</span>
+        <span *ngIf="!content.description">N/A</span>
+    </p>
     <br/>
     <p>Target Date:
         <span *ngIf="content.target_date">{{ content.target_date }}</span>

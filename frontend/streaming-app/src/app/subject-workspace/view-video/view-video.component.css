@@ -24,7 +24,6 @@ hr {
     margin-bottom: 0.7rem;
 }
 
-.download-mb,
 .download {
     display: flex;
     right: 1.5rem;
@@ -32,20 +31,9 @@ hr {
     cursor: pointer;
 }
 
-.download-mb {
-    transform: translateY(-2rem);
-    color: #fff;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 5px;
-}
-
-.download {
-    transform: translateY(-2.5rem);
-}
-
 .download-color {
     background-color: rgb(0, 0, 0);
-    color: #fff;
+    color: #f2aa4cff;
     border-radius: 5px;
     padding: 0.3rem 0.5rem 0.3rem 1rem;
 }

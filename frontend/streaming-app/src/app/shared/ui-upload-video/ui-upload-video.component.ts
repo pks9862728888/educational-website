@@ -46,6 +46,7 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
     });
     this.formEventSubscription = this.formEvent.subscribe(
       (data: string) => {
+        console.log(data);
         if (data === 'ENABLE') {
           this.showProcessingIndicator = false;
           this.showIndicator = false;
@@ -55,8 +56,11 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
           this.uploadForm.disable();
         } else if (data === 'RESET') {
           this.showProcessingIndicator = false;
-          this.uploadForm.reset();
           this.uploadForm.enable();
+          this.uploadForm.reset();
+          this.uploadForm.patchValue({
+            can_download: true
+          });
         }
       }
     );
