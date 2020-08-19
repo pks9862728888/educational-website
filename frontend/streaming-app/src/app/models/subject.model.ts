@@ -30,10 +30,7 @@ export interface ViewDetails {
   key: {
     name: string;
     count: number;
-    week_1_count?: number;
-    week_2_count?: number;
-    week_3_count?: number;
-    week_4_count?: number;
+    number?: number;
   }
 }
 

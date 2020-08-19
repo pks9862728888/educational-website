@@ -98,7 +98,7 @@ urlpatterns = [
     path('<slug:subject_slug>/subject-course-content-min-statistics',
          views.InstituteSubjectMinStatisticsView.as_view(),
          name='subject-course-content-min-statistics'),
-    path('<slug:subject_slug>/<slug:view>/list-subject-specific-view-course-contents',
+    path('<slug:subject_slug>/<slug:view_key>/list-subject-specific-view-course-contents',
          views.InstituteSubjectSpecificViewCourseContentView.as_view(),
          name='list-subject-specific-view-course-contents'),
     path('<int:pk>/delete-subject-course-content',

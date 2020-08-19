@@ -2539,6 +2539,43 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
+    def _get_data(self, content_type, data_id, base_url):
+        if content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
+            query_data = models.SubjectExternalLinkStudyMaterial.objects.filter(
+                external_link_study_material__pk=data_id
+            ).first()
+            return get_external_link_study_material_data(
+                query_data,
+                'OBJ'
+            )
+        elif content_type == models.StudyMaterialContentType.IMAGE:
+            query_data = models.SubjectImageStudyMaterial.objects.filter(
+                image_study_material__pk=data_id
+            ).first()
+            return get_image_study_material_data(
+                query_data,
+                'OBJ',
+                base_url
+            )
+        elif content_type == models.StudyMaterialContentType.VIDEO:
+            query_data = models.SubjectVideoStudyMaterial.objects.filter(
+                video_study_material__pk=data_id
+            ).first()
+            return get_video_study_material_data(
+                query_data,
+                'OBJ',
+                base_url
+            )
+        elif content_type == models.StudyMaterialContentType.PDF:
+            query_data = models.SubjectPdfStudyMaterial.objects.filter(
+                pdf_study_material__pk=data_id
+            ).first()
+            return get_pdf_study_material_data(
+                query_data,
+                'OBJ',
+                base_url
+            )
+
     def get(self, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
@@ -2564,51 +2601,46 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=kwargs.get('view_key')
+        ).first()
+
+        if not view:
+            return Response({'error': _('Module not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         data = models.InstituteSubjectCourseContent.objects.filter(
             course_content_subject=subject,
-            view=kwargs.get('view').upper()
-        ).order_by('order')
-        response = list()
+            view=view)
+        response = None
 
-        for d in data:
-            res = get_study_material_content_details(d, 'OBJ')
-
-            if d.content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
-                query_data = models.SubjectExternalLinkStudyMaterial.objects.filter(
-                    external_link_study_material__pk=d.id
-                ).first()
-                res['data'] = get_external_link_study_material_data(
-                    query_data,
-                    'OBJ'
-                )
-            elif d.content_type == models.StudyMaterialContentType.IMAGE:
-                query_data = models.SubjectImageStudyMaterial.objects.filter(
-                        image_study_material__pk=d.id
-                    ).first()
-                res['data'] = get_image_study_material_data(
-                    query_data,
-                    'OBJ',
+        if view.key != 'MI' and view.key != 'CO':
+            response = dict()
+            view_weeks = models.SubjectViewWeek.objects.filter(
+                week_view=view)
+            for week in view_weeks:
+                week_data = data.filter(week=week)
+                week_data_response = list()
+                for d in week_data:
+                    res = get_study_material_content_details(d, 'OBJ')
+                    res['data'] = self._get_data(
+                        d.content_type,
+                        d.pk,
+                        self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                    )
+                    week_data_response.append(res)
+                response[week.value] = week_data_response
+        else:
+            response = list()
+            for d in data:
+                res = get_study_material_content_details(d, 'OBJ')
+                res['data'] = self._get_data(
+                    d.content_type,
+                    d.pk,
                     self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
                 )
-            elif d.content_type == models.StudyMaterialContentType.VIDEO:
-                query_data = models.SubjectVideoStudyMaterial.objects.filter(
-                        video_study_material__pk=d.id
-                    ).first()
-                res['data'] = get_video_study_material_data(
-                    query_data,
-                    'OBJ',
-                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
-                )
-            elif d.content_type == models.StudyMaterialContentType.PDF:
-                query_data = models.SubjectPdfStudyMaterial.objects.filter(
-                        pdf_study_material__pk=d.id
-                    ).first()
-                res['data'] = get_pdf_study_material_data(
-                    query_data,
-                    'OBJ',
-                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
-                )
-            response.append(res)
+                response.append(res)
 
         return Response(response, status=status.HTTP_200_OK)
 
