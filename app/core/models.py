@@ -2,6 +2,7 @@ import os
 import datetime
 import random
 import string
+import shutil
 import uuid
 
 from django.db import models
@@ -1497,7 +1498,10 @@ class SubjectVideoStudyMaterial(models.Model):
 def auto_delete_video_file_on_delete(sender, instance, **kwargs):
     if instance.file:
         if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
+            try:
+                os.remove(instance.file.path)
+            except Exception as e:
+                print('Error: ' + e)
 
 
 class SubjectPdfStudyMaterial(models.Model):

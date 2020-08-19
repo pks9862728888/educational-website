@@ -2220,6 +2220,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')).first()
 
@@ -2256,7 +2257,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                                     status=status.HTTP_400_BAD_REQUEST)
                 else:
                     week = week.pk
-        except Exception:
+        except Exception as e:
             return Response({'error': _('Bad request.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -2422,7 +2423,8 @@ class InstituteSubjectAddCourseContentView(APIView):
                             url = self.request.build_absolute_uri('/').strip("/") + MEDIA_URL + hls_key_saving_rel_path
 
                             hls = video.hls(Formats.h264())
-                            hls.representations(_144p, _240p, _360p, _480p, _720p)
+                            # , _240p, _360p, _480p, _720p
+                            hls.representations(_144p)
                             hls.encryption(hls_key_saving_abs_path, url, 5)
                             hls.output(abs_file_path, monitor=monitor)
 
@@ -2745,9 +2747,10 @@ class InstituteDeleteSubjectCourseContentView(APIView):
                 institute_stat.storage = max(0, institute_stat.storage - Decimal(size))
                 institute_stat.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Internal server error. Kindly refresh and try again.')},
-                            status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class InstituteSubjectEditCourseContentView(APIView):
