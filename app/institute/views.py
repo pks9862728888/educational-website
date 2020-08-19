@@ -2518,26 +2518,15 @@ class InstituteSubjectMinStatisticsView(APIView):
                 ).count()
             }
             if view.key != 'MI' and view.key != 'CO':
-                view_details[view.key]['week_1_count'] = models.InstituteSubjectCourseContent.objects.filter(
-                    course_content_subject=subject,
-                    view=subject_view_model,
-                    week=models.Weeks.WEEK_1
-                ).count()
-                view_details[view.key]['week_2_count'] = models.InstituteSubjectCourseContent.objects.filter(
-                    course_content_subject=subject,
-                    view=subject_view_model,
-                    week=models.Weeks.WEEK_2
-                ).count()
-                view_details[view.key]['week_3_count'] = models.InstituteSubjectCourseContent.objects.filter(
-                    course_content_subject=subject,
-                    view=subject_view_model,
-                    week=models.Weeks.WEEK_3
-                ).count()
-                view_details[view.key]['week_4_count'] = models.InstituteSubjectCourseContent.objects.filter(
-                    course_content_subject=subject,
-                    view=subject_view_model,
-                    week=models.Weeks.WEEK_4
-                ).count()
+                weeks = models.SubjectViewWeek.objects.filter(
+                    week_view=view
+                ).order_by('value')
+                for week in weeks:
+                    view_details[view.key][week.value] = models.InstituteSubjectCourseContent.objects.filter(
+                        course_content_subject=subject,
+                        view=subject_view_model,
+                        week=week
+                    ).count()
 
         response['view_order'] = view_order
         response['view_details'] = view_details

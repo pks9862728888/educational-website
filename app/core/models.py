@@ -1349,6 +1349,21 @@ def set_order_automatically(sender, instance, created, *args, **kwargs):
     if created:
         instance.order = instance.pk
         instance.save()
+        SubjectViewWeek.objects.create(
+            week_view=instance,
+            value=1
+        )
+
+
+class SubjectViewWeek(models.Model):
+    """Model for storing week details"""
+    week_view = models.ForeignKey(
+        SubjectViewNames, on_delete=models.CASCADE, related_name='week_view')
+    value = models.PositiveIntegerField(
+        _('Value'), blank=False, null=False)
+
+    def __str__(self):
+        return self.value
 
 
 class InstituteSubjectCourseContent(models.Model):
@@ -1372,13 +1387,9 @@ class InstituteSubjectCourseContent(models.Model):
     uploaded_on = models.DateTimeField(
         _('Uploaded on'), default=timezone.now, editable=False)
     description = models.TextField(_('Description'), default='', blank=True)
-    week = models.CharField(
-        'Week',
-        choices=Weeks.WEEK_IN_WEEK_TYPES,
-        default=Weeks.NONE,
-        blank=True,
-        max_length=2
-    )
+    week = models.ForeignKey(
+        SubjectViewWeek, on_delete=models.CASCADE, related_name="week",
+        blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.title:
