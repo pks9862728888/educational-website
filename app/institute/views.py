@@ -2502,7 +2502,7 @@ class InstituteSubjectMinStatisticsView(APIView):
         ).order_by('order')
 
         view_order = list()
-        view_statistics = dict()
+        view_details = dict()
 
         for view in views:
             view_order.append(view.key)
@@ -2510,7 +2510,7 @@ class InstituteSubjectMinStatisticsView(APIView):
                 view_subject=subject,
                 key=view.key
             ).first()
-            view_statistics[view.key] = {
+            view_details[view.key] = {
                 'name': view.name,
                 'count': models.InstituteSubjectCourseContent.objects.filter(
                     course_content_subject=subject,
@@ -2518,29 +2518,29 @@ class InstituteSubjectMinStatisticsView(APIView):
                 ).count()
             }
             if view.key != 'MI' and view.key != 'CO':
-                view_statistics[view.key]['week_1_count'] = models.InstituteSubjectCourseContent.objects.filter(
+                view_details[view.key]['week_1_count'] = models.InstituteSubjectCourseContent.objects.filter(
                     course_content_subject=subject,
                     view=subject_view_model,
                     week=models.Weeks.WEEK_1
                 ).count()
-                view_statistics[view.key]['week_2_count'] = models.InstituteSubjectCourseContent.objects.filter(
+                view_details[view.key]['week_2_count'] = models.InstituteSubjectCourseContent.objects.filter(
                     course_content_subject=subject,
                     view=subject_view_model,
                     week=models.Weeks.WEEK_2
                 ).count()
-                view_statistics[view.key]['week_3_count'] = models.InstituteSubjectCourseContent.objects.filter(
+                view_details[view.key]['week_3_count'] = models.InstituteSubjectCourseContent.objects.filter(
                     course_content_subject=subject,
                     view=subject_view_model,
                     week=models.Weeks.WEEK_3
                 ).count()
-                view_statistics[view.key]['week_4_count'] = models.InstituteSubjectCourseContent.objects.filter(
+                view_details[view.key]['week_4_count'] = models.InstituteSubjectCourseContent.objects.filter(
                     course_content_subject=subject,
                     view=subject_view_model,
                     week=models.Weeks.WEEK_4
                 ).count()
 
         response['view_order'] = view_order
-        response['view_statistics'] = view_statistics
+        response['view_details'] = view_details
 
         return Response(response, status=status.HTTP_200_OK)
 
