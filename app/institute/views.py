@@ -2539,7 +2539,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
-    def _get_data(self, content_type, data_id, base_url):
+    def _get_data(self, content_type, data_id):
         if content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
             query_data = models.SubjectExternalLinkStudyMaterial.objects.filter(
                 external_link_study_material__pk=data_id
@@ -2555,7 +2555,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             return get_image_study_material_data(
                 query_data,
                 'OBJ',
-                base_url
+                self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
             )
         elif content_type == models.StudyMaterialContentType.VIDEO:
             query_data = models.SubjectVideoStudyMaterial.objects.filter(
@@ -2564,7 +2564,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             return get_video_study_material_data(
                 query_data,
                 'OBJ',
-                base_url
+                self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
             )
         elif content_type == models.StudyMaterialContentType.PDF:
             query_data = models.SubjectPdfStudyMaterial.objects.filter(
@@ -2573,7 +2573,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             return get_pdf_study_material_data(
                 query_data,
                 'OBJ',
-                base_url
+                self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
             )
 
     def get(self, *args, **kwargs):
@@ -2625,9 +2625,9 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 for d in week_data:
                     res = get_study_material_content_details(d, 'OBJ')
                     res['data'] = self._get_data(
+                        self,
                         d.content_type,
-                        d.pk,
-                        self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
+                        d.pk
                     )
                     week_data_response.append(res)
                 response[week.value] = week_data_response
@@ -2636,9 +2636,9 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             for d in data:
                 res = get_study_material_content_details(d, 'OBJ')
                 res['data'] = self._get_data(
+                    self,
                     d.content_type,
                     d.pk,
-                    self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
                 )
                 response.append(res)
 
