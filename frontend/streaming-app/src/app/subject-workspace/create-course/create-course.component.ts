@@ -69,6 +69,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getMinCourseDetails();
+    this.openedPanelStep = 0;
   }
 
   getMinCourseDetails() {
@@ -117,9 +118,10 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.addFilesDialog = false;
 
     // Get content if view does not have any content
-    if (!this.hasContent(this.viewOrder[step])) {
-      this.getContentOfView();
-    }
+    // if (!this.hasContent(this.viewOrder[step])) {
+    //   this.getContentOfView();
+    // }
+    this.getContentOfView();
   }
 
   getContentOfView() {
@@ -132,6 +134,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
       view)
       .subscribe(
         (result: StudyMaterialDetails[] ) => {
+          console.log(result);
           this.showContentLoadingIndicator = false;
           this.viewData[view] = result;
         },
@@ -239,7 +242,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   uploadMediaFile(data: any) {
-    data['view'] = this.viewOrder[this.openedPanelStep];
+    data['view_key'] = this.viewOrder[this.openedPanelStep];
     this.uploadError = null;
     this.contentSuccessText = null;
     this.uploadingEvent.next('DISABLE');
@@ -247,6 +250,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
       'total': data.size,
       'loaded': 0,
     });
+    console.log(data);
     this.instituteApiService.uploadStudyMaterial(this.currentSubjectSlug, data).subscribe(
       result => {
         if (result.type === HttpEventType.UploadProgress) {
@@ -257,9 +261,14 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
         } else if (result.type === HttpEventType.Response) {
           this.uploadingEvent.next('RESET');
           this.contentSuccessText = 'Upload successful.';
-          this.viewData[result.body['view']].push(result.body);
+          if (!result['week']) {
+            this.viewData[result.body['view']].push(result.body);
+          } else {
+            this.viewData[result.body['view']][result.body['week']].push(result.body);
+            this.viewDetails[data['view_key']][result.body['week']] += 1;
+          }
           this.storage.storage_used += result.body['data']['size'];
-          //********************increase 1 to total */
+          this.viewDetails[data['view_key']].count += 1;
         }
       },
       errors => {
@@ -278,17 +287,24 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   uploadExternalLink(data: any) {
-    data['view'] = this.viewOrder[this.openedPanelStep];
+    data['view_key'] = this.viewOrder[this.openedPanelStep];
     this.uploadingEvent.next('DISABLE');
     this.uploadError = null;
     this.contentSuccessText = null;
     this.instituteApiService.addSubjectExternalLinkCourseContent(
       this.currentSubjectSlug, data).subscribe(
         (result: StudyMaterialDetails) => {
+          console.log(result);
           this.uploadingEvent.next('RESET');
           this.contentSuccessText = 'Uploaded Successfully.';
-          this.viewData[result.view].push(result);
-          // ****************Increase 1 to total
+          if (!result['week']) {
+            this.viewData[result.view].push(result);
+          } else {
+            this.viewData[result.view][result.week].push(result);
+            this.viewDetails[data['view_key']][result['week']] += 1;
+          }
+          this.viewDetails[data['view_key']].count += 1;
+          console.log(this.viewDetails);
         },
         errors => {
           this.uploadingEvent.next('ENABLE');
@@ -315,6 +331,8 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   toggleMeetInstructorFileUploadDialog() {
       this.addFilesDialog = !this.addFilesDialog;
+      this.contentSuccessText = null;
+      this.uploadError = null;
   }
 
   contentClicked(content: StudyMaterialDetails) {
@@ -385,10 +403,18 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   hasContent(view: string) {
-    if (this.viewDetails[view].count > 0) {
-      return true;
+    if (view === 'MI' || view === 'CO') {
+      if (this.viewData[view].length > 0) {
+        return true;
+      } else {
+        return false;
+      }
     } else {
-      return false;
+      // if (this.viewData[view][week].length > 0) {
+      //   return true;
+      // } else {
+      //   return false;
+      // }
     }
   }
 

@@ -398,10 +398,14 @@ export class InstituteApiService {
   uploadStudyMaterial(subjectSlug: string, data: any) {
     const formData = new FormData();
     formData.append('title', data.title);
-    formData.append('view', data.view);
+    formData.append('view_key', data.view_key);
     formData.append('size', data.size);
     formData.append('file', data.file);
     formData.append('content_type', data.content_type);
+
+    if (data.week) {
+      formData.append('week', data.week);
+    }
 
     if (data.description) {
       formData.append('description', data.description);

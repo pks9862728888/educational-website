@@ -54,7 +54,9 @@
                             <div *ngIf="actionSuccessText" class="col-12 m-b-1">
                                 <app-ui-success-text [successText]="actionSuccessText" (closeSuccessTextEvent)="closeActionSuccess()"></app-ui-success-text>
                             </div>
-                            <app-ui-error-text *ngIf="contentError" [hideCloseButton]="hideCloseContentLoadingErrorButton" [errorText]="contentError"></app-ui-error-text>
+                            <div class="m-b-1">
+                                <app-ui-error-text *ngIf="contentError" [hideCloseButton]="hideCloseContentLoadingErrorButton" [errorText]="contentError"></app-ui-error-text>
+                            </div>
                             <app-ui-loading *ngIf="showContentLoadingIndicator" [actionText]="loadingContentText"></app-ui-loading>
                             <app-ui-reload *ngIf="contentReload" [errorText]="contentReloadText" (retryEvent)="getContentOfView()"></app-ui-reload>
                             <div *ngIf="!hasContent(view) && !showContentLoadingIndicator && !contentError && !contentReload">

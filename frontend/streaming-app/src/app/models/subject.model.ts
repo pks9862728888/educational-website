@@ -65,6 +65,7 @@ export interface StudyMaterialDetails {
   view: string;
   content_type: string;
   description?: string;
+  week?: number;
   data: {
     id?: number;
     url?: string;         // For external link
