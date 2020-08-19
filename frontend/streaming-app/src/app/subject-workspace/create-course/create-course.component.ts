@@ -84,8 +84,12 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
         this.viewOrder = result.view_order;
         this.viewDetails = result.view_details;
 
-        for(let view in this.viewOrder) {
-          this.viewData[this.viewOrder[view]] = [];
+        for(let view of this.viewOrder) {
+          if (view === 'MI' || view === 'CO') {
+            this.viewData[view] = [];
+          } else {
+            this.viewData[view] = {};
+          }
         }
         console.log(this.viewData);
         console.log(this.storage);
@@ -122,15 +126,14 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.showContentLoadingIndicator = true;
     this.contentError = null;
     this.contentReload = false;
+    const view = this.viewOrder[this.openedPanelStep];
     this.instituteApiService.getCourseContentOfSpecificView(
       this.currentSubjectSlug,
-      this.viewOrder[this.openedPanelStep])
+      view)
       .subscribe(
         (result: StudyMaterialDetails[] ) => {
           this.showContentLoadingIndicator = false;
-          for(const content of result) {
-            this.viewData[this.viewOrder[this.openedPanelStep]].push(content);
-          }
+          this.viewData[view] = result;
         },
         errors => {
           this.showContentLoadingIndicator = false;
@@ -382,7 +385,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   hasContent(view: string) {
-    if (this.viewData[view].length > 0) {
+    if (this.viewDetails[view].count > 0) {
       return true;
     } else {
       return false;

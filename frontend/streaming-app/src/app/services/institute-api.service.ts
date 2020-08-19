@@ -121,8 +121,8 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${pk}/edit-subject-course-content`;
   }
 
-  getCourseContentOfSpecificViewUrl(subjectSlug: string, view: string) {
-    return `${this.instituteBaseUrl}${subjectSlug}/${view}/list-subject-specific-view-course-contents`;
+  getCourseContentOfSpecificViewUrl(subjectSlug: string, viewKey: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${viewKey}/list-subject-specific-view-course-contents`;
   }
 
   getDeleteCourseContentUrl(pk: string) {
@@ -434,9 +434,9 @@ export class InstituteApiService {
     );
   }
 
-  getCourseContentOfSpecificView(subjectSlug: string, view: string) {
+  getCourseContentOfSpecificView(subjectSlug: string, viewKey: string) {
     return this.httpClient.get(
-      this.getCourseContentOfSpecificViewUrl(subjectSlug, view),
+      this.getCourseContentOfSpecificViewUrl(subjectSlug, viewKey),
       { headers: this.getAuthHeader() }
     );
   }

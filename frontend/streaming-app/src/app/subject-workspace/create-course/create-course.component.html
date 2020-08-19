@@ -61,36 +61,38 @@
                                 <h3 *ngIf="!mq.matches">No Content Found.</h3>
                                 <p *ngIf="mq.matches">No Content Found.</p>
                             </div>
-                            <div class="content-container" *ngFor="let content of viewData[view]">
-                                <div class="content">
-                                    <div class="background-material" (click)="contentClicked(content)">
-                                        <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
-                                            <mat-icon class="content-icon">
-                                                <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
-                                                <span *ngIf="isContentTypeVideo(content.content_type)">play_circle_outline</span>
-                                                <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
-                                                <span *ngIf="isContentTypeLink(content.content_type)">link</span>
-                                            </mat-icon>
+                            <div *ngIf="view === 'MI' || view === 'CO'">
+                                <div class="content-container" *ngFor="let content of viewData[view]">
+                                    <div class="content">
+                                        <div class="background-material" (click)="contentClicked(content)">
+                                            <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
+                                                <mat-icon class="content-icon">
+                                                    <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
+                                                    <span *ngIf="isContentTypeVideo(content.content_type)">play_circle_outline</span>
+                                                    <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
+                                                    <span *ngIf="isContentTypeLink(content.content_type)">link</span>
+                                                </mat-icon>
+                                            </div>
+                                            <div>
+                                                <h3 *ngIf="!mq.matches">{{ content.title }}</h3>
+                                                <p *ngIf="mq.matches">{{ content.title }}</p>
+                                                <p class="duration-text">
+                                                    <span *ngIf="isContentTypeImage(content.content_type)">Image</span>
+                                                    <span *ngIf="isContentTypeVideo(content.content_type)">Video</span>
+                                                    <span *ngIf="isContentTypePdf(content.content_type)">Pdf</span>
+                                                    <span *ngIf="isContentTypeLink(content.content_type)">Link</span>
+                                                    <span *ngIf="content.target_date"> | {{ content.target_date | date}} </span>
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 *ngIf="!mq.matches">{{ content.title }}</h3>
-                                            <p *ngIf="mq.matches">{{ content.title }}</p>
-                                            <p class="duration-text">
-                                                <span *ngIf="isContentTypeImage(content.content_type)">Image</span>
-                                                <span *ngIf="isContentTypeVideo(content.content_type)">Video</span>
-                                                <span *ngIf="isContentTypePdf(content.content_type)">Pdf</span>
-                                                <span *ngIf="isContentTypeLink(content.content_type)">Link</span>
-                                                <span *ngIf="content.target_date"> | {{ content.target_date | date}} </span>
-                                            </p>
+                                        <div class="edit-controls" *ngIf="!mq.matches">
+                                            <mat-icon class="m-r-05 reorder-icon" (click)="reorderClicked()">swap_vert</mat-icon>
+                                            <mat-icon class="m-r-05 edit-icon" (click)="editClicked()">edit</mat-icon>
+                                            <mat-icon class="delete-icon" (click)="deleteClicked(content)">delete</mat-icon>
                                         </div>
-                                    </div>
-                                    <div class="edit-controls" *ngIf="!mq.matches">
-                                        <mat-icon class="m-r-05 reorder-icon" (click)="reorderClicked()">swap_vert</mat-icon>
-                                        <mat-icon class="m-r-05 edit-icon" (click)="editClicked()">edit</mat-icon>
-                                        <mat-icon class="delete-icon" (click)="deleteClicked(content)">delete</mat-icon>
-                                    </div>
-                                    <div class="edit-controls" *ngIf="mq.matches">
-                                        <mat-icon class="edit-icon" (click)="showActionsClicked(content)">more_vert</mat-icon>
+                                        <div class="edit-controls" *ngIf="mq.matches">
+                                            <mat-icon class="edit-icon" (click)="showActionsClicked(content)">more_vert</mat-icon>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
