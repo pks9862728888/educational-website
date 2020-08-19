@@ -2558,12 +2558,15 @@ class InstituteSubjectMinStatisticsView(APIView):
                 weeks = models.SubjectViewWeek.objects.filter(
                     week_view=view
                 ).order_by('value')
+                week_value_list = list()
                 for week in weeks:
                     view_details[view.key][week.value] = models.InstituteSubjectCourseContent.objects.filter(
                         course_content_subject=subject,
                         view=subject_view_model,
                         week=week
                     ).count()
+                    week_value_list.append(week.value)
+                view_details[view.key]['weeks'] = week_value_list
 
         response['view_order'] = view_order
         response['view_details'] = view_details
