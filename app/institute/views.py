@@ -82,25 +82,17 @@ def get_study_material_content_details(data, data_notation):
     """
     Creates and returns study material data.
     """
-    if data_notation == 'SER':
-        data.pop('course_content_subject')
-
-        if not data['description']:
-            data.pop('description')
-
-        if not data['target_date']:
-            data.pop('target_date')
-
-        return data
-
-    elif data_notation == 'OBJ':
+    if data_notation == 'OBJ':
         response = dict()
         response['id'] = data.pk
         response['title'] = data.title
         response['order'] = data.order
         response['content_type'] = data.content_type
-        response['view'] = data.view
+        response['view'] = data.view.key
         response['uploaded_on'] = str(data.uploaded_on)
+
+        if data.week:
+            response['week'] = data.week.value
 
         if data.description:
             response['description'] = data.description
@@ -2230,6 +2222,30 @@ class InstituteSubjectAddCourseContentView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=request.data.get('view_key')
+        ).first()
+
+        if not view:
+            return Response({'error': _('Module not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        week = None
+        try:
+            if request.data.get('week'):
+                week = models.SubjectViewWeek.objects.filter(
+                    week_view=view,
+                    value=int(request.data.get('week'))
+                ).first()
+
+                if not week:
+                    return Response({'error': _('Week not found.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Bad request.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         subject_stats = models.InstituteSubjectStatistics.objects.filter(
             statistics_subject=subject
         ).first()
@@ -2243,7 +2259,8 @@ class InstituteSubjectAddCourseContentView(APIView):
             data={
                 'title': request.data.get('title'),
                 'content_type': request.data.get('content_type'),
-                'view': request.data.get('view'),
+                'view': view.pk,
+                'week': week.pk,
                 'order': subject_stats.max_order + 1,
                 'target_date': request.data.get('target_date'),
                 'course_content_subject': subject.pk,
@@ -2255,7 +2272,11 @@ class InstituteSubjectAddCourseContentView(APIView):
         else:
             return Response(course_content_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        response = get_study_material_content_details(course_content_serializer.data, 'SER')
+        response = get_study_material_content_details(
+            models.InstituteSubjectCourseContent.objects.filter(
+                pk=int(course_content_serializer.id)
+            ), 'OBJ'
+        )
 
         if request.data.get('content_type') == models.StudyMaterialContentType.EXTERNAL_LINK:
             url = request.data.get('url')
@@ -2624,6 +2645,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 week_data_response = list()
                 for d in week_data:
                     res = get_study_material_content_details(d, 'OBJ')
+                    res['week'] = week.value
                     res['data'] = self._get_data(
                         self,
                         d.content_type,

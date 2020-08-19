@@ -406,7 +406,7 @@ class SubjectCourseContentCreateSerializer(serializers.ModelSerializer):
         model = models.InstituteSubjectCourseContent
         fields = ('id', 'course_content_subject', 'order', 'title',
                   'content_type', 'view', 'target_date', 'uploaded_on',
-                  'description')
+                  'description', 'week')
         read_only_fields = ('id', 'uploaded_on')
 
 
