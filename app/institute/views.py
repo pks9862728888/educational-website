@@ -1700,6 +1700,7 @@ class CreateSubjectView(APIView):
                 'id': subject.id,
                 'name': subject.name,
                 'type': subject.type,
+                'subject_slug': subject.subject_slug,
                 'created_on': subject.created_on,
                 'subject_incharges': []
             }, status=status.HTTP_201_CREATED)
