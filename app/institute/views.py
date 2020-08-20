@@ -7,6 +7,7 @@ import subprocess
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.db.models import Max
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
@@ -2503,7 +2504,7 @@ class InstituteSubjectMinStatisticsView(APIView):
         ).first()
 
         if not subject:
-            return Response({'error': 'Subject not found.'},
+            return Response({'error': _('Subject not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
@@ -2528,16 +2529,9 @@ class InstituteSubjectMinStatisticsView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         response = dict()
-        response['storage'] = dict()
-        response['storage']['total_storage'] = float(order.selected_license.storage)
-        response['storage']['storage_used'] = float(models.InstituteStatistics.objects.filter(
-            institute=institute
-        ).first().storage)
-
         views = models.SubjectViewNames.objects.filter(
             view_subject=subject
         ).order_by('order')
-
         view_order = list()
         view_details = dict()
 
@@ -2752,6 +2746,57 @@ class InstituteDeleteSubjectCourseContentView(APIView):
         except Exception as e:
             print(e)
             return Response({'error': _('Internal server error. Kindly refresh and try again.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectViewAddWeekView(APIView):
+    """View for adding subject week"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=request.data.get('view_key')
+        ).first()
+
+        if not view:
+            return Response({'error': _('View not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        max_week = models.SubjectViewWeek.objects.filter(
+            week_view=view
+        ).aggregate(Max('value'))
+
+        if not max_week:
+            max_week = 0
+        else:
+            max_week = max_week['value__max']
+
+        try:
+            week = models.SubjectViewWeek.objects.create(
+                week_view=view,
+                value=max_week + 1
+            )
+            return Response({'week': week.value},
+                            status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response({'error': 'Unable to create week.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
