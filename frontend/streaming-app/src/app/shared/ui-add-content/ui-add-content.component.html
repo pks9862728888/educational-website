@@ -1,0 +1,51 @@
+<div class="row upload-container">
+    <div class="col-12">
+        <hr class="top-separator">
+    </div>
+    <div *ngIf="contentSuccessText" class="col-12 m-b-1">
+        <app-ui-success-text [successText]="contentSuccessText" (closeSuccessTextEvent)="closeUploadSuccess($event)"></app-ui-success-text>
+    </div>
+    <div *ngIf="uploadError" class="col-12 m-b-1">
+        <app-ui-error-text [errorText]="uploadError" (closeErrorTextEvent)="closeUploadError($event)"></app-ui-error-text>
+    </div>
+    <div class="col-3" *ngIf="!mq.matches">
+        <ul class="nav upload-sidenav">
+            <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'ADD_EXTERNAL_LINK'" (click)="setActiveSidenav('ADD_EXTERNAL_LINK')">Add External Link</li>
+            <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'UPLOAD_VIDEO'" (click)="setActiveSidenav('UPLOAD_VIDEO')">Upload Video</li>
+            <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'UPLOAD_IMAGE'" (click)="setActiveSidenav('UPLOAD_IMAGE')">Upload Image</li>
+            <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'UPLOAD_PDF'" (click)="setActiveSidenav('UPLOAD_PDF')">Upload Pdf</li>
+        </ul>
+    </div>
+    <div *ngIf="mq.matches" class="col-12">
+        <div class="upload-nav-mb">
+            <div [class.active-icon-color]="selectedSidenav === 'ADD_EXTERNAL_LINK'" (click)="setActiveSidenav('ADD_EXTERNAL_LINK')">
+                <mat-icon>link</mat-icon>
+            </div>
+            <div [class.active-icon-color]="selectedSidenav === 'UPLOAD_VIDEO'" (click)="setActiveSidenav('UPLOAD_VIDEO')">
+                <mat-icon>movie</mat-icon>
+            </div>
+            <div [class.active-icon-color]="selectedSidenav === 'UPLOAD_IMAGE'" (click)="setActiveSidenav('UPLOAD_IMAGE')">
+                <mat-icon>insert_photo</mat-icon>
+            </div>
+            <div [class.active-icon-color]="selectedSidenav === 'UPLOAD_PDF'" (click)="setActiveSidenav('UPLOAD_PDF')">
+                <mat-icon>picture_as_pdf</mat-icon>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-9">
+        <div class="upload-form-container">
+            <div *ngIf="selectedSidenav === 'UPLOAD_VIDEO'">
+                <app-ui-upload-video [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFile($event)" (fileError)="uploadFormError($event)"></app-ui-upload-video>
+            </div>
+            <div *ngIf="selectedSidenav === 'UPLOAD_IMAGE'">
+                <app-ui-upload-image [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFile($event)" (fileError)="uploadFormError($event)"></app-ui-upload-image>
+            </div>
+            <div *ngIf="selectedSidenav === 'UPLOAD_PDF'">
+                <app-ui-upload-pdf [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFile($event)" (fileError)="uploadFormError($event)"></app-ui-upload-pdf>
+            </div>
+            <div *ngIf="selectedSidenav === 'ADD_EXTERNAL_LINK'">
+                <app-ui-add-external-link [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" (formData)="uploadExternalLink($event)" (formFieldError)="uploadFormError($event)"></app-ui-add-external-link>
+            </div>
+        </div>
+    </div>
+</div>

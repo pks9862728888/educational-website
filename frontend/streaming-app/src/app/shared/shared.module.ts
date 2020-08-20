@@ -24,7 +24,6 @@ import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS } from '@angular/mat
 import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
 import { UiActionControlsComponent } from './ui-action-controls/ui-action-controls.component';
 import { UiEditStudyMaterialComponent } from './ui-edit-study-material/ui-edit-study-material.component';
-import { UiShowAddContentButtonComponent } from './ui-show-add-content-button/ui-show-add-content-button.component';
 import { UiAddContentComponent } from './ui-add-content/ui-add-content.component';
 
 
@@ -47,8 +46,7 @@ import { UiAddContentComponent } from './ui-add-content/ui-add-content.component
     UiAddExternalLinkComponent,
     UiActionControlsComponent,
     UiEditStudyMaterialComponent,
-    UiShowAddContentButtonComponent,
-    UiAddContentComponent,
+    UiAddContentComponent
   ],
   imports: [
     CommonModule,
@@ -74,7 +72,6 @@ import { UiAddContentComponent } from './ui-add-content/ui-add-content.component
     UiUploadPdfComponent,
     UiAddExternalLinkComponent,
     UiEditStudyMaterialComponent,
-    UiShowAddContentButtonComponent,
     UiAddContentComponent
   ],
   providers: [

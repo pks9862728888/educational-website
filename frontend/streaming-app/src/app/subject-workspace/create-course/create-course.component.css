@@ -159,6 +159,26 @@ p {
     margin-bottom: 1rem;
 }
 
+.add-week-button,
+.add-module-button,
+.add-week-content-button {
+    color: #bdbdbd;
+    border: 1px solid #6c757c;
+    padding-bottom: 0.1rem;
+}
+
+.add-week-button {
+    background-color: #303030;
+}
+
+.add-week-content-button {
+    background-color: #252525;
+}
+
+.add-module-button {
+    background-color: #3b3b3b;
+}
+
 
 /* Margins and padding */
 
@@ -172,6 +192,10 @@ p {
 
 .m-b-07 {
     margin-bottom: 0.7rem;
+}
+
+.m-r-03 {
+    margin-right: 0.3rem;
 }
 
 .m-r-07 {
@@ -188,4 +212,12 @@ p {
 
 .p-05r {
     padding: 0.5rem;
+}
+
+.p-r-04 {
+    padding-right: 0.4rem;
+}
+
+.l-h-24 {
+    line-height: 24px;
 }

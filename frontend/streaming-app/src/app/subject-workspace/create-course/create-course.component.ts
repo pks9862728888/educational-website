@@ -33,7 +33,8 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   allowTargetDateSetting = true;
   hideCloseContentLoadingErrorButton = true;
   deleteDialogDataSubscription: Subscription;
-  addContentDialogEvent = new Subject<boolean>();
+
+  showAddModuleForm = false;
 
   showView: string;
   activeView: string;
@@ -58,8 +59,8 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     if (!this.showView) {
       this.showView = 'CREATE';
     }
+    this.openedPanelStep = 0;
   }
-
 
   ngOnInit(): void {
     this.getMinCourseDetails();
@@ -116,7 +117,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     //   this.getContentOfView();
     // }
     this.getContentOfView();
-    this.addContentDialogEvent.next(this.addContentDialog);
   }
 
   setOpenedWeekStep(step: number) {
@@ -126,7 +126,19 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
       this.openedWeekStep = step;
     }
     this.addContentDialog = false;
-    this.addContentDialogEvent.next(this.addContentDialog);
+  }
+
+  toggleAddModule() {
+    this.showAddModuleForm = !this.showAddModuleForm;
+    this.openedPanelStep = null;
+  }
+
+  addWeek() {
+
+  }
+
+  deleteModule() {
+
   }
 
   getContentOfView() {
@@ -266,9 +278,8 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.viewDetails[result.body['view']].count += 1;
   }
 
-  toggleAddContentDialog(event: any) {
+  toggleAddContentDialog() {
       this.addContentDialog = !this.addContentDialog;
-      this.addContentDialogEvent.next(this.addContentDialog);
       this.contentSuccessText = null;
       this.uploadError = null;
   }

@@ -90,8 +90,21 @@
                                 <div *ngIf="!showContentLoadingIndicator && !contentError && !contentReload && addContentDialog">
                                     <app-ui-add-content [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
                                 </div>
-                                <hr class="top-separator" />
-                                <app-ui-show-add-content-button [addContentDialog]="addContentDialogEvent.asObservable()" (toggleAddContentDialog)="toggleAddContentDialog($event)"></app-ui-show-add-content-button>
+                                <hr class="top-separator" *ngIf="!hasContent(view) || addContentDialog" />
+                                <div class="d-flex justify-content-end">
+                                    <button mat-flat-button class="add-week-button" (click)="toggleAddContentDialog()">
+                                        <mat-icon class="m-r-03 edit-icon">
+                                          <span *ngIf="!addContentDialog">add</span>
+                                          <span *ngIf="addContentDialog">cancel</span>
+                                        </mat-icon>
+                                        <span *ngIf="!addContentDialog" class="l-h-24 p-r-04">
+                                          <span *ngIf="!mq.matches">Add</span> Content
+                                        </span>
+                                        <span *ngIf="addContentDialog" class="l-h-24 p-r-04">
+                                          Hide Add Content
+                                        </span>
+                                      </button>
+                                </div>
                             </div>
                             <div *ngIf="view !== 'MI' && view !== 'CO' && !showContentLoadingIndicator && !contentReload">
                                 <div *ngFor="let week of viewDetails[view]['weeks']">
@@ -146,9 +159,36 @@
                                             <div *ngIf="!showContentLoadingIndicator && !contentError && !contentReload && addContentDialog">
                                                 <app-ui-add-content [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
                                             </div>
-                                            <hr class="top-separator" />
-                                            <app-ui-show-add-content-button [addContentDialog]="addContentDialogEvent.asObservable()" (toggleAddContentDialog)="toggleAddContentDialog($event)"></app-ui-show-add-content-button>
+                                            <hr class="top-separator" *ngIf="!hasContent(view) || addContentDialog" />
+                                            <div class="d-flex justify-content-end">
+                                                <button mat-flat-button class="add-week-content-button" (click)="toggleAddContentDialog()">
+                                                  <mat-icon class="m-r-03 edit-icon">
+                                                    <span *ngIf="!addContentDialog">add</span>
+                                                    <span *ngIf="addContentDialog">cancel</span>
+                                                  </mat-icon>
+                                                  <span *ngIf="!addContentDialog" class="l-h-24 p-r-04">
+                                                    <span *ngIf="!mq.matches">Add</span> Content
+                                                  </span>
+                                                  <span *ngIf="addContentDialog" class="l-h-24 p-r-04">Hide Add Content</span>
+                                                </button>
+                                            </div>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <div class="m-r-05">
+                                        <button mat-flat-button class="add-week-button" (click)="deleteModule()">
+                                          <mat-icon class="m-r-03 delete-icon">delete</mat-icon>
+                                          <span class="l-h-24 p-r-04">
+                                            <span *ngIf="!mq.matches">Delete</span> Module
+                                          </span>
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button mat-flat-button class="add-week-button" (click)="addWeek()">
+                                          <mat-icon class="m-r-03 edit-icon">add</mat-icon>
+                                          <span class="l-h-24 p-r-04"><span *ngIf="!mq.matches">Add</span> Week</span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -156,15 +196,15 @@
                     </mat-expansion-panel>
                 </mat-accordion>
             </div>
-            <div class="m-b-1 text-color">
-                <div class="m-b-01">
-                    <h3 *ngIf="!mq.matches">Storage used:</h3>
-                    <p *ngIf="mq.matches">Storage used:</p>
-                </div>
-                <p-progressBar [value]="getStoragePercentFilled()" class="custom-progress"></p-progressBar>
-                <div class="storage">
-                    <p>{{ storage.storage_used | number }} / {{ storage.total_storage | number }} GB</p>
-                </div>
+            <div class="m-b-1 d-flex justify-content-end">
+                <button mat-flat-button class="add-module-button" (click)="toggleAddModule()">
+                  <mat-icon class="m-r-03 edit-icon">
+                    <span *ngIf="!showAddModuleForm">add</span>
+                    <span *ngIf="showAddModuleForm">cancel</span>
+                  </mat-icon>
+                  <span *ngIf="!showAddModuleForm" class="l-h-24 p-r-04"><span *ngIf="!mq.matches">Add</span> Module</span>
+                  <span *ngIf="showAddModuleForm" class="l-h-24 p-r-04">Hide Add Module</span>
+                </button>
             </div>
         </section>
     </section>
