@@ -3,7 +3,7 @@ import sys
 import datetime
 from decimal import Decimal
 import time
-import subprocess
+import json
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
@@ -2221,7 +2221,6 @@ class InstituteSubjectAddCourseContentView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
-        print(request.data)
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')).first()
 
@@ -2269,7 +2268,7 @@ class InstituteSubjectAddCourseContentView(APIView):
         if request.data.get('description'):
             description = request.data.get('description')
         else:
-            description = ' '
+            description = ''
 
         course_content_serializer = serializer.SubjectCourseContentCreateSerializer(
             data={
@@ -2277,7 +2276,6 @@ class InstituteSubjectAddCourseContentView(APIView):
                 'content_type': request.data.get('content_type'),
                 'view': view.pk,
                 'week': week,
-                'order': subject_stats.max_order + 1,
                 'target_date': request.data.get('target_date'),
                 'course_content_subject': subject.pk,
                 'description': description
@@ -2308,8 +2306,6 @@ class InstituteSubjectAddCourseContentView(APIView):
                     })
                 if external_link_serializer.is_valid():
                     external_link_serializer.save()
-                    subject_stats.max_order += 1
-                    subject_stats.save()
 
                     response_data = get_external_link_study_material_data(external_link_serializer.data, 'SER')
                     response['data'] = response_data
@@ -2357,7 +2353,6 @@ class InstituteSubjectAddCourseContentView(APIView):
 
                     if image_serializer.is_valid():
                         image_serializer.save()
-                        subject_stats.max_order += 1
                         subject_stats.storage += size
                         subject_stats.save()
                         institute_stats.storage += size
@@ -2393,7 +2388,6 @@ class InstituteSubjectAddCourseContentView(APIView):
 
                     if video_serializer.is_valid():
                         video_serializer.save()
-                        subject_stats.max_order += 1
                         subject_stats.storage += size
                         subject_stats.save()
                         institute_stats.storage += size
@@ -2468,7 +2462,6 @@ class InstituteSubjectAddCourseContentView(APIView):
 
                     if pdf_serializer.is_valid():
                         pdf_serializer.save()
-                        subject_stats.max_order += 1
                         subject_stats.storage += size
                         subject_stats.save()
                         institute_stats.storage += size
@@ -2800,6 +2793,45 @@ class InstituteSubjectViewAddWeekView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class InstituteSubjectAddModuleView(APIView):
+    """View for adding subject module"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            view = models.SubjectViewNames.objects.create(
+                view_subject=subject,
+                name=request.data.get('name')
+            )
+            return Response({
+                'name': view.name,
+                'count': 0,
+                1: 0,
+                'weeks': [1, ]
+            }, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': 'Unable to create module.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class InstituteSubjectEditCourseContentView(APIView):
     """View for modifying course content details"""
     authentication_classes = (TokenAuthentication,)
@@ -2877,7 +2909,6 @@ class InstituteSubjectEditCourseContentView(APIView):
                 ).first()
                 content.can_download = request.data.get('data')['can_download']
 
-                print(content.can_download)
                 content.save()
                 response['data'] = get_image_study_material_data(
                     content,

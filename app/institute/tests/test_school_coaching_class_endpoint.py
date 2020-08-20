@@ -101,6 +101,11 @@ def get_week_add_url(subject_slug):
                    kwargs={'subject_slug': subject_slug})
 
 
+def get_add_subject_view_url(subject_slug):
+    return reverse("institute:add-view",
+                   kwargs={'subject_slug': subject_slug})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -2236,9 +2241,60 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_add_week_successful_by_permitted_user(self):
+    #     """Test that adding week is successful by permitted user"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #
+    #     res = self.client.post(
+    #         get_week_add_url(subject.subject_slug),
+    #         {'view_key': 'M1'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['week'], 2)
+    #
+    #     view = models.SubjectViewNames.objects.filter(
+    #         view_subject=subject,
+    #         key='M1'
+    #     ).first()
+    #     self.assertEqual(models.SubjectViewWeek.objects.filter(
+    #         week_view=view
+    #     ).count(), 2)
+    #     self.assertTrue(models.SubjectViewWeek.objects.filter(
+    #         week_view=view,
+    #         value=2
+    #     ).exists())
+    #
+    # def test_add_week_fails_by_unpermitted_user(self):
+    #     """Test that adding week is fails by unpermitted user"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #
+    #     res = self.client.post(
+    #         get_week_add_url(subject.subject_slug),
+    #         {'view_key': 'M1'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
 
-    def test_add_week_successful_by_permitted_user(self):
-        """Test that adding week is successful by permitted user"""
+    def test_add_view_success(self):
+        """Test that adding view is success by permitted user"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -2250,27 +2306,18 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         create_institute_subject_permission(self.user, self.user, subject)
 
         res = self.client.post(
-            get_week_add_url(subject.subject_slug),
-            {'view_key': 'M1'}
+            get_add_subject_view_url(subject.subject_slug),
+            {'name': 'ABC aaa'}
         )
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['week'], 2)
+        self.assertEqual(res.data['name'], 'ABC aaa')
+        self.assertEqual(res.data[1], 0)
+        self.assertEqual(res.data['count'], 0)
+        self.assertEqual(res.data['weeks'], [1])
 
-        view = models.SubjectViewNames.objects.filter(
-            view_subject=subject,
-            key='M1'
-        ).first()
-        self.assertEqual(models.SubjectViewWeek.objects.filter(
-            week_view=view
-        ).count(), 2)
-        self.assertTrue(models.SubjectViewWeek.objects.filter(
-            week_view=view,
-            value=2
-        ).exists())
-
-    def test_add_week_fails_by_unpermitted_user(self):
-        """Test that adding week is fails by unpermitted user"""
+    def test_add_view_fails_for_unpermitted_user(self):
+        """Test that adding view is fails by unpermitted user"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -2281,9 +2328,29 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         subject = create_subject(class_)
 
         res = self.client.post(
-            get_week_add_url(subject.subject_slug),
-            {'view_key': 'M1'}
+            get_add_subject_view_url(subject.subject_slug),
+            {'name': 'ABC aaa'}
         )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_add_view_fails_for_invalid_credentials(self):
+        """Test that adding view is fails by unpermitted user"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        create_institute_subject_permission(self.user, self.user, subject)
+
+        res = self.client.post(
+            get_add_subject_view_url(subject.subject_slug),
+            {}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Name is required and can not be blank.')

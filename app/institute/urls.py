@@ -110,6 +110,9 @@ urlpatterns = [
     path('<slug:subject_slug>/add-week',
          views.InstituteSubjectViewAddWeekView.as_view(),
          name='add-week'),
+    path('<slug:subject_slug>/add-view',
+         views.InstituteSubjectAddModuleView.as_view(),
+         name='add-view'),
     # Institute section
     path('<slug:class_slug>/create-section',
          views.CreateSectionView.as_view(),

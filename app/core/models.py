@@ -400,6 +400,19 @@ def create_order_receipt(instance):
     return order_receipt
 
 
+def unique_key_generator_for_subject_view_name(subject):
+    """Generates unique key for subject view"""
+    while True:
+        key = random_string_generator(size=6)
+        qs_exists = SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=key
+        ).exists()
+        if not qs_exists:
+            break
+    return key
+
+
 def unique_slug_generator_for_class(instance):
     """Generates a unique slug for class"""
     while True:
@@ -1223,8 +1236,6 @@ class InstituteSubjectStatistics(models.Model):
         _('Uploaded Video Duration in seconds'), default=0, blank=True)
     uploaded_pdf_duration = models.PositiveIntegerField(
         _('Uploaded Video Duration in seconds'), default=0, blank=True)
-    max_order = models.PositiveIntegerField(
-        _('Max Order'), default=0, blank=True)
 
 
 class InstituteSection(models.Model):
@@ -1326,15 +1337,18 @@ class SubjectViewNames(models.Model):
     """For storing view name of subjects"""
     view_subject = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE, related_name='view_subject')
-    key = models.CharField(_('Key'), max_length=4, blank=False)
+    key = models.CharField(_('Key'), max_length=6, blank=False)
     name = models.CharField(_('Name'), max_length=25, blank=False)
     order = models.PositiveIntegerField(_('Order'), blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.key:
-            raise ValueError({'error': 'Key is required.'})
+            self.key = unique_key_generator_for_subject_view_name(
+                self.view_subject)
+        if self.name:
+            self.name = self.name.strip()
         if not self.name:
-            raise ValueError({'error': 'Name is required.'})
+            raise ValueError('Name is required and can not be blank.')
         self.key = self.key.upper()
         super(SubjectViewNames, self).save(*args, **kwargs)
 
@@ -1372,7 +1386,7 @@ class InstituteSubjectCourseContent(models.Model):
     course_content_subject = models.ForeignKey(
         to='InstituteSubject', related_name='course_content_subject',
         on_delete=models.CASCADE)
-    order = models.IntegerField(_('Order'), blank=False, null=False)
+    order = models.IntegerField(_('Order'), blank=True, null=True)
     title = models.CharField(
         _('Title'), max_length=30, blank=False, null=False)
     content_type = models.CharField(
@@ -1397,18 +1411,22 @@ class InstituteSubjectCourseContent(models.Model):
             raise ValueError({'error': _('Subject is required.')})
         if not self.content_type:
             raise ValueError({'error': _('Content type is required.')})
-        if not self.order:
-            raise ValueError({'error': _('Order is required.')})
         if not self.view:
             raise ValueError({'error': _('View is required.')})
         if self.description:
             self.description = self.description.strip()
-
         self.title = self.title.strip()
         super(InstituteSubjectCourseContent, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.title)
+
+
+@receiver(post_save, sender=InstituteSubjectCourseContent)
+def add_order_sequence(sender, instance, created, *args, **kwargs):
+    if created:
+        instance.order = instance.pk
+        instance.save()
 
 
 class SubjectExternalLinkStudyMaterial(models.Model):
@@ -1456,7 +1474,10 @@ class SubjectImageStudyMaterial(models.Model):
 def auto_delete_image_file_on_delete(sender, instance, **kwargs):
     if instance.file:
         if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
+            try:
+                os.remove(instance.file.path)
+            except Exception as e:
+                print('Error: ' + e)
 
 
 class SubjectVideoStudyMaterial(models.Model):
@@ -1536,4 +1557,7 @@ class SubjectPdfStudyMaterial(models.Model):
 def auto_delete_pdf_file_on_delete(sender, instance, **kwargs):
     if instance.file:
         if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
+            try:
+                os.remove(instance.file.path)
+            except Exception as e:
+                print('Error: ' + e)

@@ -407,7 +407,7 @@ class SubjectCourseContentCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'course_content_subject', 'order', 'title',
                   'content_type', 'view', 'target_date', 'uploaded_on',
                   'description', 'week')
-        read_only_fields = ('id', 'uploaded_on')
+        read_only_fields = ('id', 'order', 'uploaded_on')
 
 
 class SubjectExternalLinkStudyMaterialSerializer(serializers.ModelSerializer):
