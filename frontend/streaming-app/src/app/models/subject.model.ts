@@ -31,6 +31,7 @@ export interface ViewDetails {
     name: string;
     count: number;
     number?: number;
+    weeks?: Array<number>;
   }
 }
 

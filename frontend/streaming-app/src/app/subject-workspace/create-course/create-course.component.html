@@ -24,8 +24,8 @@
         <div *ngIf="errorText" class="m-b-1">
             <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
         </div>
-        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
-        <app-ui-reload *ngIf="showReload" [errorText]="reloadText" (retryEvent)="getMinCourseDetails()"></app-ui-reload>
+        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="'Loading Course Details...'"></app-ui-loading>
+        <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load course details.'" (retryEvent)="getMinCourseDetails()"></app-ui-reload>
         <section *ngIf="!showLoadingIndicator && !showReload">
             <div class="m-b-1" *ngFor="let view of viewOrder; let i=index">
                 <mat-accordion>
@@ -47,9 +47,9 @@
                             <div class="m-b-1">
                                 <app-ui-error-text *ngIf="contentError" [hideCloseButton]="hideCloseContentLoadingErrorButton" [errorText]="contentError"></app-ui-error-text>
                             </div>
-                            <app-ui-loading *ngIf="showContentLoadingIndicator" [actionText]="loadingContentText"></app-ui-loading>
-                            <app-ui-reload *ngIf="contentReload" [errorText]="contentReloadText" (retryEvent)="getContentOfView()"></app-ui-reload>
-                            <div *ngIf="!hasContent(view) && !showContentLoadingIndicator && !contentError && !contentReload">
+                            <app-ui-loading *ngIf="showContentLoadingIndicator" [actionText]="'Fetching Content...'"></app-ui-loading>
+                            <app-ui-reload *ngIf="contentReload" [errorText]="'Unable to load content.'" (retryEvent)="getContentOfView()"></app-ui-reload>
+                            <div *ngIf="(view === 'MI' || view === 'CO') && !hasContent(view) && !showContentLoadingIndicator && !contentError && !contentReload" class="m-b-1">
                                 <h3 *ngIf="!mq.matches">No Content Found.</h3>
                                 <p *ngIf="mq.matches">No Content Found.</p>
                             </div>
@@ -87,76 +87,72 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div *ngIf="!showContentLoadingIndicator && !contentError && !contentReload && addContentDialog">
+                                    <app-ui-add-content [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
+                                </div>
+                                <hr class="top-separator" />
+                                <app-ui-show-add-content-button [addContentDialog]="addContentDialogEvent.asObservable()" (toggleAddContentDialog)="toggleAddContentDialog($event)"></app-ui-show-add-content-button>
+                            </div>
+                            <div *ngIf="view !== 'MI' && view !== 'CO' && !showContentLoadingIndicator && !contentReload">
+                                <div *ngFor="let week of viewDetails[view]['weeks']">
+                                    <div class="week-heading" [ngClass]="{'p-1r': !mq.matches, 'p-05r': mq.matches}">
+                                        <div class="d-flex justify-content-between week-heading-color" (click)="setOpenedWeekStep(week)">
+                                            <h3 *ngIf="!mq.matches">Week {{ week }} ({{ viewDetails[view][week] }})</h3>
+                                            <p *ngIf="mq.matches">Week {{ week }} ({{ viewDetails[view][week] }})</p>
+                                            <div class="d-flex align-content-center">
+                                                <mat-icon *ngIf="openedWeekStep !== week">keyboard_arrow_down</mat-icon>
+                                                <mat-icon *ngIf="openedWeekStep === week">keyboard_arrow_up</mat-icon>
+                                            </div>
+                                        </div>
+                                        <div class="week-content" *ngIf="openedWeekStep === week">
+                                            <hr class="top-separator" />
+                                            <div *ngIf="!hasContent(view)" [ngClass]="{'m-b-1': !addContentDialog}">
+                                                <h3 *ngIf="!mq.matches">No content found</h3>
+                                                <p *ngIf="mq.matches">No content found</p>
+                                            </div>
+                                            <div class="content-container" *ngFor="let content of viewData[view][week]">
+                                                <div class="content">
+                                                    <div class="background-material" (click)="contentClicked(content)">
+                                                        <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
+                                                            <mat-icon class="content-icon">
+                                                                <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
+                                                                <span *ngIf="isContentTypeVideo(content.content_type)">play_circle_outline</span>
+                                                                <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
+                                                                <span *ngIf="isContentTypeLink(content.content_type)">link</span>
+                                                            </mat-icon>
+                                                        </div>
+                                                        <div>
+                                                            <h3 *ngIf="!mq.matches">{{ content.title }}</h3>
+                                                            <p *ngIf="mq.matches">{{ content.title }}</p>
+                                                            <p class="duration-text">
+                                                                <span *ngIf="isContentTypeImage(content.content_type)">Image</span>
+                                                                <span *ngIf="isContentTypeVideo(content.content_type)">Video</span>
+                                                                <span *ngIf="isContentTypePdf(content.content_type)">Pdf</span>
+                                                                <span *ngIf="isContentTypeLink(content.content_type)">Link</span>
+                                                                <span *ngIf="content.target_date"> | {{ content.target_date | date}} </span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="edit-controls" *ngIf="!mq.matches">
+                                                        <mat-icon class="m-r-05 reorder-icon" (click)="reorderClicked()">swap_vert</mat-icon>
+                                                        <mat-icon class="m-r-05 edit-icon" (click)="editClicked()">edit</mat-icon>
+                                                        <mat-icon class="m-r-07 delete-icon" (click)="deleteClicked(content)">delete</mat-icon>
+                                                    </div>
+                                                    <div class="edit-controls" *ngIf="mq.matches">
+                                                        <mat-icon class="edit-icon" (click)="showActionsClicked(content)">more_vert</mat-icon>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div *ngIf="!showContentLoadingIndicator && !contentError && !contentReload && addContentDialog">
+                                                <app-ui-add-content [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
+                                            </div>
+                                            <hr class="top-separator" />
+                                            <app-ui-show-add-content-button [addContentDialog]="addContentDialogEvent.asObservable()" (toggleAddContentDialog)="toggleAddContentDialog($event)"></app-ui-show-add-content-button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <section *ngIf="!showContentLoadingIndicator && !contentError && ! contentReload">
-                            <div class="row upload-container" *ngIf="addFilesDialog">
-                                <div class="col-12">
-                                    <hr class="top-separator">
-                                </div>
-                                <div *ngIf="contentSuccessText" class="col-12 m-b-1">
-                                    <app-ui-success-text [successText]="contentSuccessText" (closeSuccessTextEvent)="closeUploadSuccess()"></app-ui-success-text>
-                                </div>
-                                <div *ngIf="uploadError" class="col-12 m-b-1">
-                                    <app-ui-error-text [errorText]="uploadError" (closeErrorTextEvent)="closeUploadError()"></app-ui-error-text>
-                                </div>
-                                <div class="col-3" *ngIf="!mq.matches">
-                                    <ul class="nav upload-sidenav">
-                                        <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'UPLOAD_VIDEO'" (click)="setActiveSidenav('UPLOAD_VIDEO')">Upload Video</li>
-                                        <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'UPLOAD_IMAGE'" (click)="setActiveSidenav('UPLOAD_IMAGE')">Upload Image</li>
-                                        <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'UPLOAD_PDF'" (click)="setActiveSidenav('UPLOAD_PDF')">Upload Pdf</li>
-                                        <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'ADD_EXTERNAL_LINK'" (click)="setActiveSidenav('ADD_EXTERNAL_LINK')">Add External Link</li>
-                                    </ul>
-                                </div>
-                                <div *ngIf="mq.matches" class="col-12">
-                                    <div class="upload-nav-mb">
-                                        <div [class.active-icon-color]="selectedSidenav === 'UPLOAD_VIDEO'" (click)="setActiveSidenav('UPLOAD_VIDEO')">
-                                            <mat-icon>movie</mat-icon>
-                                        </div>
-                                        <div [class.active-icon-color]="selectedSidenav === 'UPLOAD_IMAGE'" (click)="setActiveSidenav('UPLOAD_IMAGE')">
-                                            <mat-icon>insert_photo</mat-icon>
-                                        </div>
-                                        <div [class.active-icon-color]="selectedSidenav === 'UPLOAD_PDF'" (click)="setActiveSidenav('UPLOAD_PDF')">
-                                            <mat-icon>picture_as_pdf</mat-icon>
-                                        </div>
-                                        <div [class.active-icon-color]="selectedSidenav === 'ADD_EXTERNAL_LINK'" (click)="setActiveSidenav('ADD_EXTERNAL_LINK')">
-                                            <mat-icon>link</mat-icon>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-9">
-                                    <div class="upload-form-container">
-                                        <div *ngIf="selectedSidenav === 'UPLOAD_VIDEO'">
-                                            <app-ui-upload-video [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFile($event)" (fileError)="uploadFormError_($event)"></app-ui-upload-video>
-                                        </div>
-                                        <div *ngIf="selectedSidenav === 'UPLOAD_IMAGE'">
-                                            <app-ui-upload-image [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFile($event)" (fileError)="uploadFormError_($event)"></app-ui-upload-image>
-                                        </div>
-                                        <div *ngIf="selectedSidenav === 'UPLOAD_PDF'">
-                                            <app-ui-upload-pdf [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFile($event)" (fileError)="uploadFormError_($event)"></app-ui-upload-pdf>
-                                        </div>
-                                        <div *ngIf="selectedSidenav === 'ADD_EXTERNAL_LINK'">
-                                            <app-ui-add-external-link [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" (formData)="uploadExternalLink($event)" (formFieldError)="uploadFormError_($event)"></app-ui-add-external-link>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <hr class="top-separator" />
-
-                            <div class="upload-toggle-button green-button" (click)="toggleMeetInstructorFileUploadDialog()">
-                                <div class='m-r-05'>
-                                    <mat-icon>publish</mat-icon>
-                                </div>
-                                <h3 *ngIf="!mq.matches">
-                                    <span *ngIf="!addFilesDialog">Show</span>
-                                    <span *ngIf="addFilesDialog">Hide</span> Add Content Dialog
-                                </h3>
-                                <p *ngIf="mq.matches">
-                                    <span *ngIf="!addFilesDialog">Show</span>
-                                    <span *ngIf="addFilesDialog">Hide</span> Add Content Dialog
-                                </p>
-                            </div>
-                        </section>
                     </mat-expansion-panel>
                 </mat-accordion>
             </div>

@@ -38,7 +38,7 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
-      title: [null, [Validators.maxLength(30), Validators.required]],
+      title: [null, [Validators.required, Validators.maxLength(30)]],
       file: [null, [Validators.required]],
       target_date: [null],
       description: [null],
@@ -46,7 +46,6 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
     });
     this.formEventSubscription = this.formEvent.subscribe(
       (data: string) => {
-        console.log(data);
         if (data === 'ENABLE') {
           this.showProcessingIndicator = false;
           this.showIndicator = false;
@@ -78,7 +77,7 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
   }
 
   upload() {
-    const file: File = (<HTMLInputElement>document.getElementById('video-file')).files[0];
+    const file: File = (<HTMLInputElement>document.getElementById('upload-video')).files[0];
 
     if (!file.type.includes('video/mp4') && !file.type.includes('video/mov') && !file.type.includes('video/avi') && !file.type.includes('video/flv')) {
       this.fileError.emit('Only .mp4, .mov, .avi and .flv video formats are supported.');

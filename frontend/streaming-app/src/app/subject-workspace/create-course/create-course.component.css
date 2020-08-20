@@ -97,11 +97,6 @@ p {
     background-color: #3b3b3b;
 }
 
-.upload-toggle-button {
-    justify-content: center;
-    padding: 0.2rem;
-}
-
 .content-icon-container {
     height: 3rem;
     width: 3rem;
@@ -129,81 +124,6 @@ p {
     position: absolute;
 }
 
-
-/* Upload Files styling */
-
-.upload-toggle-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-}
-
-.upload-container {
-    border-radius: 5px;
-    margin-bottom: 1rem;
-}
-
-.upload-sidenav {
-    display: flex;
-    flex-direction: column;
-    background-color: #3b3b3b;
-    margin-right: 0.5rem;
-    z-index: 5;
-    box-shadow: 1px 1px 1px #292929;
-    border-radius: 5px;
-}
-
-.nav-item {
-    padding: 0.5rem;
-    cursor: pointer;
-}
-
-.nav-item:hover {
-    background-color: #436b6d;
-    color: #fff;
-}
-
-.nav-item-active {
-    background-color: #508183;
-    color: #fff;
-    cursor: auto;
-}
-
-.upload-sidenav li:first-child:hover,
-.upload-sidenav li:first-child.nav-item-active {
-    border-radius: 5px 5px 0 0;
-}
-
-.upload-sidenav li:last-child:hover,
-.upload-sidenav li:last-child.nav-item-active {
-    border-radius: 0 0 5px 5px;
-}
-
-.upload-form-container {
-    background-color: #3b3b3b;
-    margin-right: 0;
-    z-index: 5;
-    box-shadow: 1px 1px 1px #292929;
-    border-radius: 5px;
-    height: 100%;
-    padding: 0.5rem;
-    overflow: hidden;
-}
-
-.upload-nav-mb {
-    display: flex;
-    justify-content: space-between;
-    background-color: #3b3b3b;
-    padding: 0.5rem;
-    border-radius: 5px;
-    margin-bottom: 0.5rem;
-}
-
-.active-icon-color {
-    color: #f2aa4cff;
-}
-
 .storage {
     display: flex;
     justify-content: flex-end;
@@ -216,6 +136,27 @@ p {
 
 :host ::ng-deep .custom-progress .p-progressbar-label {
     color: rgb(211, 211, 211);
+}
+
+
+/* styling week */
+
+.week-heading {
+    background-color: #252525;
+    z-index: 2;
+    margin-bottom: 1rem;
+    align-items: center;
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px #4b4b4b;
+    cursor: pointer;
+}
+
+.week-heading-color {
+    color: rgb(76, 162, 242);
+}
+
+.week-content {
+    margin-bottom: 1rem;
 }
 
 
@@ -239,4 +180,12 @@ p {
 
 .m-r-05 {
     margin-right: 0.5rem;
+}
+
+.p-1r {
+    padding: 1rem;
+}
+
+.p-05r {
+    padding: 0.5rem;
 }

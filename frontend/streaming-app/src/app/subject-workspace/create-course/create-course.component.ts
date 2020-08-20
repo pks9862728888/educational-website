@@ -1,5 +1,3 @@
-import { ViewDetails } from './../../models/subject.model';
-import { HttpEventType } from '@angular/common/http';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
 import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, STUDY_MATERIAL_VIEW_REVERSE, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView } from './../../../constants';
@@ -7,8 +5,7 @@ import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { SubjectCourseMinDetails, StorageStatistics, SubjectCourseViewDetails, StudyMaterialDetails } from '../../models/subject.model';
-import { WeekDay } from '@angular/common';
+import { SubjectCourseMinDetails, StorageStatistics, ViewDetails, SubjectCourseViewDetails, StudyMaterialDetails } from '../../models/subject.model';
 
 @Component({
   selector: 'app-create-course',
@@ -21,29 +18,25 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   currentSubjectSlug: string;
   showGuidelines: boolean;
   openedPanelStep: number;
-  selectedSidenav = 'UPLOAD_VIDEO';
+  openedWeekStep: number;
   uploadError: string;
-  addFilesDialog = false;
+  addContentDialog = false;
   showLoadingIndicator: boolean;
-  loadingText = 'Loading Course Details...';
   showContentLoadingIndicator: boolean;
-  loadingContentText = 'Fetching Content...';
   showReload: boolean;
-  reloadText = 'Unable to load course details.';
   errorText: string;            // For showing fetching data error
   contentSuccessText: string;   // For showing upload success
   actionSuccessText: string;    // For showing reorder, shuffle, edit success
   contentError: string;         // For showing upload error
   contentReload: boolean;
-  contentReloadText = 'Unable to load content.';
   actionControlDialogDataSubscription: Subscription;
   allowTargetDateSetting = true;
-  uploadingEvent = new Subject<String>();
   hideCloseContentLoadingErrorButton = true;
   deleteDialogDataSubscription: Subscription;
-  uploadProgressEvent = new Subject<{loaded: number, total: number}>();
+  addContentDialogEvent = new Subject<boolean>();
 
   showView: string;
+  activeView: string;
 
   // Data
   storage: StorageStatistics;
@@ -59,7 +52,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     private instituteApiService: InstituteApiService,
     private uiService: UiService
   ) {
-    this.mq = media.matchMedia('(max-width: 600px)');
+    this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
     this.showView = sessionStorage.getItem(activeCreateCourseView);
     if (!this.showView) {
@@ -70,7 +63,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getMinCourseDetails();
-    this.openedPanelStep = 0;
   }
 
   getMinCourseDetails() {
@@ -115,14 +107,26 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   setOpenedPanelStep(step: number) {
     this.openedPanelStep = step;
-    this.selectedSidenav = 'UPLOAD_VIDEO';
-    this.addFilesDialog = false;
+    this.activeView = this.viewOrder[this.openedPanelStep];
+    this.addContentDialog = false;
+    this.openedWeekStep = null;
 
     // Get content if view does not have any content
     // if (!this.hasContent(this.viewOrder[step])) {
     //   this.getContentOfView();
     // }
     this.getContentOfView();
+    this.addContentDialogEvent.next(this.addContentDialog);
+  }
+
+  setOpenedWeekStep(step: number) {
+    if (this.openedWeekStep === step) {
+      this.openedWeekStep = null;
+    } else {
+      this.openedWeekStep = step;
+    }
+    this.addContentDialog = false;
+    this.addContentDialogEvent.next(this.addContentDialog);
   }
 
   getContentOfView() {
@@ -134,7 +138,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
       this.currentSubjectSlug,
       view)
       .subscribe(
-        (result: StudyMaterialDetails[] ) => {
+        (result: StudyMaterialDetails[]) => {
           console.log(result);
           this.showContentLoadingIndicator = false;
           this.viewData[view] = result;
@@ -240,100 +244,31 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     }
   }
 
-  setActiveSidenav(text: string) {
-    this.selectedSidenav = text;
+  normalContentAdded(result: StudyMaterialDetails) {
+    if (!result['week']) {
+      this.viewData[result.view].push(result);
+    } else {
+      this.viewData[result.view][result.week].push(result);
+      this.viewDetails[result['view']][result['week']] += 1;
+    }
+    this.viewDetails[result['view']].count += 1;
+    console.log(this.viewDetails);
   }
 
-  uploadMediaFile(data: any) {
-    data['view_key'] = this.viewOrder[this.openedPanelStep];
-    this.uploadError = null;
-    this.contentSuccessText = null;
-    this.uploadingEvent.next('DISABLE');
-    this.uploadProgressEvent.next({
-      'total': data.size,
-      'loaded': 0,
-    });
-    console.log(data);
-    this.instituteApiService.uploadStudyMaterial(this.currentSubjectSlug, data).subscribe(
-      result => {
-        if (result.type === HttpEventType.UploadProgress) {
-          this.uploadProgressEvent.next({
-            'total': result.total,
-            'loaded': result.loaded,
-          });
-        } else if (result.type === HttpEventType.Response) {
-          this.uploadingEvent.next('RESET');
-          this.contentSuccessText = 'Upload successful.';
-          if (!result['week']) {
-            this.viewData[result.body['view']].push(result.body);
-          } else {
-            this.viewData[result.body['view']][result.body['week']].push(result.body);
-            this.viewDetails[data['view_key']][result.body['week']] += 1;
-          }
-          this.storage.storage_used += result.body['data']['size'];
-          this.viewDetails[data['view_key']].count += 1;
-        }
-      },
-      errors => {
-        this.uploadingEvent.next('ENABLE');
-        if (errors.error) {
-          if (errors.error.error) {
-            this.uploadError = errors.error.error;
-          } else {
-            this.uploadError = 'Upload failed.';
-          }
-        } else {
-          this.uploadError = 'Upload failed.';
-        }
-      }
-    )
+  mediaContentAdded(result: any) {
+    if (!result.body['week']) {
+      this.viewData[result.body['view']].push(result.body);
+    } else {
+      this.viewData[result.body['view']][result.body['week']].push(result.body);
+      this.viewDetails[result.body['view']][result.body['week']] += 1;
+    }
+    this.storage.storage_used += result.body['data']['size'];
+    this.viewDetails[result.body['view']].count += 1;
   }
 
-  uploadExternalLink(data: any) {
-    data['view_key'] = this.viewOrder[this.openedPanelStep];
-    this.uploadingEvent.next('DISABLE');
-    this.uploadError = null;
-    this.contentSuccessText = null;
-    this.instituteApiService.addSubjectExternalLinkCourseContent(
-      this.currentSubjectSlug, data).subscribe(
-        (result: StudyMaterialDetails) => {
-          console.log(result);
-          this.uploadingEvent.next('RESET');
-          this.contentSuccessText = 'Uploaded Successfully.';
-          if (!result['week']) {
-            this.viewData[result.view].push(result);
-          } else {
-            this.viewData[result.view][result.week].push(result);
-            this.viewDetails[data['view_key']][result['week']] += 1;
-          }
-          this.viewDetails[data['view_key']].count += 1;
-          console.log(this.viewDetails);
-        },
-        errors => {
-          this.uploadingEvent.next('ENABLE');
-          if(errors.error) {
-            if (errors.error.error) {
-              this.uploadError = errors.error.error;
-            } else {
-              this.uploadError = 'Unable to upload. Please try again.';
-            }
-          } else {
-            this.uploadError = 'Unable to upload. Please try again.';
-          }
-        }
-      )
-  }
-
-  uploadFormError_(data: string) {
-    this.uploadError = data;
-  }
-
-  closeUploadError() {
-    this.uploadError = null;
-  }
-
-  toggleMeetInstructorFileUploadDialog() {
-      this.addFilesDialog = !this.addFilesDialog;
+  toggleAddContentDialog(event: any) {
+      this.addContentDialog = !this.addContentDialog;
+      this.addContentDialogEvent.next(this.addContentDialog);
       this.contentSuccessText = null;
       this.uploadError = null;
   }
@@ -401,10 +336,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     return (100 * this.storage.storage_used / this.storage.total_storage).toFixed(3);
   }
 
-  closeUploadSuccess() {
-    this.contentSuccessText = null;
-  }
-
   hasContent(view: string) {
     if (view === 'MI' || view === 'CO') {
       if (this.viewData[view].length > 0) {
@@ -413,11 +344,11 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
         return false;
       }
     } else {
-      // if (this.viewData[view][week].length > 0) {
-      //   return true;
-      // } else {
-      //   return false;
-      // }
+      if (this.viewData[view][this.openedWeekStep].length > 0) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 
