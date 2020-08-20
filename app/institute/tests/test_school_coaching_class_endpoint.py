@@ -121,6 +121,12 @@ def get_delete_view_url(institute_slug, subject_slug, view_key):
                            'view_key': view_key})
 
 
+def get_edit_subject_module_url(subject_slug, view_key):
+    return reverse("institute:edit-subject-view-name",
+                   kwargs={'subject_slug': subject_slug,
+                           'view_key': view_key})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -2413,9 +2419,59 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_delete_module_success(self):
+    #     """Test that permitted user can delete module"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     view_pk = models.SubjectViewNames.objects.filter(
+    #         view_subject=subject,
+    #         key='M1'
+    #     ).first().pk
+    #
+    #     res = self.client.delete(
+    #         get_delete_view_url(institute.institute_slug, subject.subject_slug, 'M1')
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #     self.assertFalse(models.SubjectViewNames.objects.filter(
+    #         view_subject=subject,
+    #         key='M1'
+    #     ).exists())
+    #     self.assertFalse(models.SubjectViewWeek.objects.filter(
+    #         week_view__pk=view_pk
+    #     ).exists())
+    #
+    # def test_delete_module_fails_by_unpermitted_user(self):
+    #     """Test that unpermitted user can not delete module"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view_pk = models.SubjectViewNames.objects.filter(
+    #         view_subject=subject,
+    #         key='M1'
+    #     ).first().pk
+    #
+    #     res = self.client.delete(
+    #         get_delete_view_url(institute.institute_slug, subject.subject_slug, 'M1')
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
 
-    def test_delete_module_success(self):
-        """Test that permitted user can delete module"""
+    def test_edit_view_name_success(self):
+        """Test that editing view name is success by permitted user"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -2425,26 +2481,17 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         class_ = create_class(institute)
         subject = create_subject(class_)
         create_institute_subject_permission(self.user, self.user, subject)
-        view_pk = models.SubjectViewNames.objects.filter(
-            view_subject=subject,
-            key='M1'
-        ).first().pk
 
-        res = self.client.delete(
-            get_delete_view_url(institute.institute_slug, subject.subject_slug, 'M1')
+        res = self.client.patch(
+            get_edit_subject_module_url(subject.subject_slug, 'MI'),
+            {'name': 'newname'}
         )
 
-        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(models.SubjectViewNames.objects.filter(
-            view_subject=subject,
-            key='M1'
-        ).exists())
-        self.assertFalse(models.SubjectViewWeek.objects.filter(
-            week_view__pk=view_pk
-        ).exists())
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['name'], 'newname')
 
-    def test_delete_module_fails_by_unpermitted_user(self):
-        """Test that unpermitted user can not delete module"""
+    def test_edit_view_name_fails_by_unpermitted_user(self):
+        """Test that editing view name fails by unpermitted user"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -2453,13 +2500,11 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         order.save()
         class_ = create_class(institute)
         subject = create_subject(class_)
-        view_pk = models.SubjectViewNames.objects.filter(
-            view_subject=subject,
-            key='M1'
-        ).first().pk
 
-        res = self.client.delete(
-            get_delete_view_url(institute.institute_slug, subject.subject_slug, 'M1')
+        res = self.client.patch(
+            get_edit_subject_module_url(subject.subject_slug, 'MI'),
+            {'name': 'newname'}
         )
+
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'], 'Permission denied.')

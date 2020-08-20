@@ -2934,6 +2934,10 @@ class InstituteSubjectDeleteModuleView(APIView):
         if not view:
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+        if view.key == 'MI' or view.key == 'CO':
+            return Response({'error': _('This module can not be deleted. You can delete its content manually.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         # Finding the statistics of the content to be deleted
         content = models.InstituteSubjectCourseContent.objects.filter(
             course_content_subject=subject,
@@ -3032,6 +3036,50 @@ class InstituteSubjectAddModuleView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class InstituteEditSubjectModuleViewName(APIView):
+    """View for editing subject module name"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=kwargs.get('view_key')
+        ).first()
+
+        if not view:
+            return Response({'error': _('Module not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            view.name = request.data.get('name')
+            view.save()
+
+            return Response({'name': view.name},
+                            status=status.HTTP_200_OK)
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': 'Internal server error'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class InstituteSubjectEditCourseContentView(APIView):
     """View for modifying course content details"""
     authentication_classes = (TokenAuthentication,)
@@ -3046,19 +3094,19 @@ class InstituteSubjectEditCourseContentView(APIView):
             return Response({'error': _('Subject not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         study_material = models.InstituteSubjectCourseContent.objects.filter(
             pk=kwargs.get('pk')
         ).first()
 
         if not study_material:
             return Response({'error': _('Study material not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not models.InstituteSubjectPermission.objects.filter(
-            to=subject,
-            invitee=self.request.user
-        ).exists():
-            return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if request.data.get('title'):
