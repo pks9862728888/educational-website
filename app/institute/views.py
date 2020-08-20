@@ -2660,7 +2660,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
             view_weeks = models.SubjectViewWeek.objects.filter(
                 week_view=view)
             for week in view_weeks:
-                week_data = data.filter(week=week)
+                week_data = data.filter(week__value=week.value)
                 week_data_response = list()
                 for d in week_data:
                     res = get_study_material_content_details(d, 'OBJ')
@@ -2679,7 +2679,6 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                     d.content_type,
                     d.pk
                 )
-                print(res)
                 response.append(res)
 
         return Response(response, status=status.HTTP_200_OK)

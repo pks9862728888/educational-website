@@ -1364,7 +1364,7 @@ class SubjectViewWeek(models.Model):
         _('Value'), blank=False, null=False)
 
     def __str__(self):
-        return self.value
+        return str(self.value)
 
 
 class InstituteSubjectCourseContent(models.Model):
