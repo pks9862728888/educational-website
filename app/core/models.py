@@ -4,6 +4,7 @@ import random
 import string
 import shutil
 import uuid
+from decimal import Decimal
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
@@ -1102,7 +1103,7 @@ class InstituteStatistics(models.Model):
                                   max_digits=14, decimal_places=9)
     uploaded_video_duration = models.PositiveIntegerField(
         _('Uploaded video duration in seconds'), default=0)
-    uploaded_pdf_read_duration = models.PositiveIntegerField(
+    uploaded_pdf_duration = models.PositiveIntegerField(
         _('Uploaded pdf reading duration in seconds'), default=0)
 
     def __str__(self):
@@ -1473,6 +1474,7 @@ class SubjectImageStudyMaterial(models.Model):
 @receiver(post_delete, sender=SubjectImageStudyMaterial)
 def auto_delete_image_file_on_delete(sender, instance, **kwargs):
     if instance.file:
+        size = Decimal(instance.file.size)
         if os.path.isfile(instance.file.path):
             try:
                 os.remove(instance.file.path)

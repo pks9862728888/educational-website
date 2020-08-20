@@ -2737,7 +2737,6 @@ class InstituteDeleteSubjectCourseContentView(APIView):
                 institute_stat.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            print(e)
             return Response({'error': _('Internal server error. Kindly refresh and try again.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -2790,6 +2789,111 @@ class InstituteSubjectViewAddWeekView(APIView):
                             status=status.HTTP_201_CREATED)
         except Exception:
             return Response({'error': 'Unable to create week.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectDeleteWeekView(APIView):
+    """View for deleting week"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=kwargs.get('view_key')
+        ).first()
+
+        if not view:
+            return Response({'error': _('Module not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        week = models.SubjectViewWeek.objects.filter(
+            week_view=view
+        ).first()
+
+        if not week:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # Finding the statistics of the content to be deleted
+        content = models.InstituteSubjectCourseContent.objects.filter(
+            course_content_subject=subject,
+            view=view,
+            week=week
+        )
+        total_size = 0                # In GB
+        video_duration = 0            # In seconds
+        pdf_duration = 0              # In seconds
+
+        for c in content:
+            if c.content_type == models.StudyMaterialContentType.IMAGE:
+                total_size += float(
+                    models.SubjectImageStudyMaterial.objects.filter(
+                        image_study_material__pk=c.pk
+                    ).first().file.size
+                )
+            elif c.content_type == models.StudyMaterialContentType.PDF:
+                query_data = models.SubjectPdfStudyMaterial.objects.filter(
+                    pdf_study_material__pk=c.pk
+                ).first()
+                total_size += float(query_data.file.size)
+
+                if query_data.duration:
+                    pdf_duration += query_data.duration
+
+            elif c.content_type == models.StudyMaterialContentType.VIDEO:
+                query_data = models.SubjectVideoStudyMaterial.objects.filter(
+                        video_study_material__pk=c.pk
+                    ).first()
+                total_size += float(query_data.file.size)
+
+                if query_data.duration:
+                    video_duration += query_data.duration
+
+        try:
+            week.delete()
+
+            # Updating statistics
+            subject_stat = models.InstituteSubjectStatistics.objects.filter(
+                statistics_subject=subject
+            ).first()
+            institute_stat = models.InstituteStatistics.objects.filter(
+                institute=institute
+            ).first()
+            subject_stat.storage = Decimal(max(0.0, float(subject_stat.storage) - total_size))
+            subject_stat.uploaded_video_duration = max(0, subject_stat.uploaded_video_duration - video_duration)
+            subject_stat.uploaded_pdf_duration = max(0, subject_stat.uploaded_pdf_duration - pdf_duration)
+            subject_stat.save()
+            institute_stat.storage = Decimal(max(0.0, float(institute_stat.storage) - total_size))
+            institute_stat.uploaded_video_duration = max(0, institute_stat.uploaded_video_duration - video_duration)
+            institute_stat.uploaded_pdf_duration = max(0, institute_stat.uploaded_pdf_duration - pdf_duration)
+            institute_stat.save()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({'error': 'Internal server error.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
