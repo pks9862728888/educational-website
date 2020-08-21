@@ -2640,7 +2640,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
 
         data = models.InstituteSubjectCourseContent.objects.filter(
             course_content_subject=subject,
-            view=view)
+            view=view).order_by('order')
         response = None
 
         if view.key != 'MI' and view.key != 'CO':
@@ -3104,7 +3104,7 @@ class InstituteSubjectEditCourseContentView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         study_material = models.InstituteSubjectCourseContent.objects.filter(
-            pk=kwargs.get('pk')
+            pk=int(kwargs.get('pk'))
         ).first()
 
         if not study_material:

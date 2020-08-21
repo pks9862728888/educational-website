@@ -1425,7 +1425,7 @@ class InstituteSubjectCourseContent(models.Model):
 
 @receiver(post_save, sender=InstituteSubjectCourseContent)
 def add_order_sequence(sender, instance, created, *args, **kwargs):
-    if created:
+    if created and not instance.order:
         instance.order = instance.pk
         instance.save()
 
