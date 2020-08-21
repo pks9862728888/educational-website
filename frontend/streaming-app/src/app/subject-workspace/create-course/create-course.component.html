@@ -39,11 +39,7 @@
                             </mat-panel-title>
                         </mat-expansion-panel-header>
                         <hr class="top-separator" />
-
                         <div class="m-b-1">
-                            <div *ngIf="actionSuccessText" class="col-12 m-b-1">
-                                <app-ui-success-text [successText]="actionSuccessText" (closeSuccessTextEvent)="closeActionSuccess()"></app-ui-success-text>
-                            </div>
                             <div class="m-b-1">
                                 <app-ui-error-text *ngIf="contentError" [hideCloseButton]="hideCloseContentLoadingErrorButton" [errorText]="contentError"></app-ui-error-text>
                             </div>
@@ -93,7 +89,7 @@
                                 <hr class="top-separator" *ngIf="!hasContent(view) || addContentDialog" />
                                 <div class="d-flex justify-content-end">
                                     <button mat-stroked-button class="add-button" (click)="toggleAddContentDialog()">
-                                        <mat-icon class="m-r-03 edit-icon">
+                                        <mat-icon class="m-r-03 add-icon">
                                           <span *ngIf="!addContentDialog">add</span>
                                           <span *ngIf="addContentDialog">cancel</span>
                                         </mat-icon>
@@ -189,24 +185,40 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="m-b-1" *ngIf="deleteModuleError">
-                                    <app-ui-error-text [errorText]="deleteModuleError" (closeErrorTextEvent)="hideDeleteModuleError()"></app-ui-error-text>
+                                <div class="m-b-1" *ngIf="editDeleteModuleError">
+                                    <app-ui-error-text [errorText]="editDeleteModuleError" (closeErrorTextEvent)="hideEditDeleteModuleError()"></app-ui-error-text>
+                                </div>
+                                <div class="m-b-1" *ngIf="showEditModuleForm">
+                                    <app-ui-mb-create-form [patchFormNameData]="selectedModuleName" [maxLength]="25" [createIndicator]="editModuleIndicator" [inputPlaceholder]="'Module Name'" [buttonText]="editModuleButtonText" [progressSpinnerText]="'Updating Module...'" [formEvent]="editModuleFormEvent.asObservable()"
+                                        (createEvent)="editModule($event)"></app-ui-mb-create-form>
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <div class="m-r-05">
+                                        <button mat-stroked-button [disabled]="showDeleteModuleSpinner || showAddWeekSpinner || showDeleteWeekSpinner" class="add-button" (click)="toggleEditModule()">
+                                          <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">
+                                            <span *ngIf="!showEditModuleForm">edit</span>
+                                            <span *ngIf="showEditModuleForm">close</span>
+                                          </mat-icon>
+                                          <span class="l-h-24 p-r-04" *ngIf="!mq.matches">
+                                            <span *ngIf="!showEditModuleForm">Edit Module</span>
+                                            <span *ngIf="showEditModuleForm">Close Edit Module</span>
+                                          </span>
+                                        </button>
+                                    </div>
+                                    <div class="m-r-05">
                                         <button mat-stroked-button [disabled]="showDeleteModuleSpinner || showAddWeekSpinner || showDeleteWeekSpinner" class="add-button" (click)="confirmDeleteModule()">
-                                          <mat-icon *ngIf="!showDeleteModuleSpinner" class="m-r-03 delete-icon">delete</mat-icon>
+                                          <mat-icon *ngIf="!showDeleteModuleSpinner" class="delete-icon" [class.m-r-03]="!mq.matches">delete</mat-icon>
                                           <mat-spinner *ngIf="showDeleteModuleSpinner" class="d-inline-block m-r-03" mode="indeterminate" [diameter]="20"></mat-spinner>
-                                          <span class="l-h-24 p-r-04">
-                                            <span *ngIf="!mq.matches">Delete</span> Module
+                                          <span class="l-h-24 p-r-04" *ngIf="!mq.matches">
+                                            Delete Module
                                           </span>
                                         </button>
                                     </div>
                                     <div>
                                         <button mat-stroked-button [disabled]="showAddWeekSpinner || showDeleteModuleSpinner" class="add-button" (click)="addWeek()">
-                                          <mat-icon *ngIf="!showAddWeekSpinner" class="m-r-03 edit-icon">add</mat-icon>
+                                          <mat-icon *ngIf="!showAddWeekSpinner" class="add-icon" [class.m-r-03]="!mq.matches">add</mat-icon>
                                           <mat-spinner mode="indeterminate" [diameter]="20" *ngIf="showAddWeekSpinner" class="d-inline-block m-r-03"></mat-spinner>
-                                          <span class="l-h-24 p-r-04"><span *ngIf="!mq.matches">Add</span> Week</span>
+                                          <span class="l-h-24 p-r-04" *ngIf="!mq.matches">Add Week</span>
                                         </button>
                                     </div>
                                 </div>
@@ -223,7 +235,7 @@
             </div>
             <div class="m-b-1 d-flex justify-content-end">
                 <button mat-stroked-button class="add-button" (click)="toggleAddModule()">
-                  <mat-icon class="m-r-03 edit-icon">
+                  <mat-icon class="m-r-03 add-icon">
                     <span *ngIf="!showAddModuleForm">add</span>
                     <span *ngIf="showAddModuleForm">cancel</span>
                   </mat-icon>

@@ -73,11 +73,13 @@ button.active:focus {
 
 .reorder-icon,
 .edit-icon,
-.delete-icon {
+.delete-icon,
+.add-icon {
     cursor: pointer;
 }
 
-.reorder-icon {
+.reorder-icon,
+.add-icon {
     color: #03dac5;
 }
 

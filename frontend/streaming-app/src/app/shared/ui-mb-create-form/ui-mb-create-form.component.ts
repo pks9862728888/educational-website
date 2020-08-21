@@ -10,6 +10,7 @@ import { Observable, Subscription } from 'rxjs';
 export class UiMbCreateFormComponent implements OnInit, OnDestroy {
 
   createForm: FormGroup;
+  @Input() patchFormNameData: string;
   @Input() maxLength: number;
   @Input() createIndicator: boolean;
   @Input() inputPlaceholder: string;
@@ -37,6 +38,11 @@ export class UiMbCreateFormComponent implements OnInit, OnDestroy {
         }
       }
     );
+    if (this.patchFormNameData) {
+      this.createForm.patchValue({
+        name: this.patchFormNameData
+      });
+    }
   }
 
   create() {

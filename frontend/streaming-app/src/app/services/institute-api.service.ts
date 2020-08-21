@@ -129,6 +129,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/add-view`;
   }
 
+  getEditSubjectModuleUrl(subjectSlug: string, viewKey: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${viewKey}/edit-subject-view-name`;
+  }
+
   getDeleteSubjectModuleUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -442,6 +446,18 @@ export class InstituteApiService {
     return this.httpClient.post(
       this.getCreateSubjectModuleUrl(subjectSlug),
       {'name': name},
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editSubjectModuleName(
+    subjectSlug: string,
+    viewKey: string,
+    moduleName: string
+  ) {
+    return this.httpClient.patch(
+      this.getEditSubjectModuleUrl(subjectSlug, viewKey),
+      {'name': moduleName},
       { headers: this.getAuthHeader() }
     );
   }
