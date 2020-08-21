@@ -125,6 +125,14 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${viewKey}/${week}/delete-week`;
   }
 
+  getDeleteSubjectModuleUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    viewKey: string,
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${viewKey}/delete-subject-view`;
+  }
+
   addSubjectCourseContentUrl(subjectSlug: string){
     return `${this.instituteBaseUrl}${subjectSlug}/add-subject-course-content`;
   }
@@ -421,7 +429,22 @@ export class InstituteApiService {
         ),
         { headers: this.getAuthHeader() }
       );
-    }
+  }
+
+  deleteSubjectModule(
+    instituteSlug: string,
+    subjectSlug: string,
+    viewKey: string
+  ) {
+    return this.httpClient.delete(
+      this.getDeleteSubjectModuleUrl(
+        instituteSlug,
+        subjectSlug,
+        viewKey
+      ),
+      { headers: this.getAuthHeader() }
+    );
+  }
 
   addSubjectExternalLinkCourseContent(subjectSlug: string, data: any) {
     return this.httpClient.post(

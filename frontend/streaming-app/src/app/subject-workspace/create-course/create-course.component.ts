@@ -39,6 +39,9 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   showDeleteWeekSpinner: boolean;
   deleteWeekError: string;
   deleteWeekSubscription: Subscription;
+  showDeleteModuleSpinner: boolean;
+  deleteModuleError: string;
+  deleteModuleSubscription: Subscription;
 
   showAddModuleForm = false;
 
@@ -143,6 +146,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   resetContentStatusText() {
     this.contentError = null;
     this.contentSuccessText = null;
+    this.deleteModuleError = null;
   }
 
   addWeek() {
@@ -235,7 +239,50 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     )
   }
 
-  deleteModule() {
+  confirmDeleteModule() {
+    const view = this.viewOrder[this.openedPanelStep];
+    this.deleteWeekSubscription = this.uiService.dialogData$.subscribe(
+      result => {
+        if (result === true) {
+          this.deleteModule(view);
+        }
+        this.deleteWeekSubscription.unsubscribe();
+      }
+    );
+    this.uiService.openDialog(
+      'Are you sure you want to delete' + this.viewDetails[view].name + ' ?',
+      'Cancel',
+      'Delete'
+    );
+  }
+
+  deleteModule(view: string) {
+    this.showDeleteModuleSpinner = true;
+    this.deleteModuleError = null;
+    this.instituteApiService.deleteSubjectModule(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      view
+    ).subscribe(
+      () => {
+        this.showDeleteModuleSpinner = false;
+        delete this.viewDetails[view];
+        delete this.viewData[view];
+        this.viewOrder.splice(this.viewOrder.indexOf(view), 1);
+      },
+      errors => {
+        this.showDeleteModuleSpinner = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.deleteModuleError = errors.error.error;
+          } else {
+            this.deleteModuleError = 'Unable to delete module. Unknown error occured.';
+          }
+        } else {
+          this.deleteModuleError = 'Unable to delete module. Unknown error occured.';
+        }
+      }
+    )
 
   }
 
@@ -488,6 +535,11 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   hideDeleteWeekError() {
     this.deleteWeekError = null;
+  }
+
+  hideDeleteModuleError() {
+    alert('delete module');
+    this.deleteModuleError = null;
   }
 
   ngOnDestroy() {
