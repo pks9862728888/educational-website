@@ -9,7 +9,7 @@
         <app-ui-error-text [errorText]="uploadError" (closeErrorTextEvent)="closeUploadError($event)"></app-ui-error-text>
     </div>
     <div class="col-3" *ngIf="!mq.matches">
-        <ul class="nav upload-sidenav">
+        <ul class="nav" [ngClass]="{'upload-sidenav': !darkBackground, 'upload-sidenav-dark': darkBackground}">
             <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'ADD_EXTERNAL_LINK'" (click)="setActiveSidenav('ADD_EXTERNAL_LINK')">Add External Link</li>
             <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'UPLOAD_VIDEO'" (click)="setActiveSidenav('UPLOAD_VIDEO')">Upload Video</li>
             <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'UPLOAD_IMAGE'" (click)="setActiveSidenav('UPLOAD_IMAGE')">Upload Image</li>
@@ -17,7 +17,7 @@
         </ul>
     </div>
     <div *ngIf="mq.matches" class="col-12">
-        <div class="upload-nav-mb">
+        <div [ngClass]="{'upload-nav-mb': !darkBackground, 'upload-nav-mb-dark': darkBackground}">
             <div [class.active-icon-color]="selectedSidenav === 'ADD_EXTERNAL_LINK'" (click)="setActiveSidenav('ADD_EXTERNAL_LINK')">
                 <mat-icon>link</mat-icon>
             </div>
@@ -33,7 +33,7 @@
         </div>
     </div>
     <div class="col-sm-9">
-        <div class="upload-form-container">
+        <div [ngClass]="{'upload-form-container': !darkBackground, 'upload-form-container-darkbg': darkBackground}">
             <div *ngIf="selectedSidenav === 'UPLOAD_VIDEO'">
                 <app-ui-upload-video [showTargetDate]="allowTargetDateSetting" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFile($event)" (fileError)="uploadFormError($event)"></app-ui-upload-video>
             </div>

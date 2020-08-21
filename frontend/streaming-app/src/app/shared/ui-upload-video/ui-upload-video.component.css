@@ -8,7 +8,7 @@ p {
 
 .form-control {
     width: 100%;
-    background-color: #3b3b3b;
+    background-color: inherit;
     color: #bdbdbd;
     border-color: #6c756c;
 }

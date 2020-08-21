@@ -83,18 +83,30 @@ p {
     margin-bottom: 1rem;
 }
 
-.background-material {
+.background-material,
+.background-material-main-content {
     z-index: 5;
-    box-shadow: 2px 2px 1px #292929;
+    box-shadow: 1px 1px 1px #292929;
     border-radius: 5px;
     cursor: pointer;
-    background-color: #414141;
     display: flex;
     align-items: center;
 }
 
+.background-material {
+    background-color: #414141;
+}
+
+.background-material-main-content {
+    background-color: #535353;
+}
+
 .background-material:hover {
     background-color: #3b3b3b;
+}
+
+.background-material-main-content:hover {
+    background-color: #494949;
 }
 
 .content-icon-container {
@@ -103,7 +115,7 @@ p {
     margin: 0.3rem;
     display: flex;
     justify-content: center;
-    background-color: #414141;
+    background-color: inherit;
 }
 
 .content-icon {
@@ -142,12 +154,12 @@ p {
 /* styling week */
 
 .week-heading {
-    background-color: #252525;
+    background-color: #3b3b3b;
     z-index: 2;
     margin-bottom: 1rem;
     align-items: center;
-    border-radius: 5px;
-    box-shadow: 1px 1px 1px #4b4b4b;
+    border-radius: 3px;
+    box-shadow: 1px 1px 1px #2b2b2b;
     cursor: pointer;
 }
 

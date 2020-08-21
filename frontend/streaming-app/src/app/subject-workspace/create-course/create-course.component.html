@@ -131,7 +131,7 @@
                                             </div>
                                             <div class="content-container" *ngFor="let content of viewData[view][week]">
                                                 <div class="content">
-                                                    <div class="background-material" (click)="contentClicked(content)">
+                                                    <div class="background-material-main-content" (click)="contentClicked(content)">
                                                         <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
                                                             <mat-icon class="content-icon">
                                                                 <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
@@ -173,7 +173,7 @@
                                                 </div>
                                             </div>
                                             <div *ngIf="!showContentLoadingIndicator && !contentError && !contentReload && addContentDialog">
-                                                <app-ui-add-content [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
+                                                <app-ui-add-content [darkBackground]="true" [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
                                             </div>
                                             <hr class="top-separator" *ngIf="!hasContent(view) || addContentDialog" />
                                             <div class="m-b-1" *ngIf="deleteWeekError">

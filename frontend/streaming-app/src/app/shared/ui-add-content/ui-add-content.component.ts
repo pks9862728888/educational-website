@@ -22,6 +22,7 @@ export class UiAddContentComponent implements OnInit {
 
   @Input() view: string;
   @Input() week: number;
+  @Input() darkBackground: boolean;
 
   uploadingEvent = new Subject<String>();
   uploadProgressEvent = new Subject<{loaded: number, total: number}>();

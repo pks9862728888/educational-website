@@ -416,6 +416,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
         (result: StudyMaterialDetails[]) => {
           this.showContentLoadingIndicator = false;
           this.viewData[view] = result;
+          this.updateStats(view);
         },
         errors => {
           this.showContentLoadingIndicator = false;
@@ -430,6 +431,19 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
           }
         }
       )
+  }
+
+  updateStats(view: string) {
+    if (view === 'MI' || view === 'CO') {
+      this.viewDetails[view].count = this.viewData[view].length;
+    } else {
+      let count = 0;
+      for(let week of this.viewDetails[view].weeks) {
+        this.viewDetails[view][week] = this.viewData[view][week].length;
+        count += this.viewData[view][week].length;
+      }
+      this.viewDetails[view].count = count;
+    }
   }
 
   guidelineClicked() {
