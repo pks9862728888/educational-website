@@ -1,6 +1,6 @@
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
-import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, STUDY_MATERIAL_VIEW_REVERSE, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView } from './../../../constants';
+import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, STUDY_MATERIAL_VIEW_REVERSE, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -16,6 +16,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
   currentSubjectSlug: string;
+  currentInstituteSlug: string;
   showGuidelines: boolean;
   openedPanelStep: number;
   openedWeekStep: number;
@@ -34,13 +35,20 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   hideCloseContentLoadingErrorButton = true;
   deleteDialogDataSubscription: Subscription;
 
+  showAddWeekSpinner: boolean;
+  showDeleteWeekSpinner: boolean;
+  deleteWeekError: string;
+  deleteWeekSubscription: Subscription;
+  showDeleteModuleSpinner: boolean;
+  deleteModuleError: string;
+  deleteModuleSubscription: Subscription;
+
   showAddModuleForm = false;
 
   showView: string;
   activeView: string;
 
   // Data
-  storage: StorageStatistics;
   viewDetails: ViewDetails;
   viewOrder: Array<string>;
   viewData = {};
@@ -59,11 +67,12 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     if (!this.showView) {
       this.showView = 'CREATE';
     }
-    this.openedPanelStep = 0;
+    this.openedPanelStep = 2;
   }
 
   ngOnInit(): void {
     this.getMinCourseDetails();
+    this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
   }
 
   getMinCourseDetails() {
@@ -75,7 +84,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
       (result: SubjectCourseMinDetails) => {
         console.log(result)
         this.showLoadingIndicator = false;
-        this.storage = result.storage;
         this.viewOrder = result.view_order;
         this.viewDetails = result.view_details;
 
@@ -87,7 +95,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
           }
         }
         console.log(this.viewData);
-        console.log(this.storage);
         console.log(this.viewOrder)
         console.log(this.viewDetails);
       },
@@ -117,6 +124,8 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     //   this.getContentOfView();
     // }
     this.getContentOfView();
+    this.deleteWeekError = null;
+    this.resetContentStatusText();
   }
 
   setOpenedWeekStep(step: number) {
@@ -126,6 +135,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
       this.openedWeekStep = step;
     }
     this.addContentDialog = false;
+    this.deleteWeekError = null;
   }
 
   toggleAddModule() {
@@ -133,11 +143,146 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.openedPanelStep = null;
   }
 
-  addWeek() {
-
+  resetContentStatusText() {
+    this.contentError = null;
+    this.contentSuccessText = null;
+    this.deleteModuleError = null;
   }
 
-  deleteModule() {
+  addWeek() {
+    this.showAddWeekSpinner = true;
+    this.resetContentStatusText();
+    const view = this.viewOrder[this.openedPanelStep];
+    this.instituteApiService.addSubjectModuleWeek(this.currentSubjectSlug, view).subscribe(
+      (result: {week: number} )=> {
+        this.showAddWeekSpinner = false;
+        this.viewData[view][result.week] = [];
+        this.viewDetails[view][result.week] = 0;
+        this.viewDetails[view].weeks.push(result.week);
+      },
+      errors => {
+        this.showAddWeekSpinner = false;
+        if (errors.error){
+          if (errors.error.error) {
+            this.contentError = errors.error.error;
+          } else {
+            this.contentError = 'Unknown error occured while adding week.';
+          }
+        } else {
+          this.contentError = 'Unknown error occured while adding week.';
+        }
+      }
+    )
+  }
+
+  confirmDeleteWeek(week: number, i: number) {
+    const view = this.viewOrder[this.openedPanelStep];
+    this.deleteWeekSubscription = this.uiService.dialogData$.subscribe(
+      result => {
+        if (result === true) {
+          this.deleteWeek(view, week);
+        }
+        this.deleteWeekSubscription.unsubscribe();
+      }
+    );
+    this.uiService.openDialog(
+      'Are you sure you want to delete Week ' + (i + 1).toString() + ' ?',
+      'Cancel',
+      'Delete'
+    );
+  }
+
+  getIndexOfWeek(arr: Array<number>, key: number) {
+    for(let i in arr) {
+      if (arr[i] === key) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  deleteWeek(view: string, week: number) {
+    this.showDeleteWeekSpinner = true;
+    this.deleteWeekError = null;
+    this.instituteApiService.deleteWeekOfSubjectModule(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      view,
+      week.toString()
+    ).subscribe(
+      () => {
+        this.showDeleteWeekSpinner = false;
+        this.viewDetails[view].count -= this.viewData[view][week].length;
+        const index = this.getIndexOfWeek(
+          this.viewDetails[view]['weeks'],
+          week
+        );
+        if (index > -1) {
+          this.viewDetails[view]['weeks'].splice(
+            index, 1);
+        }
+        delete this.viewData[view][week];
+        delete this.viewDetails[view][week];
+      },
+      (errors: any) => {
+        this.showDeleteWeekSpinner = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.deleteWeekError = errors.error.error;
+          } else {
+            this.deleteWeekError = 'Unable to delete week. Unknown error occured.';
+          }
+        } else {
+          this.deleteWeekError = 'Unable to delete week. Unknown error occured.';
+        }
+      }
+    )
+  }
+
+  confirmDeleteModule() {
+    const view = this.viewOrder[this.openedPanelStep];
+    this.deleteWeekSubscription = this.uiService.dialogData$.subscribe(
+      result => {
+        if (result === true) {
+          this.deleteModule(view);
+        }
+        this.deleteWeekSubscription.unsubscribe();
+      }
+    );
+    this.uiService.openDialog(
+      'Are you sure you want to delete' + this.viewDetails[view].name + ' ?',
+      'Cancel',
+      'Delete'
+    );
+  }
+
+  deleteModule(view: string) {
+    this.showDeleteModuleSpinner = true;
+    this.deleteModuleError = null;
+    this.instituteApiService.deleteSubjectModule(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      view
+    ).subscribe(
+      () => {
+        this.showDeleteModuleSpinner = false;
+        delete this.viewDetails[view];
+        delete this.viewData[view];
+        this.viewOrder.splice(this.viewOrder.indexOf(view), 1);
+      },
+      errors => {
+        this.showDeleteModuleSpinner = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.deleteModuleError = errors.error.error;
+          } else {
+            this.deleteModuleError = 'Unable to delete module. Unknown error occured.';
+          }
+        } else {
+          this.deleteModuleError = 'Unable to delete module. Unknown error occured.';
+        }
+      }
+    )
 
   }
 
@@ -178,43 +323,13 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   editClicked() {}
 
   deleteClicked(content: StudyMaterialDetails) {
-    const actionContent = content;
-    const actionView = this.viewOrder[this.openedPanelStep];
-    this.actionSuccessText = null;
-    this.contentError = null;
+    const view = this.viewOrder[this.openedPanelStep];
     this.deleteDialogDataSubscription = this.uiService.dialogData$.subscribe(
       result => {
         if (result) {
-          this.instituteApiService.deleteClassCourseContent(content.id.toString()).subscribe(
-            () => {
-              this.actionSuccessText = 'Delete successful.';
-              this.hideCloseContentLoadingErrorButton = false;
-              if (actionContent.week) {
-                this.viewData[actionView][actionContent.week].splice(
-                  this.findIdInArray(this.viewData[actionView][actionContent.week], actionContent.id), 1);
-                this.viewDetails[actionContent.view][actionContent.week] -= 1;
-              } else {
-                this.viewData[actionView].splice(this.viewData[actionView].indexOf(actionContent), 1);
-              }
-              this.viewDetails[actionContent.view]['count'] -= 1;
-              if (actionContent.data.size) {
-                this.storage.storage_used = Math.max(0, this.storage.storage_used - actionContent.data.size);
-              }
-            },
-            errors => {
-              if (errors.error) {
-                if (errors.error.error) {
-                  this.contentError = errors.error.error;
-                } else {
-                  this.contentError = 'Unable to delete at the moment. Please try again later.';
-                }
-              } else {
-                this.contentError = 'Unable to delete at the moment. Please try again later.';
-              }
-            }
-          );
+          this.deleteStudyMaterial(content, view);
         }
-        this.unsubscribeDeleteDialogData();
+        this.deleteDialogDataSubscription.unsubscribe();
       }
     );
     this.uiService.openDialog(
@@ -224,10 +339,34 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     );
   }
 
-  unsubscribeDeleteDialogData() {
-    if (this.deleteDialogDataSubscription) {
-      this.deleteDialogDataSubscription.unsubscribe();
-    }
+  deleteStudyMaterial(content: StudyMaterialDetails, view: string) {
+    this.actionSuccessText = null;
+    this.contentError = null;
+    this.instituteApiService.deleteClassCourseContent(content.id.toString()).subscribe(
+      () => {
+        this.actionSuccessText = 'Delete successful.';
+        this.hideCloseContentLoadingErrorButton = false;
+        if (content.week) {
+          this.viewData[view][content.week].splice(
+            this.findIdInArray(this.viewData[view][content.week], content.id), 1);
+          this.viewDetails[content.view][content.week] -= 1;
+        } else {
+          this.viewData[view].splice(this.viewData[view].indexOf(actionContent), 1);
+        }
+        this.viewDetails[content.view]['count'] -= 1;
+      },
+      errors => {
+        if (errors.error) {
+          if (errors.error.error) {
+            this.contentError = errors.error.error;
+          } else {
+            this.contentError = 'Unable to delete at the moment. Please try again later.';
+          }
+        } else {
+          this.contentError = 'Unable to delete at the moment. Please try again later.';
+        }
+      }
+    );
   }
 
   reorderClicked() {}
@@ -274,7 +413,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
       this.viewData[result.body['view']][result.body['week']].push(result.body);
       this.viewDetails[result.body['view']][result.body['week']] += 1;
     }
-    this.storage.storage_used += result.body['data']['size'];
     this.viewDetails[result.body['view']].count += 1;
   }
 
@@ -302,7 +440,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     }
   }
 
-  findIdInArray(array, id) {
+  findIdInArray(array: Array<any>, id: number) {
     for(let idx in array) {
       const arr = array[idx]
       if (arr['id'] === id) {
@@ -341,10 +479,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   getStudyMaterialCount(view: string) {
     return this.viewDetails[view]['count'];
-  }
-
-  getStoragePercentFilled() {
-    return (100 * this.storage.storage_used / this.storage.total_storage).toFixed(3);
   }
 
   hasContent(view: string) {
@@ -397,6 +531,15 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   closeActionSuccess() {
     this.actionSuccessText = null;
+  }
+
+  hideDeleteWeekError() {
+    this.deleteWeekError = null;
+  }
+
+  hideDeleteModuleError() {
+    alert('delete module');
+    this.deleteModuleError = null;
   }
 
   ngOnDestroy() {

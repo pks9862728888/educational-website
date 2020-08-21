@@ -3026,6 +3026,7 @@ class InstituteSubjectAddModuleView(APIView):
             )
             return Response({
                 'name': view.name,
+                'view': view.key,
                 'count': 0,
                 1: 0,
                 'weeks': [1, ]
