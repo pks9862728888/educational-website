@@ -215,6 +215,12 @@
                     </mat-expansion-panel>
                 </mat-accordion>
             </div>
+            <div class="m-b-1" *ngIf="addModuleError">
+                <app-ui-error-text [errorText]="addModuleError" (closeErrorTextEvent)="hideAddModuleError()"></app-ui-error-text>
+            </div>
+            <div *ngIf="showAddModuleForm" class="m-b-1">
+                <app-ui-mb-create-form [inputPlaceholder]="'Name of Module'" [buttonText]="createModuleButtonText" [maxLength]="25" [progressSpinnerText]="'Creating module...'" [createIndicator]="addModuleIndicator" [formEvent]="addModuleFormEvent.asObservable()" (createEvent)="addModule($event)"></app-ui-mb-create-form>
+            </div>
             <div class="m-b-1 d-flex justify-content-end">
                 <button mat-stroked-button class="add-button" (click)="toggleAddModule()">
                   <mat-icon class="m-r-03 edit-icon">

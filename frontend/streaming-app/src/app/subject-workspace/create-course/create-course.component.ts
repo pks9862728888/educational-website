@@ -1,3 +1,4 @@
+import { FormGroup } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
 import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, STUDY_MATERIAL_VIEW_REVERSE, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug } from './../../../constants';
@@ -5,7 +6,7 @@ import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { SubjectCourseMinDetails, StorageStatistics, ViewDetails, SubjectCourseViewDetails, StudyMaterialDetails } from '../../models/subject.model';
+import { SubjectCourseMinDetails, StorageStatistics, ViewDetails, SubjectCourseViewDetails, StudyMaterialDetails, CreateSubjectModuleResponse } from '../../models/subject.model';
 
 @Component({
   selector: 'app-create-course',
@@ -44,6 +45,10 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   deleteModuleSubscription: Subscription;
 
   showAddModuleForm = false;
+  addModuleIndicator: boolean;
+  addModuleFormEvent = new Subject<string>();
+  createModuleButtonText: string;
+  addModuleError: string;
 
   showView: string;
   activeView: string;
@@ -67,12 +72,16 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     if (!this.showView) {
       this.showView = 'CREATE';
     }
-    this.openedPanelStep = 2;
   }
 
   ngOnInit(): void {
     this.getMinCourseDetails();
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
+    if (this.mq.matches) {
+      this.createModuleButtonText = 'Create';
+    } else {
+      this.createModuleButtonText = 'Create Module';
+    }
   }
 
   getMinCourseDetails() {
@@ -141,6 +150,42 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   toggleAddModule() {
     this.showAddModuleForm = !this.showAddModuleForm;
     this.openedPanelStep = null;
+    this.addModuleError = null;
+  }
+
+  addModule(name: string) {
+    this.addModuleIndicator = true;
+    this.addModuleError = null;
+    this.addModuleFormEvent.next('disable');
+    this.instituteApiService.createSubjectModule(
+      this.currentSubjectSlug,
+      name
+    ).subscribe(
+      (result: CreateSubjectModuleResponse) => {
+        this.addModuleIndicator = false;
+        this.addModuleFormEvent.next('reset');
+        const view = result.view;
+        delete result['view'];
+        this.viewDetails[view] = result;
+        this.viewData[view] = {
+          1: []
+        };
+        this.viewOrder.push(view);
+      },
+      errors => {
+        this.addModuleIndicator = false;
+        this.addModuleFormEvent.next('enable');
+        if (errors.error) {
+          if (errors.error.error) {
+            this.addModuleError = errors.error.error;
+          } else {
+            this.addModuleError = 'Unable to add module. Unknown error occured.';
+          }
+        } else {
+          this.addModuleError = 'Unable to add module. Unknown error occured';
+        }
+      }
+    )
   }
 
   resetContentStatusText() {
@@ -538,8 +583,11 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   hideDeleteModuleError() {
-    alert('delete module');
     this.deleteModuleError = null;
+  }
+
+  hideAddModuleError() {
+    this.addModuleError = null;
   }
 
   ngOnDestroy() {

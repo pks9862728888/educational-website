@@ -26,7 +26,6 @@ import { UiActionControlsComponent } from './ui-action-controls/ui-action-contro
 import { UiEditStudyMaterialComponent } from './ui-edit-study-material/ui-edit-study-material.component';
 import { UiAddContentComponent } from './ui-add-content/ui-add-content.component';
 
-
 @NgModule({
   declarations: [
     UiReloadComponent,

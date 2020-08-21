@@ -125,6 +125,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${viewKey}/${week}/delete-week`;
   }
 
+  getCreateSubjectModuleUrl(subjectSlug: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/add-view`;
+  }
+
   getDeleteSubjectModuleUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -429,6 +433,17 @@ export class InstituteApiService {
         ),
         { headers: this.getAuthHeader() }
       );
+  }
+
+  createSubjectModule(
+    subjectSlug: string,
+    name: string
+  ) {
+    return this.httpClient.post(
+      this.getCreateSubjectModuleUrl(subjectSlug),
+      {'name': name},
+      { headers: this.getAuthHeader() }
+    );
   }
 
   deleteSubjectModule(

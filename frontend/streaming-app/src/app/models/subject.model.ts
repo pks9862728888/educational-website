@@ -76,3 +76,10 @@ export interface StudyMaterialDetails {
     total_pages?: number; // For pdf
   };
 }
+
+export interface CreateSubjectModuleResponse {
+  name: string;
+  view: string;
+  number?: number;
+  weeks: Array<number>;
+}
