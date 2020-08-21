@@ -5,7 +5,7 @@
           <span *ngIf="!showEditForm">Edit</span>
           <span *ngIf="showEditForm">Close Form</span>
         </button>
-        <button mat-flat-button class="red-button" (click)="delete()">Delete</button>
+        <button mat-flat-button class="red-button" (click)="confirmDelete()">Delete</button>
     </div>
     <div *ngIf="mq.matches" class="d-flex">
         <div class="m-r-05 back-icon">
@@ -18,7 +18,7 @@
             </mat-icon>
         </div>
         <div class="delete-icon">
-            <mat-icon (click)="delete()">delete</mat-icon>
+            <mat-icon (click)="confirmDelete()">delete</mat-icon>
         </div>
     </div>
 </div>

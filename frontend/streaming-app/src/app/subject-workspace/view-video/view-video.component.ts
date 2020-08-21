@@ -92,28 +92,12 @@ export class ViewVideoComponent implements OnInit, OnDestroy {
       )
   }
 
-  delete() {
+  confirmDelete() {
     this.deleteConfirmationSubscription = this.uiService.dialogData$.subscribe(
       result => {
-        if (result === true) {
-          this.instituteApiService.deleteClassCourseContent(this.content.id.toString()).subscribe(
-            () => {
-              this.closeViewEvent.emit('DELETED');
-              this.unsubscribeDeleteConfirmation();
-            },
-            errors => {
-              if (errors.error) {
-                if (errors.error.error) {
-                  this.errorText = errors.error.error;
-                } else {
-                  this.errorText = 'Unable to delete at the moment.';
-                }
-              } else {
-                this.errorText = 'Unable to delete at the moment.';
-              }
-              this.unsubscribeDeleteConfirmation();
-            }
-          )
+        if (result) {
+          this.delete();
+          this.deleteConfirmationSubscription.unsubscribe();
         }
       }
     )
@@ -122,6 +106,25 @@ export class ViewVideoComponent implements OnInit, OnDestroy {
       "Cancel",
       "Delete"
     );
+  }
+
+  delete() {
+    this.instituteApiService.deleteClassCourseContent(this.content.id.toString()).subscribe(
+      () => {
+        this.closeViewEvent.emit('DELETED');
+      },
+      errors => {
+        if (errors.error) {
+          if (errors.error.error) {
+            this.errorText = errors.error.error;
+          } else {
+            this.errorText = 'Unable to delete at the moment.';
+          }
+        } else {
+          this.errorText = 'Unable to delete at the moment.';
+        }
+      }
+    )
   }
 
   download() {
@@ -136,12 +139,6 @@ export class ViewVideoComponent implements OnInit, OnDestroy {
 
   closeSuccessText() {
     this.successText = null;
-  }
-
-  unsubscribeDeleteConfirmation() {
-    if (this.deleteConfirmationSubscription) {
-      this.deleteConfirmationSubscription.unsubscribe();
-    }
   }
 
   ngOnDestroy() {

@@ -14,10 +14,12 @@ import { formatDate } from '../../format-datepicker';
 })
 export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
 
+  @Input() showCancelButton: boolean;
   @Input() showTargetDate: boolean;
   @Input() filledFormText: StudyMaterialDetails;
   @Input() formEvent: Observable<string>;
   @Output() formData = new EventEmitter();
+  @Output() closeEvent = new EventEmitter<StudyMaterialDetails>();
   formEventSubscription: Subscription;
   editForm: FormGroup;
   showIndicator: boolean;
@@ -81,6 +83,7 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
     } else {
       delete data['data']['can_download'];
     }
+    data['id'] = this.filledFormText.id;
     this.formData.emit(data);
   }
 
@@ -90,6 +93,10 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
+  }
+
+  closeClicked() {
+    this.closeEvent.emit(this.filledFormText);
   }
 
   ngOnDestroy(): void {

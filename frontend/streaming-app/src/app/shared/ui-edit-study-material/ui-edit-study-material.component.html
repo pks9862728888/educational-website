@@ -21,7 +21,10 @@
             <mat-slide-toggle formControlName="can_download">Can Download Content</mat-slide-toggle>
         </div>
         <div class="col-12 indicator m-b-1">
-            <button mat-flat-button *ngIf="!showIndicator" [disabled]="editForm.invalid" class="green-button m-r-05" type="submit" (click)="submit()">Submit</button>
+            <div *ngIf="!showIndicator">
+                <button mat-flat-button [disabled]="editForm.invalid" class="green-button m-r-05" (click)="submit()">Submit</button>
+                <button mat-flat-button *ngIf="showCancelButton" class="red-button m-r-05" (click)="closeClicked()">Close</button>
+            </div>
             <mat-progress-spinner class="m-r-05" *ngIf="showIndicator" mode="indeterminate" diameter="30"></mat-progress-spinner>
             <h3 *ngIf="!mq.matches && showIndicator">Submitting...</h3>
             <p *ngIf="mq.matches && showIndicator">Submitting...</p>

@@ -72,8 +72,8 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
   upload() {
     const file: File = (<HTMLInputElement>document.getElementById('image-file')).files[0];
 
-    if (!file.type.includes('image/jpeg') && !file.type.includes('image/jpg') && !file.type.includes('image/png') && !file.type.includes('image/webp')) {
-      this.fileError.emit('Only .jpeg, .jpg, .webp, and .png formats are supported.');
+    if (!file.type.includes('image/jpeg') && !file.type.includes('image/jpg') && !file.type.includes('image/png')) {
+      this.fileError.emit('Only .jpeg, .jpg, and .png formats are supported.');
       this.uploadForm.patchValue({
         file: null
       });

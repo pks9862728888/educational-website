@@ -170,8 +170,23 @@ p {
     opacity: 0.5;
 }
 
+.edit-text {
+    color: rgb(76, 162, 242);
+}
+
+.edit-form-background {
+    background-color: #414141;
+    padding: 0.5rem;
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px #4b4b4b;
+}
+
 
 /* Margins and padding */
+
+.m-t-1 {
+    margin-top: 1rem;
+}
 
 .m-b-01 {
     margin-bottom: 0.1rem;

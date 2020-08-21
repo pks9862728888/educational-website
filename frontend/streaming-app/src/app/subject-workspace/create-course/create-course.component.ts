@@ -1,12 +1,11 @@
-import { FormGroup } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
-import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE, STUDY_MATERIAL_VIEW, STUDY_MATERIAL_VIEW_REVERSE, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug } from './../../../constants';
+import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { SubjectCourseMinDetails, StorageStatistics, ViewDetails, SubjectCourseViewDetails, StudyMaterialDetails, CreateSubjectModuleResponse } from '../../models/subject.model';
+import { SubjectCourseMinDetails, ViewDetails, StudyMaterialDetails, CreateSubjectModuleResponse } from '../../models/subject.model';
 
 @Component({
   selector: 'app-create-course',
@@ -54,7 +53,10 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   editModuleFormEvent = new Subject<string>();
   editModuleButtonText: string;
   selectedModuleName: string;
-  // addModuleError: string;
+
+  editContentFormEvent = new Subject<string>();
+  editContentError: string;
+  editContentIndex: any;
 
   showView: string;
   activeView: string;
@@ -78,6 +80,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     if (!this.showView) {
       this.showView = 'CREATE';
     }
+    this.editContentError = 'sdfsdfdfs';
   }
 
   ngOnInit(): void {
@@ -99,7 +102,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.errorText = null;
     this.instituteApiService.getMinCourseDetails(this.currentSubjectSlug).subscribe(
       (result: SubjectCourseMinDetails) => {
-        console.log(result)
         this.showLoadingIndicator = false;
         this.viewOrder = result.view_order;
         this.viewDetails = result.view_details;
@@ -114,9 +116,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
             }
           }
         }
-        console.log(this.viewData);
-        console.log(this.viewOrder)
-        console.log(this.viewDetails);
       },
       errors => {
         this.showLoadingIndicator = false;
@@ -134,15 +133,14 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   setOpenedPanelStep(step: number) {
+    if (this.editContentIndex) {
+      this.closeEditContentError();
+      this.editContentIndex = null;
+    }
     this.openedPanelStep = step;
     this.activeView = this.viewOrder[this.openedPanelStep];
     this.addContentDialog = false;
     this.openedWeekStep = null;
-
-    // Get content if view does not have any content
-    // if (!this.hasContent(this.viewOrder[step])) {
-    //   this.getContentOfView();
-    // }
     this.getContentOfView();
     this.deleteWeekError = null;
     this.resetContentStatusText();
@@ -418,7 +416,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
         (result: StudyMaterialDetails[]) => {
           this.showContentLoadingIndicator = false;
           this.viewData[view] = result;
-          console.log(this.viewData);
         },
         errors => {
           this.showContentLoadingIndicator = false;
@@ -439,7 +436,88 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.showGuidelines = !this.showGuidelines;
   }
 
-  editClicked() {}
+  editClicked(content: StudyMaterialDetails) {
+    if (!content.week) {
+      if (this.editContentIndex) {
+        this.viewData[content.view][this.editContentIndex]['edit'] = false;
+      }
+      this.editContentIndex = this.findIdInArray(this.viewData[content.view], content.id);
+      this.showOrHideEditView(content.view, this.editContentIndex, true);
+    } else {
+      if (this.editContentIndex) {
+        this.viewData[content.view][content.week][this.editContentIndex]['edit'] = false;
+      }
+      this.editContentIndex = this.findIdInArray(this.viewData[content.view][content.week], content.id);
+      this.showOrHideEditView(content.view, this.editContentIndex, true);
+    }
+  }
+
+  closeEditForm(content: StudyMaterialDetails) {
+    if (!content.week) {
+      this.viewData[content.view][this.editContentIndex]['edit'] = false;
+    } else {
+      this.viewData[content.view][content.week][this.editContentIndex]['edit'] = false;
+    }
+    this.closeEditContentError();
+  }
+
+  updateContent(eventData: any) {
+    const view = this.viewOrder[this.openedPanelStep];
+    this.closeEditContentError();
+    const id = eventData['id']
+    delete eventData['id'];
+    this.editContentFormEvent.next('DISABLE');
+    this.editContentError = null;
+
+    this.instituteApiService.editSubjectCourseContent(
+      eventData,
+      this.currentSubjectSlug,
+      id
+      ).subscribe(
+        (result: StudyMaterialDetails) => {
+          this.editContentFormEvent.next('RESET');
+          this.uiService.showSnackBar(
+            'Content updated successfully!',
+            2000
+          );
+          this.showOrHideEditView(view, this.editContentIndex, false);
+          if (result.view === 'MI' || result.view === 'CO') {
+            this.viewData[result.view].splice(
+              this.findIdInArray(this.viewData[result.view], result.id),
+              1,
+              result
+            );
+          } else {
+            this.viewData[result.view][result.week].splice(
+              this.findIdInArray(this.viewData[result.view][result.week], result.id),
+              1,
+              result
+            );
+          }
+        },
+        errors => {
+          this.editContentFormEvent.next('ENABLE');
+          if (errors.error) {
+            if (errors.error.error) {
+              this.editContentError = errors.error.error;
+            } else {
+              this.editContentError = 'Unable to edit at the moment.';
+            }
+          } else {
+            this.editContentError = 'Unable to edit at the moment.';
+          }
+          this.showOrHideEditControlError(view, true);
+        }
+      )
+  }
+
+  showOrHideEditView(view: string, editContentIndex: any, status: boolean) {
+    if (view === 'MI' || view === 'CO') {
+      this.viewData[view][editContentIndex]['edit'] = status;
+    } else {
+      this.viewData[view][this.openedWeekStep][editContentIndex]['edit'] = status;
+    }
+  }
 
   deleteClicked(content: StudyMaterialDetails) {
     const view = this.viewOrder[this.openedPanelStep];
@@ -497,7 +575,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.actionControlDialogDataSubscription = this.uiService.actionControlDialogData$.subscribe(
       data => {
         if (data == 'EDIT') {
-          this.editClicked();
+          this.editClicked(content);
         } else if (data == 'DELETE') {
           this.deleteClicked(this.actionContent);
         } else if (data == 'REORDER') {
@@ -572,19 +650,35 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   showCreateView(event: any) {
     if (event === 'DELETED') {
       const content: StudyMaterialDetails = JSON.parse(sessionStorage.getItem(actionContent));
-      this.viewData[content.view].splice(
-        this.findIdInArray(this.viewData[content.view], content.id), 1
-      );
+      if (event.view === 'MI' || event.view === 'CO') {
+        this.viewData[content.view].splice(
+          this.findIdInArray(this.viewData[content.view], content.id), 1
+        );
+      } else {
+        this.viewData[content.view][content.week].splice(
+          this.findIdInArray(this.viewData[content.view][content.week], content.id), 1
+        );
+        this.viewDetails[content.view][content.week] -= 1;
+      }
+      this.viewDetails[content.view].count -= 1;
       this.uiService.showSnackBar(
         'Content Deleted Successfully!',
         2000
       );
     } else if (event) {
-      this.viewData[event.view].splice(
-        this.findIdInArray(this.viewData[event.view], event.id),
-        1,
-        event
-      );
+      if (event.view === 'MI' || event.view === 'CO') {
+        this.viewData[event.view].splice(
+          this.findIdInArray(this.viewData[event.view], event.id),
+          1,
+          event
+        );
+      } else {
+        this.viewData[event.view][event.week].splice(
+          this.findIdInArray(this.viewData[event.view], event.id),
+          1,
+          event
+        );
+      }
     }
     this.showView = 'CREATE';
     sessionStorage.removeItem(actionContent);
@@ -661,6 +755,20 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   hideAddModuleError() {
     this.addModuleError = null;
+  }
+
+  closeEditContentError() {
+    this.editContentError = null;
+    const view = this.viewOrder[this.openedPanelStep];
+    this.showOrHideEditControlError(view, false);
+  }
+
+  showOrHideEditControlError(view: string, status: boolean) {
+    if (view === 'MI' || view === 'CO') {
+      this.viewData[view][this.editContentIndex].error = status;
+    } else {
+      this.viewData[view][this.openedWeekStep][this.editContentIndex].error = status;
+    }
   }
 
   ngOnDestroy() {
