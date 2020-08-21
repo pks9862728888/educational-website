@@ -2776,7 +2776,7 @@ class InstituteSubjectViewAddWeekView(APIView):
             week_view=view
         ).aggregate(Max('value'))
 
-        if not max_week:
+        if not max_week['value__max']:
             max_week = 0
         else:
             max_week = max_week['value__max']
