@@ -159,7 +159,7 @@ p {
     margin-bottom: 1rem;
 }
 
-.add-week-button,
+.add-button,
 .add-module-button,
 .add-week-content-button {
     color: #bdbdbd;
@@ -167,12 +167,10 @@ p {
     padding-bottom: 0.1rem;
 }
 
-.add-week-button {
-    background-color: #303030;
-}
-
-.add-week-content-button {
-    background-color: #252525;
+.add-button:disabled,
+.add-week-content-button:disabled {
+    color: #bdbdbd;
+    opacity: 0.5;
 }
 
 .add-module-button {

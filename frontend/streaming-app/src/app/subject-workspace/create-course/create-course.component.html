@@ -92,7 +92,7 @@
                                 </div>
                                 <hr class="top-separator" *ngIf="!hasContent(view) || addContentDialog" />
                                 <div class="d-flex justify-content-end">
-                                    <button mat-flat-button class="add-week-button" (click)="toggleAddContentDialog()">
+                                    <button mat-flat-button class="add-button" (click)="toggleAddContentDialog()">
                                         <mat-icon class="m-r-03 edit-icon">
                                           <span *ngIf="!addContentDialog">add</span>
                                           <span *ngIf="addContentDialog">cancel</span>
@@ -107,7 +107,7 @@
                                 </div>
                             </div>
                             <div *ngIf="view !== 'MI' && view !== 'CO' && !showContentLoadingIndicator && !contentReload">
-                                <div *ngFor="let week of viewDetails[view]['weeks']">
+                                <div *ngFor="let week of viewDetails[view]['weeks']; let i=index">
                                     <div class="week-heading" [ngClass]="{'p-1r': !mq.matches, 'p-05r': mq.matches}">
                                         <div class="d-flex justify-content-between week-heading-color" (click)="setOpenedWeekStep(week)">
                                             <h3 *ngIf="!mq.matches">Week {{ week }} ({{ viewDetails[view][week] }})</h3>
@@ -160,24 +160,38 @@
                                                 <app-ui-add-content [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
                                             </div>
                                             <hr class="top-separator" *ngIf="!hasContent(view) || addContentDialog" />
+                                            <div class="m-b-1" *ngIf="deleteWeekError">
+                                                <app-ui-error-text [errorText]="deleteWeekError" [hideCloseButton]="hideDeleteWeekError()"></app-ui-error-text>
+                                            </div>
                                             <div class="d-flex justify-content-end">
-                                                <button mat-flat-button class="add-week-content-button" (click)="toggleAddContentDialog()">
-                                                  <mat-icon class="m-r-03 edit-icon">
-                                                    <span *ngIf="!addContentDialog">add</span>
-                                                    <span *ngIf="addContentDialog">cancel</span>
-                                                  </mat-icon>
-                                                  <span *ngIf="!addContentDialog" class="l-h-24 p-r-04">
-                                                    <span *ngIf="!mq.matches">Add</span> Content
-                                                  </span>
-                                                  <span *ngIf="addContentDialog" class="l-h-24 p-r-04">Hide Add Content</span>
-                                                </button>
+                                                <div class="m-r-05">
+                                                    <button mat-stroked-button [disabled]="showDeleteWeekSpinner" class="add-button" (click)="confirmDeleteWeek(week, i)">
+                                                      <mat-icon *ngIf="!showDeleteWeekSpinner" class="m-r-03 delete-icon">delete</mat-icon>
+                                                      <mat-progress-spinner *ngIf="showDeleteWeekSpinner" class="d-inline-block m-r-05" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                                                      <span class="l-h-24 p-r-04">
+                                                        <span *ngIf="!mq.matches">Delete</span> Week
+                                                      </span>
+                                                    </button>
+                                                </div>
+                                                <div>
+                                                    <button mat-stroked-button [disabled]="showDeleteWeekSpinner" class="add-week-content-button" (click)="toggleAddContentDialog()">
+                                                      <mat-icon class="m-r-03 edit-icon">
+                                                        <span *ngIf="!addContentDialog">add</span>
+                                                        <span *ngIf="addContentDialog">cancel</span>
+                                                      </mat-icon>
+                                                      <span *ngIf="!addContentDialog" class="l-h-24 p-r-04">
+                                                        <span *ngIf="!mq.matches">Add</span> Content
+                                                      </span>
+                                                      <span *ngIf="addContentDialog" class="l-h-24 p-r-04">Hide <span *ngIf="!mq.matches">Add Content</span></span>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-end">
                                     <div class="m-r-05">
-                                        <button mat-flat-button class="add-week-button" (click)="deleteModule()">
+                                        <button mat-stroked-button [disabled]="showAddWeekSpinner || showDeleteWeekSpinner" class="add-button" (click)="deleteModule()">
                                           <mat-icon class="m-r-03 delete-icon">delete</mat-icon>
                                           <span class="l-h-24 p-r-04">
                                             <span *ngIf="!mq.matches">Delete</span> Module
@@ -185,8 +199,9 @@
                                         </button>
                                     </div>
                                     <div>
-                                        <button mat-flat-button class="add-week-button" (click)="addWeek()">
-                                          <mat-icon class="m-r-03 edit-icon">add</mat-icon>
+                                        <button mat-stroked-button [disabled]="showAddWeekSpinner" class="add-button" (click)="addWeek()">
+                                          <mat-icon *ngIf="!showAddWeekSpinner" class="m-r-03 edit-icon">add</mat-icon>
+                                          <mat-spinner mode="indeterminate" [diameter]="20" *ngIf="showAddWeekSpinner" class="d-inline-block m-r-03"></mat-spinner>
                                           <span class="l-h-24 p-r-04"><span *ngIf="!mq.matches">Add</span> Week</span>
                                         </button>
                                     </div>

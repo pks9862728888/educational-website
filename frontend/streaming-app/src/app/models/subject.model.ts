@@ -37,10 +37,6 @@ export interface ViewDetails {
 
 
 export interface SubjectCourseMinDetails {
-  storage: {
-    total_storage: number; // In Gb
-    storage_used: number;  // In Gb
-  };
   view_order: Array<string>;
   view_details: ViewDetails;
   MI: number;            // Meet your instructor

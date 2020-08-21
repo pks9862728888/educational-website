@@ -113,6 +113,18 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/subject-course-content-min-statistics`;
   }
 
+  getAddWeekInSubjectModuleUrl(subjectSlug: string){
+    return `${this.instituteBaseUrl}${subjectSlug}/add-week`;
+  }
+
+  getDeleteWeekOfSubjectModuleUrl(
+     instituteSlug: string,
+     subjectSlug: string,
+     viewKey: string,
+     week: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${viewKey}/${week}/delete-week`;
+  }
+
   addSubjectCourseContentUrl(subjectSlug: string){
     return `${this.instituteBaseUrl}${subjectSlug}/add-subject-course-content`;
   }
@@ -386,6 +398,30 @@ export class InstituteApiService {
       { headers: this.getAuthHeader() }
     );
   }
+
+  addSubjectModuleWeek(subjectSlug: string, viewKey: string) {
+    return this.httpClient.post(
+      this.getAddWeekInSubjectModuleUrl(subjectSlug),
+      {'view_key': viewKey},
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteWeekOfSubjectModule(
+    instituteSlug: string,
+    subjectSlug: string,
+    viewKey: string,
+    week: string) {
+      return this.httpClient.delete(
+        this.getDeleteWeekOfSubjectModuleUrl(
+          instituteSlug,
+          subjectSlug,
+          viewKey,
+          week
+        ),
+        { headers: this.getAuthHeader() }
+      );
+    }
 
   addSubjectExternalLinkCourseContent(subjectSlug: string, data: any) {
     return this.httpClient.post(
