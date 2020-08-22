@@ -1,23 +1,23 @@
 <div class="d-flex">
     <div *ngIf="!mq.matches" [ngClass]="{'m-b-05': !mq.matches}">
         <button mat-flat-button class="m-r-05 blue-button" (click)="back()">Back</button>
-        <button mat-flat-button class="m-r-05 green-button" (click)="toggleEditForm()">
+        <button mat-flat-button class="m-r-05 green-button" *ngIf="hasSubjectPerm" (click)="toggleEditForm()">
           <span *ngIf="!showEditForm">Edit</span>
           <span *ngIf="showEditForm">Close Form</span>
         </button>
-        <button mat-flat-button class="red-button" (click)="confirmDelete()">Delete</button>
+        <button mat-flat-button class="red-button" *ngIf="hasSubjectPerm" (click)="confirmDelete()">Delete</button>
     </div>
     <div *ngIf="mq.matches" class="d-flex">
         <div class="m-r-05 back-icon">
             <mat-icon (click)="back()">arrow_back_ios</mat-icon>
         </div>
-        <div class="edit-icon m-r-05">
+        <div class="edit-icon m-r-05" *ngIf="hasSubjectPerm">
             <mat-icon (click)="toggleEditForm()">
                 <span *ngIf="!showEditForm">edit</span>
                 <span *ngIf="showEditForm">close</span>
             </mat-icon>
         </div>
-        <div class="delete-icon">
+        <div class="delete-icon" *ngIf="hasSubjectPerm">
             <mat-icon (click)="confirmDelete()">delete</mat-icon>
         </div>
     </div>

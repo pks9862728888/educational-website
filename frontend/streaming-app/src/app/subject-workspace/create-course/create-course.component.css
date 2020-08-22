@@ -17,7 +17,8 @@ p {
 }
 
 .mat-card {
-    background-color: #3B3B3B;
+    background-color: rgba(255, 255, 255, 0.09);
+    z-index: 2;
     color: #bdbdbd;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -31,7 +32,7 @@ p {
     color: #bdbdbd;
 }
 
-::ng-deep.mat-progress-spinner circle,
+:host ::ng-deep.mat-progress-spinner circle,
 .mat-spinner circle {
     stroke: #f2aa4cff !important;
 }
@@ -53,30 +54,34 @@ p {
 /* Expansion panel */
 
 .mat-expansion-panel {
-    background-color: #303030;
-    box-shadow: 0 1px 1px #4b4b4b;
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 1px 1px 1px #1f1f1f;
     margin-bottom: 0.7rem;
 }
 
 .mat-expansion-panel-header {
-    border-radius: 10px;
+    border-radius: 5px;
+    padding: 0 1rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
 .mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
-    background-color: #292929;
-    color: #c5c5c5;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
-::ng-deep .mat-expansion-indicator::after {
+.mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.01) !important;
+}
+
+:host ::ng-deep .mat-expansion-indicator::after {
     color: #f2aa4cff;
 }
 
 :host ::ng-deep .mat-expansion-panel-body {
     padding: 0 1rem 1rem;
-}
-
-.mat-expansion-panel-header {
-    padding: 0 1rem;
+    background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 .content-container .content {
@@ -94,19 +99,23 @@ p {
 }
 
 .background-material {
-    background-color: #414141;
+    /* background-color: #414141; */
+    background-color: rgba(255, 255, 255, 0.09);
 }
 
 .background-material-main-content {
-    background-color: #4b4b4b;
+    /* background-color: #4b4b4b; */
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .background-material:hover {
-    background-color: #3b3b3b;
+    /* background-color: #3b3b3b; */
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .background-material-main-content:hover {
-    background-color: #494949;
+    /* background-color: #494949; */
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .content-icon-container {
@@ -115,13 +124,14 @@ p {
     margin: 0.3rem;
     display: flex;
     justify-content: center;
-    background-color: inherit;
+    background-color: none;
 }
 
 .content-icon {
     align-self: center;
     transform: scale(1.4);
-    color: #808080;
+    /* color: #808080; */
+    color: rgba(255, 255, 255, 0.60);
 }
 
 .duration-text {
@@ -136,35 +146,27 @@ p {
     position: absolute;
 }
 
-.storage {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0.1rem;
-}
-
-:host ::ng-deep .custom-progress .p-progressbar {
-    background-color: #6c757d;
-}
-
-:host ::ng-deep .custom-progress .p-progressbar-label {
-    color: rgb(211, 211, 211);
-}
-
 
 /* styling week */
 
 .week-heading {
-    background-color: #3b3b3b;
+    /* background-color: #3b3b3b; */
+    background-color: rgba(255, 255, 255, 0.06);
     z-index: 2;
     margin-bottom: 1rem;
     align-items: center;
     border-radius: 3px;
-    box-shadow: 1px 1px 1px #2b2b2b;
+    box-shadow: 1px 1px 1px #1f1f1f;
     cursor: pointer;
 }
 
+.week-heading:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
 .week-heading-color {
-    color: rgb(76, 162, 242);
+    /* color: rgb(76, 162, 242); */
+    color: #03dac6;
 }
 
 .week-content {
@@ -190,15 +192,15 @@ p {
 .edit-form-dark-background {
     padding: 0.5rem;
     border-radius: 5px;
-    box-shadow: 1px 1px 1px #2b2b2b;
+    box-shadow: 1px 1px 1px #1f1f1f;
 }
 
 .edit-form-background {
-    background-color: #414141;
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .edit-form-dark-background {
-    background-color: #494949;
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 
@@ -214,6 +216,10 @@ p {
 
 .m-b-1 {
     margin-bottom: 1rem;
+}
+
+.m-b-05 {
+    margin-bottom: 0.5rem;
 }
 
 .m-b-07 {

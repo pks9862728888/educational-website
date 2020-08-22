@@ -20,7 +20,7 @@
     flex-direction: column;
     margin-right: 0.5rem;
     z-index: 5;
-    box-shadow: 1px 1px 1px #292929;
+    box-shadow: 1px 1px 1px #1f1f1f;
     border-radius: 5px;
 }
 
@@ -58,23 +58,27 @@
 .upload-form-container-darkbg {
     margin-right: 0;
     z-index: 5;
-    box-shadow: 1px 1px 1px #292929;
+    box-shadow: 1px 1px 1px #1f1f1f;
     border-radius: 5px;
     height: 100%;
     padding: 0.5rem;
     overflow: hidden;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .upload-form-container-darkbg,
 .upload-nav-mb-dark,
 .upload-sidenav-dark {
-    background-color: #363636;
+    /* background-color: #363636; */
+    background-color: rgba(255, 255, 255, 0.06);
 }
 
 .upload-form-container,
 .upload-nav-mb,
 .upload-sidenav {
-    background-color: #353535;
+    /* background-color: #353535; */
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.60);
 }
 
 .upload-nav-mb,
@@ -84,7 +88,7 @@
     padding: 0.5rem;
     border-radius: 5px;
     margin-bottom: 0.5rem;
-    box-shadow: 1px 1px 1px #292929;
+    box-shadow: 1px 1px 1px #1f1f1f;
 }
 
 .active-icon-color {

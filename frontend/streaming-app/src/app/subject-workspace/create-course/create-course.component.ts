@@ -1,6 +1,6 @@
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
-import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug } from './../../../constants';
+import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug, hasClassPerm, hasSectionPerm } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -15,6 +15,7 @@ import { SubjectCourseMinDetails, ViewDetails, StudyMaterialDetails, CreateSubje
 export class CreateCourseComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
+  hasSubjectPerm: boolean;
   currentSubjectSlug: string;
   currentInstituteSlug: string;
   showGuidelines: boolean;
@@ -80,7 +81,11 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     if (!this.showView) {
       this.showView = 'CREATE';
     }
-    this.editContentError = 'sdfsdfdfs';
+    if (sessionStorage.getItem(hasSectionPerm) === 'true') {
+      this.hasSubjectPerm = true;
+    } else {
+      this.hasSubjectPerm = false;
+    }
   }
 
   ngOnInit(): void {
@@ -147,6 +152,10 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   setOpenedWeekStep(step: number) {
+    if (this.openedWeekStep && this.editContentIndex) {
+      const view = this.viewOrder[this.openedPanelStep];
+      this.viewData[view][this.openedPanelStep][this.editContentIndex].edit = false;
+    }
     if (this.openedWeekStep === step) {
       this.openedWeekStep = null;
     } else {

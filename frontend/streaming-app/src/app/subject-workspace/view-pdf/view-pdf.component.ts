@@ -1,3 +1,4 @@
+import { hasSubjectPerm } from './../../../constants';
 import { DownloadService } from './../../services/download.service';
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { StudyMaterialDetails } from '../../models/subject.model';
@@ -16,6 +17,7 @@ import { getFileSize } from 'src/app/shared/utilityFunctions';
 })
 export class ViewPdfComponent implements OnInit {
 
+  hasSubjectPerm: boolean;
   content: StudyMaterialDetails;
   @Output() closeViewEvent = new EventEmitter();
   mq: MediaQueryList;
@@ -43,6 +45,11 @@ export class ViewPdfComponent implements OnInit {
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.content = JSON.parse(sessionStorage.getItem(actionContent));
+    if (sessionStorage.getItem(hasSubjectPerm) === 'true') {
+      this.hasSubjectPerm = true;
+    } else {
+      this.hasSubjectPerm = false;
+    }
   }
 
   ngOnInit(): void {}

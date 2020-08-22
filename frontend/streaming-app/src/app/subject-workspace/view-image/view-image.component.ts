@@ -1,7 +1,7 @@
 import { InstituteApiService } from './../../services/institute-api.service';
 import { UiService } from './../../services/ui.service';
 import { DownloadService } from './../../services/download.service';
-import { actionContent, currentSubjectSlug } from './../../../constants';
+import { actionContent, currentSubjectSlug, hasSubjectPerm } from './../../../constants';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, EventEmitter, Output, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { StudyMaterialDetails } from '../../models/subject.model';
@@ -15,6 +15,7 @@ import { saveAs } from 'file-saver';
 })
 export class ViewImageComponent implements OnInit {
 
+  hasSubjectPerm: boolean;
   content: StudyMaterialDetails;
   @Output() closeViewEvent = new EventEmitter();
   mq: MediaQueryList;
@@ -32,6 +33,11 @@ export class ViewImageComponent implements OnInit {
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.content = JSON.parse(sessionStorage.getItem(actionContent));
+    if (sessionStorage.getItem(hasSubjectPerm) === 'true') {
+      this.hasSubjectPerm = true;
+    } else {
+      this.hasSubjectPerm = false;
+    }
   }
 
   ngOnInit(): void {

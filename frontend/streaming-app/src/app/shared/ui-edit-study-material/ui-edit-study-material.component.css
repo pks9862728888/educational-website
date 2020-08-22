@@ -9,8 +9,8 @@ p {
 .form-control {
     width: 100%;
     background-color: inherit;
-    color: #bdbdbd;
-    border-color: #6c756c;
+    color: rgba(255, 255, 255, 0.60);
+    border-color: rgba(255, 255, 255, 0.38);
 }
 
 .form-control:focus {
