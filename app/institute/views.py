@@ -3237,11 +3237,14 @@ class InstituteSubjectCoursePreviewMinDetails(APIView):
         )
         for instructor in instructors:
             instructor_details = dict()
+            user_profile = models.UserProfile.objects.filter(
+                user__pk=instructor.invitee.pk
+            ).first()
             instructor_details['id'] = instructor.invitee.pk
-            instructor_details['name'] = instructor.invitee.first_name + ' ' + instructor.invitee.last_name
+            instructor_details['name'] = user_profile.first_name + ' ' + user_profile.last_name
             instructor_details['email'] = instructor.invitee.email
             instructor_details['image'] = None
-            response['instructors'].push(instructor_details)
+            response['instructors'].append(instructor_details)
 
         views = models.SubjectViewNames.objects.filter(
             view_subject=subject
