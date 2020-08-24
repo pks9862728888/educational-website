@@ -54,6 +54,20 @@ def get_unexpired_license(institute):
         return order
 
 
+def get_active_license(institute):
+    """Returns license order if institute has active license else returns None"""
+    order = models.InstituteLicenseOrderDetails.objects.filter(
+        institute=institute,
+        paid=True,
+        active=True
+    ).first()
+
+    if not order or (timezone.now() > order.end_date):
+        return None
+    else:
+        return order
+
+
 def get_institute_stats_and_validate(institute, size=None):
     """
     Returns institute statistics if validation success else return error response
@@ -3361,11 +3375,14 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-        order = get_unexpired_license(institute)
-
-        if not order:
-            return Response({'error': _('Institute license expired or not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
+        if self.request.user.is_teacher:
+            if not get_unexpired_license(institute):
+                return Response({'error': _('Institute license expired or not found.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            if not get_active_license(institute):
+                return Response({'error': _('Institute has no active license. Contact institute.')},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         view = models.SubjectViewNames.objects.filter(
             view_subject=subject,
