@@ -163,6 +163,14 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/subject-course-preview-min-details`;
   }
 
+  getInstituteSpecificCourseContentPreviewUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    viewKey: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${viewKey}/preview-subject-specific-view-contents`;
+  }
+
   // Section related urls
   createSectionUrl(classSlug: string) {
     return `${this.instituteBaseUrl}${classSlug}/create-section`;
@@ -554,8 +562,22 @@ export class InstituteApiService {
     return this.httpClient.get(
       this.getMinSubjectCoursePreviewDetailsUrl(instituteSlug, subjectSlug),
       {headers: this.getAuthHeader()}
-    )
+    );
   }
+
+  getInstituteSpecificCourseContentPreview(
+    instituteSlug: string,
+    subjectSlug: string,
+    viewKey: string) {
+      return this.httpClient.get(
+        this.getInstituteSpecificCourseContentPreviewUrl(
+          instituteSlug,
+          subjectSlug,
+          viewKey
+        ),
+        {headers: this.getAuthHeader()}
+      );
+    }
 
   // To load token from storage
   loadToken() {

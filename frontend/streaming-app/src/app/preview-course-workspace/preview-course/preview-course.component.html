@@ -69,22 +69,28 @@
                     <app-ui-error-text *ngIf="errorContentLoading" [errorText]="errorContentLoading" [hideCloseButton]="true"></app-ui-error-text>
                     <app-ui-reload *ngIf="reloadContentIndicator" [errorText]="'Unable to load contents.'" (retryEvent)="loadViewData(view)"></app-ui-reload>
                     <div *ngIf="!loadingContentIndicator && !errorContentLoading && !reloadContentIndicator">
-                        <div class="m-d-container d-flex justify-content-between" *ngIf="view === 'MI' || view === 'CO'">
-                            <div class="d-flex align-center">
-                                <mat-icon class="m-r-05 content-type-icon">
-                                    <span *ngIf="isContentTypeImage('X')">insert_photo</span>
-                                    <span *ngIf="isContentTypeVideo('V')">play_circle_outline</span>
-                                    <span *ngIf="isContentTypePdf('X')">picture_as_pdf</span>
-                                    <span *ngIf="isContentTypeLink('X')">link</span>
-                                </mat-icon>
-                                <div class="d-flex flex-column">
-                                    <h3 *ngIf="!mq.matches">Image heading</h3>
-                                    <p *ngIf="mq.matches">Image heading</p>
-                                    <small>Time required: 1 hr 10 minutes</small>
-                                    <small>Target date: 20th Jan, 2020</small>
-                                </div>
+                        <div *ngIf="view === 'MI' || view === 'CO'">
+                            <div *ngIf="!viewHasContent(view)">
+                                <h3 *ngIf="!mq.matches">No content found.</h3>
+                                <h3 *ngIf="mq.matches">No content found.</h3>
                             </div>
-                            <mat-icon class="m-l-03 watch-icon">radio_button_unchecked</mat-icon>
+                            <div *ngFor="let content of viewData[view]" class="m-d-container d-flex justify-content-between">
+                                <div class="d-flex align-center">
+                                    <mat-icon class="m-r-05 content-type-icon">
+                                        <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
+                                        <span *ngIf="isContentTypeVideo(content.content_type)">play_circle_outline</span>
+                                        <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
+                                        <span *ngIf="isContentTypeLink(content.content_type)">link</span>
+                                    </mat-icon>
+                                    <div class="d-flex flex-column">
+                                        <h3 *ngIf="!mq.matches">{{ content.title }}</h3>
+                                        <p *ngIf="mq.matches">{{ content.title }}</p>
+                                        <small *ngIf="content.data.duration">Time required: {{ getDuration(content.data.duration) }}</small>
+                                        <small *ngIf="content.target_date">Target date: {{ content.target_date | date}}</small>
+                                    </div>
+                                </div>
+                                <mat-icon class="m-l-03 watch-icon">radio_button_unchecked</mat-icon>
+                            </div>
                         </div>
                         <div *ngIf="view !== 'MI' && view !== 'CO'">
                             <div *ngFor="let week of viewDetails[view]['weeks']; let wi=index">
@@ -96,22 +102,30 @@
                                         <span *ngIf="openedWeekStep === week">keyboard_arrow_up</span>
                                     </mat-icon>
                                 </div>
-                                <div class="m-d-container d-flex justify-content-between" *ngIf="openedWeekStep === week">
-                                    <div class="d-flex align-center">
-                                        <mat-icon class="m-r-05 content-type-icon">
-                                            <span *ngIf="isContentTypeImage('X')">insert_photo</span>
-                                            <span *ngIf="isContentTypeVideo('V')">play_circle_outline</span>
-                                            <span *ngIf="isContentTypePdf('X')">picture_as_pdf</span>
-                                            <span *ngIf="isContentTypeLink('X')">link</span>
-                                        </mat-icon>
-                                        <div class="d-flex flex-column">
-                                            <h3 *ngIf="!mq.matches">Image heading</h3>
-                                            <p *ngIf="mq.matches">Image heading</p>
-                                            <small>Time required: 1 hr 10 minutes</small>
-                                            <small>Target date: 20th Jan, 2020</small>
+                                <div *ngIf="openedWeekStep === week">
+                                    <div *ngIf="!viewHasContent(view)" class="m-d-container">
+                                        <h3 *ngIf="!mq.matches">No content found.</h3>
+                                        <h3 *ngIf="mq.matches">No content found.</h3>
+                                    </div>
+                                    <div *ngFor="let content of viewData[view][week]">
+                                        <div class="m-d-container d-flex justify-content-between">
+                                            <div class="d-flex align-center">
+                                                <mat-icon class="m-r-05 content-type-icon">
+                                                    <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
+                                                    <span *ngIf="isContentTypeVideo(content.content_type)">play_circle_outline</span>
+                                                    <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
+                                                    <span *ngIf="isContentTypeLink(content.content_type)">link</span>
+                                                </mat-icon>
+                                                <div class="d-flex flex-column">
+                                                    <h3 *ngIf="!mq.matches">{{ content.title }}</h3>
+                                                    <p *ngIf="mq.matches">{{ content.title }}</p>
+                                                    <small *ngIf="content.data.duration">Time required: {{ getDuration(content.data.duration) }}</small>
+                                                    <small *ngIf="content.target_date">Target date: {{ content.target_date | date}}</small>
+                                                </div>
+                                            </div>
+                                            <mat-icon class="m-l-03 watch-icon">radio_button_unchecked</mat-icon>
                                         </div>
                                     </div>
-                                    <mat-icon class="m-l-03 watch-icon">radio_button_unchecked</mat-icon>
                                 </div>
                             </div>
                         </div>

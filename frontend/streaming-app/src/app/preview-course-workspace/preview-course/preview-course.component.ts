@@ -3,7 +3,7 @@ import { InstituteApiService } from './../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { isContentTypeImage, isContentTypeVideo, isContentTypePdf, isContentTypeExternalLink } from '../../shared/utilityFunctions'
-import { SubjectPreviewCourseMinDetails } from '../../models/subject.model';
+import { SubjectPreviewCourseMinDetails, StudyMaterialPreviewDetails } from '../../models/subject.model';
 
 @Component({
   selector: 'app-preview-course',
@@ -33,6 +33,7 @@ export class PreviewCourseComponent implements OnInit {
   viewOrder = []
   instructors = []
   viewDetails = {}
+  viewData = {}
 
 
   constructor(
@@ -42,7 +43,6 @@ export class PreviewCourseComponent implements OnInit {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
-    this.openedPanelStep = 0;
   }
 
   ngOnInit(): void {
@@ -62,7 +62,19 @@ export class PreviewCourseComponent implements OnInit {
         this.viewOrder = result.view_order;
         this.viewDetails = result.view_details;
         this.instructors = result.instructors;
-        console.log(result);
+
+        for (let view of this.viewOrder) {
+          if (view === 'MI' || view === 'CO') {
+            this.viewData[view] = [];
+          } else {
+            this.viewData[view] = {};
+            for (let week of this.viewDetails[view]['weeks']) {
+              this.viewData[view][week] = [];
+            }
+          }
+        }
+        console.log(this.viewData);
+        console.log(this.viewDetails);
       },
       errors => {
         this.loadingIndicator = false;
@@ -84,6 +96,7 @@ export class PreviewCourseComponent implements OnInit {
       this.openedPanelStep = null;
     } else {
       this.openedPanelStep = step;
+      this.loadViewData(this.viewOrder[this.openedPanelStep]);
     }
     this.openedWeekStep = null;
   }
@@ -97,7 +110,32 @@ export class PreviewCourseComponent implements OnInit {
   }
 
   loadViewData(view: string) {
-
+    this.loadingContentIndicator = true;
+    this.errorContentLoading = null;
+    this.reloadContentIndicator = false;
+    this.instituteApiService.getInstituteSpecificCourseContentPreview(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      view
+    ).subscribe(
+      (data: StudyMaterialPreviewDetails) => {
+        this.loadingContentIndicator = false;
+        this.viewData[view] = data;
+        console.log(this.viewData);
+      },
+      errors => {
+        this.loadingContentIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.errorContentLoading = errors.error.error;
+          } else {
+            this.reloadContentIndicator = true;
+          }
+        } else {
+          this.reloadContentIndicator = true;
+        }
+      }
+    )
   }
 
   getViewName(view: string) {
@@ -114,6 +152,38 @@ export class PreviewCourseComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  viewHasContent(view: string) {
+    if (view === 'MI' || view === 'CO') {
+      if (this.viewData[view].length > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      if (this.viewData[view][this.openedWeekStep].length > 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  getDuration(duration: number) {
+    let time = '';
+    if (duration > 3600) {
+      time = time + (duration / 3600).toString() + ' hour ';
+      duration = duration % 3600;
+    }
+    if (duration > 60) {
+      time = time + (duration / 60).toString() + ' minutes ';
+      duration = duration % 60;
+    }
+    if (duration > 0) {
+      time = time + duration.toString() + ' seconds';
+    }
+    return time;
   }
 
 }

@@ -96,3 +96,27 @@ export interface SubjectPreviewCourseMinDetails {
   view_order: Array<string>;
   view_details: ViewDetails;
 };
+
+export interface StudyMaterialPreviewDetails {
+  id: number;
+  order: number;
+  target_date?: string;
+  title: string;
+  uploaded_on: string;
+  view: string;
+  content_type: string;
+  description?: string;
+  week?: number;
+  data: {
+    id?: number;
+    url?: string;         // For external link
+    file?: string;        // For image and video file download
+    bit_rate?: number;    // For video file
+    duration?: number;
+    stream_file?: string;
+    error_transcoding?: boolean;
+    size?: number;
+    can_download?: boolean;
+    total_pages?: number; // For pdf
+  };
+}
