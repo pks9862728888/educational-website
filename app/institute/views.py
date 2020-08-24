@@ -210,6 +210,16 @@ class IsTeacher(permissions.BasePermission):
             return False
 
 
+class IsTeacherOrStudent(permissions.BasePermission):
+    """Permission that allows only teacher or student to view"""
+
+    def has_permission(self, request, view):
+        if request.user and (request.user.is_teacher or request.user.is_student):
+            return True
+        else:
+            return False
+
+
 class GetInstituteDiscountCouponView(APIView):
     """View to get institute discount coupon"""
     authentication_classes = (TokenAuthentication,)
@@ -3171,3 +3181,100 @@ class InstituteSubjectEditCourseContentView(APIView):
             print(e)
             return Response({'error': 'Bad Request'},
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteSubjectCoursePreviewMinDetails(APIView):
+    """
+    View for getting min course statistics by admin, subject incharge and
+    permitted student.
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def get(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                role=models.InstituteRole.ADMIN,
+                active=True
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        order = get_unexpired_license(institute)
+
+        if not order:
+            return Response({'error': _('Institute license expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        response = dict()
+        response['instructors'] = list()
+        view_order = list()
+        view_details = dict()
+        instructors = models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        )
+        for instructor in instructors:
+            instructor_details = dict()
+            instructor_details['id'] = instructor.invitee.pk
+            instructor_details['name'] = instructor.invitee.first_name + ' ' + instructor.invitee.last_name
+            instructor_details['email'] = instructor.invitee.email
+            instructor_details['image'] = None
+            response['instructors'].push(instructor_details)
+
+        views = models.SubjectViewNames.objects.filter(
+            view_subject=subject
+        ).order_by('order')
+
+        for view in views:
+            view_order.append(view.key)
+            subject_view_model = models.SubjectViewNames.objects.filter(
+                view_subject=subject,
+                key=view.key
+            ).first()
+            view_details[view.key] = {
+                'name': view.name,
+                'count': models.InstituteSubjectCourseContent.objects.filter(
+                    course_content_subject=subject,
+                    view=subject_view_model
+                ).count()
+            }
+            if view.key != 'MI' and view.key != 'CO':
+                weeks = models.SubjectViewWeek.objects.filter(
+                    week_view=view
+                ).order_by('value')
+                week_value_list = list()
+                for week in weeks:
+                    view_details[view.key][week.value] = models.InstituteSubjectCourseContent.objects.filter(
+                        course_content_subject=subject,
+                        view=subject_view_model,
+                        week=week
+                    ).count()
+                    week_value_list.append(week.value)
+                view_details[view.key]['weeks'] = week_value_list
+
+        response['view_order'] = view_order
+        response['view_details'] = view_details
+
+        return Response(response, status=status.HTTP_200_OK)

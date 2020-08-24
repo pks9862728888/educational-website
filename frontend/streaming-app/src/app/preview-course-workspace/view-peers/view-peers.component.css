@@ -1,0 +1,66 @@
+h3,
+hr,
+p,
+.row,
+.col-12,
+.col-md-4 {
+    margin: 0;
+    padding: 0;
+}
+
+.mat-card {
+    background-color: rgba(255, 255, 255, 0.11);
+    color: #bdbdbd;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.student-container {
+    background-color: rgba(255, 255, 255, 0.11);
+    padding: 0.5rem;
+    border-radius: 5px;
+    padding: 1rem;
+}
+
+.student-container:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+}
+
+.student-dp {
+    height: 40px;
+    width: 40px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.p-r-1 {
+    padding-right: 1rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}
+
+.col-md-4:last-child {
+    padding-right: 0;
+}
+
+.col-12:last-child {
+    margin-bottom: 0;
+}

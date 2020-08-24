@@ -1,0 +1,137 @@
+h3,
+h4,
+p,
+hr {
+    padding: 0;
+    margin: 0;
+}
+
+.mat-card {
+    background-color: rgba(255, 255, 255, 0.09);
+    z-index: 2;
+    color: #bdbdbd;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.instructor-dp {
+    height: 60px;
+    width: 60px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+}
+
+.m-container {
+    background-color: rgba(255, 255, 255, 0.11);
+    padding: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.m-container:hover,
+.m-d-container:hover,
+.week-container:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.selected-m-container {
+    background-color: rgba(255, 255, 255, 0.09);
+}
+
+.m-icon,
+.content-type-icon {
+    height: 40px;
+    width: 40px;
+    font-size: 40px;
+}
+
+.m-icon {
+    color: #9575cd;
+}
+
+.content-type-icon {}
+
+.content-translate {
+    transform: translateY(0.4rem);
+}
+
+.content-translate-mb {
+    transform: translateY(0.65rem);
+}
+
+.m-d-container {
+    padding: 0.5rem 1.1rem 0.5rem 1rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.watch-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+}
+
+.week-color {
+    color: #90CAF9;
+}
+
+.week-container {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0 1rem;
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.l-h-40 {
+    line-height: 40px;
+}
+
+.p-t-04 {
+    padding-top: 0.4rem;
+}
+
+.p-t-06 {
+    padding-top: 0.6rem;
+}
+
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-b-05 {
+    margin-bottom: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-r-1 {
+    margin-right: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-l-03 {
+    margin-left: 0.3rem;
+}
+
+.m-l-2 {
+    margin-left: 3rem;
+}

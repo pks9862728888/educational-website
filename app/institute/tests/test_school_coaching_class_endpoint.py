@@ -127,6 +127,12 @@ def get_edit_subject_module_url(subject_slug, view_key):
                            'view_key': view_key})
 
 
+def get_course_preview_min_details(institute_slug, subject_slug):
+    return reverse("institute:subject-course-preview-min-details",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -2469,9 +2475,48 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     )
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_edit_view_name_success(self):
+    #     """Test that editing view name is success by permitted user"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #
+    #     res = self.client.patch(
+    #         get_edit_subject_module_url(subject.subject_slug, 'MI'),
+    #         {'name': 'newname'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(res.data['name'], 'newname')
+    #
+    # def test_edit_view_name_fails_by_unpermitted_user(self):
+    #     """Test that editing view name fails by unpermitted user"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #
+    #     res = self.client.patch(
+    #         get_edit_subject_module_url(subject.subject_slug, 'MI'),
+    #         {'name': 'newname'}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
 
-    def test_edit_view_name_success(self):
-        """Test that editing view name is success by permitted user"""
+    def test_get_course_min_preview_details_by_admin_success(self):
+        """Test that admin can get min preview details of course structure"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -2480,31 +2525,26 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         order.save()
         class_ = create_class(institute)
         subject = create_subject(class_)
-        create_institute_subject_permission(self.user, self.user, subject)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        ext_link = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        link = models.SubjectExternalLinkStudyMaterial.objects.create(
+            external_link_study_material=ext_link,
+            url='abc'
+        )
 
-        res = self.client.patch(
-            get_edit_subject_module_url(subject.subject_slug, 'MI'),
-            {'name': 'newname'}
+        res = self.client.get(
+            get_course_preview_min_details(institute.institute_slug, subject.subject_slug)
         )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['name'], 'newname')
-
-    def test_edit_view_name_fails_by_unpermitted_user(self):
-        """Test that editing view name fails by unpermitted user"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        subject = create_subject(class_)
-
-        res = self.client.patch(
-            get_edit_subject_module_url(subject.subject_slug, 'MI'),
-            {'name': 'newname'}
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
+        self.assertIn('instructors', res.data)
+        self.assertEqual(len(res.data['instructors']), 0)
+        self.assertIn('view_order', res.data)
+        self.assertEqual(len(res.data['view_order']), 3)

@@ -1,0 +1,106 @@
+<div class="m-b-1" *ngIf="errorLoading">
+    <app-ui-error-text [errorText]="errorLoading" [hideCloseButton]="true"></app-ui-error-text>
+</div>
+<mat-card class="m-b-1">
+    <div>
+        <h3>Course Instructors:</h3>
+    </div>
+    <hr class="top-separator m-b-1" />
+    <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Instructors...'"></app-ui-loading>
+    <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load instructors.'" (retryEvent)="loadMinPreviewDetails()"></app-ui-reload>
+    <h3 *ngIf="errorLoading && !mq.matches">Error occured!</h3>
+    <p *ngIf="errorLoading && mq.matches">Error occured!</p>
+    <div *ngIf="!loadingIndicator && !reloadIndicator && !errorLoading">
+        <div *ngIf="false">
+            <h3 *ngIf="!mq.matches">No instructors assigned.</h3>
+            <p *ngIf="mq.matches">No instructors assigned.</p>
+        </div>
+        <div class="d-flex align-items-center justify-content-lg-between m-b-1">
+            <div class="d-flex align-items-center">
+                <img src=" ../../../assets/imgs/cd6.png " class="instructor-dp m-r-1">
+                <h3 *ngIf="!mq.matches">SWARNIMA DEB PURKYASTHA</h3>
+                <p *ngIf="mq.matches">SWARNIMA DEB PURKYASTHA</p>
+            </div>
+            <mat-icon class="m-l-03 preview-icon">visibility</mat-icon>
+        </div>
+    </div>
+</mat-card>
+<mat-card>
+    <div>
+        <h3>Course Content:</h3>
+    </div>
+    <hr class="top-separator m-b-1" />
+    <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Course Content...'"></app-ui-loading>
+    <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load contents.'" (retryEvent)="loadMinPreviewDetails()"></app-ui-reload>
+    <h3 *ngIf="errorLoading && !mq.matches">Error occured!</h3>
+    <p *ngIf="errorLoading && mq.matches">Error occured!</p>
+    <section *ngIf="!loadingIndicator && !reloadIndicator && !errorLoading" class="m-b-1">
+        <div class="m-b-1">
+            <div class="m-container d-flex justify-content-between align-content-center" [class.selected-m-container]="openedPanelStep === 0" (click)="setOpenedPanelStep(0)">
+                <div class="d-flex align-content-center">
+                    <mat-icon class="m-r-05 m-icon">folder_open</mat-icon>
+                    <div>
+                        <h3 *ngIf="!mq.matches" class="expansion-panel-header-color l-h-40">Module 1 (10)</h3>
+                        <p *ngIf="mq.matches" class="expansion-panel-header-color l-h-40">Module 1 (10)</p>
+                        <p class="text-justify" *ngIf="!mq.matches">In this module we will study how to do the maximum use of time which is required for us.</p>
+                        <small>Estimated time: 1 hr 15 minutes</small>
+                    </div>
+                </div>
+                <mat-icon class="m-l-03 expansion-panel-header-color l-h-40">
+                    <span *ngIf="openedPanelStep !== 0">keyboard_arrow_down</span>
+                    <span *ngIf="openedPanelStep === 0">keyboard_arrow_up</span>
+                </mat-icon>
+            </div>
+            <div *ngIf="openedPanelStep === 0">
+                <div *ngIf="mq.matches" class="m-d-container d-flex">
+                    <mat-icon class="content-type-icon m-r-05">title</mat-icon>
+                    <p class="text-justify">In this module we will study how to do the maximum use of time which is required for us.</p>
+                </div>
+                <div class="m-d-container d-flex justify-content-between" *ngIf="false">
+                    <div class="d-flex align-center">
+                        <mat-icon class="m-r-05 content-type-icon">
+                            <span *ngIf="isContentTypeImage('X')">insert_photo</span>
+                            <span *ngIf="isContentTypeVideo('V')">play_circle_outline</span>
+                            <span *ngIf="isContentTypePdf('X')">picture_as_pdf</span>
+                            <span *ngIf="isContentTypeLink('X')">link</span>
+                        </mat-icon>
+                        <div class="d-flex flex-column">
+                            <h3 *ngIf="!mq.matches">Image heading</h3>
+                            <p *ngIf="mq.matches">Image heading</p>
+                            <small>Time required: 1 hr 10 minutes</small>
+                            <small>Target date: 20th Jan, 2020</small>
+                        </div>
+                    </div>
+                    <mat-icon class="m-l-03 watch-icon">radio_button_unchecked</mat-icon>
+                </div>
+                <div *ngIf="true">
+                    <div class="d-flex align-center justify-content-between week-container m-t-05 m-b-05" (click)="setOpenedWeekStep(0)">
+                        <h3 *ngIf="!mq.matches" class="week-color l-h-40">Week 0 (1)</h3>
+                        <p *ngIf="mq.matches" class="week-color l-h-40">Week 0 (1)</p>
+                        <mat-icon class="m-l-03 week-color">
+                            <span *ngIf="openedWeekStep !== 0">keyboard_arrow_down</span>
+                            <span *ngIf="openedWeekStep === 0">keyboard_arrow_up</span>
+                        </mat-icon>
+                    </div>
+                    <div class="m-d-container d-flex justify-content-between" *ngIf="openedWeekStep === 0">
+                        <div class="d-flex align-center">
+                            <mat-icon class="m-r-05 content-type-icon">
+                                <span *ngIf="isContentTypeImage('X')">insert_photo</span>
+                                <span *ngIf="isContentTypeVideo('V')">play_circle_outline</span>
+                                <span *ngIf="isContentTypePdf('X')">picture_as_pdf</span>
+                                <span *ngIf="isContentTypeLink('X')">link</span>
+                            </mat-icon>
+                            <div class="d-flex flex-column">
+                                <h3 *ngIf="!mq.matches">Image heading</h3>
+                                <p *ngIf="mq.matches">Image heading</p>
+                                <small>Time required: 1 hr 10 minutes</small>
+                                <small>Target date: 20th Jan, 2020</small>
+                            </div>
+                        </div>
+                        <mat-icon class="m-l-03 watch-icon">radio_button_unchecked</mat-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</mat-card>
