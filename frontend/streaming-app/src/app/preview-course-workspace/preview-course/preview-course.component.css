@@ -7,7 +7,7 @@ hr {
 }
 
 .mat-card {
-    background-color: rgba(255, 255, 255, 0.09);
+    background-color: rgba(255, 255, 255, 0.06);
     z-index: 2;
     color: #bdbdbd;
     -webkit-user-select: none;
@@ -26,10 +26,9 @@ hr {
 }
 
 .m-container {
-    background-color: rgba(255, 255, 255, 0.11);
+    background-color: rgba(255, 255, 255, 0.06);
     padding: 1rem;
     border-radius: 5px;
-    cursor: pointer;
     box-shadow: 1px 1px 1px #1f1f1f;
 }
 
@@ -40,7 +39,11 @@ hr {
 }
 
 .selected-m-container {
-    background-color: rgba(255, 255, 255, 0.09);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.c-pointer {
+    cursor: pointer;
 }
 
 .m-icon,
@@ -54,19 +57,9 @@ hr {
     color: #9575cd;
 }
 
-.content-type-icon {}
-
-.content-translate {
-    transform: translateY(0.4rem);
-}
-
-.content-translate-mb {
-    transform: translateY(0.65rem);
-}
-
 .m-d-container {
     padding: 0.5rem 1.1rem 0.5rem 1rem;
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.07);
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     border-radius: 5px;

@@ -39,8 +39,6 @@ export interface ViewDetails {
 export interface SubjectCourseMinDetails {
   view_order: Array<string>;
   view_details: ViewDetails;
-  MI: number;            // Meet your instructor
-  CO: number;            // Course overview
 };
 
 export interface SubjectCourseViewDetails {
@@ -83,3 +81,18 @@ export interface CreateSubjectModuleResponse {
   number?: number;
   weeks: Array<number>;
 }
+
+
+export interface InstructorDetails {
+  id: number;
+  name?: string;
+  email?: string;
+  image?: string;
+}
+
+
+export interface SubjectPreviewCourseMinDetails {
+  instructors: Array<InstructorDetails>;
+  view_order: Array<string>;
+  view_details: ViewDetails;
+};

@@ -101,6 +101,7 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${classSlug}/list-class-incharges`;
   }
 
+  // Subject related urls
   createSubjectUrl(subjectSlug: string) {
     return `${this.instituteBaseUrl}${subjectSlug}/create-subject`;
   }
@@ -157,6 +158,12 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${pk}/delete-subject-course-content`;
   }
 
+  // Subject course preview related urls
+  getMinSubjectCoursePreviewDetailsUrl(instituteSlug: string, subjectSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/subject-course-preview-min-details`;
+  }
+
+  // Section related urls
   createSectionUrl(classSlug: string) {
     return `${this.instituteBaseUrl}${classSlug}/create-section`;
   }
@@ -540,6 +547,14 @@ export class InstituteApiService {
       this.getDeleteCourseContentUrl(pk),
       { headers: this.getAuthHeader() }
     );
+  }
+
+  // Course preview
+  getMinSubjectCoursePreviewDetails(instituteSlug: string, subjectSlug: string) {
+    return this.httpClient.get(
+      this.getMinSubjectCoursePreviewDetailsUrl(instituteSlug, subjectSlug),
+      {headers: this.getAuthHeader()}
+    )
   }
 
   // To load token from storage
