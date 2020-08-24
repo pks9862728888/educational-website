@@ -159,8 +159,10 @@ def get_video_study_material_data(data, data_notation, base_url):
             response['size'] = float(data.file.size) / 1000000000
             response['can_download'] = data.can_download
             response['bit_rate'] = data.bit_rate
-            response['duration'] = data.duration
             response['error_transcoding'] = data.error_transcoding
+
+            if data.duration:
+                response['duration'] = data.duration
 
             if data.stream_file:
                 response['stream_file'] = base_url + str(data.stream_file)
@@ -187,12 +189,16 @@ def get_pdf_study_material_data(data, data_notation, base_url, size=None):
                 'can_download': data['can_download']
             }
         elif data_notation == 'OBJ':
-            return {
+            res = {
                 'id': data.pk,
                 'file': base_url + str(data.file),
                 'size': float(data.file.size) / 1000000000,
                 'can_download': data.can_download
             }
+            if data.duration:
+                res['duration'] = data.duration
+            return res
+
     else:
         return {}
 
