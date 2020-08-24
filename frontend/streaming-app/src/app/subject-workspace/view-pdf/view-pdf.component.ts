@@ -7,7 +7,6 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
-import { PDFDocumentProxy, PDFProgressData } from 'ng2-pdf-viewer';
 import { getFileSize } from 'src/app/shared/utilityFunctions';
 
 @Component({
@@ -27,20 +26,11 @@ export class ViewPdfComponent implements OnInit {
   public formControlEvent = new Subject<string>();
   deleteConfirmationSubscription: Subscription;
   contentEdited: boolean;
-
-  // For pdf viewer
-  page = 1;
-  zoom = 1;
-  totalPages: number;
-  downloadProgress = 0;
-  loadedBytes = 0;
-  totalBytes = 0;
-
+  filename: string;
 
   constructor(
     private media: MediaMatcher,
     private uiService: UiService,
-    private downloadService: DownloadService,
     private instituteApiService: InstituteApiService
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
@@ -52,7 +42,10 @@ export class ViewPdfComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    const ext = this.content.data.file.split('.');
+    this.filename = this.content.title.toLowerCase().replace(' ', '_') + '.' + ext[ext.length - 1];
+  }
 
   back() {
     if (this.contentEdited) {
@@ -134,56 +127,12 @@ export class ViewPdfComponent implements OnInit {
     )
   }
 
-  download() {
-    const ext = this.content.data.file.split('.');
-    saveAs(
-      this.content.data.file, this.content.title.toLowerCase().replace(' ', '_') + '.' + ext[ext.length - 1]);
-  }
-
   closeErrorText() {
     this.errorText = null;
   }
 
   closeSuccessText() {
     this.successText = null;
-  }
-
-  incrementPage() {
-    this.page = Math.min(this.totalPages, this.page + 1);
-  }
-
-  decrementPage() {
-    this.page = Math.max(1, this.page - 1);
-  }
-
-  zoomIn() {
-    this.zoom += 0.1;
-  }
-
-  zoomOut() {
-    this.zoom = Math.max(0.4, this.zoom - 0.1);
-  }
-
-  zoomOriginalSize() {
-    this.zoom = 1;
-  }
-
-  afterLoadComplete(pdf: PDFDocumentProxy) {
-    this.totalPages = pdf.numPages;
-  }
-
-  onProgress(progressData: PDFProgressData) {
-    this.downloadProgress = 100 * progressData.loaded / progressData.total;
-    this.loadedBytes = progressData.loaded;
-    this.totalBytes = progressData.total;
-  }
-
-  getLoadedFileSize() {
-    return getFileSize(this.loadedBytes);
-  }
-
-  getTotalFileSize() {
-    return getFileSize(this.totalBytes);
   }
 
 }

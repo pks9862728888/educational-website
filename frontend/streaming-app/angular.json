@@ -44,7 +44,8 @@
                             "./node_modules/chart.js/dist/Chart.js",
                             "./node_modules/video.js/dist/video.min.js",
                             "./node_modules/videojs-contrib-quality-levels/dist/videojs-contrib-quality-levels.min.js",
-                            "./node_modules/videojs-hls-quality-selector/dist/videojs-hls-quality-selector.min.js"
+                            "./node_modules/videojs-hls-quality-selector/dist/videojs-hls-quality-selector.min.js",
+                            "./node_modules/ngx-extended-pdf-viewer/assets/pdf.worker.min.js"
                         ]
                     },
                     "configurations": {

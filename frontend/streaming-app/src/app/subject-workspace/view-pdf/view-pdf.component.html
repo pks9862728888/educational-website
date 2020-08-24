@@ -32,33 +32,9 @@
     <h1 *ngIf="!mq.matches">{{ content.title | titlecase }}</h1>
     <h2 *ngIf="mq.matches">{{ content.title | titlecase }}</h2>
 </div>
-<div class="pdf-container">
-    <div class="d-flex justify-content-between pdf-controls">
-        <div class="d-flex">
-            <mat-icon class="icon-color" [ngClass]="{'icon-color-disabled': zoom <= 0.4}" (click)="zoomOut()">remove_circle_outline</mat-icon>
-            <mat-icon class="icon-color" (click)="zoomIn()">add_circle_outline</mat-icon>
-            <mat-icon class="icon-color" [ngClass]="{'icon-color-disabled': zoom === 1}" (click)="zoomOriginalSize()">center_focus_strong</mat-icon>
-        </div>
-        <div class="d-flex align-items-center">
-            <mat-icon class="m-r-05" [ngClass]="{'icon-color': page !== 1, 'icon-color-disabled': page === 1}" (click)="decrementPage()">arrow_circle_down</mat-icon>
-            <input [(ngModel)]="page" class="page-no"> / {{ totalPages }} pages
-            <mat-icon class="m-l-05 icon-color" [ngClass]="{'icon-color-disabled': page === totalPages}" (click)="incrementPage()">arrow_circle_up</mat-icon>
-        </div>
-        <div>
-            <mat-icon *ngIf="content.data.can_download" class="icon-color" (click)="download()">save_alt</mat-icon>
-        </div>
-    </div>
-    <div *ngIf="downloadProgress !== 100">
-        <mat-progress-bar mode="determinate" [value]="downloadProgress"></mat-progress-bar>
-        <div class="d-flex justify-content-end m-t-02 m-r-05">
-            {{ getLoadedFileSize() }} / {{ getTotalFileSize() }}
-        </div>
-    </div>
-    <pdf-viewer [src]="content.data.file" [render-text]="true" [render-text-mode]="2" [fit-to-page]="true" [zoom]="zoom" [show-all]="true" [(page)]="page" [show-borders]="true" (after-load-complete)="afterLoadComplete($event)" (on-progress)="onProgress($event)"
-        style="display: block; height: 80vh;"></pdf-viewer>
-    <!-- <ngx-extended-pdf-viewer [src]="content.data.file" useBrowserLocale="false" height="80vh"></ngx-extended-pdf-viewer> -->
-</div>
-<div class="description">
+<ngx-extended-pdf-viewer id="pdf-viewer" [src]="content.data.file" [textLayer]="true" [showDownloadButton]="content.data.can_download" [showPrintButton]="content.data.can_download" [showBookmarkButton]="false" [filenameForDownload]="filename" useBrowserLocale="false"
+    height="80vh"></ngx-extended-pdf-viewer>
+<div class="m-t-1 description">
     <h3 *ngIf="!mq.matches" class="text-justify">
         Description:
         <span *ngIf="content.description">{{ content.description }}</span>

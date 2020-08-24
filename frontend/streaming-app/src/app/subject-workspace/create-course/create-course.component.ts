@@ -86,7 +86,6 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     } else {
       this.hasSubjectPerm = false;
     }
-    console.log(this.hasSubjectPerm);
   }
 
   ngOnInit(): void {
