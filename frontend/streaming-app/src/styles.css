@@ -9,6 +9,7 @@ body {
 
 body {
     font-family: Roboto, "Helvetica Neue", sans-serif;
+    overflow-y: hidden;
 }
 
 .parent-container {
@@ -74,7 +75,8 @@ button.active:focus {
 .reorder-icon,
 .edit-icon,
 .delete-icon,
-.add-icon {
+.add-icon,
+.preview-icon {
     cursor: pointer;
 }
 
@@ -93,6 +95,10 @@ button.active:focus {
 
 .back-icon {
     color: #f2aa4cff;
+}
+
+.preview-icon {
+    color: #4caf50;
 }
 
 

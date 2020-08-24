@@ -1,6 +1,6 @@
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
-import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug, hasClassPerm, hasSectionPerm } from './../../../constants';
+import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug, hasSubjectPerm } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -81,11 +81,12 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     if (!this.showView) {
       this.showView = 'CREATE';
     }
-    if (sessionStorage.getItem(hasSectionPerm) === 'true') {
+    if (sessionStorage.getItem(hasSubjectPerm) === 'true') {
       this.hasSubjectPerm = true;
     } else {
       this.hasSubjectPerm = false;
     }
+    console.log(this.hasSubjectPerm);
   }
 
   ngOnInit(): void {

@@ -64,6 +64,10 @@ const routes: Routes = [
     loadChildren: () => import('./section-workspace/section-workspace.module').then(m => m.SectionWorkspaceModule)
   },
   {
+    path: 'preview-course-workspace',
+    loadChildren: () => import('./preview-course-workspace/preview-course-workspace.module').then(m => m.PreviewCourseWorkspaceModule)
+  },
+  {
     path: 'features',
     loadChildren: () => import('./features/features.module').then(m => m.FeaturesModule)
   },

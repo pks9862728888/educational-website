@@ -4,7 +4,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from './services/auth.service';
 import { Subscription } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -31,6 +31,8 @@ export class SnackbarLoggedOutComponent { }
 export class AppComponent implements OnInit, OnDestroy {
 
   title = webAppName;
+  hideNavbar: boolean;
+  routerEventsSubscription: Subscription;
 
   // For tracking whether device is mobile
   mobileQuery: MediaQueryList;
@@ -54,6 +56,15 @@ export class AppComponent implements OnInit, OnDestroy {
                private router: Router,
                private snackBar: MatSnackBar ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this.routerEventsSubscription = router.events.subscribe(val => {
+      if (val instanceof NavigationEnd) {
+        if(val.url.includes('preview-course-workspace')) {
+          this.hideNavbar = true;
+        } else {
+          this.hideNavbar = false;
+        }
+      }
+    });
   }
 
   ngOnInit() {

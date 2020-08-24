@@ -96,7 +96,7 @@ export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
         } else if (link === 'CREATE_COURSE') {
           this.router.navigate([this.baseUrl + '/create-course']);
         } else if (link === 'PREVIEW_COURSE') {
-          this.router.navigate([this.baseUrl + '/preview-course']);
+          this.router.navigate(['/preview-course-workspace/' + this.currentSubjectSlug.slice(0, -10) + '/preview']);
         }
       }
     }

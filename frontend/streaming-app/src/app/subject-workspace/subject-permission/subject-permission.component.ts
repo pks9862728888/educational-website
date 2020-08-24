@@ -1,4 +1,4 @@
-import { currentSectionSlug, currentInstituteSlug, currentInstituteRole, currentSubjectSlug, hasSectionPerm, hasClassPerm, INSTITUTE_ROLE_REVERSE } from './../../../constants';
+import { currentSectionSlug, currentInstituteSlug, currentInstituteRole, currentSubjectSlug, hasSectionPerm, hasClassPerm, INSTITUTE_ROLE_REVERSE, userId, hasSubjectPerm } from './../../../constants';
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -94,6 +94,9 @@ export class SubjectPermissionComponent implements OnInit {
           this.inchargeList.push(result);
           this.successText = 'User invited successfully.';
           this.formEvent.next('reset');
+          if (result.invitee_id.toString() === sessionStorage.getItem(userId)) {
+            sessionStorage.setItem(hasSubjectPerm, 'true');
+          }
         },
         errors => {
           this.createInviteIndicator = false;
