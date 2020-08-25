@@ -1,9 +1,10 @@
-<!-- Showing sidenav -->
 <mat-toolbar>
     <button mat-icon-button (click)="snav.toggle()" class="m-r-1" aria-label="Example icon-button with menu icon">
       <mat-icon>menu</mat-icon>
     </button>
     <span>Maths</span>
+    <span class="spacer"></span>
+    <mat-icon *ngIf="showCloseIcon" class="cursor-pointer" (click)="closePreviewClicked()">close</mat-icon>
 </mat-toolbar>
 
 <div class="full-body-container" [ngClass]="{'is-mobile': mq.matches}">
@@ -24,10 +25,8 @@
         </mat-sidenav>
 
         <mat-sidenav-content>
-            <div class="padding-main-content">
-                <div class="no-scrollbar">
-                    <router-outlet></router-outlet>
-                </div>
+            <div class="no-scrollbar">
+                <router-outlet></router-outlet>
             </div>
         </mat-sidenav-content>
     </mat-sidenav-container>

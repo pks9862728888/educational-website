@@ -17,6 +17,7 @@ p,
     -ms-user-select: none;
     -o-user-select: none;
     user-select: none;
+    margin: 15px;
 }
 
 .student-container {

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { InstituteApiService } from 'src/app/services/institute-api.service';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { webAppName, currentInstituteSlug, currentSubjectSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, currentClassSlug } from '../../constants';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
@@ -20,16 +21,17 @@ export class PreviewCourseWorkspaceComponent implements OnInit {
   baseUrl: string;
   opened: boolean;
   activeLink: string;
-  navbarActiveLinkSubscription: Subscription;
-  showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
   routerEventsSubscription: Subscription;
+  showCloseIcon: boolean;
+  showOrHideCloseButtonSubscription: Subscription;
 
   constructor(
     private router: Router,
     private media: MediaMatcher,
-    private inAppDataTransferService: InAppDataTransferService) {
-
+    private inAppDataTransferService: InAppDataTransferService,
+    private chageDetectorRef: ChangeDetectorRef
+    ) {
     this.mq = this.media.matchMedia('(max-width: 768px)');
     this.activeLink = 'COURSE_PREVIEW';
     this.routerEventsSubscription = router.events.subscribe(val => {
@@ -49,6 +51,12 @@ export class PreviewCourseWorkspaceComponent implements OnInit {
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
     this.baseUrl = '/preview-course-workspace/' + this.currentSubjectSlug.slice(0, -10);
     this.currentInstituteType = sessionStorage.getItem(currentInstituteType);
+    this.showOrHideCloseButtonSubscription = this.inAppDataTransferService.showPreviewCourseCloseButton$.subscribe(
+      (status: boolean) => {
+        this.showCloseIcon = status;
+        this.chageDetectorRef.detectChanges();
+      }
+    );
   }
 
   ngOnInit(): void {
@@ -58,11 +66,6 @@ export class PreviewCourseWorkspaceComponent implements OnInit {
     } else {
       this.opened = true;
     }
-    this.showTempNamesSubscription = this.inAppDataTransferService.activeBreadcrumbLinkData$.subscribe(
-      (linkName: string) => {
-        this.tempBreadcrumbLinkName = linkName;
-      }
-    );
   }
 
   navigate(link: string) {
@@ -82,20 +85,16 @@ export class PreviewCourseWorkspaceComponent implements OnInit {
     }
   }
 
-  tempBreadCrumbNameExists() {
-    if (this.tempBreadcrumbLinkName) {
-      return true;
-    } else {
-      return false;
-    }
+  closePreviewClicked() {
+    this.inAppDataTransferService.closePreviewCourseContent();
   }
 
   ngOnDestroy(): void {
     if (this.routerEventsSubscription) {
       this.routerEventsSubscription.unsubscribe();
     }
-    if (this.showTempNamesSubscription) {
-      this.showTempNamesSubscription.unsubscribe();
+    if (this.showOrHideCloseButtonSubscription) {
+      this.showOrHideCloseButtonSubscription.unsubscribe();
     }
   }
 }

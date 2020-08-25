@@ -22,6 +22,13 @@ export class InAppDataTransferService {
   private teacherFullInstituteView = new Subject<void>();
   teacherFullInstituteView$ = this.teacherFullInstituteView.asObservable();
 
+  // For showing or hiding close button in preview course navbar
+  private showPreviewCourseCloseButton = new Subject<boolean>();
+  showPreviewCourseCloseButton$ = this.showPreviewCourseCloseButton.asObservable();
+
+  private closePreviewCourseContentStatus = new Subject<void>();
+  closePreviewCourseContent$ = this.closePreviewCourseContentStatus.asObservable();
+
   constructor() { }
 
   // Sends active breadcrumb sublink text
@@ -42,5 +49,14 @@ export class InAppDataTransferService {
   // Sends status to show full institute view
   showTeacherFullInstituteView() {
     this.teacherFullInstituteView.next();
+  }
+
+  // Sends signal to show or hide close button
+  showOrHideCloseButtonInCoursePreview(status: boolean) {
+    this.showPreviewCourseCloseButton.next(status);
+  }
+
+  closePreviewCourseContent() {
+    this.closePreviewCourseContentStatus.next();
   }
 }

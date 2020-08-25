@@ -140,6 +140,18 @@ button.active:focus {
     color: #bdbdbd;
 }
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
 .top-separator {
     background-color: #6c757d;
 }

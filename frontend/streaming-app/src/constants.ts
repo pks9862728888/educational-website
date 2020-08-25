@@ -19,6 +19,8 @@ export const currentSubjectSlug = 'currentSubjectSlug';
 export const hasSubjectPerm = 'hasSubjectPerm';
 export const actionContent = 'actionContent';
 export const activeCreateCourseView = 'createCourseView';
+export const previewActionContent = 'previewActionContent';
+export const selectedPreviewContentType = 'selectedPreviewContentType';
 
 // For institue section
 export const currentSectionSlug = 'currentSectionSlug';

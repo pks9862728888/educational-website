@@ -1,9 +1,13 @@
-import { currentInstituteSlug, currentSubjectSlug } from './../../../constants';
+import { Subscription } from 'rxjs';
+import { InAppDataTransferService } from './../../services/in-app-data-transfer.service';
+import { Router } from '@angular/router';
+import { currentInstituteSlug, currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, previewActionContent, selectedPreviewContentType } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { isContentTypeImage, isContentTypeVideo, isContentTypePdf, isContentTypeExternalLink } from '../../shared/utilityFunctions'
 import { SubjectPreviewCourseMinDetails, StudyMaterialPreviewDetails } from '../../models/subject.model';
+
 
 @Component({
   selector: 'app-preview-course',
@@ -29,24 +33,43 @@ export class PreviewCourseComponent implements OnInit {
   reloadContentIndicator: boolean;
   errorContentLoading: string;
 
+  contentOpened: boolean;
+  closePreviewCourseContentStatusSubscription: Subscription;
+
   // Data
   viewOrder = []
   instructors = []
   viewDetails = {}
   viewData = {}
+  selectedContent: StudyMaterialPreviewDetails;
 
 
   constructor(
     private media: MediaMatcher,
-    private instituteApiService: InstituteApiService
+    private instituteApiService: InstituteApiService,
+    private inAppDataTransferService: InAppDataTransferService,
+    private router: Router
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
+    if (sessionStorage.getItem(previewActionContent)) {
+      this.selectedContent = JSON.parse(sessionStorage.getItem(previewActionContent));
+      this.contentOpened = true;
+    }
   }
 
   ngOnInit(): void {
     this.loadMinPreviewDetails();
+    if (this.selectedContent) {
+      this.closePreviewCourseContentStatusSubscription = this.inAppDataTransferService.closePreviewCourseContent$.subscribe(
+        () => {
+          this.closePreviewClicked();
+          this.closePreviewCourseContentStatusSubscription.unsubscribe();
+        }
+      );
+      this.inAppDataTransferService.showOrHideCloseButtonInCoursePreview(true);
+    }
   }
 
   loadMinPreviewDetails() {
@@ -136,6 +159,32 @@ export class PreviewCourseComponent implements OnInit {
         }
       }
     )
+  }
+
+  contentClicked(content: StudyMaterialPreviewDetails) {
+    if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
+      window.open('//' + content.data.url, '_blank');
+    } else {
+      sessionStorage.setItem(previewActionContent, JSON.stringify(content));
+      this.selectedContent = content;
+      this.inAppDataTransferService.showOrHideCloseButtonInCoursePreview(true);
+      this.closePreviewCourseContentStatusSubscription = this.inAppDataTransferService.closePreviewCourseContent$.subscribe(
+        () => {
+          this.closePreviewClicked();
+          this.inAppDataTransferService.showOrHideCloseButtonInCoursePreview(false);
+          this.closePreviewCourseContentStatusSubscription.unsubscribe();
+        }
+      );
+      this.contentOpened = true;
+      sessionStorage.setItem(selectedPreviewContentType, content.content_type);
+    }
+  }
+
+  closePreviewClicked() {
+    this.contentOpened = false;
+    this.selectedContent = null;
+    sessionStorage.removeItem(previewActionContent);
+    sessionStorage.removeItem(selectedPreviewContentType);
   }
 
   getViewName(view: string) {

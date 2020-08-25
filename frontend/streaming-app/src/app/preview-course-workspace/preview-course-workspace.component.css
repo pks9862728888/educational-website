@@ -102,11 +102,6 @@
     background-color: rgba(255, 255, 255, 0.08);
 }
 
-.padding-main-content {
-    /*Includes main content styling too*/
-    padding: 15px;
-}
-
 .mouse-pointer {
     cursor: pointer;
 }
