@@ -45,11 +45,11 @@ button.active:focus {
 }
 
 .green-button {
-    background-color: #008000;
+    background-color: #0a5652;
 }
 
 .green-button:hover {
-    background-color: #3a9b0d;
+    background-color: #094d49;
 }
 
 .blue-button {

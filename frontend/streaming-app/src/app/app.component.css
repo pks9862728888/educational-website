@@ -1,7 +1,10 @@
-/* .mat-toolbar {
-    background: #8778FB;
-    color: rgba(255, 255, 255, 0.87);
-} */
+.mat-toolbar {
+    background: #0a5652;
+}
+
+.menu-icon {
+    color: #03dac5;
+}
 
 .spacer {
     flex: 1 1 auto;
@@ -130,7 +133,7 @@
 .website-name {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-    color: #ffd000;
+    color: #03dac5;
 }
 
 .desktop-view-navbar-contents ul,
@@ -157,29 +160,30 @@
 
 .mobile-view-navbar-contents .is-active {
     font-weight: bold;
-    background-color: #5d35a3;
+    background-color: #0a5652;
     opacity: 0.8;
     color: rgba(255, 255, 255);
 }
 
 .collapse {
-    background-color: #673ab7;
+    background-color: #0a5652;
 }
 
 .mobile-view-navbar-contents ul,
 .mobile-view-navbar-contents li {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
     list-style-type: none;
 }
 
 .mobile-view-navbar-contents li {
-    border-top: 1px solid #4d2b88;
+    border-top: 1px solid rgb(7, 49, 46);
     border-bottom: none;
+    padding-left: 1rem;
 }
 
 .mobile-view-navbar-contents ul {
-    background-color: #673ab7;
+    background-color: #0a5652;
 }
 
 .mobile-view-navbar-contents a {

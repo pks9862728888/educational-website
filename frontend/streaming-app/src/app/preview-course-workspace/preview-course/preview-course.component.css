@@ -9,7 +9,7 @@ hr {
 .mat-card {
     background-color: rgba(255, 255, 255, 0.06);
     z-index: 2;
-    color: #bdbdbd;
+    color: rgba(255, 255, 255, 0.87);
     -webkit-user-select: none;
     -khtml-user-select: none;
     -moz-user-select: none;
@@ -54,7 +54,7 @@ hr {
 }
 
 .m-icon {
-    color: #9575cd;
+    color: #27706b;
 }
 
 .m-d-container {

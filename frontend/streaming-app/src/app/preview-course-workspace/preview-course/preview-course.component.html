@@ -15,7 +15,7 @@
             <h3 *ngIf="!mq.matches">No instructors assigned.</h3>
             <p *ngIf="mq.matches">No instructors assigned.</p>
         </div>
-        <div *ngFor="let instructor of instructors" class="d-flex align-items-center justify-content-lg-between m-b-1">
+        <div *ngFor="let instructor of instructors" class="d-flex align-items-center justify-content-between m-b-1">
             <div class="d-flex align-items-center">
                 <img *ngIf="!instructor.image" src=" ../../../assets/imgs/cd6.png " alt="Instructors profile picture" class="instructor-dp m-r-1">
                 <img *ngIf="instructor.image" [src]="instructor.image" alt="Instructors profile picture" class="instructor-dp m-r-1">
