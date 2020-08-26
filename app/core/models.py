@@ -1610,3 +1610,138 @@ class InstituteClassStudents(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+    class Meta:
+        unique_together = ('user', 'institute_class')
+
+
+class InstituteSubjectStudents(models.Model):
+    """Model for storing institute subject students"""
+    institute_subject = models.ForeignKey(
+        InstituteSubject, on_delete=models.CASCADE, related_name='student_institute_subject')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='institute_subject_student')
+    active = models.BooleanField(_('Active'), default=False, blank=True)
+    is_banned = models.BooleanField(_('Is Banned'), default=False, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        unique_together = ('user', 'institute_subject')
+
+
+class InstituteStudyMaterialPreviewStats(models.Model):
+    """Model for storing institute study material preview statistics"""
+    course_content = models.ForeignKey(
+        InstituteSubjectCourseContent, on_delete=models.CASCADE, related_name='institute_course_content')
+    completed = models.BooleanField('Completed', default=False, blank=True)
+    completed_on = models.DateTimeField(
+        _('Completed On'), default=timezone.now, blank=True)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='course_content_user')
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        unique_together = ('user', 'course_content')
+
+
+class InstituteBannedStudent(models.Model):
+    """Model to store banned student from institute"""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='institute_banned_user')
+    banned_institute = models.ForeignKey(
+        Institute, on_delete=models.CASCADE, related_name='banned_institute')
+    start_date = models.DateTimeField(
+        _('Start Date'), blank=False, null=False)
+    end_date = models.DateTimeField(
+        _('End Date'), blank=True, null=True)
+    created_on = models.DateTimeField(
+        _('Created On'), default=timezone.now, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+
+class InstituteClassBannedStudent(models.Model):
+    """Model to store banned student from class"""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='class_banned_user')
+    banned_class = models.ForeignKey(
+        InstituteClass, on_delete=models.CASCADE, related_name='banned_class')
+    start_date = models.DateTimeField(
+        _('Start Date'), blank=False, null=False)
+    end_date = models.DateTimeField(
+        _('End Date'), blank=True, null=True)
+    created_on = models.DateTimeField(
+        _('Created On'), default=timezone.now, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+
+class InstituteSubjectBannedStudent(models.Model):
+    """Model to store banned student from subject"""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='subject_banned_user')
+    banned_subject = models.ForeignKey(
+        InstituteSubject, on_delete=models.CASCADE, related_name='banned_subject')
+    start_date = models.DateTimeField(
+        _('Start Date'), blank=False, null=False)
+    end_date = models.DateTimeField(
+        _('End Date'), blank=True, null=True)
+    created_on = models.DateTimeField(
+        _('Created On'), default=timezone.now, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+
+class InstituteLastSeen(models.Model):
+    """Model to store last seen in institute"""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='institute_last_seen_user')
+    last_seen_institute = models.ForeignKey(
+        Institute, on_delete=models.CASCADE, related_name='last_seen_institute')
+    last_seen = models.DateTimeField(
+        _('Last Seen'), default=timezone.now, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        unique_together = ('user', 'last_seen_institute')
+
+
+class InstituteClassLastSeen(models.Model):
+    """Model to store last seen in institute class"""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='institute_class_last_seen_user')
+    last_seen_class = models.ForeignKey(
+        InstituteClass, on_delete=models.CASCADE, related_name='last_seen_class')
+    last_seen = models.DateTimeField(
+        _('Last Seen'), default=timezone.now, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        unique_together = ('user', 'last_seen_class')
+
+
+class InstituteSubjectLastSeen(models.Model):
+    """Model to store last seen in institute subject"""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='institute_subject_last_seen_user')
+    last_seen_subject = models.ForeignKey(
+        InstituteSubject, on_delete=models.CASCADE, related_name='last_seen_subject')
+    last_seen = models.DateTimeField(
+        _('Last Seen'), default=timezone.now, blank=True)
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        unique_together = ('user', 'last_seen_subject')

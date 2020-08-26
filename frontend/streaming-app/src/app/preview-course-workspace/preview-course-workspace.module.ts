@@ -8,6 +8,7 @@ import { MaterialPreviewCourseModule } from './material-preview-course';
 import { PreviewVideoComponent } from './preview-video/preview-video.component';
 import { PreviewPdfComponent } from './preview-pdf/preview-pdf.component';
 import { PreviewImageComponent } from './preview-image/preview-image.component';
+import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 
 
@@ -22,7 +23,8 @@ import { PreviewImageComponent } from './preview-image/preview-image.component';
     CommonModule,
     PreviewCourseRoutingModule,
     MaterialPreviewCourseModule,
-    SharedModule
+    SharedModule,
+    NgxExtendedPdfViewerModule
   ],
   providers: [
     InstituteApiService,
