@@ -2,7 +2,6 @@ import os
 import datetime
 import random
 import string
-import shutil
 import uuid
 from decimal import Decimal
 
@@ -516,10 +515,10 @@ class UserProfile(models.Model, Languages):
         on_delete=models.CASCADE
     )
     first_name = models.CharField(
-        _('First Name'), max_length=70, blank=True,
+        _('First Name'), max_length=70, blank=True, default='',
         validators=(ProhibitNullCharactersValidator,))
     last_name = models.CharField(
-        _('Last Name'), max_length=70, blank=True,
+        _('Last Name'), max_length=70, blank=True, default='',
         validators=(ProhibitNullCharactersValidator,))
     gender = models.CharField(
         _('Gender'),
@@ -1563,3 +1562,38 @@ def auto_delete_pdf_file_on_delete(sender, instance, **kwargs):
                 os.remove(instance.file.path)
             except Exception as e:
                 print('Error: ' + e)
+
+
+class InstituteStudents(models.Model):
+    """Model for storing student in institute"""
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='institute_student_user')
+    institute = models.ForeignKey(
+        Institute, on_delete=models.CASCADE, related_name='institute_student_institute')
+    roll_no = models.CharField(
+        _('Roll no'), max_length=10, blank=False, null=False)
+    first_name = models.CharField(
+        _('First name'), max_length=30, blank=True, default='')
+    last_name = models.CharField(
+        _('Last name'), max_length=30, blank=True, default='')
+    created_on = models.DateTimeField(
+        _('Created on'), default=timezone.now, blank=True)
+    edited = models.BooleanField(
+        _('Edited'), default=False, blank=True)
+    active = models.BooleanField(
+        _('Edited'), default=False, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.roll_no:
+            self.roll_no = self.roll_no.lower().strip()
+        if self.first_name:
+            self.first_name = self.first_name.lower().strip()
+        if self.last_name:
+            self.last_name = self.last_name.lower().strip()
+        super(InstituteStudents, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        unique_together = ('user', 'institute')

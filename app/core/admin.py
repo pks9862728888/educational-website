@@ -296,3 +296,5 @@ admin.site.register(models.SubjectExternalLinkStudyMaterial)
 admin.site.register(models.SubjectImageStudyMaterial)
 admin.site.register(models.SubjectVideoStudyMaterial)
 admin.site.register(models.SubjectPdfStudyMaterial)
+
+admin.site.register(models.InstituteStudents)
