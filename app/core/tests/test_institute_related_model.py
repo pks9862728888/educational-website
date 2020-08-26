@@ -1028,45 +1028,66 @@ def create_institute_subject_content(course_content_subject,
 #
 #         self.assertEqual(res.key, 'ABC')
 #         self.assertEqual(res.name, 'TEMP')
+#
+#
+# class InstituteStudentTests(TestCase):
+#     """Tests for insitute student model"""
+#
+#     def setUp(self):
+#         self.user = create_teacher()
+#         self.institute = create_institute(self.user)
+#
+#     def test_add_student_in_institute_success_with_min_details(self):
+#         """Test that adding student in institute is successful"""
+#         student = create_student()
+#         res = models.InstituteStudents.objects.create(
+#             user=student,
+#             institute=self.institute,
+#             roll_no='1'
+#         )
+#
+#         self.assertEqual(res.user, student)
+#         self.assertEqual(res.institute, self.institute)
+#         self.assertEqual(res.roll_no, '1')
+#         self.assertFalse(res.edited)
+#         self.assertFalse(res.active)
+#
+#     def test_add_student_in_institute_success_with_full_details(self):
+#         """Test that adding student in institute is successful"""
+#         student = create_student()
+#         res = models.InstituteStudents.objects.create(
+#             user=student,
+#             institute=self.institute,
+#             roll_no='1',
+#             first_name='a',
+#             last_name='a'
+#         )
+#
+#         self.assertEqual(res.user, student)
+#         self.assertEqual(res.institute, self.institute)
+#         self.assertEqual(res.roll_no, '1')
+#         self.assertEqual(res.first_name, 'a')
+#         self.assertEqual(res.last_name, 'a')
+#         self.assertFalse(res.edited)
+#         self.assertFalse(res.active)
 
 
-class InstituteStudentTests(TestCase):
-    """Tests for insitute student model"""
+class InstituteClassStudentsModel(TestCase):
+    """Tests for institute class students"""
 
     def setUp(self):
         self.user = create_teacher()
         self.institute = create_institute(self.user)
+        self.class_ = create_class(self.institute)
 
-    def test_add_student_in_institute_success_with_min_details(self):
-        """Test that adding student in institute is successful"""
+    def test_institute_class_student_add_success(self):
+        """Test that adding students to institute class success"""
         student = create_student()
-        res = models.InstituteStudents.objects.create(
-            user=student,
-            institute=self.institute,
-            roll_no='1'
-        )
+        res = models.InstituteClassStudents.objects.create(
+            institute_class=self.class_,
+            user=student)
 
+        self.assertEqual(res.institute_class, self.class_)
         self.assertEqual(res.user, student)
-        self.assertEqual(res.institute, self.institute)
-        self.assertEqual(res.roll_no, '1')
-        self.assertFalse(res.edited)
         self.assertFalse(res.active)
-
-    def test_add_student_in_institute_success_with_full_details(self):
-        """Test that adding student in institute is successful"""
-        student = create_student()
-        res = models.InstituteStudents.objects.create(
-            user=student,
-            institute=self.institute,
-            roll_no='1',
-            first_name='a',
-            last_name='a'
-        )
-
-        self.assertEqual(res.user, student)
-        self.assertEqual(res.institute, self.institute)
-        self.assertEqual(res.roll_no, '1')
-        self.assertEqual(res.first_name, 'a')
-        self.assertEqual(res.last_name, 'a')
-        self.assertFalse(res.edited)
-        self.assertFalse(res.active)
+        self.assertFalse(res.is_banned)

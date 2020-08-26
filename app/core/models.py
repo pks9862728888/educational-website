@@ -1571,7 +1571,7 @@ class InstituteStudents(models.Model):
     institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, related_name='institute_student_institute')
     roll_no = models.CharField(
-        _('Roll no'), max_length=10, blank=False, null=False)
+        _('Roll no'), max_length=10, blank=True, default='')
     first_name = models.CharField(
         _('First name'), max_length=30, blank=True, default='')
     last_name = models.CharField(
@@ -1597,3 +1597,16 @@ class InstituteStudents(models.Model):
 
     class Meta:
         unique_together = ('user', 'institute')
+
+
+class InstituteClassStudents(models.Model):
+    """Model for storing institute class students"""
+    institute_class = models.ForeignKey(
+        InstituteClass, on_delete=models.CASCADE, related_name='student_institute_class')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='institute_class_student')
+    active = models.BooleanField(_('Active'), default=False, blank=True)
+    is_banned = models.BooleanField(_('Is Banned'), default=False, blank=True)
+
+    def __str__(self):
+        return str(self.user)

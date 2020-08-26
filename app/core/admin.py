@@ -298,3 +298,4 @@ admin.site.register(models.SubjectVideoStudyMaterial)
 admin.site.register(models.SubjectPdfStudyMaterial)
 
 admin.site.register(models.InstituteStudents)
+admin.site.register(models.InstituteClassStudents)
