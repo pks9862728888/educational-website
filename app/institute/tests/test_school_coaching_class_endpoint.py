@@ -166,6 +166,12 @@ def get_delete_question_url(question_pk):
                    kwargs={'question_pk': question_pk})
 
 
+def get_delete_answer_url(subject_slug, answer_pk):
+    return reverse("institute:delete-answer",
+                   kwargs={'subject_slug': subject_slug,
+                           'answer_pk': answer_pk})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -3409,9 +3415,104 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_delete_question_success_by_self(self):
+    #     """Test that asker of question can delete question"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #
+    #     res = self.client.delete(
+    #         get_delete_question_url(question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_delete_question_fails_by_non_self(self):
+    #     """Test that asker of question can delete question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #
+    #     res = self.client.delete(
+    #         get_delete_question_url(question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_delete_twice_question_success_by_self(self):
+    #     """Test that asker of question can delete question twice"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #
+    #     self.client.delete(
+    #         get_delete_question_url(question.pk)
+    #     )
+    #     res = self.client.delete(
+    #         get_delete_question_url(question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
-    def test_delete_question_success_by_self(self):
-        """Test that asker of question can delete question"""
+    def test_delete_answer_success_by_self(self):
+        """Test that answer provider or institute permitted user can delete answer"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -3433,15 +3534,16 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         )
         create_institute_subject_permission(self.user, self.user, subject)
         question = ask_question(course_content, self.user)
+        answer = answer_question(question, self.user)
 
         res = self.client.delete(
-            get_delete_question_url(question.pk)
+            get_delete_answer_url(subject.subject_slug, answer.pk)
         )
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
 
-    def test_delete_question_fails_by_non_self(self):
-        """Test that asker of question can delete question"""
+    def test_delete_answer_success_by_instructor(self):
+        """Test that answer provider or institute permitted user can delete answer"""
         admin = create_teacher()
         institute = create_institute(admin)
         lic = create_institute_license(institute, self.payload)
@@ -3464,16 +3566,48 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         )
         create_institute_subject_permission(admin, self.user, subject)
         question = ask_question(course_content, admin)
+        answer = answer_question(question, admin)
 
         res = self.client.delete(
-            get_delete_question_url(question.pk)
+            get_delete_answer_url(subject.subject_slug, answer.pk)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_delete_answer_fails_by_non_permitted_user(self):
+        """Test that non answer provider can not delete question"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        course_content = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        question = ask_question(course_content, admin)
+        answer = answer_question(question, admin)
+
+        res = self.client.delete(
+            get_delete_answer_url(subject.subject_slug, answer.pk)
         )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'], 'Permission denied.')
 
     def test_delete_twice_question_success_by_self(self):
-        """Test that asker of question can delete question twice"""
+        """Test that can delete question twice"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -3495,12 +3629,13 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         )
         create_institute_subject_permission(self.user, self.user, subject)
         question = ask_question(course_content, self.user)
+        answer = answer_question(question, self.user)
 
         self.client.delete(
-            get_delete_question_url(question.pk)
+            get_delete_answer_url(subject.subject_slug, answer.pk)
         )
         res = self.client.delete(
-            get_delete_question_url(question.pk)
+            get_delete_answer_url(subject.subject_slug, answer.pk)
         )
 
         self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
