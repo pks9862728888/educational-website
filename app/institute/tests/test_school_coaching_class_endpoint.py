@@ -177,6 +177,13 @@ def get_pin_answer_url(answer_pk):
                    kwargs={'answer_pk': answer_pk})
 
 
+def get_answer_list_url(institute_slug, subject_slug, question_pk):
+    return reverse("institute:list-answers",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug,
+                           'question_pk': question_pk})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -3644,9 +3651,76 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #     )
     #
     #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_asker_of_question_can_pin_answer(self):
+    #     """Test that asker of question can pin answer"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #     other_user = create_teacher()
+    #     answer = answer_question(question, other_user)
+    #
+    #     res = self.client.post(
+    #         get_pin_answer_url(answer.pk),
+    #         {}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #
+    # def test_non_asker_of_question_can_not_pin_answer(self):
+    #     """Test that asker of question can pin answer"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.post(
+    #         get_pin_answer_url(answer.pk),
+    #         {}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
 
-    def test_asker_of_question_can_pin_answer(self):
-        """Test that asker of question can pin answer"""
+    def test_create_endpoint_for_listing_answers_to_question_success_by_admin(self):
+        """Test that admin can list answers to question"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -3666,20 +3740,21 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
             title='a',
             content_type='L'
         )
-        create_institute_subject_permission(self.user, self.user, subject)
         question = ask_question(course_content, self.user)
-        other_user = create_teacher()
-        answer = answer_question(question, other_user)
+        answer = answer_question(question, self.user)
 
-        res = self.client.post(
-            get_pin_answer_url(answer.pk),
-            {}
+        res = self.client.get(
+            get_answer_list_url(institute.institute_slug, subject.subject_slug, question.pk)
         )
 
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertTrue(res.data[0]['anonymous'])
+        self.assertEqual(res.data[0]['answer'], answer.answer)
+        self.assertEqual(res.data[0]['pin'], answer.pin)
 
-    def test_non_asker_of_question_can_not_pin_answer(self):
-        """Test that asker of question can pin answer"""
+    def test_create_endpoint_for_listing_answers_to_question_success_by_subject_incharge(self):
+        """Test that subject incharge can list answers to question"""
         admin = create_teacher()
         institute = create_institute(admin)
         lic = create_institute_license(institute, self.payload)
@@ -3704,9 +3779,43 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         question = ask_question(course_content, admin)
         answer = answer_question(question, admin)
 
-        res = self.client.post(
-            get_pin_answer_url(answer.pk),
-            {}
+        res = self.client.get(
+            get_answer_list_url(institute.institute_slug, subject.subject_slug, question.pk)
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertTrue(res.data[0]['anonymous'])
+        self.assertEqual(res.data[0]['answer'], answer.answer)
+        self.assertEqual(res.data[0]['pin'], answer.pin)
+
+    def test_create_endpoint_for_listing_answers_to_question_fails_by_non_permitted_user(self):
+        """Test that non user can not list answer to question"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        course_content = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        question = ask_question(course_content, admin)
+        answer = answer_question(question, admin)
+
+        res = self.client.get(
+            get_answer_list_url(institute.institute_slug, subject.subject_slug, question.pk)
         )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
