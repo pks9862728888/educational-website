@@ -307,3 +307,8 @@ admin.site.register(models.InstituteSubjectBannedStudent)
 admin.site.register(models.InstituteLastSeen)
 admin.site.register(models.InstituteClassLastSeen)
 admin.site.register(models.InstituteSubjectLastSeen)
+
+admin.site.register(models.InstituteSubjectCourseContentQuestions)
+admin.site.register(models.InstituteSubjectCourseContentAnswer)
+admin.site.register(models.InstituteSubjectCourseContentQuestionUpvote)
+admin.site.register(models.InstituteSubjectCourseContentAnswerUpvote)

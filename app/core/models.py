@@ -1564,6 +1564,94 @@ def auto_delete_pdf_file_on_delete(sender, instance, **kwargs):
                 print('Error: ' + e)
 
 
+class InstituteSubjectCourseContentQuestions(models.Model):
+    """Model for storing subject course content questions"""
+    course_content = models.ForeignKey(
+        InstituteSubjectCourseContent, on_delete=models.CASCADE, related_name='course_content')
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name='question_user', blank=False, null=True)
+    anonymous = models.BooleanField(
+        _('Anonymous'), default=False, blank=True)
+    question = models.CharField(
+        _('Question'), max_length=256, blank=False, null=False)
+    description = models.CharField(
+        _('Description'), max_length=2000, blank=True, default='')
+    rgb_color = models.CharField(
+        _('RGB color'), max_length=26, blank=False, null=False)
+    created_on = models.DateTimeField(
+        _('Created on'), default=timezone.now, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.question:
+            raise ValueError('Question field is required.')
+        if not self.rgb_color:
+            raise ValueError('RGB color field is required.')
+        if self.description:
+            self.description = self.description.strip()
+        self.question = self.question.strip()
+        super(InstituteSubjectCourseContentQuestions, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.question.lower()
+
+    class Meta:
+        unique_together = ('course_content', 'question')
+
+
+class InstituteSubjectCourseContentAnswer(models.Model):
+    """Model for storing institute subject course content answer"""
+    content_question = models.ForeignKey(
+        InstituteSubjectCourseContentQuestions, on_delete=models.CASCADE, related_name='content_question')
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name='answer_user', blank=False, null=True)
+    anonymous = models.BooleanField(
+        _('Anonymous'), default=False, blank=True)
+    answer = models.CharField(
+        _('Answer'), max_length=2000, blank=False, null=False)
+    rgb_color = models.CharField(
+        _('RGB color'), max_length=26, blank=False, null=False)
+    created_on = models.DateTimeField(
+        _('Created on'), default=timezone.now, blank=True)
+    pin = models.BooleanField(
+        _('Pinned answer'), default=False, blank=True)
+
+    def __str__(self):
+        return str(self.content_question)
+
+    class Meta:
+        unique_together = ('content_question', 'answer')
+
+
+class InstituteSubjectCourseContentQuestionUpvote(models.Model):
+    """Model for storing the upvote of questions"""
+    course_content_question = models.ForeignKey(
+        InstituteSubjectCourseContentQuestions, on_delete=models.CASCADE,
+        related_name='course_content_question')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='question_upvote_user')
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        unique_together = ('course_content_question', 'user')
+
+
+class InstituteSubjectCourseContentAnswerUpvote(models.Model):
+    """Model for storing the upvote of answers"""
+    course_content_answer = models.ForeignKey(
+        InstituteSubjectCourseContentAnswer, on_delete=models.CASCADE,
+        related_name='course_content_answer')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='answer_upvote_user')
+
+    def __str__(self):
+        return str(self.user)
+
+    class Meta:
+        unique_together = ('course_content_answer', 'user')
+
+
 class InstituteStudents(models.Model):
     """Model for storing student in institute"""
     user = models.ForeignKey(
