@@ -44,11 +44,13 @@ export class QAndAComponent implements OnInit {
 
   ngOnInit(): void {
     this.answerForm = this.formBuilder.group({
-      answer: [null, [Validators.required]]
+      answer: [null, [Validators.required]],
+      anonymous: [false, ]
     });
     this.askQuestionForm = this.formBuilder.group({
       question: [null, [Validators.required]],
-      description: [null, ]
+      description: [null, ],
+      anonymous: [false, ]
     });
   }
 

@@ -23,6 +23,9 @@
             <div class="form-group">
                 <textarea formControlName="description" rows="5" type="text" class="form-control" placeholder="Details (optional)"></textarea>
             </div>
+            <div class="form-group">
+                <mat-slide-toggle formGroupName="anonymous">Ask anonymously!</mat-slide-toggle>
+            </div>
         </form>
         <div class="d-flex align-center">
             <button mat-flat-button [disabled]="submitQuestionIndicator" class="cancel-button m-r-05" (click)="toggleAskQuestion()">
@@ -148,6 +151,9 @@
         <form [formGroup]="answerForm">
             <div class="form-group">
                 <textarea rows="5" formControlName="answer" type="text" class="form-control" placeholder="Add an Answer"></textarea>
+            </div>
+            <div class="form-group">
+                <mat-slide-toggle formGroupName="anonymous">Answer anonymously!</mat-slide-toggle>
             </div>
         </form>
         <button mat-flat-button [disabled]="answerForm.invalid" class="green-button" (click)="answerClicked()">
