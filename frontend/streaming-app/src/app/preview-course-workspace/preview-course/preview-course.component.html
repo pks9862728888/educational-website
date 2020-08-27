@@ -139,7 +139,44 @@
 </section>
 
 <div *ngIf="contentOpened">
-    <app-preview-image *ngIf="isContentTypeImage(selectedContent.content_type)"></app-preview-image>
-    <app-preview-video *ngIf="isContentTypeVideo(selectedContent.content_type)"></app-preview-video>
-    <app-preview-pdf *ngIf="isContentTypePdf(selectedContent.content_type)"></app-preview-pdf>
+    <app-preview-image hidden *ngIf="isContentTypeImage(selectedContent.content_type)"></app-preview-image>
+    <app-preview-video hidden *ngIf="isContentTypeVideo(selectedContent.content_type)"></app-preview-video>
+    <app-preview-pdf hidden *ngIf="isContentTypePdf(selectedContent.content_type)"></app-preview-pdf>
+    <div class="heading">
+        <div class="d-flex justify-content-between align-center cursor-pointer expansion-panel-header-color" (click)="toggleShowDetails()">
+            <h3 *ngIf="!mq.matches">{{ selectedContent.title }}</h3>
+            <p *ngIf="mq.matches">{{ selectedContent.title }}</p>
+            <mat-icon class="m-l-05">
+                <span *ngIf="!showDetails">expand_more</span>
+                <span *ngIf="showDetails">expand_less</span>
+            </mat-icon>
+        </div>
+    </div>
+    <div *ngIf="showDetails" class="show-details">
+        <div>
+            <p>Uploaded on: {{ selectedContent.uploaded_on | date }}</p>
+        </div>
+        <div class="p-t-1 p-b-1" *ngIf="selectedContent.target_date">
+            <p>Target date: {{ selectedContent.target_date | date }}</p>
+        </div>
+    </div>
+    <div class="actions">
+        <nav class="nav">
+            <a class="nav-link" (click)="actionClicked('DESCRIPTION')">
+                <span [class.active-action]="activeAction === 'DESCRIPTION'">Description</span>
+            </a>
+            <a class="nav-link" (click)="actionClicked('Q&A')">
+                <span [class.active-action]="activeAction === 'Q&A'">Q&A</span>
+            </a>
+        </nav>
+    </div>
+    <div class="action-content">
+        <p *ngIf="activeAction === 'DESCRIPTION'" class="text-justify">
+            <span *ngIf="selectedContent.description">{{ selectedContent.description }}</span>
+            <span *ngIf="!selectedContent.description">No description added.</span>
+        </p>
+        <div *ngIf="activeAction === 'Q&A'">
+            <app-q-and-a [content]="selectedContent"></app-q-and-a>
+        </div>
+    </div>
 </div>

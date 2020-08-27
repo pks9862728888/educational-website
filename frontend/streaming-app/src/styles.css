@@ -34,13 +34,16 @@ button.active:focus {
 
 .green-button,
 .red-button,
-.blue-button {
+.blue-button,
+.cancel-button {
     color: #ffffff;
     box-shadow: 1px 1px 2px #1d1d1d;
 }
 
 .green-button:hover,
-.red-button:hover .blue-button:hover {
+.red-button:hover,
+.blue-button:hover,
+.cancel-button:hover {
     box-shadow: none;
 }
 
@@ -66,6 +69,14 @@ button.active:focus {
 
 .red-button:hover {
     background-color: #d60000;
+}
+
+.cancel-button {
+    background-color: #FF3D00;
+}
+
+.cancel-button:hover {
+    background-color: #BF360C;
 }
 
 .expansion-panel-header-color {

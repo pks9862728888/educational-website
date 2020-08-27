@@ -1,0 +1,169 @@
+p,
+hr,
+h3 {
+    margin: 0;
+    padding: 0;
+}
+
+.outline {
+    border: 1px solid #6c757d;
+    color: #bdbdbd;
+}
+
+.t-no {
+    transform: translateY(1.1rem);
+}
+
+.question {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem 0.5rem;
+}
+
+.question:hover {
+    background-color: rgba(255, 255, 255, 0.01);
+}
+
+.question-specific-question {
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.04);
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.icon-p-size {
+    height: 19px;
+    width: 19px;
+    font-size: 19px;
+}
+
+.pin-icon {
+    height: 16px;
+    width: 16px;
+    font-size: 16px;
+    transform: translateY(0.1rem);
+}
+
+.delete-icon {
+    height: 18px;
+    width: 18px;
+    font-size: 18px;
+}
+
+.name-color {
+    color: #80deea;
+}
+
+.question-color {
+    color: #f2aa4cff;
+}
+
+.name-dp {
+    padding: 0.7rem;
+    color: #fff;
+    border-radius: 50%;
+}
+
+.stats-color {
+    color: #999999;
+    font-weight: bold;
+}
+
+.form-control {
+    background-color: inherit;
+    color: #bdbdbd;
+    border-color: #6c757d;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: none;
+    outline: none;
+}
+
+.green-button:disabled {
+    background-color: rgba(10, 86, 82, 0.5);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.cancel-button:disabled {
+    background-color: rgba(255, 61, 0, 0.5);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-separator {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.p-t-05 {
+    padding-top: 0.5rem;
+}
+
+.p-t-1 {
+    padding-top: 1rem;
+}
+
+.p-r-1 {
+    padding-right: 1rem;
+}
+
+.p-lr-07 {
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+}
+
+.p-b-05 {
+    padding-bottom: 0.5rem;
+}
+
+.p-b-07 {
+    padding-bottom: 0.7rem;
+}
+
+.p-b-1 {
+    padding-bottom: 1rem;
+}
+
+.p-l-3p6 {
+    padding-left: 3.6rem;
+}
+
+.p-l-1 {
+    padding-left: 1rem;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-r-03 {
+    margin-right: 0.3rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-r-1 {
+    margin-right: 1rem;
+}
+
+.m-b-05 {
+    margin-bottom: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-l-03 {
+    margin-left: 0.3rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}
+
+.m-l-1 {
+    margin-left: 1rem;
+}

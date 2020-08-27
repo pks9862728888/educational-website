@@ -1,6 +1,5 @@
 import { InstituteApiService } from './../../services/institute-api.service';
 import { UiService } from './../../services/ui.service';
-import { DownloadService } from './../../services/download.service';
 import { actionContent, currentSubjectSlug, hasSubjectPerm } from './../../../constants';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, EventEmitter, Output, ElementRef, ViewChild, OnDestroy } from '@angular/core';

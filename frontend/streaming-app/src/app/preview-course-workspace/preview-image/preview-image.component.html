@@ -1,0 +1,10 @@
+<mat-card>
+    <img class="image" [ngClass]="{'disable-download': !content.data.can_download}" [src]="content.data.file" [alt]="content.title" onContextMenu="return false;">
+</mat-card>
+<div *ngIf="content.data.can_download === true" (click)="download()">
+    <mat-icon *ngIf="mq.matches" class="download-mb">get_app</mat-icon>
+    <div *ngIf="!mq.matches" class="download download-color">
+        <p>Download</p>
+        <mat-icon>get_app</mat-icon>
+    </div>
+</div>

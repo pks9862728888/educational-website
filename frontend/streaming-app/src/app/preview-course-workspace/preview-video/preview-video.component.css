@@ -1,0 +1,24 @@
+h3,
+p {
+    margin: 0;
+    padding: 0;
+}
+
+:host {
+    color: #bdbdbd;
+}
+
+.video-player {
+    width: 100%;
+    height: 450px;
+}
+
+.video-player:focus {
+    outline: none;
+}
+
+@media screen and (max-width: 600px) {
+    .video-player {
+        height: 200px;
+    }
+}

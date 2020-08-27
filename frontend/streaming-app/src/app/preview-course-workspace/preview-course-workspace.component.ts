@@ -1,6 +1,6 @@
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { webAppName, currentInstituteSlug, currentSubjectSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, currentClassSlug } from '../../constants';
+import { webAppName, currentInstituteSlug, currentSubjectSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, currentClassSlug, previewActionContent } from '../../constants';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { MediaMatcher } from '@angular/cdk/layout';

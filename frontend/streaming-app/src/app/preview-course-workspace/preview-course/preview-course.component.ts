@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { currentInstituteSlug, currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, previewActionContent, selectedPreviewContentType } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { isContentTypeImage, isContentTypeVideo, isContentTypePdf, isContentTypeExternalLink } from '../../shared/utilityFunctions'
 import { SubjectPreviewCourseMinDetails, StudyMaterialPreviewDetails } from '../../models/subject.model';
 
@@ -14,7 +14,7 @@ import { SubjectPreviewCourseMinDetails, StudyMaterialPreviewDetails } from '../
   templateUrl: './preview-course.component.html',
   styleUrls: ['./preview-course.component.css']
 })
-export class PreviewCourseComponent implements OnInit {
+export class PreviewCourseComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
   currentSubjectSlug: string;
@@ -33,8 +33,10 @@ export class PreviewCourseComponent implements OnInit {
   reloadContentIndicator: boolean;
   errorContentLoading: string;
 
+  showDetails = false;
   contentOpened: boolean;
   closePreviewCourseContentStatusSubscription: Subscription;
+  activeAction = 'Q&A';
 
   // Data
   viewOrder = []
@@ -183,6 +185,7 @@ export class PreviewCourseComponent implements OnInit {
   closePreviewClicked() {
     this.contentOpened = false;
     this.selectedContent = null;
+    this.activeAction = 'DESCRIPTION';
     sessionStorage.removeItem(previewActionContent);
     sessionStorage.removeItem(selectedPreviewContentType);
   }
@@ -233,6 +236,19 @@ export class PreviewCourseComponent implements OnInit {
       time = time + duration.toString() + ' seconds';
     }
     return time;
+  }
+
+  toggleShowDetails() {
+    this.showDetails = !this.showDetails;
+  }
+
+  actionClicked(actionType: string) {
+    this.activeAction = actionType;
+  }
+
+  ngOnDestroy() {
+    sessionStorage.removeItem(previewActionContent);
+    this.inAppDataTransferService.closePreviewCourseContent();
   }
 
 }

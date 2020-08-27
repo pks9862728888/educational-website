@@ -1,0 +1,161 @@
+<app-ui-loading *ngIf="loadingQuestionsIndicator" [actionText]="'Loading Questions...'"></app-ui-loading>
+<app-ui-reload *ngIf="reloadQuestionsIndicator" [errorText]="'Unable to load Questions.'" (retryEvent)="loadQuestions()"></app-ui-reload>
+<div class="m-b-1" *ngIf="loadingQuestionsError">
+    <app-ui-error-text [errorText]="loadingQuestionsError" [hideCloseButton]="true"></app-ui-error-text>
+</div>
+<section *ngIf="!showSpecificQuestionView && !loadingQuestionsIndicator && !reloadQuestionsIndicator && !loadingQuestionsError">
+    <div class="d-flex justify-content-between m-b-05">
+        <p class="text-color" [class.t-no]="!showAskQuestionForm">123 questions</p>
+        <button mat-stroked-button class="outline" (click)="toggleAskQuestion()" *ngIf="!showAskQuestionForm">
+          <mat-icon class='m-r-05 add-icon'>add</mat-icon>
+          <span class="m-r-05">Question</span>
+        </button>
+    </div>
+    <hr class="top-separator m-b-1" />
+    <div class="m-t-1 m-b-1" *ngIf="showAskQuestionForm">
+        <div class="m-b-1" *ngIf="submitQuestionError">
+            <app-ui-error-text [errorText]="submitQuestionError" (closeErrorTextEvent)="closeSubmitQuestionError()"></app-ui-error-text>
+        </div>
+        <form [formGroup]="askQuestionForm">
+            <div class="form-group">
+                <input formControlName="question" type="text" class="form-control" placeholder="Title of Question">
+            </div>
+            <div class="form-group">
+                <textarea formControlName="description" rows="5" type="text" class="form-control" placeholder="Details (optional)"></textarea>
+            </div>
+        </form>
+        <div class="d-flex align-center">
+            <button mat-flat-button [disabled]="submitQuestionIndicator" class="cancel-button m-r-05" (click)="toggleAskQuestion()">
+              Cancel
+            </button>
+            <button mat-flat-button [disabled]="askQuestionForm.invalid" class="green-button" (click)="askQuestion()">
+              <div class="d-flex align-center">
+                <mat-spinner *ngIf="submitQuestionIndicator" mode="indeterminate" class="m-r-05" [diameter]="20"></mat-spinner>
+                <span *ngIf="!submitQuestionIndicator">Post</span>
+                <span *ngIf="submitQuestionIndicator">Posting...</span>
+              </div>
+            </button>
+        </div>
+    </div>
+    <p *ngIf="false">No questions found.</p>
+    <div class="question">
+        <div class="d-flex justify-content-between align-center p-t-05">
+            <div class="d-flex">
+                <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
+                    <span class="name-dp" [ngStyle]="{'background-color': getBackgroundColor()}">NP</span>
+                </div>
+                <div class="text-justify cursor-pointer p-b-05" (click)="questionClicked()">
+                    <h3 class="question-color">What is the name of dog?</h3>
+                    <p class="text-color">{{ formatText(text) }} </p>
+                </div>
+            </div>
+            <div class="m-l-1 text-color">
+                <div>
+                    <div class="d-flex align-center m-b-05">
+                        <p>3</p>
+                        <mat-icon class="m-l-03 icon-p-size cursor-pointer">arrow_upward</mat-icon>
+                    </div>
+                    <div class="d-flex align-center">
+                        <p>0</p>
+                        <mat-icon class="m-l-03 icon-p-size">comment</mat-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex p-b-07" [class.p-l-3p6]="!mq.matches">
+            <small class="m-r-03 cursor-pointer name-color">Nidhi Pal</small> -
+            <small class="m-l-03 text-color">Asked 8 days ago.</small>
+        </div>
+    </div>
+</section>
+<section *ngIf="showSpecificQuestionView && !loadingQuestionsIndicator && !reloadQuestionsIndicator && !loadingQuestionsError">
+    <button mat-stroked-button class="outline m-b-1" (click)="showAllQuestionView()">
+      <mat-icon class='m-r-05 back-icon'>arrow_back_ios</mat-icon>
+      <span class="m-r-05">Back to All Questions</span>
+    </button>
+    <div class="question-specific-question">
+        <div class="d-flex">
+            <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
+                <span class="name-dp" [ngStyle]="{'background-color': getBackgroundColor()}">NP</span>
+            </div>
+            <div class="text-justify p-b-05">
+                <div class="d-flex justify-content-between">
+                    <h3 class="question-color">What is the name of dog?</h3>
+                    <div class="d-flex align-center">
+                        <p>3</p>
+                        <mat-icon class="m-l-03 icon-p-size cursor-pointer">arrow_upward</mat-icon>
+                    </div>
+                </div>
+                <p class="text-color">{{ text }}</p>
+            </div>
+        </div>
+        <div class="d-flex" [class.p-l-3p6]="!mq.matches">
+            <small class="m-r-03 cursor-pointer name-color">Nidhi Pal</small> -
+            <small class="m-l-03 text-color">Asked 8 days ago.</small>
+        </div>
+        <div class="d-flex justify-content-between p-t-1 stats-color" *ngIf="!loadingAnswersIndicator && !reloadLoadAnswerIndicator && !loadAnswerError">
+            <div>
+                <p>12 replies</p>
+            </div>
+            <div>
+                <p class="cursor-pointer">Follow Replies</p>
+            </div>
+        </div>
+    </div>
+    <app-ui-loading *ngIf="loadingAnswersIndicator" [actionText]="'Loading answers...'"></app-ui-loading>
+    <app-ui-reload *ngIf="reloadLoadAnswerIndicator" [errorText]="'Unable to load answers.'" (retryEvent)="loadAnswers()"></app-ui-reload>
+    <div *ngIf="loadAnswerError" class="m-t-1">
+        <app-ui-error-text [errorText]="loadAnswerError" [hideCloseButton]="true"></app-ui-error-text>
+    </div>
+    <div *ngIf="!loadingAnswersIndicator && !reloadLoadAnswerIndicator && !loadAnswerError">
+        <div class="p-t-1 p-b-1 p-r-1 p-l-1">
+            <div class="d-flex">
+                <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
+                    <span class="name-dp" [ngStyle]="{'background-color': getBackgroundColor()}">NP</span>
+                </div>
+                <div class="text-justify p-b-05">
+                    <div class="d-flex justify-content-between align-center">
+                        <div>
+                            <h3 class="question-color cursor-pointer">Sunai Pal</h3>
+                            <small class="text-color">1 day ago</small>
+                        </div>
+                        <div class="d-flex m-l-05 text-color">
+                            <div class="m-r-05">
+                                <mat-icon class="edit-icon icon-p-size cursor-pointer">edit</mat-icon>
+                            </div>
+                            <div class="m-r-05">
+                                <mat-icon class="delete-icon cursor-pointer">delete</mat-icon>
+                            </div>
+                            <div class="m-r-05">
+                                <mat-icon class="pin-icon cursor-pointer">push_pin</mat-icon>
+                            </div>
+                            <div class="d-flex">
+                                <p>3</p>
+                                <mat-icon class="m-l-03 icon-p-size cursor-pointer">arrow_upward</mat-icon>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-color p-t-1">{{ text }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="form-separator" *ngIf="!loadingAnswersIndicator && !reloadLoadAnswerIndicator && !loadAnswerError">
+    <div class="m-t-1 p-lr-07" *ngIf="!loadingAnswersIndicator && !reloadLoadAnswerIndicator && !loadAnswerError">
+        <div class="m-b-1" *ngIf="submitAnswerError">
+            <app-ui-error-text [errorText]="submitAnswerError" (closeErrorTextEvent)="closeSubmitAnswerErrorText()"></app-ui-error-text>
+        </div>
+        <form [formGroup]="answerForm">
+            <div class="form-group">
+                <textarea rows="5" formControlName="answer" type="text" class="form-control" placeholder="Add an Answer"></textarea>
+            </div>
+        </form>
+        <button mat-flat-button [disabled]="answerForm.invalid" class="green-button" (click)="answerClicked()">
+              <div class="d-flex align-center">
+                <mat-spinner *ngIf="submitAnswerIndicator" mode="indeterminate" class="m-r-05" [diameter]="20"></mat-spinner>
+                <span *ngIf="!submitAnswerIndicator">Submit</span>
+                <span *ngIf="submitAnswerIndicator">Submitting</span>
+              </div>
+        </button>
+    </div>
+</section>

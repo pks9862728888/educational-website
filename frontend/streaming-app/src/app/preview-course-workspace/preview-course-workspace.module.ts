@@ -1,3 +1,4 @@
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { SharedModule } from './../shared/shared.module';
@@ -9,6 +10,7 @@ import { PreviewVideoComponent } from './preview-video/preview-video.component';
 import { PreviewPdfComponent } from './preview-pdf/preview-pdf.component';
 import { PreviewImageComponent } from './preview-image/preview-image.component';
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
+import { QAndAComponent } from './q-and-a/q-and-a.component';
 
 
 
@@ -17,10 +19,13 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
     previewCourseRoutingComponents,
     PreviewVideoComponent,
     PreviewPdfComponent,
-    PreviewImageComponent
+    PreviewImageComponent,
+    QAndAComponent,
   ],
   imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     PreviewCourseRoutingModule,
     MaterialPreviewCourseModule,
     SharedModule,
