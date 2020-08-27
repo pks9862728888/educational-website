@@ -3760,3 +3760,29 @@ class InstituteSubjectUpvoteDownvoteAnswerView(APIView):
         except Exception:
             return Response({'error': _('Internal server error occured.')},
                              status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseContentDeleteQuestionView(APIView):
+    """View for deleting question by user"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def delete(self, *args, **kwargs):
+        question = models.InstituteSubjectCourseContentQuestions.objects.filter(
+            pk=kwargs.get('question_pk')
+        ).first()
+
+        if not question:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        if question.user.pk != self.request.user.pk:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
