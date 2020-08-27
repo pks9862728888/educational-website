@@ -138,6 +138,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:subject_slug>/<int:question_pk>/upvote-downvote-question',
          views.InstituteSubjectUpvoteDownvoteQuestionView.as_view(),
          name='upvote-downvote-question'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<int:answer_pk>/upvote-downvote-answer',
+         views.InstituteSubjectUpvoteDownvoteAnswerView.as_view(),
+         name='upvote-downvote-answer'),
     # Institute section
     path('<slug:class_slug>/create-section',
          views.CreateSectionView.as_view(),

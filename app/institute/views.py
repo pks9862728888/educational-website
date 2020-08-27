@@ -3682,7 +3682,81 @@ class InstituteSubjectUpvoteDownvoteQuestionView(APIView):
         except IntegrityError:
             return Response({'error': _('Question already upvoted.')},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            print(str(e))
+        except Exception:
+            return Response({'error': _('Internal server error occured.')},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectUpvoteDownvoteAnswerView(APIView):
+    """View for upvoting and downvoting answer by permitted instructor and student"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject=subject,
+                user=self.request.user,
+                active=True
+        ).exists():
+            if not models.InstituteSubjectPermission.objects.filter(
+                    to=subject,
+                    invitee=self.request.user
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        answer = models.InstituteSubjectCourseContentAnswer.objects.filter(
+            pk=kwargs.get('answer_pk')
+        ).first()
+
+        if not answer:
+            return Response({'error': _('Answer may have been deleted or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if answer.user.pk == self.request.user.pk:
+            return Response({'error': _('Bad Request.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if 'upvote' in request.data:
+                res = models.InstituteSubjectCourseContentAnswerUpvote.objects.create(
+                    course_content_answer=answer,
+                    user=self.request.user
+                )
+                return Response({'upvoted': True, 'answer_id': res.course_content_answer.pk},
+                                status=status.HTTP_201_CREATED)
+            else:
+                res = models.InstituteSubjectCourseContentAnswerUpvote.objects.filter(
+                    course_content_answer=answer,
+                    user=self.request.user
+                ).first()
+
+                if not res or res.user.pk != self.request.user.pk:
+                    return Response({'error': 'Permission denied.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    res.delete()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        except IntegrityError:
+            return Response({'error': _('Answer already upvoted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
             return Response({'error': _('Internal server error occured.')},
                              status=status.HTTP_500_INTERNAL_SERVER_ERROR)
