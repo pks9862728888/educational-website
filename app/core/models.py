@@ -1615,6 +1615,14 @@ class InstituteSubjectCourseContentAnswer(models.Model):
     pin = models.BooleanField(
         _('Pinned answer'), default=False, blank=True)
 
+    def save(self, *args, **kwargs):
+        if not self.answer:
+            raise ValueError('Answer field is required.')
+        if not self.rgb_color:
+            raise ValueError('RGB color field is required.')
+        self.answer = self.answer.strip()
+        super(InstituteSubjectCourseContentAnswer, self).save(*args, **kwargs)
+
     def __str__(self):
         return str(self.content_question)
 
