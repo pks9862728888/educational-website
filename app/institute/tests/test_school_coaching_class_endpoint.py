@@ -133,6 +133,13 @@ def get_course_preview_min_details(institute_slug, subject_slug):
                            'subject_slug': subject_slug})
 
 
+def get_institute_subject_content_ask_question_url(institute_slug, subject_slug, pk):
+    return reverse("institute:ask-new-question",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug,
+                           'course_content_id': pk})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -2514,10 +2521,90 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_get_course_min_preview_details_by_admin_success(self):
+    #     """Test that admin can get min preview details of course structure"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     ext_link = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     link = models.SubjectExternalLinkStudyMaterial.objects.create(
+    #         external_link_study_material=ext_link,
+    #         url='abc'
+    #     )
+    #
+    #     res = self.client.get(
+    #         get_course_preview_min_details(institute.institute_slug, subject.subject_slug)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertIn('instructors', res.data)
+    #     self.assertEqual(len(res.data['instructors']), 0)
+    #     self.assertIn('view_order', res.data)
+    #     self.assertEqual(len(res.data['view_order']), 3)
 
-    def test_get_course_min_preview_details_by_admin_success(self):
-        """Test that admin can get min preview details of course structure"""
-        institute = create_institute(self.user)
+    def test_adding_of_course_content_question_success_by_permitted_user(self):
+        """Test that adding course content question is successful by permitted user with active license"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        course_content = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        create_institute_subject_permission(admin, self.user, subject)
+        payload = {
+            'question': 'What',
+            'rgb_color': '(255, 255, 255, 0.5)',
+            'anonymous': True,
+            'description': 'a'
+        }
+        res = self.client.post(
+            get_institute_subject_content_ask_question_url(
+                institute.institute_slug,
+                subject.subject_slug,
+                course_content.pk
+            ), payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(res.data['question'], payload['question'])
+        self.assertEqual(res.data['rgb_color'], payload['rgb_color'])
+        self.assertEqual(res.data['description'], payload['description'])
+        self.assertTrue(res.data['anonymous'])
+        self.assertEqual(res.data['user'], 'Anonymous User')
+        self.assertNotIn('user_id', res.data)
+        self.assertIn('created_on', res.data)
+
+    def test_adding_of_course_content_question_fails_by_permitted_user_no_active_license(self):
+        """Test that adding course content question fails by permitted user with no active license"""
+        admin = create_teacher()
+        institute = create_institute(admin)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
         order.paid = True
@@ -2528,23 +2615,150 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         view = models.SubjectViewNames.objects.filter(
             key='MI'
         ).first()
-        ext_link = models.InstituteSubjectCourseContent.objects.create(
+        course_content = models.InstituteSubjectCourseContent.objects.create(
             view=view,
             course_content_subject=subject,
             title='a',
             content_type='L'
         )
-        link = models.SubjectExternalLinkStudyMaterial.objects.create(
-            external_link_study_material=ext_link,
-            url='abc'
-        )
+        create_institute_subject_permission(admin, self.user, subject)
+        payload = {
+            'question': 'What',
+            'rgb_color': '(255, 255, 255, 0.5)',
+            'anonymous': False,
+            'description': 'a'
+        }
+        res = self.client.post(
+            get_institute_subject_content_ask_question_url(
+                institute.institute_slug,
+                subject.subject_slug,
+                course_content.pk
+            ),
+            payload)
 
-        res = self.client.get(
-            get_course_preview_min_details(institute.institute_slug, subject.subject_slug)
-        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Active license not found or expired.')
 
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn('instructors', res.data)
-        self.assertEqual(len(res.data['instructors']), 0)
-        self.assertIn('view_order', res.data)
-        self.assertEqual(len(res.data['view_order']), 3)
+    def test_adding_of_course_content_question_fails_by_permitted_user_no_expired_license(self):
+        """Test that adding course content question fails by permitted user with expired license"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() - datetime.timedelta(days=10)
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        course_content = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        create_institute_subject_permission(admin, self.user, subject)
+        payload = {
+            'question': 'What',
+            'rgb_color': '(255, 255, 255, 0.5)',
+            'anonymous': False,
+            'description': 'a'
+        }
+        res = self.client.post(
+            get_institute_subject_content_ask_question_url(
+                institute.institute_slug,
+                subject.subject_slug,
+                course_content.pk
+            ),
+            payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Active license not found or expired.')
+
+    def test_adding_of_course_content_question_fails_by_unpermitted_user(self):
+        """Test that adding course content question fails by unpermitted user with active license"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        course_content = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        payload = {
+            'question': 'What',
+            'rgb_color': '(255, 255, 255, 0.5)',
+            'anonymous': False,
+            'description': 'a'
+        }
+        res = self.client.post(
+            get_institute_subject_content_ask_question_url(
+                institute.institute_slug,
+                subject.subject_slug,
+                course_content.pk
+            ),
+            payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_duplicate_question_asking_fails(self):
+        """Test that user can not ask duplicate question"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        course_content = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        create_institute_subject_permission(admin, self.user, subject)
+        payload = {
+            'question': 'What',
+            'rgb_color': '(255, 255, 255, 0.5)',
+            'anonymous': True,
+            'description': 'a'
+        }
+        self.client.post(
+            get_institute_subject_content_ask_question_url(
+                institute.institute_slug,
+                subject.subject_slug,
+                course_content.pk
+            ), payload)
+        res = self.client.post(
+            get_institute_subject_content_ask_question_url(
+                institute.institute_slug,
+                subject.subject_slug,
+                course_content.pk
+            ), payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'This question already exists.')

@@ -3425,3 +3425,97 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
                 response.append(res)
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSubjectCourseContentAskQuestionView(APIView):
+    """View for asking question"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject=subject,
+                user=self.request.user,
+                active=True
+        ).exists():
+            is_permitted_instructor = models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+            ).exists()
+            if not is_permitted_instructor and not models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    invitee=self.request.user,
+                    role=models.InstituteRole.ADMIN,
+                    active=True
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        course_content = models.InstituteSubjectCourseContent.objects.filter(
+            pk=kwargs.get('course_content_id')
+        ).first()
+
+        if not course_content:
+            return Response({'error': _('Course content not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_license(institute):
+            return Response({'error': _('Active license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = models.InstituteSubjectCourseContentQuestions.objects.create(
+                course_content=course_content,
+                user=self.request.user,
+                anonymous=request.data.get('anonymous'),
+                question=request.data.get('question'),
+                description=request.data.get('description'),
+                rgb_color=request.data.get('rgb_color')
+            )
+            response = {
+                'id': question.pk,
+                'question': question.question,
+                'description': question.description,
+                'rgb_color': question.rgb_color,
+                'anonymous': question.anonymous,
+                'created_on': str(question.created_on)
+            }
+            if question.anonymous:
+                response['user'] = 'Anonymous User'
+            else:
+                response['user_id'] = self.request.user.pk
+                user_info = models.InstituteStudents.objects.filter(
+                    user=self.request.user,
+                    institute=institute
+                ).first()
+                if user_info.first_name and user_info.last_name:
+                    response['user'] = user_info.first_name + ' ' + user_info.last_name
+                else:
+                    response['user'] = str(self.request.user)
+            return Response(response, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response({'error': _('This question already exists.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Internal server error. Contact us.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

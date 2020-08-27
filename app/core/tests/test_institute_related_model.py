@@ -1070,24 +1070,24 @@ def create_institute_subject_content(course_content_subject,
 #         self.assertEqual(res.last_name, 'a')
 #         self.assertFalse(res.edited)
 #         self.assertFalse(res.active)
-
-
-class InstituteClassStudentsModel(TestCase):
-    """Tests for institute class students"""
-
-    def setUp(self):
-        self.user = create_teacher()
-        self.institute = create_institute(self.user)
-        self.class_ = create_class(self.institute)
-
-    def test_institute_class_student_add_success(self):
-        """Test that adding students to institute class success"""
-        student = create_student()
-        res = models.InstituteClassStudents.objects.create(
-            institute_class=self.class_,
-            user=student)
-
-        self.assertEqual(res.institute_class, self.class_)
-        self.assertEqual(res.user, student)
-        self.assertFalse(res.active)
-        self.assertFalse(res.is_banned)
+#
+#
+# class InstituteClassStudentsModel(TestCase):
+#     """Tests for institute class students"""
+#
+#     def setUp(self):
+#         self.user = create_teacher()
+#         self.institute = create_institute(self.user)
+#         self.class_ = create_class(self.institute)
+#
+#     def test_institute_class_student_add_success(self):
+#         """Test that adding students to institute class success"""
+#         student = create_student()
+#         res = models.InstituteClassStudents.objects.create(
+#             institute_class=self.class_,
+#             user=student)
+#
+#         self.assertEqual(res.institute_class, self.class_)
+#         self.assertEqual(res.user, student)
+#         self.assertFalse(res.active)
+#         self.assertFalse(res.is_banned)
