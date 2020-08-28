@@ -1,3 +1,4 @@
+import { InAppDataTransferService } from './../../../services/in-app-data-transfer.service';
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../../services/api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -37,28 +38,25 @@ export class ChooseFromExistingComponent implements OnInit {
   alsoSetAsPrivateProfilePicture: false;
 
   // For controlling the html layout
-  showLoading = true;
+  showLoading: boolean;
 
-  // Response to send to parent element while closing
-  response = {
-    status: false,
-    classProfilePictureChanged: false,
-  };
-
-  constructor(private media: MediaMatcher,
-              private apiService: ApiService) {
+  constructor(
+    private media: MediaMatcher,
+    private apiService: ApiService,
+    private inAppDataTransferService: InAppDataTransferService
+    ) {
       this.mq = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {
     // Fetching the list of images uploaded by the user
+    this.showLoading = true;
     this.apiService.listProfilePicture().subscribe(
       (response: ImageDetails[]) => {
         for (const image of response) {
           this.imageList.push(image);
         }
         this.showLoading = false;
-        console.log(this.imageList);
       },
       error => {
         console.error(error);
@@ -87,19 +85,7 @@ export class ChooseFromExistingComponent implements OnInit {
 
     this.apiService.setUserProfilePicture(data).subscribe(
       (response: SetProfilePictureResponse) => {
-        if (response.class_profile_picture) {
-          sessionStorage.setItem('class_profile_picture_id', response.id);
-          sessionStorage.setItem('class_profile_picture', response.image);
-          sessionStorage.setItem('class_profile_picture_uploaded_on', response.uploaded_on);
-          this.response.classProfilePictureChanged = true;
-        }
-        if (response.public_profile_picture) {
-          sessionStorage.setItem('public_profile_picture_id', response.id);
-          sessionStorage.setItem('public_profile_picture', response.image);
-          sessionStorage.setItem('public_profile_picture_uploaded_on', response.uploaded_on);
-        }
-        this.response.status = true;
-
+        this.inAppDataTransferService.sendProfilePictureUpdatedData(response);
         // Closing the dialog
         document.getElementById('closeDialogueButton').click();
       },

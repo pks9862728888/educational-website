@@ -1,28 +1,11 @@
+import { InAppDataTransferService } from './../../../services/in-app-data-transfer.service';
 import { ApiService } from '../../../services/api.service';
 import { Component, OnInit, Type, } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ImageCroppedEvent, base64ToFile } from 'ngx-image-cropper';
 import { HttpEventType } from '@angular/common/http';
+import { ImageUploadResponse } from '../../../models/profile.model';
 
-interface ImageUploadResponse {
-  type: number;
-  loaded: number;
-  total: number;
-  body: {
-    id: string;
-    image: string;
-    class_profile_picture: boolean;
-    public_profile_picture: boolean;
-    uploaded_on: string;
-  };
-  headers: {
-    ok: boolean;
-    status: number;
-    statusText: string;
-    type: number;
-    url: string;
-  };
-}
 
 @Component({
   selector: 'app-upload-profile-picture',
@@ -55,47 +38,50 @@ export class UploadProfilePictureComponent implements OnInit {
   showIndeterminateProgress = false;
   uploadProgress: number;
 
-  // For sending status whether file is uploaded successfully or not
-  pictureSuccessfullyUploaded = {
-    status: false,
-    classProfilePictureChanged: false
-  };
-
   // For cropping image to visible ratio
   imageChangedEvent: any = '';
 
   constructor(
     private media: MediaMatcher,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private inAppDataTransferService: InAppDataTransferService
   ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {}
 
-  onProfilePictureSelected(event) {
-    // Checking whether the image file is valid or not
-    const filename = event.target.files[0].name.toLowerCase().split('.');
-    const extension = filename[filename.length - 1];
-    const regex = new RegExp('^(jpeg|png|jpg|webp)$');
-    if (regex.test(extension)) {
-      // Checking whether the image file size is not empty file
-      if (event.target.files[0].size !== 0 ) {
-        this.chosenFile = event.target.files[0].name;
-        this.imageChangedEvent = event;
-        this.fileNotChosen = false;
-        this.imageError = null;
-      } else {
-        this.chosenFile = null;
-        this.fileNotChosen = true;
-        this.imageChangedEvent = null;
-        this.imageError = 'Choose a valid image';
-      }
+  resetEvents() {
+    this.chosenFile = null;
+    this.fileNotChosen = true;
+    this.imageChangedEvent = null;
+  }
+
+  onProfilePictureSelected(event: any) {
+    this.imageError = null;
+    const file: File = (<HTMLInputElement>document.getElementById('image-file')).files[0];
+
+    if (!file.type.includes('image/jpeg') && !file.type.includes('image/jpg') && !file.type.includes('image/png')) {
+      this.imageError = 'Choose a valid image.';
+      this.resetEvents();
     } else {
-      this.chosenFile = null;
-      this.fileNotChosen = true;
-      this.imageChangedEvent = null;
-      this.imageError = 'Invalid image';
+      const filename = event.target.files[0].name.toLowerCase().split('.');
+      const extension = filename[filename.length - 1];
+      const regex = new RegExp('^(jpeg|png|jpg)$');
+      if (regex.test(extension)) {
+        if (event.target.files[0].size !== 0 ) {
+          this.chosenFile = event.target.files[0].name;
+          this.imageChangedEvent = event;
+          this.fileNotChosen = false;
+          this.imageError = null;
+        } else {
+          this.resetEvents();
+          this.imageError = 'Choose a valid image.';
+        }
+      } else {
+        this.resetEvents();
+        this.imageError = 'Invalid image.';
+      }
     }
   }
 
@@ -125,26 +111,11 @@ export class UploadProfilePictureComponent implements OnInit {
       this.apiService.uploadProfilePicture(data).subscribe(
         (events: ImageUploadResponse) => {
           if (events.type === HttpEventType.UploadProgress) {
-            // Showing progress in progress bar
             this.showIndeterminateProgress = false;
             this.uploadProgress = Math.round(events.loaded / events.total * 100);
           } else if (events.type === HttpEventType.Response) {
+            this.inAppDataTransferService.sendProfilePictureUpdatedData(events.body);
             this.showIndeterminateProgress = false;
-            // Updating values in session storage
-            if (events.body.class_profile_picture) {
-              sessionStorage.setItem('class_profile_picture_id', events.body.id);
-              sessionStorage.setItem('class_profile_picture', events.body.image);
-              sessionStorage.setItem('class_profile_picture_uploaded_on', events.body.uploaded_on);
-              this.pictureSuccessfullyUploaded.classProfilePictureChanged = true;
-            }
-            if (events.body.public_profile_picture) {
-              sessionStorage.setItem('public_profile_picture_id', events.body.id);
-              sessionStorage.setItem('public_profile_picture', events.body.image);
-              sessionStorage.setItem('public_profile_picture_uploaded_on', events.body.uploaded_on);
-            }
-            this.pictureSuccessfullyUploaded.status = true;
-
-            // Closing the dialog
             document.getElementById('closeDialogueButton').click();
           }
         },

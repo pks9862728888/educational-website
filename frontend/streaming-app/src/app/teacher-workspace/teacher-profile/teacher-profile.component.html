@@ -1,256 +1,295 @@
-<mat-card class="tabgroup-background">
-    <mat-tab-group dynamicHeight mat-stretch-tabs>
-        <!-- First tab -->
-        <mat-tab label="Profile">
-            <div class="tab-content mat-elevation-z4">
-                <!-- Profile section content -->
-                <div class="container profile-container">
-                    <div class="row">
-                        <!-- Left side content -->
-                        <div class="col-sm-4">
-                            <img mat-card-image *ngIf="this.classProfilePicture" [src]=this.classProfilePicture alt="Profile picture">
-                            <img mat-card-image *ngIf="!this.classProfilePicture" src="../../../assets/imgs/cd6.png" alt="Profile picture">
-                            <mat-card-subtitle *ngIf="this.classProfilePictureUploadedOn" class="profile-pic-uploaded-banner">
-                                Uploaded on: {{ this.classProfilePictureUploadedOn | date }}
-                            </mat-card-subtitle>
-                        </div>
-                        <div class="col-sm-8 name-username" [ngClass]="{'name-username-desktop': mobileQuery.matches === false}">
+<mat-card class="main-container">
+    <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="'Loading Profile Data...'"></app-ui-loading>
+    <app-ui-reload *ngIf="showReloadIndicator" [errorText]="'Unable to load profile data.'" (retryEvent)="fetchUserData()"></app-ui-reload>
+    <div *ngIf="!showLoadingIndicator && !showReloadIndicator">
+        <div [ngClass]="{'d-flex justify-content-center': mq.matches, 'row': !mq.matches}">
+            <div *ngIf="(!this.editProfilePicture && mq.matches) || !mq.matches">
+                <img mat-card-image *ngIf="this.userProfileData.profile_pictures.image" [src]=this.userProfileData.profile_pictures.image alt="Profile picture">
+                <img mat-card-image *ngIf="!this.userProfileData.profile_pictures.image" src="../../../assets/imgs/cd6.png" alt="Profile picture">
+                <mat-card-subtitle class="profile-pic-edit-banner">
+                    <mat-icon aria-hidden="false" class="cursor-pointer edit-icon" *ngIf="!this.editProfilePicture" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
+                        edit
+                    </mat-icon>
+                    <mat-icon aria-hidden="false" class="cursor-pointer cancel-icon" *ngIf="this.editProfilePicture && !mq.matches" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
+                        cancel
+                    </mat-icon>
+                </mat-card-subtitle>
+            </div>
+            <div class="col-sm-4" *ngIf="this.editProfilePicture" [ngClass]="{'p-l-1': !mq.matches}">
+                <mat-card class="edit-profile-picture-card">
+                    <mat-list role="list">
+                        <mat-list-item role="listitem" (click)="openUploadPictureDialog()">Upload A Photo</mat-list-item>
+                        <mat-list-item role="listitem" *ngIf="this.profilePictureCount > 1" (click)="chooseFromExistingClicked()">Choose From Existing</mat-list-item>
+                        <mat-list-item role="listitem" *ngIf="this.userProfileData.profile_pictures.image" (click)="deleteCurrentPicture()">Delete Current Picture</mat-list-item>
+                        <mat-list-item role="listitem" *ngIf="this.userProfileData.profile_pictures.image" (click)="removeCurrentPicture()">Remove Current Picture</mat-list-item>
+                        <mat-list-item role="listitem" (click)="openEditProfilePictureDialog()">Cancel</mat-list-item>
+                    </mat-list>
+                </mat-card>
+            </div>
+        </div>
 
-                            <!-- Right side content -->
-                            <div fxLayout="column">
-                                <div>
-                                    <h1 [ngClass]="{'mat-display-1': mobileQuery.matches === false, 'text-align-center-mobile': mobileQuery.matches}">
-                                        <span *ngIf="this.firstName">{{ this.firstName | titlecase }} {{ this.lastName | titlecase}}</span>
-                                        <span *ngIf="!this.firstName">Your Name</span>
-                                    </h1>
-                                </div>
-                                <div class="margin-bottom-15">
-                                    <h4 [ngClass]="{'text-align-center-mobile': mobileQuery.matches}">@ {{ this.username }}</h4>
-                                </div>
-                                <mat-card class="biodata">
-                                    <h4>Email: {{ this.email }}</h4>
-                                    <h4>Mobile No: <span *ngIf="this.phone">{{ this.phone }}</span></h4>
-                                    <h4>Gender: <span *ngIf="this.gender">{{ this.gender }}</span></h4>
-                                    <h4>Country: {{ this.country }}</h4>
-                                    <h4>Birthday: <span *ngIf="this.dateOfBirth">{{ this.dateOfBirth }}</span></h4>
-                                    <h4>Member since: {{ this.createdDate | date }}</h4>
-                                    <h4>User Type: Teacher</h4>
-                                </mat-card>
-                            </div>
-                        </div>
+        <div fxLayout="column" class="m-t-1">
+            <!-- For editing account email and password -->
+            <mat-toolbar>
+                <mat-toolbar-row class="mat-toolbar-background">
+                    <span>Account Details</span>
+                    <span class="float-right-spacer"></span>
+                    <button mat-flat-button class="green-button" (click)="editAccountClicked()">
+                        <span *ngIf="!this.editAccount">Edit</span>
+                        <span *ngIf="this.editAccount">Cancel</span>
+                    </button>
+                </mat-toolbar-row>
+            </mat-toolbar>
+            <!-- For showing account details -->
+            <mat-card class="edit-canvas" *ngIf="!this.editAccount">
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Email:</h4>
                     </div>
-
-                    <!-- Language Preferences row -->
-                    <div class="padding-bottom-2">
-                        <mat-card class="other-data">
-                            <h4>Primary Language: {{ this.primaryLanguage }}</h4>
-                            <h4>Secondary Language: {{ this.secondaryLanguage }}</h4>
-                            <h4>Tertiary Language: {{ this.tertiaryLanguage }}</h4>
-                        </mat-card>
+                    <div class="col-7">
+                        <h4>{{ this.userProfileData.email }}</h4>
                     </div>
                 </div>
-            </div>
-        </mat-tab>
-
-        <!-- Second tab -->
-        <mat-tab label="Edit Profile">
-            <div class="tab-content mat-elevation-z4">
-                <!-- Profile section content -->
-                <div class="container profile-container">
-                    <div class="row">
-                        <!-- Profile Picture Display -->
-                        <div class="col-sm-4" *ngIf="(!this.editProfilePicture && mobileQuery.matches) || !mobileQuery.matches">
-                            <img mat-card-image *ngIf="this.classProfilePicture" [src]=this.classProfilePicture alt="Profile picture">
-                            <img mat-card-image *ngIf="!this.classProfilePicture" src="../../../assets/imgs/cd6.png" alt="Profile picture">
-                            <mat-card-subtitle class="profile-pic-edit-banner">
-                                <mat-icon aria-hidden="false" class="cursor-pointer edit-icon" *ngIf="!this.editProfilePicture" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
-                                    edit
-                                </mat-icon>
-                                <mat-icon aria-hidden="false" class="cursor-pointer cancel-icon" *ngIf="this.editProfilePicture && !mobileQuery.matches" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
-                                    cancel
-                                </mat-icon>
-                            </mat-card-subtitle>
-                        </div>
-                        <div class="col-sm-4" *ngIf="this.editProfilePicture" [ngClass]="{'padding-top-15': !mobileQuery.matches,
-                                         'padding-top-15-mobile': mobileQuery.matches}">
-                            <mat-card class="edit-profile-picture-card">
-                                <mat-list role="list">
-                                    <mat-list-item role="listitem" (click)="openUploadPictureDialog()">Upload A Photo</mat-list-item>
-                                    <mat-list-item role="listitem" *ngIf="this.profilePictureCount > 1 || (this.profilePictureCount === 1 && !classProfilePicture)" (click)="chooseFromExistingClicked()">Choose From Existing</mat-list-item>
-                                    <mat-list-item role="listitem" *ngIf="classProfilePicture" (click)="deleteCurrentPicture()">Delete Current Picture</mat-list-item>
-                                    <mat-list-item role="listitem" *ngIf="classProfilePicture" (click)="removeCurrentPicture()">Remove Current Picture</mat-list-item>
-                                    <mat-list-item role="listitem" (click)="openEditProfilePictureDialog()">Cancel</mat-list-item>
-                                </mat-list>
-                            </mat-card>
-                        </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Password:</h4>
                     </div>
+                    <div class="col-7">
+                        <h4>********</h4>
+                    </div>
+                </div>
+            </mat-card>
+            <!-- For editing account details -->
+            <mat-card class="edit-canvas" *ngIf="this.editAccount">
+                <form>
+                    <mat-form-field>
+                        <mat-label>Email</mat-label>
+                        <input type="email" matInput placeholder="Your Email">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Password</mat-label>
+                        <input type="password" matInput placeholder="Password should be at least 8 characters long.">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Confirm Password</mat-label>
+                        <input type="password" matInput placeholder="Passwords should match.">
+                    </mat-form-field>
+                    <button mat-flat-button class="float-right m-rb-10px submit">Submit</button>
+                    <button mat-flat-button class="float-right m-rb-10px reset">Reset</button>
+                </form>
+            </mat-card>
 
-                    <div fxLayout="column">
-                        <!-- For editing account email and password -->
-                        <mat-toolbar>
-                            <mat-toolbar-row class="mat-toolbar-background">
-                                <span>Account Details</span>
-                                <span class="float-right-spacer"></span>
-                                <button mat-flat-button class="green-button" (click)="editAccountClicked()">
-                                    <span *ngIf="!this.editAccount">Edit</span>
-                                    <span *ngIf="this.editAccount">Cancel</span>
-                                </button>
-                            </mat-toolbar-row>
-                        </mat-toolbar>
-                        <!-- For showing account details -->
-                        <mat-card class="edit-canvas" *ngIf="!this.editAccount">
-                            <h4>Email: {{ this.email }}</h4>
-                            <h4>Password: ********</h4>
-                            <h4>User Type: Teacher</h4>
-                        </mat-card>
-                        <!-- For editing account details -->
-                        <mat-card class="edit-canvas" *ngIf="this.editAccount">
-                            <form>
-                                <mat-form-field>
-                                    <mat-label>Email</mat-label>
-                                    <input type="email" matInput placeholder="Your Email">
-                                </mat-form-field>
-                                <mat-form-field>
-                                    <mat-label>Password</mat-label>
-                                    <input type="password" matInput placeholder="Password should be at least 8 characters long.">
-                                </mat-form-field>
-                                <mat-form-field>
-                                    <mat-label>Confirm Password</mat-label>
-                                    <input type="password" matInput placeholder="Passwords should match.">
-                                </mat-form-field>
-                                <button mat-flat-button class="float-right margin-right-bottom-10 submit">Submit</button>
-                                <button mat-flat-button class="float-right margin-right-bottom-10 reset">Reset</button>
-                            </form>
-                        </mat-card>
-
-                        <!-- For profile details -->
-                        <mat-toolbar>
-                            <mat-toolbar-row class="mat-toolbar-background">
-                                <span>Profile Details</span>
-                                <span class="float-right-spacer"></span>
-                                <button mat-flat-button class="green-button" (click)="editProfileClicked()">
+            <!-- For profile details -->
+            <mat-toolbar class="m-t-1">
+                <mat-toolbar-row class="mat-toolbar-background">
+                    <span>Profile Details</span>
+                    <span class="float-right-spacer"></span>
+                    <button mat-flat-button class="green-button" (click)="editProfileClicked()">
                                     <span *ngIf="!this.editProfile">Edit</span>
                                     <span *ngIf="this.editProfile">Cancel</span>
                                 </button>
-                            </mat-toolbar-row>
-                        </mat-toolbar>
-                        <!-- For showing profile details -->
-                        <mat-card class="edit-canvas" *ngIf="!this.editProfile">
-                            <h4>Username: {{ this.username }}</h4>
-                            <h4>Name: {{ this.firstName | titlecase }} {{ this.lastName | titlecase }}</h4>
-                            <h4>Mobile No: <span *ngIf="this.phone">{{ this.phone }}</span></h4>
-                            <h4>Gender: <span *ngIf="this.gender">{{ this.gender }}</span></h4>
-                            <h4>Country: {{ this.country }}</h4>
-                            <h4>Birthday: <span *ngIf="this.dateOfBirth">{{ this.dateOfBirth }}</span></h4>
-                            <h4>Primary Language: {{ this.primaryLanguage }}</h4>
-                            <h4>Secondary Language: {{ this.secondaryLanguage }}</h4>
-                            <h4>Tertiary Language: {{ this.tertiaryLanguage }}</h4>
-                            <h4>Member since: {{ this.createdDate | date }}</h4>
-                        </mat-card>
-
-                        <!-- For editing profile details -->
-                        <mat-card class="edit-canvas" *ngIf="editProfile">
-                            <form (submit)="profileDetailsSubmit()" [formGroup]="this.editProfileForm">
-                                <mat-form-field>
-                                    <mat-label>Username</mat-label>
-                                    <input matInput formControlName="username" placeholder="Your username">
-                                    <mat-error *ngIf="editProfileForm.controls['username'].errors?.required">
-                                        This field is required.
-                                    </mat-error>
-                                    <mat-error *ngIf="editProfileForm.controls['username'].errors &&
-                                                     !editProfileForm.controls['username'].errors?.required &&
-                                                     !usernameError">
-                                        Username should be 4 to 30 characters.
-                                    </mat-error>
-                                    <mat-error *ngIf="usernameError">
-                                        {{ usernameError }}
-                                    </mat-error>
-                                </mat-form-field>
-
-                                <div formGroupName="user_profile">
-                                    <mat-form-field>
-                                        <mat-label>First Name</mat-label>
-                                        <input matInput formControlName="first_name">
-                                    </mat-form-field>
-
-                                    <mat-form-field>
-                                        <mat-label>Last Name</mat-label>
-                                        <input matInput formControlName="last_name">
-                                    </mat-form-field>
-
-                                    <mat-form-field>
-                                        <mat-label>Mobile No:</mat-label>
-                                        <input matInput formControlName="phone">
-                                        <mat-hint *ngIf="!phoneNumberError" class="hint-normal">
-                                            Enter number in the format: +919999999999
-                                        </mat-hint>
-                                        <mat-hint *ngIf="phoneNumberError" class="hint-error">
-                                            Invalid (Enter in format +919999999999)
-                                        </mat-hint>
-                                    </mat-form-field>
-
-                                    <mat-form-field>
-                                        <mat-label>Gender</mat-label>
-                                        <select matNativeControl formControlName="gender">
-                                          <option value="" class="options"></option>
-                                          <option value="M" class="options">Male</option>
-                                          <option value="F" class="options">Female</option>
-                                          <option value="O" class="options">Others</option>
-                                      </select>
-                                    </mat-form-field>
-
-                                    <mat-form-field>
-                                        <mat-label>Country</mat-label>
-                                        <select matNativeControl formControlName="country" required>
-                                        <option value="IN" class="options">India</option>
-                                        <option value="US" class="options">USA</option>
-                                      </select>
-                                    </mat-form-field>
-
-                                    <mat-form-field>
-                                        <mat-label>Birthday</mat-label>
-                                        <input matInput formControlName="date_of_birth" [max]="maxDate" [matDatepicker]="datepicker">
-                                        <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
-                                        <mat-datepicker touchUi #datepicker></mat-datepicker>
-                                    </mat-form-field>
-
-                                    <mat-form-field>
-                                        <mat-label>Primary Language</mat-label>
-                                        <select matNativeControl formControlName="primary_language" required>
-                                        <option value="EN" class="options">English</option>
-                                        <option value="HI" class="options">Hindi</option>
-                                        <option value="BN" class="options">Bengali</option>
-                                      </select>
-                                    </mat-form-field>
-
-                                    <mat-form-field>
-                                        <mat-label>Secondary Language</mat-label>
-                                        <select matNativeControl formControlName="secondary_language">
-                                        <option value="" class="options"></option>
-                                        <option value="EN" class="options">English</option>
-                                        <option value="HI" class="options">Hindi</option>
-                                        <option value="BN" class="options">Bengali</option>
-                                      </select>
-                                    </mat-form-field>
-
-                                    <mat-form-field>
-                                        <mat-label>Tertiary Language</mat-label>
-                                        <select matNativeControl formControlName="tertiary_language">
-                                        <option value="" class="options"></option>
-                                        <option value="EN" class="options">English</option>
-                                        <option value="HI" class="options">Hindi</option>
-                                        <option value="BN" class="options">Bengali</option>
-                                      </select>
-                                    </mat-form-field>
-                                </div>
-
-                                <button mat-flat-button [disabled]="editProfileForm.invalid" class="float-right margin-right-bottom-10 submit">Submit</button>
-                            </form>
-                            <button mat-flat-button class="float-right margin-right-bottom-10 reset" (click)="profileDetailsReset()">Reset</button>
-                        </mat-card>
+                </mat-toolbar-row>
+            </mat-toolbar>
+            <!-- For showing profile details -->
+            <mat-card class="edit-canvas" *ngIf="!this.editProfile">
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Username:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>{{ this.userProfileData.username }}</h4>
                     </div>
                 </div>
-            </div>
-        </mat-tab>
-    </mat-tab-group>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Name:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>{{ this.userProfileData.user_profile.first_name | titlecase }} {{ this.userProfileData.user_profile.last_name | titlecase }}</h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Mobile No:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4><span *ngIf="this.userProfileData.user_profile.phone">{{ this.userProfileData.user_profile.phone }}</span>
+                            <span *ngIf="!this.userProfileData.user_profile.phone">None</span>
+                        </h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Gender:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>
+                            <span *ngIf="this.userProfileData.user_profile.gender">{{ getGender(this.userProfileData.user_profile.gender) }}</span>
+                        </h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Country:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>{{ getCountry(this.userProfileData.user_profile.country) }}</h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Birthday:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4><span *ngIf="this.userProfileData.user_profile.date_of_birth">{{ this.userProfileData.user_profile.date_of_birth | date }}</span></h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Primary Language:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>{{ getLanguage(this.userProfileData.user_profile.primary_language) }}</h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Secondary Language:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>{{ getLanguage(this.userProfileData.user_profile.primary_language) }}</h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Tertiary Language:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>{{ getLanguage(this.userProfileData.user_profile.primary_language) }}</h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>User Type:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>Teacher</h4>
+                    </div>
+                </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Member Since:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>{{ userProfileData.created_date | date}}</h4>
+                    </div>
+                </div>
+            </mat-card>
+
+            <!-- For editing profile details -->
+            <mat-card class="edit-canvas" *ngIf="editProfile">
+                <form (submit)="profileDetailsSubmit()" [formGroup]="this.editProfileForm">
+                    <mat-form-field>
+                        <mat-label>Username</mat-label>
+                        <input matInput formControlName="username" placeholder="Your username">
+                        <mat-error *ngIf="editProfileForm.controls['username'].errors?.required">
+                            This field is required.
+                        </mat-error>
+                        <mat-error *ngIf="editProfileForm.controls['username'].errors &&
+                                                     !editProfileForm.controls['username'].errors?.required &&
+                                                     !usernameError">
+                            Username should be 4 to 30 characters.
+                        </mat-error>
+                        <mat-error *ngIf="usernameError">
+                            {{ usernameError }}
+                        </mat-error>
+                    </mat-form-field>
+                    <div formGroupName="user_profile">
+                        <mat-form-field>
+                            <mat-label>First Name</mat-label>
+                            <input matInput formControlName="first_name">
+                            <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['first_name'].errors?.required">
+                                This field is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Last Name</mat-label>
+                            <input matInput formControlName="last_name">
+                            <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['last_name'].errors?.required">
+                                This field is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Mobile No:</mat-label>
+                            <input matInput formControlName="phone">
+                            <mat-hint *ngIf="!phoneNumberError" class="hint-normal">
+                                Enter number in the format: +919999999999
+                            </mat-hint>
+                            <mat-hint *ngIf="phoneNumberError" class="hint-error">
+                                Invalid (Enter in format +919999999999)
+                            </mat-hint>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Gender</mat-label>
+                            <select matNativeControl formControlName="gender">
+                                <option value="" class="options"></option>
+                                <option value="M" class="options">Male</option>
+                                <option value="F" class="options">Female</option>
+                                <option value="O" class="options">Others</option>
+                            </select>
+                            <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['gender'].errors?.required">
+                                This field is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Country</mat-label>
+                            <select matNativeControl formControlName="country" required>
+                              <option value="IN" class="options">India</option>
+                            </select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Birthday</mat-label>
+                            <input matInput formControlName="date_of_birth" (click)="datepicker.open()" [max]="maxDate" [matDatepicker]="datepicker">
+                            <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+                            <mat-datepicker touchUi #datepicker></mat-datepicker>
+                            <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['date_of_birth'].errors?.required">
+                                This field is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Primary Language</mat-label>
+                            <select matNativeControl formControlName="primary_language" required>
+                              <option value="EN" class="options">English</option>
+                              <option value="HI" class="options">Hindi</option>
+                              <option value="BN" class="options">Bengali</option>
+                            </select>
+                            <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['primary_language'].errors?.required">
+                                This field is required.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Secondary Language</mat-label>
+                            <select matNativeControl formControlName="secondary_language">
+                              <option value="" class="options"></option>
+                              <option value="EN" class="options">English</option>
+                              <option value="HI" class="options">Hindi</option>
+                              <option value="BN" class="options">Bengali</option>
+                            </select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>Tertiary Language</mat-label>
+                            <select matNativeControl formControlName="tertiary_language">
+                              <option value="" class="options"></option>
+                              <option value="EN" class="options">English</option>
+                              <option value="HI" class="options">Hindi</option>
+                              <option value="BN" class="options">Bengali</option>
+                            </select>
+                        </mat-form-field>
+                    </div>
+                    <button mat-flat-button [disabled]="editProfileForm.invalid" class="float-right m-rb-10px green-button">Submit</button>
+                </form>
+                <button mat-flat-button class="float-right m-rb-10px red-button" (click)="profileDetailsReset()">Reset</button>
+            </mat-card>
+        </div>
+    </div>
 </mat-card>

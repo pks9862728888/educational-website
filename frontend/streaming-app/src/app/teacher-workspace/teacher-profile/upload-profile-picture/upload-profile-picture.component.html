@@ -4,13 +4,12 @@
 
     <mat-dialog-content>
         <div>
-            <input type="file" #imageFile style="display: none" (change)="onProfilePictureSelected($event)">
+            <input id="image-file" type="file" #imageFile style="display: none" (change)="onProfilePictureSelected($event)">
             <button mat-flat-button #chooseImage (click)="imageFile.click()" class="green-button">Choose image</button>
             <span *ngIf="this.chosenFile"> {{ this.chosenFile }}</span>
             <span *ngIf="!this.chosenFile"> &nbsp;No file chosen</span>
         </div>
-        <mat-hint *ngIf="this.imageError" class="error">{{ this.imageError }}<br/>
-            <span *ngIf="this.imageError === 'Invalid image'">Valid formats(.jpeg/.jpg/.png/.webp)</span>
+        <mat-hint *ngIf="this.imageError" class="error">{{ this.imageError }}<br/> Valid formats(.jpeg/.jpg/.png)
         </mat-hint>
 
         <div class="row image-edit">
@@ -42,6 +41,6 @@
     <mat-divider class="bottom-divider"></mat-divider>
     <div mat-dialog-actions class="p-b-30px" align="end">
         <button mat-flat-button [disabled]="fileNotChosen && (!this.classProfilePicture || !this.publicProfilePicture)" (click)="uploadProfilePicture()" class="green-button">Upload</button>
-        <button id="closeDialogueButton" mat-flat-button [mat-dialog-close]="pictureSuccessfullyUploaded" class="cancel-button">Close</button>
+        <button id="closeDialogueButton" mat-flat-button [matDialogClose]="false" class="cancel-button">Close</button>
     </div>
 </div>

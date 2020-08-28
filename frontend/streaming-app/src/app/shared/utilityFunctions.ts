@@ -1,4 +1,4 @@
-import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from '../../constants';
+import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE, LANGUAGE, COUNTRY, GENDER } from '../../constants';
 
 export function getFileSize(fileSize: number) {
     if (fileSize >= 1000000000) {
@@ -41,5 +41,29 @@ export function isContentTypePdf(key: string) {
     return true;
   } else {
     return false
+  }
+}
+
+export function getLanguage(key: any) {
+  if (key) {
+    return LANGUAGE[key];
+  } else {
+    return 'None';
+  }
+}
+
+export function getCountry(key: any) {
+  if (key) {
+    return COUNTRY[key];
+  } else {
+    return 'None';
+  }
+}
+
+export function getGender(key: any) {
+  if (key) {
+    return GENDER[key];
+  } else {
+    return 'None';
   }
 }

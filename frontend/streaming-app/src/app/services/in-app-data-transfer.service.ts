@@ -29,6 +29,10 @@ export class InAppDataTransferService {
   private closePreviewCourseContentStatus = new Subject<void>();
   closePreviewCourseContent$ = this.closePreviewCourseContentStatus.asObservable();
 
+  // For sending profile picture updated data
+  private profilePictureUpdatedData = new Subject();
+  profilePictureUpdatedData$ = this.profilePictureUpdatedData.asObservable();
+
   constructor() { }
 
   // Sends active breadcrumb sublink text
@@ -58,5 +62,9 @@ export class InAppDataTransferService {
 
   closePreviewCourseContent() {
     this.closePreviewCourseContentStatus.next();
+  }
+
+  sendProfilePictureUpdatedData(data: any) {
+    this.profilePictureUpdatedData.next(data);
   }
 }

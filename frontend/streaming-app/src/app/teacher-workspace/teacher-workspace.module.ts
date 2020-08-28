@@ -1,3 +1,4 @@
+import { SharedModule } from './../shared/shared.module';
 import { SnackbarComponent } from './teacher-institute/teacher-institute.component';
 import { UiService } from './../services/ui.service';
 import { NgModule } from '@angular/core';
@@ -33,7 +34,8 @@ import { InAppDataTransferService } from '../services/in-app-data-transfer.servi
     TeacherMaterialWorkspaceModule,
     TeacherWorkspaceRoutingModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    SharedModule
   ],
   providers: [
     ApiService,

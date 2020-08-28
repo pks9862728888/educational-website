@@ -13,7 +13,7 @@
         </div>
 
         <!-- For showing the profile pictures -->
-        <div class="d-flex justify-content-lg-start" *ngIf="!this.selectedImageId">
+        <div class="d-flex justify-content-start max-width" *ngIf="!this.selectedImageId">
             <div class="image-size m-r-05 m-b-05 m-t-05" *ngFor="let image of this.imageList">
                 <img (click)="this.imageClicked(imageRef.id)" #imageRef [src]="image.image" [alt]="image.id" [id]="image.id" [ngClass]="{'profile-image-showcase': !mq.matches, 'profile-image-showcase-mobile': mq.matches}">
             </div>
@@ -33,6 +33,6 @@
     <div mat-dialog-actions class="p-b-30px" align="end">
         <button id="setDialogueButton" mat-flat-button (click)="backClicked()" *ngIf="this.selectedImageId" class="blue-button">Back</button>
         <button id="setDialogueButton" mat-flat-button (click)="setProfilePicture()" *ngIf="this.selectedImageId" class="green-button">Set</button>
-        <button id="closeDialogueButton" mat-flat-button [mat-dialog-close]="this.response" class="cancel-button">Close</button>
+        <button id="closeDialogueButton" mat-flat-button [mat-dialog-close]="true" class="cancel-button">Close</button>
     </div>
 </div>

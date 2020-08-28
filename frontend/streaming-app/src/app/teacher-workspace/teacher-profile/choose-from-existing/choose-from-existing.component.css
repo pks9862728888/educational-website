@@ -37,6 +37,11 @@
     margin: 0 auto;
 }
 
+.max-width {
+    max-width: 100vh;
+    overflow-x: scroll;
+}
+
 .text-wait {
     font-weight: bold;
     color: #777777;

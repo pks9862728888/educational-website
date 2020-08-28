@@ -1,44 +1,17 @@
+import { InAppDataTransferService } from './../../services/in-app-data-transfer.service';
+import { Subscription } from 'rxjs';
+import { UserProfileDetails, DeletedCurrentPictureResponse } from './../../models/profile.model';
 import { UiService } from './../../services/ui.service';
 import { Component, OnInit } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ApiService } from '../../services/api.service';
-import { GENDER, COUNTRY, LANGUAGE, LANGUAGE_REVERSE, GENDER_REVERSE, COUNTRY_REVERSE } from '../../../constants';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { UploadProfilePictureComponent } from './upload-profile-picture/upload-profile-picture.component';
 import { ChooseFromExistingComponent } from './choose-from-existing/choose-from-existing.component';
 import { formatDate } from '../../format-datepicker';
+import { getLanguage, getGender, getCountry } from '../../shared/utilityFunctions'
 
-interface TeacherProfileDetails {
-  id: number;
-  email: string;
-  username: string;
-  created_date: string;
-  user_profile: {
-    first_name: string;
-    last_name: string;
-    gender: string;
-    phone: string;
-    country: string;
-    date_of_birth: string;
-    primary_language: string;
-    secondary_language: string;
-    tertiary_language: string;
-  };
-  profile_pictures: {
-    id: number;
-    image: string;
-    uploaded_on: string;
-    public_profile_picture: boolean;
-    class_profile_picture: boolean;
-  };
-}
-
-interface DeletedCurrentPictureResponse {
-  deleted: boolean;
-  class_profile_picture_deleted: boolean;
-  public_profile_picture_deleted: boolean;
-}
 
 @Component({
   selector: 'app-teacher-profile',
@@ -48,7 +21,9 @@ interface DeletedCurrentPictureResponse {
 export class TeacherProfileComponent implements OnInit {
 
   // For detecting whether device is mobile
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
+  showLoadingIndicator: boolean;
+  showReloadIndicator: boolean;
 
   // For controlling edit views
   editProfile = false;
@@ -60,20 +35,7 @@ export class TeacherProfileComponent implements OnInit {
   editProfileForm: FormGroup;
 
   // Response data of user profile
-  email: string;
-  username: string;
-  createdDate: string;
-  country: string;
-  dateOfBirth: string;
-  firstName: string;
-  lastName: string;
-  gender: string;
-  phone: string;
-  primaryLanguage: string;
-  secondaryLanguage: string;
-  tertiaryLanguage: string;
-  classProfilePicture: string;
-  classProfilePictureUploadedOn: string;
+  userProfileData: UserProfileDetails;
 
   // For showing errors
   usernameError: string;
@@ -81,88 +43,24 @@ export class TeacherProfileComponent implements OnInit {
 
   // Controls the maximum date of birth allowed
   maxDate: Date;
+  profilePictureUpdatedDataSubscription: Subscription;
+  getLanguage = getLanguage;
+  getCountry = getCountry;
+  getGender = getGender;
 
-  constructor( private media: MediaMatcher,
-               private apiService: ApiService,
-               private uiService: UiService,
-               private formBuilder: FormBuilder,
-               private dialog: MatDialog ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+  constructor(
+    private media: MediaMatcher,
+    private apiService: ApiService,
+    private uiService: UiService,
+    private formBuilder: FormBuilder,
+    private inAppDataTransferService: InAppDataTransferService,
+    private dialog: MatDialog ) {
+    this.mq = this.media.matchMedia('(max-width: 600px)');
     this.maxDate = new Date();         // For selecting max date as today
   }
 
   ngOnInit(): void {
-    this.apiService.getTeacherProfile().subscribe(
-      (result: TeacherProfileDetails) => {
-        // Setting data in session storage and local variable
-        sessionStorage.setItem('user_id', JSON.stringify(result.id));
-        this.email = result.email;
-        sessionStorage.setItem('email', result.email);
-        this.username = result.username;
-        sessionStorage.setItem('username', result.username);
-
-        this.createdDate = result.created_date;
-        sessionStorage.setItem('created_date', result.created_date);
-
-        if (result.user_profile.country) {
-          this.country = COUNTRY[result.user_profile.country];
-          sessionStorage.setItem('country', this.country);
-        }
-
-        if (result.user_profile.date_of_birth) {
-          this.dateOfBirth = result.user_profile.date_of_birth;
-          sessionStorage.setItem('date_of_birth', result.user_profile.date_of_birth);
-        }
-
-        if (result.user_profile.first_name) {
-          this.firstName = result.user_profile.first_name;
-          sessionStorage.setItem('first_name', result.user_profile.first_name);
-        }
-
-        if (result.user_profile.last_name) {
-          this.lastName = result.user_profile.last_name;
-          sessionStorage.setItem('last_name', result.user_profile.last_name);
-        }
-
-        if (result.user_profile.gender) {
-          this.gender = GENDER[result.user_profile.gender];
-          sessionStorage.setItem('gender', this.gender);
-        }
-
-        if (result.user_profile.phone) {
-          this.phone = result.user_profile.phone;
-          sessionStorage.setItem('phone', result.user_profile.phone);
-        }
-
-        this.primaryLanguage = LANGUAGE[result.user_profile.primary_language];
-        sessionStorage.setItem('primary_language', this.primaryLanguage);
-
-        if (result.user_profile.secondary_language) {
-          this.secondaryLanguage = LANGUAGE[result.user_profile.secondary_language];
-          sessionStorage.setItem('secondary_language', this.secondaryLanguage);
-        }
-
-        if (result.user_profile.tertiary_language) {
-          this.tertiaryLanguage = LANGUAGE[result.user_profile.tertiary_language];
-          sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
-        }
-
-        if (result.profile_pictures.class_profile_picture === true) {
-          this.classProfilePicture = result.profile_pictures.image;
-          this.classProfilePictureUploadedOn = result.profile_pictures.uploaded_on;
-          sessionStorage.setItem('class_profile_picture_id', JSON.stringify(result.profile_pictures.id));
-          sessionStorage.setItem('class_profile_picture', this.classProfilePicture);
-          sessionStorage.setItem('class_profile_picture_uploaded_on', this.classProfilePictureUploadedOn);
-        }
-
-        if (result.profile_pictures.public_profile_picture === true) {
-          sessionStorage.setItem('public_profile_picture_id', JSON.stringify(result.profile_pictures.id));
-          sessionStorage.setItem('public_profile_picture', result.profile_pictures.image);
-          sessionStorage.setItem('public_profile_picture_uploaded_on', result.profile_pictures.uploaded_on);
-        }
-      },
-      errors => {}
-    );
+    this.fetchUserData();
 
     // For getting the total number of profile picture count from server
     this.apiService.getProfilePictureCount().subscribe(
@@ -173,23 +71,44 @@ export class TeacherProfileComponent implements OnInit {
     );
   }
 
+  fetchUserData() {
+    this.showLoadingIndicator = true;
+    this.apiService.getTeacherProfile().subscribe(
+      (result: UserProfileDetails) => {
+        this.showLoadingIndicator = false;
+        sessionStorage.setItem('user_id', result.id.toString());
+        this.userProfileData = result;
+      },
+      errors => {
+        this.showLoadingIndicator = false;
+        this.showReloadIndicator = true;
+      }
+    );
+  }
+
+  checkUserDataExists() {
+    if (!this.userProfileData) {
+      this.fetchUserData();
+    }
+  }
+
   createEditProfileForm() {
     this.editProfileForm = this.formBuilder.group({
-      username: [this.username, [
+      username: [this.userProfileData.username, [
         Validators.required,
         Validators.minLength(4),
         Validators.maxLength(30)
       ]],
       user_profile: this.formBuilder.group({
-        first_name: [this.firstName, ],
-        last_name: [this.lastName, ],
-        phone: [this.phone, ],
-        gender: [GENDER_REVERSE[this.gender], ],
-        country: [COUNTRY_REVERSE[this.country], ],
-        date_of_birth: [this.dateOfBirth, ],
-        primary_language: [LANGUAGE_REVERSE[this.primaryLanguage], ],
-        secondary_language: [LANGUAGE_REVERSE[this.secondaryLanguage], ],
-        tertiary_language: [LANGUAGE_REVERSE[this.tertiaryLanguage], ]
+        first_name: [this.userProfileData.user_profile.first_name, [Validators.required] ],
+        last_name: [this.userProfileData.user_profile.last_name, [Validators.required]],
+        phone: [this.userProfileData.user_profile.phone, ],
+        gender: [this.userProfileData.user_profile.gender, [Validators.required]],
+        country: [this.userProfileData.user_profile.country, [Validators.required]],
+        date_of_birth: [this.userProfileData.user_profile.date_of_birth, [Validators.required]],
+        primary_language: [this.userProfileData.user_profile.primary_language, [Validators.required]],
+        secondary_language: [this.userProfileData.user_profile.secondary_language, ],
+        tertiary_language: [this.userProfileData.user_profile.tertiary_language, ]
       })
     });
   }
@@ -203,75 +122,65 @@ export class TeacherProfileComponent implements OnInit {
 
   profileDetailsReset() {
     this.editProfileForm.patchValue({
-      username: this.username,
+      username: this.userProfileData.username,
       user_profile: {
-        first_name: this.firstName,
-        last_name: this.lastName,
-        phone: this.phone,
-        gender: GENDER_REVERSE[this.gender],
-        country: COUNTRY_REVERSE[this.country],
-        date_of_birth: this.dateOfBirth,
-        primary_language: LANGUAGE_REVERSE[this.primaryLanguage],
-        secondary_language: LANGUAGE_REVERSE[this.secondaryLanguage],
-        tertiary_language: LANGUAGE_REVERSE[this.tertiaryLanguage]
+        first_name: this.userProfileData.user_profile.first_name,
+        last_name: this.userProfileData.user_profile.last_name,
+        phone: this.userProfileData.user_profile.phone,
+        gender: this.userProfileData.user_profile.gender,
+        country: this.userProfileData.user_profile.country,
+        date_of_birth: this.userProfileData.user_profile.date_of_birth,
+        primary_language: this.userProfileData.user_profile.primary_language,
+        secondary_language: this.userProfileData.user_profile.secondary_language,
+        tertiary_language: this.userProfileData.user_profile.tertiary_language
       }
     });
   }
 
   profileDetailsSubmit() {
-    const editProfileDetailsData = this.editProfileForm.value;
-    if (editProfileDetailsData.user_profile.date_of_birth) {
-      // Formatting date of birth in YYYY-MM-DD
-      editProfileDetailsData.user_profile.date_of_birth = formatDate(this.editProfileForm.value.user_profile.date_of_birth);
-    }
+    this.editProfileForm.patchValue({
+      username: this.editProfileForm.value.username.trim(),
+      user_profile: {
+        first_name: this.editProfileForm.value.user_profile.first_name.trim(),
+        last_name: this.editProfileForm.value.user_profile.last_name.trim(),
+      }
+    });
+    if (!this.editProfileForm.invalid) {
+      const editProfileDetailsData = this.editProfileForm.value;
+      if (editProfileDetailsData.user_profile.date_of_birth) {
+        // Formatting date of birth in YYYY-MM-DD
+        editProfileDetailsData.user_profile.date_of_birth = formatDate(this.editProfileForm.value.user_profile.date_of_birth);
+      }
 
-    this.apiService.patchTeacherProfileDetails(editProfileDetailsData).subscribe(
-      (result: TeacherProfileDetails ) => {
-        this.username = result.username;
-        sessionStorage.setItem('username', result.username);
-
-        this.country = COUNTRY[result.user_profile.country];
-        sessionStorage.setItem('country', this.country);
-
-        this.dateOfBirth = result.user_profile.date_of_birth;
-        sessionStorage.setItem('date_of_birth', result.user_profile.date_of_birth);
-
-        this.firstName = result.user_profile.first_name;
-        sessionStorage.setItem('first_name', result.user_profile.first_name);
-
-        this.lastName = result.user_profile.last_name;
-        sessionStorage.setItem('last_name', result.user_profile.last_name);
-
-        this.gender = GENDER[result.user_profile.gender];
-        sessionStorage.setItem('gender', this.gender);
-
-        this.phone = result.user_profile.phone;
-        sessionStorage.setItem('phone', result.user_profile.phone);
-
-        this.primaryLanguage = LANGUAGE[result.user_profile.primary_language];
-        sessionStorage.setItem('primary_language', this.primaryLanguage);
-
-        this.secondaryLanguage = LANGUAGE[result.user_profile.secondary_language];
-        sessionStorage.setItem('secondary_language', this.secondaryLanguage);
-
-        this.tertiaryLanguage = LANGUAGE[result.user_profile.tertiary_language];
-        sessionStorage.setItem('tertiary_language', this.tertiaryLanguage);
-        this.uiService.showSnackBar('Profile details updated successfully!', 2000);
-
-        // Closing edit view
-        this.editProfile = !this.editProfile;
-      },
-      errors => {
-        if (errors.error) {
-          if (errors.error.user_profile.phone) {
-            this.phoneNumberError = errors.error.user_profile.phone[0];
-          }
-          if (errors.error.username) {
-            this.usernameError = errors.error.username[0];
+      this.apiService.patchTeacherProfileDetails(editProfileDetailsData).subscribe(
+        (result: UserProfileDetails ) => {
+          this.userProfileData.username = result.username;
+          this.userProfileData.user_profile.country = result.user_profile.country;
+          this.userProfileData.user_profile.date_of_birth = result.user_profile.date_of_birth;
+          this.userProfileData.user_profile.first_name = result.user_profile.first_name;
+          this.userProfileData.user_profile.last_name = result.user_profile.last_name;
+          this.userProfileData.user_profile.gender = result.user_profile.gender;
+          this.userProfileData.user_profile.phone = result.user_profile.phone;
+          this.userProfileData.user_profile.primary_language = result.user_profile.primary_language;
+          this.userProfileData.user_profile.secondary_language = result.user_profile.secondary_language;
+          this.userProfileData.user_profile.tertiary_language = result.user_profile.tertiary_language;
+          this.uiService.showSnackBar('Profile details updated successfully!', 2000);
+          this.editProfile = !this.editProfile;
+        },
+        errors => {
+          if (errors.error) {
+            if (errors.error.user_profile.phone) {
+              this.phoneNumberError = errors.error.user_profile.phone[0];
+            }
+            if (errors.error.username) {
+              this.usernameError = errors.error.username[0];
+            }
           }
         }
-      }
-    );
+      );
+    } else {
+      this.uiService.showSnackBar('Form contains invalid data!', 2500);
+    }
   }
 
   editAccountClicked() {
@@ -282,61 +191,68 @@ export class TeacherProfileComponent implements OnInit {
     this.editProfilePicture = !this.editProfilePicture;
   }
 
+  updateProfilePictureData(data: any) {
+    if (data['class_profile_picture']) {
+      this.userProfileData.profile_pictures.id = data.id;
+      this.userProfileData.profile_pictures.image = data.image;
+      this.userProfileData.profile_pictures.uploaded_on = data.uploaded_on;
+    }
+    this.uiService.showSnackBar(
+      'Profile picture uploaded successfully!',
+      2000
+    );
+    if (!data.dont_update_count) {
+      if (this.profilePictureCount) {
+        this.profilePictureCount += 1;
+      } else {
+        this.profilePictureCount = 1;
+      }
+    }
+    this.editProfilePicture = false;
+  }
+
   openUploadPictureDialog() {
     const dialogRef = this.dialog.open(UploadProfilePictureComponent);
 
+    this.profilePictureUpdatedDataSubscription = this.inAppDataTransferService.profilePictureUpdatedData$.subscribe(
+      data => {
+        this.updateProfilePictureData(data);
+      }
+    );
+
     dialogRef.afterClosed().subscribe(result => {
-      // status is true if profile picture is successfully uploaded else false
-      if (result.status) {
-        this.uiService.showSnackBar('Profile picture uploaded successfully!', 2000);
-
-        // Update the appropriate control variables
-        if (result.classProfilePictureChanged) {
-          this.classProfilePicture = sessionStorage.getItem('class_profile_picture');
-          this.classProfilePictureUploadedOn = sessionStorage.getItem('class_profile_picture_uploaded_on');
-
-          // Updating total profile picture count
-          this.profilePictureCount += 1;
-        }
+      if (this.profilePictureUpdatedDataSubscription) {
+        this.profilePictureUpdatedDataSubscription.unsubscribe();
       }
     });
   }
 
   // To delete the current active class profile picture
   deleteCurrentPicture() {
-    const id = sessionStorage.getItem('class_profile_picture_id');
+    const id = this.userProfileData.profile_pictures.id;
 
-    this.apiService.deleteCurrentProfilePicture(id).subscribe(
+    this.apiService.deleteCurrentProfilePicture(id.toString()).subscribe(
       (response: DeletedCurrentPictureResponse) => {
-
-        // Removing the deleted data from session storage
         if (response.deleted === true) {
           if (response.class_profile_picture_deleted === true) {
-            sessionStorage.removeItem('class_profile_picture');
-            sessionStorage.removeItem('class_profile_picture_id');
-            sessionStorage.removeItem('class_profile_picture_uploaded_on');
-            this.classProfilePicture = null;
+            this.userProfileData.profile_pictures.image = null;
           }
-          if (response.class_profile_picture_deleted === true) {
-            sessionStorage.removeItem('public_profile_picture');
-            sessionStorage.removeItem('public_profile_picture_id');
-            sessionStorage.removeItem('public_profile_picture_uploaded_on');
+          if (this.profilePictureCount) {
+            this.profilePictureCount -= 1;
           }
-
-          // Updating total profile picture count
-          this.profilePictureCount -= 1;
           this.editProfilePicture = false;
         }
         this.uiService.showSnackBar('Successfully deleted current profile picture.', 2000);
       },
-      error => {
-        if (error.error.deleted === false) {
-          this.uiService.showSnackBar('Internal server error. Unable to delete picture.', 2000);
-          console.error(error.message);
-        }
-
-        if (error.error.id) {
-          console.error('Unable to delete picture. ' + error.error.id[0]);
+      errors => {
+        if (errors.error) {
+          if (errors.error.id) {
+            this.uiService.showSnackBar(errors.error.id, 2000);
+          } else {
+            this.uiService.showSnackBar('Unable to delete at the moment :(', 2000);
+          }
+        } else {
+          this.uiService.showSnackBar('Unable to delete at the moment :(', 2000);
         }
       }
     );
@@ -347,11 +263,8 @@ export class TeacherProfileComponent implements OnInit {
     this.apiService.removeCurrentClassProfilePicture().subscribe(
       (response: {removed: boolean; } ) => {
         if (response.removed === true) {
-          this.classProfilePicture = null;
-          this.classProfilePictureUploadedOn = null;
-          sessionStorage.removeItem('class_profile_picture_id');
-          sessionStorage.removeItem('class_profile_picture');
-          sessionStorage.removeItem('class_profile_picture_uploaded_on');
+          this.userProfileData.profile_pictures.image = null;
+          this.userProfileData.profile_pictures.uploaded_on = null;
         }
         this.editProfilePicture = false;
       },
@@ -365,18 +278,17 @@ export class TeacherProfileComponent implements OnInit {
   chooseFromExistingClicked() {
     const dialogRef = this.dialog.open(ChooseFromExistingComponent);
 
-    dialogRef.afterClosed().subscribe(result => {
-      // status is true if profile picture is successfully uploaded else false
-      if (result.status) {
-        this.uiService.showSnackBar('Profile picture changed successfully!', 2000);
-        // Update the appropriate control variables
-        if (result.classProfilePictureChanged) {
-          this.classProfilePicture = sessionStorage.getItem('class_profile_picture');
-          this.classProfilePictureUploadedOn = sessionStorage.getItem('class_profile_picture_uploaded_on');
-        }
+    this.profilePictureUpdatedDataSubscription = this.inAppDataTransferService.profilePictureUpdatedData$.subscribe(
+      data => {
+        data['dont_update_count'] = true;
+        this.updateProfilePictureData(data);
       }
+    );
 
-      this.editProfilePicture = false;
+    dialogRef.afterClosed().subscribe(result => {
+      if (this.profilePictureUpdatedDataSubscription) {
+        this.profilePictureUpdatedDataSubscription.unsubscribe();
+      }
     });
   }
 }

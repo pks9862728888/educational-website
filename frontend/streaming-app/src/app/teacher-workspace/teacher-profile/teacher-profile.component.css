@@ -1,94 +1,26 @@
-h1,
-h2,
-h3,
-h4,
-h5 {
-    margin: 0px;
+.row,
+.col-4,
+.col-5,
+.col-7,
+.col-sm-4,
+h4 {
+    margin: 0;
+    padding: 0;
 }
 
-
-/* Styling angular material tabs */
-
-::ng-deep.mat-tab-label.mat-tab-label-active,
-::ng-deep.mat-tab-label {
-    color: #bdbdbd;
-}
-
-::ng-deep.mat-ink-bar {
-    /* background-color: var(--primary-color,#1F89CE) !important; */
-    background-color: var(--primary-color, #4caf50) !important;
-}
-
-.tabgroup-background {
+.main-container {
     background-color: rgba(255, 255, 255, 0.08);
 }
-
-.tab-content {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-
-/* For profile view  */
-
-
-/* Styling profile picture row */
 
 .img {
     object-fit: cover;
 }
 
 .mat-card-image {
-    margin: 15px 0 !important;
+    margin: 0 !important;
     height: 250px;
-    width: 100%;
+    width: 250px;
     overflow: hidden;
-}
-
-.profile-pic-uploaded-banner {
-    color: #b1b1b1;
-    background-color: #232d36;
-    opacity: 0.7;
-    width: calc(100% - 30px);
-    font-size: 10px;
-    font-style: italic;
-    position: absolute;
-    transform: translateY(-31px);
-    text-align: center;
-}
-
-.name-username {
-    color: #bdbdbd;
-}
-
-.name-username-desktop {
-    /* For desktop */
-    padding-top: 10px;
-}
-
-.text-align-center-mobile {
-    /*For mobile*/
-    text-align: center;
-}
-
-.mat-display-1 {
-    margin: 0px;
-}
-
-.margin-bottom-15 {
-    margin-bottom: 10px;
-}
-
-.biodata,
-.other-data {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #bdbdbd;
-    border-radius: 5px;
-    padding: 5px;
-    margin-bottom: 15px;
-}
-
-.padding-bottom-2 {
-    padding-bottom: 2px;
 }
 
 
@@ -99,53 +31,34 @@ h5 {
 }
 
 .mat-toolbar-background {
-    background-color: #232d36;
+    background-color: #171e25;
     color: #b1b1b1;
-}
-
-.green-button {
-    outline: none;
 }
 
 .edit-canvas {
     background-color: rgba(255, 255, 255, 0.05);
     color: #bdbdbd;
     border-radius: 0 0 5px 5px;
-    padding: 5px;
-    margin-bottom: 15px;
-}
-
-.edit-canvas>h4 {
-    padding: 0 10px;
 }
 
 .profile-pic-edit-banner {
     color: #b1b1b1;
     background-color: #101d25;
     opacity: 0.7;
-    width: calc(100% - 30px);
+    width: 250px;
     position: absolute;
-    transform: translateY(-60px);
+    transform: translateY(-45px);
     text-align: right;
     padding: 10px;
 }
 
-.padding-top-15 {
-    padding-top: 15px;
-}
-
-.padding-top-15-mobile {
-    padding-top: 15px;
-}
-
 .edit-profile-picture-card {
-    margin-bottom: 15px;
-    background-color: #232d36;
+    background-color: rgba(255, 255, 255, 0.06);
     padding: 4px 2px 4px 2px;
 }
 
 .mat-list-item {
-    color: #b1b1b1;
+    color: #bdbdbd;
     cursor: pointer;
 }
 
@@ -171,12 +84,12 @@ h5 {
 
 :host ::ng-deep.mat-form-field-label {
     /*change color of label*/
-    color: #fcf835 !important;
+    color: #4caf50 !important;
 }
 
 :host ::ng-deep.mat-form-field-underline {
     /*change color of underline*/
-    background-color: #7a7a7a !important;
+    background-color: #6c757d !important;
 }
 
 :host ::ng-deep.mat-form-field-ripple {
@@ -185,39 +98,59 @@ h5 {
 }
 
 .options {
-    background-color: #212121;
-    color: #7a7a7a;
+    background-color: #101d25;
+    color: #bdbdbd;
 }
 
 .mat-datepicker-toggle {
     color: white !important;
 }
 
-.margin-right-bottom-10 {
+.m-rb-10px {
     margin: 0 10px 10px 0;
 }
 
-.submit {
-    background-color: #ff0000;
-    color: #ffffff;
-}
-
-.reset {
-    background-color: #008000;
-    color: #ffffff;
-}
-
 .hint-normal {
-    color: #7a7a7a;
+    color: rgba(255, 255, 255, 0.37);
 }
 
 .hint-error {
     color: #ff0000;
 }
 
+.p-t-1 {
+    padding-top: 1rem;
+}
 
-/* Styling choose from existing */
+.p-t-15px {
+    padding-top: 15px;
+}
 
-.text-color-choose-from-existing {
-    color: #b1b1b1;
+.p-t-15px-mobile {
+    padding-top: 15px;
+}
+
+.p-b-2px {
+    padding-bottom: 2px;
+}
+
+.p-l-1 {
+    padding-left: 1rem;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-tb-1 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.mat-display-1 {
+    margin: 0px;
+}
+
+.margin-bottom-15 {
+    margin-bottom: 10px;
 }

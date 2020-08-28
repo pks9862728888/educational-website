@@ -26,11 +26,9 @@ export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
   hidePassword = true;
-  // For showing error
   errorText: string;
-
-  // For showing register hint
   signUpHint = false;
+  userType: string;
 
   constructor( private formBuilder: FormBuilder,
                private authService: AuthService,
@@ -48,18 +46,21 @@ export class LoginComponent implements OnInit {
   login() {
     this.authService.login(this.loginForm.value).subscribe(
       (result: ServerResponse) => {
-        // Saving the data and navigating to workspace
         let expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 30);
         this.cookieService.set(authTokenName,
           result.token, expiryDate, '/', '192.168.43.25', false, 'Strict');
         sessionStorage.setItem('user_id', result.id);
-        sessionStorage.setItem('username', result.username);
-        sessionStorage.setItem('email', result.email);
-        sessionStorage.setItem('is_teacher', result.is_teacher);
-        sessionStorage.setItem('is_student', result.is_student);
-        sessionStorage.setItem('is_staff', result.is_staff);
-        sessionStorage.setItem('is_active', result.is_active);
+        if (result.is_teacher) {
+          this.userType = 'TEACHER';
+          sessionStorage.setItem('is_teacher', result.is_teacher);
+        } else if (result.is_student) {
+          this.userType = 'STUDENT';
+          sessionStorage.setItem('is_student', result.is_student);
+        } else if (result.is_staff) {
+          this.userType = 'STAFF';
+          sessionStorage.setItem('is_staff', result.is_staff);
+        }
         this.redirectToAppropriateWorkspace();
       },
       error => {
@@ -79,14 +80,12 @@ export class LoginComponent implements OnInit {
   // To redirect to appropriate workspace
   redirectToAppropriateWorkspace() {
     this.authService.sendLoggedInStatusSignal(true);
-    if (sessionStorage.getItem('is_student') === JSON.stringify(true)) {
+    if (this.userType === 'STUDENT') {
       this.router.navigate(['/student-workspace']);
-    } else if (sessionStorage.getItem('is_teacher') === JSON.stringify(true)) {
+    } else if (this.userType === 'TEACHER') {
       this.router.navigate(['/teacher-workspace']);
-    } else if (sessionStorage.getItem('is_staff') === JSON.stringify(true)) {
+    } else if (this.userType === 'STAFF') {
       this.router.navigate(['/staff-workspace']);
-    } else {
-      // Get the type of user and then again navigate to appropriate workspace
     }
   }
 }
