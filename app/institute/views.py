@@ -240,6 +240,16 @@ class IsTeacherOrStudent(permissions.BasePermission):
             return False
 
 
+class IsStudent(permissions.BasePermission):
+    """Permission that allows only student to view"""
+
+    def has_permission(self, request, view):
+        if request.user and request.user.is_student:
+            return True
+        else:
+            return False
+
+
 class GetInstituteDiscountCouponView(APIView):
     """View to get institute discount coupon"""
     authentication_classes = (TokenAuthentication,)
@@ -3430,10 +3440,10 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
 class InstituteSubjectCourseContentAskQuestionView(APIView):
     """View for asking question"""
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+    permission_classes = (IsAuthenticated, IsStudent)
 
     def post(self, request, *args, **kwargs):
-        """Only permitted subject incharge and permitted student can ask question."""
+        """Only permitted student can ask question."""
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
         ).first()
@@ -3455,10 +3465,6 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
                 user=self.request.user,
                 active=True
         ).exists():
-            if not models.InstituteSubjectPermission.objects.filter(
-                to=subject,
-                invitee=self.request.user
-            ).exists():
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
