@@ -240,6 +240,16 @@ class IsTeacherOrStudent(permissions.BasePermission):
             return False
 
 
+class IsStudent(permissions.BasePermission):
+    """Permission that allows only student to view"""
+
+    def has_permission(self, request, view):
+        if request.user and request.user.is_student:
+            return True
+        else:
+            return False
+
+
 class GetInstituteDiscountCouponView(APIView):
     """View to get institute discount coupon"""
     authentication_classes = (TokenAuthentication,)
@@ -3424,5 +3434,627 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
                     d.pk
                 )
                 response.append(res)
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSubjectCourseContentAskQuestionView(APIView):
+    """View for asking question"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsStudent)
+
+    def post(self, request, *args, **kwargs):
+        """Only permitted student can ask question."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject=subject,
+                user=self.request.user,
+                active=True
+        ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        course_content = models.InstituteSubjectCourseContent.objects.filter(
+            pk=kwargs.get('course_content_id')
+        ).first()
+
+        if not course_content:
+            return Response({'error': _('Course content not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_license(institute):
+            return Response({'error': _('Active license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = models.InstituteSubjectCourseContentQuestions.objects.create(
+                course_content=course_content,
+                user=self.request.user,
+                anonymous=request.data.get('anonymous'),
+                question=request.data.get('question'),
+                description=request.data.get('description'),
+                rgb_color=request.data.get('rgb_color')
+            )
+            response = {
+                'id': question.pk,
+                'question': question.question,
+                'description': question.description,
+                'rgb_color': question.rgb_color,
+                'anonymous': question.anonymous,
+                'created_on': str(question.created_on)
+            }
+            if question.anonymous:
+                response['user'] = 'Anonymous User'
+            else:
+                response['user_id'] = self.request.user.pk
+                user_info = models.InstituteStudents.objects.filter(
+                    user=self.request.user,
+                    institute=institute
+                ).first()
+                if user_info.first_name and user_info.last_name:
+                    response['user'] = user_info.first_name + ' ' + user_info.last_name
+                else:
+                    response['user'] = str(self.request.user)
+            return Response(response, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response({'error': _('This question already exists.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal server error. Contact us.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseContentAnswerQuestionView(APIView):
+    """View for answering question"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def post(self, request, *args, **kwargs):
+        """Only permitted subject incharge and permitted student can ask question."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        role = None
+
+        if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject=subject,
+                user=self.request.user,
+                active=True
+        ).exists():
+            if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                role = 'Instructor'
+        else:
+            role = 'Student'
+
+        question = models.InstituteSubjectCourseContentQuestions.objects.filter(
+            pk=kwargs.get('question_pk')
+        ).first()
+
+        if not question:
+            return Response({'error': _('Question may have been deleted or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_license(institute):
+            return Response({'error': _('Active license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            ans = models.InstituteSubjectCourseContentAnswer.objects.create(
+                content_question=question,
+                answer=request.data.get('answer'),
+                user=self.request.user,
+                rgb_color=request.data.get('rgb_color'),
+                anonymous=request.data.get('anonymous')
+            )
+            response = {
+                'id': ans.pk,
+                'answer': ans.answer,
+                'rgb_color': ans.rgb_color,
+                'anonymous': ans.anonymous,
+                'role': role,
+                'pin': ans.pin,
+                'created_on': str(ans.created_on),
+                'content_question_id': ans.content_question.pk
+            }
+            if ans.anonymous:
+                response['user'] = 'Anonymous User'
+            else:
+                response['user_id'] = self.request.user.pk
+                user_details = None
+
+                if role == 'Student':
+                    user_details = models.InstituteStudents.objects.filter(
+                        user=self.request.user,
+                        institute=institute
+                    ).first()
+                else:
+                    user_details = models.UserProfile.objects.filter(
+                        user=self.request.user
+                    ).first()
+
+                if user_details.first_name and user_details.last_name:
+                    response['user'] = user_details.first_name + ' ' + user_details.last_name
+                else:
+                    response['user'] = str(self.request.user)
+
+            return Response(response, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response({'error': _('This answer has already been posted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal server error occured.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectUpvoteDownvoteQuestionView(APIView):
+    """View for upvoting and downvoting question by permitted instructor and student"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject=subject,
+                user=self.request.user,
+                active=True
+        ).exists():
+            if not models.InstituteSubjectPermission.objects.filter(
+                    to=subject,
+                    invitee=self.request.user
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.InstituteSubjectCourseContentQuestions.objects.filter(
+            pk=kwargs.get('question_pk')
+        ).first()
+
+        if not question:
+            return Response({'error': _('Question may have been deleted or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if question.user.pk == self.request.user.pk:
+            return Response({'error': _('Bad Request.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if 'upvote' in request.data:
+                res = models.InstituteSubjectCourseContentQuestionUpvote.objects.create(
+                    course_content_question=question,
+                    user=self.request.user
+                )
+                return Response({'upvoted': True, 'question_id': res.course_content_question.pk},
+                                status=status.HTTP_201_CREATED)
+            else:
+                res = models.InstituteSubjectCourseContentQuestionUpvote.objects.filter(
+                    course_content_question=question,
+                    user=self.request.user
+                ).first()
+
+                if not res or res.user.pk != self.request.user.pk:
+                    return Response({'error': 'Permission denied.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    res.delete()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        except IntegrityError:
+            return Response({'error': _('Question already upvoted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal server error occured.')},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectUpvoteDownvoteAnswerView(APIView):
+    """View for upvoting and downvoting answer by permitted instructor and student"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject=subject,
+                user=self.request.user,
+                active=True
+        ).exists():
+            if not models.InstituteSubjectPermission.objects.filter(
+                    to=subject,
+                    invitee=self.request.user
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        answer = models.InstituteSubjectCourseContentAnswer.objects.filter(
+            pk=kwargs.get('answer_pk')
+        ).first()
+
+        if not answer:
+            return Response({'error': _('Answer may have been deleted or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if answer.user.pk == self.request.user.pk:
+            return Response({'error': _('Bad Request.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if 'upvote' in request.data:
+                res = models.InstituteSubjectCourseContentAnswerUpvote.objects.create(
+                    course_content_answer=answer,
+                    user=self.request.user
+                )
+                return Response({'upvoted': True, 'answer_id': res.course_content_answer.pk},
+                                status=status.HTTP_201_CREATED)
+            else:
+                res = models.InstituteSubjectCourseContentAnswerUpvote.objects.filter(
+                    course_content_answer=answer,
+                    user=self.request.user
+                ).first()
+
+                if not res or res.user.pk != self.request.user.pk:
+                    return Response({'error': 'Permission denied.'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    res.delete()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+        except IntegrityError:
+            return Response({'error': _('Answer already upvoted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Internal server error occured.')},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseContentDeleteQuestionView(APIView):
+    """View for deleting question by self"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def delete(self, *args, **kwargs):
+        question = models.InstituteSubjectCourseContentQuestions.objects.filter(
+            pk=kwargs.get('question_pk')
+        ).first()
+
+        if not question:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        if question.user.pk != self.request.user.pk:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseContentDeleteAnswerView(APIView):
+    """View for deleting answer by self or instructor"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def delete(self, *args, **kwargs):
+        answer = models.InstituteSubjectCourseContentAnswer.objects.filter(
+            pk=kwargs.get('answer_pk')
+        ).first()
+
+        if not answer:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if answer.user.pk != self.request.user.pk and not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            answer.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseContentPinAnswerView(APIView):
+    """View for pinning answer by asker of question"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def post(self, request, *args, **kwargs):
+        answer = models.InstituteSubjectCourseContentAnswer.objects.filter(
+            pk=kwargs.get('answer_pk')
+        ).first()
+
+        if not answer:
+            return Response({'error': _('Answer may have been deleted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if answer.content_question.user.pk != self.request.user.pk:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            answer.pin = True
+            answer.save()
+            return Response({'status': 'OK'},
+                            status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseQuestionListAnswerView(APIView):
+    """View for listing answer by permitted student, instructor and admin"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def get(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+            institute_subject=subject,
+            user=self.request.user,
+            active=True,
+            is_banned=False
+        ).exists():
+            if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+            ).exists() and not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_license(institute):
+            return Response({'error': _('Active license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.InstituteSubjectCourseContentQuestions.objects.filter(
+            pk=kwargs.get('question_pk')
+        ).first()
+
+        if not question:
+            return Response({'error': _('Question may have been deleted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        answers = models.InstituteSubjectCourseContentAnswer.objects.filter(
+            content_question=question
+        ).order_by('created_on').order_by('pin')
+
+        try:
+            response = list()
+            for ans in answers:
+                res = dict()
+                res['id'] = ans.pk
+                res['created_on'] = str(ans.created_on)
+                res['pin'] = ans.pin
+                res['anonymous'] = ans.anonymous
+                res['rgb_color'] = ans.rgb_color
+                res['answer'] = ans.answer
+                if ans.anonymous:
+                    res['user'] = 'Anonymous User'
+                elif ans.user:
+                    res['user_id'] = ans.user.pk
+                    is_student = models.InstituteStudents.objects.filter(
+                        user__pk=ans.user.pk
+                    ).exists()
+                    user_data = None
+
+                    if is_student:
+                        user_data = models.InstituteStudents.objects.filter(
+                            user__pk=ans.user.pk,
+                            institute=institute
+                        ).first()
+                    else:
+                        user_data = models.UserProfile.objects.filter(
+                            user__pk=ans.user.pk,
+                            institute=institute
+                        ).first()
+
+                    if user_data and user_data.first_name and user_data.last_name:
+                        res['user'] = user_data.first_name + ' ' + user_data.last_name
+                    else:
+                        res['user'] = str(ans.user)
+                else:
+                    res['user'] = 'Deleted User'
+
+                res['upvotes'] = models.InstituteSubjectCourseContentAnswerUpvote.objects.filter(
+                    course_content_answer__pk=ans.pk
+                ).count()
+                response.append(res)
+
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'error': _('Internal server error occured.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseListQuestionView(APIView):
+    """View for listing question by instructor, admin and permitted student"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def get(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject=subject,
+                user=self.request.user,
+                active=True,
+                is_banned=False
+        ).exists():
+            if not models.InstituteSubjectPermission.objects.filter(
+                    to=subject,
+                    invitee=self.request.user
+            ).exists() and not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_license(institute):
+            return Response({'error': _('Active license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        course_content = models.InstituteSubjectCourseContent.objects.filter(
+            pk=kwargs.get('course_content_pk')
+        ).first()
+
+        if not course_content:
+            return Response({'error': _('This study material may have been deleted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        questions = models.InstituteSubjectCourseContentQuestions.objects.filter(
+            course_content=course_content
+        )
+        response = list()
+        for q in questions:
+            res = dict()
+            res['id'] = q.id
+            res['question'] = q.question
+            res['rgb_color'] = q.rgb_color
+            res['created_on'] = str(q.created_on)
+            res['description'] = q.description
+            res['anonymous'] = q.anonymous
+
+            if q.anonymous:
+                res['user'] = 'Anonymous User'
+            elif q.user:
+                res['user_id'] = q.user.pk
+                user_data = models.InstituteStudents.objects.filter(
+                    user__pk=q.user.pk,
+                    institute=institute
+                ).first()
+                if user_data.first_name and user_data.last_name:
+                    res['user'] = user_data.first_name + ' ' + user_data.last_name
+                else:
+                    res['user'] = str(q.user)
+            else:
+                res['user'] = 'Deleted User'
+
+            res['upvotes'] = models.InstituteSubjectCourseContentQuestionUpvote.objects.filter(
+                course_content_question__pk=q.pk
+            ).count()
+            res['answer_count'] = models.InstituteSubjectCourseContentAnswer.objects.filter(
+                content_question__pk=q.pk
+            ).count()
+            response.append(res)
 
         return Response(response, status=status.HTTP_200_OK)

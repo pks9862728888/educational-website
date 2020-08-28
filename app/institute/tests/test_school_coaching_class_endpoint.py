@@ -133,6 +133,64 @@ def get_course_preview_min_details(institute_slug, subject_slug):
                            'subject_slug': subject_slug})
 
 
+def get_institute_subject_content_ask_question_url(institute_slug, subject_slug, pk):
+    return reverse("institute:ask-new-question",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug,
+                           'course_content_id': pk})
+
+
+def get_answer_question_url(institute_slug, subject_slug, pk):
+    return reverse("institute:answer-question",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug,
+                           'question_pk': pk})
+
+
+def get_upvote_downvote_question_url(institute_slug, subject_slug, question_pk):
+    return reverse("institute:upvote-downvote-question",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug,
+                           'question_pk': question_pk})
+
+
+def get_upvote_downvote_answer_url(institute_slug, subject_slug, answer_pk):
+    return reverse("institute:upvote-downvote-answer",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug,
+                           'answer_pk': answer_pk})
+
+
+def get_delete_question_url(question_pk):
+    return reverse("institute:delete-question",
+                   kwargs={'question_pk': question_pk})
+
+
+def get_delete_answer_url(subject_slug, answer_pk):
+    return reverse("institute:delete-answer",
+                   kwargs={'subject_slug': subject_slug,
+                           'answer_pk': answer_pk})
+
+
+def get_pin_answer_url(answer_pk):
+    return reverse("institute:pin-answer",
+                   kwargs={'answer_pk': answer_pk})
+
+
+def get_answer_list_url(institute_slug, subject_slug, question_pk):
+    return reverse("institute:list-answers",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug,
+                           'question_pk': question_pk})
+
+
+def get_question_list_url(institute_slug, subject_slug, course_content_pk):
+    return reverse("institute:list-questions",
+                   kwargs={'institute_slug': institute_slug,
+                           'subject_slug': subject_slug,
+                           'course_content_pk': course_content_pk})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -282,6 +340,29 @@ def create_subject_course_content(
         url=url
     )
     return content
+
+
+def ask_question(course_content, user, anonymous=True, question='a', description='a', rgb_color='#ffffff'):
+    """Creates and asks a new question"""
+    return models.InstituteSubjectCourseContentQuestions.objects.create(
+        course_content=course_content,
+        user=user,
+        anonymous=anonymous,
+        question=question,
+        description=description,
+        rgb_color=rgb_color
+    )
+
+
+def answer_question(question, user, answer='a', anonymous=True, rgb_color='#ffffff'):
+    """Creates and returns answer"""
+    return models.InstituteSubjectCourseContentAnswer.objects.create(
+        content_question=question,
+        user=user,
+        anonymous=anonymous,
+        answer=answer,
+        rgb_color=rgb_color
+    )
 
 
 class SchoolCollegeAuthenticatedTeacherTests(TestCase):
@@ -2514,37 +2595,1335 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_get_course_min_preview_details_by_admin_success(self):
+    #     """Test that admin can get min preview details of course structure"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     ext_link = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     link = models.SubjectExternalLinkStudyMaterial.objects.create(
+    #         external_link_study_material=ext_link,
+    #         url='abc'
+    #     )
+    #
+    #     res = self.client.get(
+    #         get_course_preview_min_details(institute.institute_slug, subject.subject_slug)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertIn('instructors', res.data)
+    #     self.assertEqual(len(res.data['instructors']), 0)
+    #     self.assertIn('view_order', res.data)
+    #     self.assertEqual(len(res.data['view_order']), 3)
+    #
+    # def test_adding_of_course_content_question_success_by_permitted_user(self):
+    #     """Test that adding course content question is successful by permitted user with active license"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     payload = {
+    #         'question': 'What',
+    #         'rgb_color': '(255, 255, 255, 0.5)',
+    #         'anonymous': True,
+    #         'description': 'a'
+    #     }
+    #     res = self.client.post(
+    #         get_institute_subject_content_ask_question_url(
+    #             institute.institute_slug,
+    #             subject.subject_slug,
+    #             course_content.pk
+    #         ), payload)
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['question'], payload['question'])
+    #     self.assertEqual(res.data['rgb_color'], payload['rgb_color'])
+    #     self.assertEqual(res.data['description'], payload['description'])
+    #     self.assertTrue(res.data['anonymous'])
+    #     self.assertEqual(res.data['user'], 'Anonymous User')
+    #     self.assertNotIn('user_id', res.data)
+    #     self.assertIn('created_on', res.data)
+    #
+    # def test_adding_of_course_content_question_fails_by_permitted_user_no_active_license(self):
+    #     """Test that adding course content question fails by permitted user with no active license"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     payload = {
+    #         'question': 'What',
+    #         'rgb_color': '(255, 255, 255, 0.5)',
+    #         'anonymous': False,
+    #         'description': 'a'
+    #     }
+    #     res = self.client.post(
+    #         get_institute_subject_content_ask_question_url(
+    #             institute.institute_slug,
+    #             subject.subject_slug,
+    #             course_content.pk
+    #         ),
+    #         payload)
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Active license not found or expired.')
+    #
+    # def test_adding_of_course_content_question_fails_by_permitted_user_no_expired_license(self):
+    #     """Test that adding course content question fails by permitted user with expired license"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() - datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     payload = {
+    #         'question': 'What',
+    #         'rgb_color': '(255, 255, 255, 0.5)',
+    #         'anonymous': False,
+    #         'description': 'a'
+    #     }
+    #     res = self.client.post(
+    #         get_institute_subject_content_ask_question_url(
+    #             institute.institute_slug,
+    #             subject.subject_slug,
+    #             course_content.pk
+    #         ),
+    #         payload)
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Active license not found or expired.')
+    #
+    # def test_adding_of_course_content_question_fails_by_unpermitted_user(self):
+    #     """Test that adding course content question fails by unpermitted user with active license"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     payload = {
+    #         'question': 'What',
+    #         'rgb_color': '(255, 255, 255, 0.5)',
+    #         'anonymous': False,
+    #         'description': 'a'
+    #     }
+    #     res = self.client.post(
+    #         get_institute_subject_content_ask_question_url(
+    #             institute.institute_slug,
+    #             subject.subject_slug,
+    #             course_content.pk
+    #         ),
+    #         payload)
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_duplicate_question_asking_fails(self):
+    #     """Test that user can not ask duplicate question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     payload = {
+    #         'question': 'What',
+    #         'rgb_color': '(255, 255, 255, 0.5)',
+    #         'anonymous': True,
+    #         'description': 'a'
+    #     }
+    #     self.client.post(
+    #         get_institute_subject_content_ask_question_url(
+    #             institute.institute_slug,
+    #             subject.subject_slug,
+    #             course_content.pk
+    #         ), payload)
+    #     res = self.client.post(
+    #         get_institute_subject_content_ask_question_url(
+    #             institute.institute_slug,
+    #             subject.subject_slug,
+    #             course_content.pk
+    #         ), payload)
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'This question already exists.')
+    #
+    # def test_answering_question_by_permitted_user_success(self):
+    #     """Test that answering questions by permitted user is successful"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #
+    #     payload = {
+    #         'answer': 'ans',
+    #         'anonymous': True,
+    #         'rgb_color': '(255, 255, 255, 0.5)'
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_answer_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['answer'], payload['answer'])
+    #     self.assertEqual(res.data['rgb_color'], payload['rgb_color'])
+    #     self.assertEqual(res.data['anonymous'], str(payload['anonymous']))
+    #     self.assertEqual(res.data['user'], 'Anonymous User')
+    #     self.assertEqual(res.data['content_question_id'], question.pk)
+    #     self.assertEqual(res.data['role'], 'Instructor')
+    #     self.assertFalse(res.data['pin'])
+    #     self.assertNotIn('user_id', res.data)
+    #     self.assertIn('id', res.data)
+    #     self.assertIn('created_on', res.data)
+    #
+    # def test_answering_question_by_unpermitted_user_fails(self):
+    #     """Test that answering questions by unpermitted user fails"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     question = ask_question(course_content, self.user)
+    #
+    #     payload = {
+    #         'answer': 'ans',
+    #         'anonymous': True,
+    #         'rgb_color': '(255, 255, 255, 0.5)'
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_answer_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_answering_question_by_permitted_user_twice_same_ans_fails(self):
+    #     """Test that answering same ans to question by permitted user fails"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #
+    #     payload = {
+    #         'answer': 'ans',
+    #         'anonymous': True,
+    #         'rgb_color': '(255, 255, 255, 0.5)'
+    #     }
+    #
+    #     self.client.post(
+    #         get_answer_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         payload
+    #     )
+    #     res = self.client.post(
+    #         get_answer_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'This answer has already been posted.')
+    #
+    # def def_answering_question_with_no_active_license_fails(self):
+    #     """Test that answering question with no active license fails."""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() - datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #
+    #     payload = {
+    #         'answer': 'ans',
+    #         'anonymous': True,
+    #         'rgb_color': '(255, 255, 255, 0.5)'
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_answer_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Active license not found or expired.')
+    #
+    # def test_upvote_question_success_by_permitted_user(self):
+    #     """Test that permitted user can upvote question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #
+    #     res = self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['question_id'], question.pk)
+    #     self.assertEqual(res.data['upvoted'], True)
+    #
+    # def test_upvote_self_question_fails_by_permitted_user(self):
+    #     """Test that permitted user can not upvote self question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #
+    #     res = self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Bad Request.')
+    #
+    # def test_upvote_question_fails_by_unpermitted_user(self):
+    #     """Test that un-permitted user can not upvote question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     question = ask_question(course_content, admin)
+    #
+    #     res = self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_twice_upvote_question_fails_by_permitted_user(self):
+    #     """Test that permitted user can not upvote question twice"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #
+    #     self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {'upvote': True}
+    #     )
+    #     res = self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Question already upvoted.')
+    #
+    # def test_remove_upvote_question_success_by_self(self):
+    #     """Test that permitted user can remove upvote to question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #
+    #     self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_remove_upvote_question_fails_by_non_self(self):
+    #     """Test that permitted user can not remove upvote to question if upvote not self"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #
+    #     self.client.force_authenticate(admin)
+    #     self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.client.force_authenticate(self.user)
+    #     res = self.client.post(
+    #         get_upvote_downvote_question_url(institute.institute_slug, subject.subject_slug, question.pk),
+    #         {}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_upvote_answer_success_by_permitted_user(self):
+    #     """Test that permitted user can upvote answer"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['answer_id'], answer.pk)
+    #     self.assertEqual(res.data['upvoted'], True)
+    #
+    # def test_upvote_self_answer_fails_by_permitted_user(self):
+    #     """Test that permitted user can not upvote self answer"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #     answer = answer_question(question, self.user)
+    #
+    #     res = self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Bad Request.')
+    #
+    # def test_upvote_answer_fails_by_unpermitted_user(self):
+    #     """Test that un-permitted user can not upvote answer"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_twice_upvote_answer_fails_by_permitted_user(self):
+    #     """Test that permitted user can not upvote answer twice"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {'upvote': True}
+    #     )
+    #     res = self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Answer already upvoted.')
+    #
+    # def test_remove_upvote_answer_success_by_self(self):
+    #     """Test that permitted user can remove upvote to answer"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     res = self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {}
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_remove_upvote_answer_fails_by_non_self(self):
+    #     """Test that permitted user can not remove upvote to answer if upvote not self"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     self.client.force_authenticate(admin)
+    #     self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {'upvote': True}
+    #     )
+    #
+    #     self.client.force_authenticate(self.user)
+    #     res = self.client.post(
+    #         get_upvote_downvote_answer_url(institute.institute_slug, subject.subject_slug, answer.pk),
+    #         {}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_delete_question_success_by_self(self):
+    #     """Test that asker of question can delete question"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #
+    #     res = self.client.delete(
+    #         get_delete_question_url(question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_delete_question_fails_by_non_self(self):
+    #     """Test that asker of question can delete question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #
+    #     res = self.client.delete(
+    #         get_delete_question_url(question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_delete_twice_question_success_by_self(self):
+    #     """Test that asker of question can delete question twice"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #
+    #     self.client.delete(
+    #         get_delete_question_url(question.pk)
+    #     )
+    #     res = self.client.delete(
+    #         get_delete_question_url(question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_delete_answer_success_by_self(self):
+    #     """Test that answer provider or institute permitted user can delete answer"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #     answer = answer_question(question, self.user)
+    #
+    #     res = self.client.delete(
+    #         get_delete_answer_url(subject.subject_slug, answer.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_delete_answer_success_by_instructor(self):
+    #     """Test that answer provider or institute permitted user can delete answer"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.delete(
+    #         get_delete_answer_url(subject.subject_slug, answer.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_delete_answer_fails_by_non_permitted_user(self):
+    #     """Test that non answer provider can not delete question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.delete(
+    #         get_delete_answer_url(subject.subject_slug, answer.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_delete_twice_question_success_by_self(self):
+    #     """Test that can delete question twice"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #     answer = answer_question(question, self.user)
+    #
+    #     self.client.delete(
+    #         get_delete_answer_url(subject.subject_slug, answer.pk)
+    #     )
+    #     res = self.client.delete(
+    #         get_delete_answer_url(subject.subject_slug, answer.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+    #
+    # def test_asker_of_question_can_pin_answer(self):
+    #     """Test that asker of question can pin answer"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(self.user, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #     other_user = create_teacher()
+    #     answer = answer_question(question, other_user)
+    #
+    #     res = self.client.post(
+    #         get_pin_answer_url(answer.pk),
+    #         {}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #
+    # def test_non_asker_of_question_can_not_pin_answer(self):
+    #     """Test that asker of question can pin answer"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.post(
+    #         get_pin_answer_url(answer.pk),
+    #         {}
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_create_endpoint_for_listing_answers_to_question_success_by_admin(self):
+    #     """Test that admin can list answers to question"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     question = ask_question(course_content, self.user)
+    #     answer = answer_question(question, self.user)
+    #
+    #     res = self.client.get(
+    #         get_answer_list_url(institute.institute_slug, subject.subject_slug, question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertTrue(res.data[0]['anonymous'])
+    #     self.assertEqual(res.data[0]['answer'], answer.answer)
+    #     self.assertEqual(res.data[0]['pin'], answer.pin)
+    #
+    # def test_create_endpoint_for_listing_answers_to_question_success_by_subject_incharge(self):
+    #     """Test that subject incharge can list answers to question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.get(
+    #         get_answer_list_url(institute.institute_slug, subject.subject_slug, question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertTrue(res.data[0]['anonymous'])
+    #     self.assertEqual(res.data[0]['answer'], answer.answer)
+    #     self.assertEqual(res.data[0]['pin'], answer.pin)
+    #
+    # def test_create_endpoint_for_listing_answers_to_question_fails_by_non_permitted_user(self):
+    #     """Test that non user can not list answer to question"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.get(
+    #         get_answer_list_url(institute.institute_slug, subject.subject_slug, question.pk)
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
 
-    def test_get_course_min_preview_details_by_admin_success(self):
-        """Test that admin can get min preview details of course structure"""
+    def test_list_question_success_by_admin(self):
+        """Test that admin can list all questions"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
         order.paid = True
         order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
         order.save()
         class_ = create_class(institute)
         subject = create_subject(class_)
         view = models.SubjectViewNames.objects.filter(
             key='MI'
         ).first()
-        ext_link = models.InstituteSubjectCourseContent.objects.create(
+        course_content = models.InstituteSubjectCourseContent.objects.create(
             view=view,
             course_content_subject=subject,
             title='a',
             content_type='L'
         )
-        link = models.SubjectExternalLinkStudyMaterial.objects.create(
-            external_link_study_material=ext_link,
-            url='abc'
-        )
+        question = ask_question(course_content, self.user)
+        answer = answer_question(question, self.user)
 
         res = self.client.get(
-            get_course_preview_min_details(institute.institute_slug, subject.subject_slug)
+            get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
         )
-
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn('instructors', res.data)
-        self.assertEqual(len(res.data['instructors']), 0)
-        self.assertIn('view_order', res.data)
-        self.assertEqual(len(res.data['view_order']), 3)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['question'], question.question)
+        self.assertEqual(res.data[0]['answer_count'], 1)
+        self.assertEqual(res.data[0]['upvotes'], 0)
+
+    def test_list_question_success_by_subject_incharge(self):
+        """Test that subject incharge can list all questions"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        course_content = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        create_institute_subject_permission(admin, self.user, subject)
+        question = ask_question(course_content, self.user)
+        answer = answer_question(question, self.user)
+
+        res = self.client.get(
+            get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
+        )
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['question'], question.question)
+        self.assertEqual(res.data[0]['answer_count'], 1)
+        self.assertEqual(res.data[0]['upvotes'], 0)
+
+    def test_list_question_fails_by_non_permitted_user(self):
+        """Test that non permitted user can not list all questions"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.active = True
+        order.end_date = timezone.now() + datetime.timedelta(days=10)
+        order.save()
+        class_ = create_class(institute)
+        subject = create_subject(class_)
+        view = models.SubjectViewNames.objects.filter(
+            key='MI'
+        ).first()
+        course_content = models.InstituteSubjectCourseContent.objects.create(
+            view=view,
+            course_content_subject=subject,
+            title='a',
+            content_type='L'
+        )
+        question = ask_question(course_content, admin)
+        answer = answer_question(question, admin)
+
+        res = self.client.get(
+            get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
+        )
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
