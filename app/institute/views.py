@@ -3544,7 +3544,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        role = ''
+        role = None
 
         if not models.InstituteSubjectStudents.objects.filter(
                 institute_subject=subject,
