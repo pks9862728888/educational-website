@@ -3595,16 +3595,23 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
             if ans.anonymous:
                 response['user'] = 'Anonymous User'
             else:
-                user_details = models.InstituteStudents.objects.filter(
-                    user=self.request.user,
-                    institute=institute
-                ).first()
+                response['user_id'] = self.request.user.pk
+                user_details = None
+
+                if role == 'Student':
+                    user_details = models.InstituteStudents.objects.filter(
+                        user=self.request.user,
+                        institute=institute
+                    ).first()
+                else:
+                    user_details = models.UserProfile.objects.filter(
+                        user=self.request.user
+                    ).first()
 
                 if user_details.first_name and user_details.last_name:
                     response['user'] = user_details.first_name + ' ' + user_details.last_name
                 else:
                     response['user'] = str(self.request.user)
-                response['user_id'] = self.request.user.pk
 
             return Response(response, status=status.HTTP_201_CREATED)
         except ValueError as e:
