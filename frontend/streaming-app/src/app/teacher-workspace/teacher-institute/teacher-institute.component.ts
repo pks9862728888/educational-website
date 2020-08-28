@@ -87,7 +87,7 @@ export class SnackbarComponent {
 })
 export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
 
   // For handling filters
   appliedFilter = 'NONE';
@@ -125,13 +125,14 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   instituteJoinDeclineError: string;
   createInstituteError: string;
 
-  constructor(private media: MediaMatcher,
-              private instituteApiService: InstituteApiService,
-              private apiService: ApiService,
-              private inAppDataTransferService: InAppDataTransferService,
-              private snackBar: MatSnackBar,
-              private router: Router ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+  constructor(
+    private media: MediaMatcher,
+    private instituteApiService: InstituteApiService,
+    private apiService: ApiService,
+    private inAppDataTransferService: InAppDataTransferService,
+    private snackBar: MatSnackBar,
+    private router: Router ) {
+    this.mq = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {

@@ -23,7 +23,7 @@
             </div>
         </div>
 
-        <div *ngIf="this.chosenFile" class="padding-top-5">
+        <div *ngIf="this.chosenFile" class="p-t-5px">
             <div>
                 <mat-checkbox [(ngModel)]="this.classProfilePicture">Set as Class Profile Picture</mat-checkbox>
             </div>
@@ -40,8 +40,8 @@
     <mat-progress-bar *ngIf="this.uploadProgress" mode="determinate" value="this.uploadProgress"></mat-progress-bar>
 
     <mat-divider class="bottom-divider"></mat-divider>
-    <div mat-dialog-actions class="padding-bottom-35" align="end">
+    <div mat-dialog-actions class="p-b-30px" align="end">
         <button mat-flat-button [disabled]="fileNotChosen && (!this.classProfilePicture || !this.publicProfilePicture)" (click)="uploadProfilePicture()" class="green-button">Upload</button>
-        <button id="closeDialogueButton" mat-flat-button [mat-dialog-close]="pictureSuccessfullyUploaded" class="red-button">Close</button>
+        <button id="closeDialogueButton" mat-flat-button [mat-dialog-close]="pictureSuccessfullyUploaded" class="cancel-button">Close</button>
     </div>
 </div>

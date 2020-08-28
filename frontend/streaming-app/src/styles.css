@@ -51,7 +51,7 @@ button.active:focus {
     background-color: #0a5652;
 }
 
-.green-button:hover {
+.green-button:hover:not([disabled]) {
     background-color: #094d49;
 }
 
@@ -59,7 +59,7 @@ button.active:focus {
     background-color: #0784fa;
 }
 
-.blue-button:hover {
+.blue-button:hover:not([disabled]) {
     background-color: #0873d8;
 }
 
@@ -67,7 +67,7 @@ button.active:focus {
     background-color: #ff0000;
 }
 
-.red-button:hover {
+.red-button:hover:not([disabled]) {
     background-color: #d60000;
 }
 
@@ -75,7 +75,7 @@ button.active:focus {
     background-color: #FF3D00;
 }
 
-.cancel-button:hover {
+.cancel-button:hover:not([disabled]) {
     background-color: #BF360C;
 }
 
@@ -102,6 +102,10 @@ button.active:focus {
 
 .delete-icon {
     color: #ff0266;
+}
+
+.cancel-icon {
+    color: #FF3D00;
 }
 
 .back-icon {

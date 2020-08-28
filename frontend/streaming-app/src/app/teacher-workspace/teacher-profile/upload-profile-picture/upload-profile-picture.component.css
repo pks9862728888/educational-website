@@ -1,5 +1,3 @@
-/* Styling the dialog box */
-
 .profile-picture-dialogue {
     width: calc(100vw - 400px);
     height: 100%;
@@ -9,7 +7,7 @@
     width: 100%;
 }
 
-::ng-deep .mat-dialog-container {
+:host ::ng-deep .mat-dialog-container {
     background-color: #e7e7e7;
 }
 
@@ -17,7 +15,7 @@
     color: red;
 }
 
-::ng-deep .mat-typography h2 {
+:host ::ng-deep .mat-typography h2 {
     margin: 0 0 0px !important;
     color: #2c2c2c !important;
 }
@@ -55,31 +53,10 @@ image-cropper {
     padding: 10px 0px 0px 0px;
 }
 
-.padding-bottom-35 {
+.p-b-30px {
     padding-bottom: 30px;
 }
 
-.padding-top-5 {
+.p-t-5px {
     padding-top: 5px;
-}
-
-
-/* Styling controls */
-
-.green-button {
-    background-color: #41ad0f;
-    color: #ffffff;
-}
-
-.green-button:hover:not([disabled]) {
-    background-color: #3a9b0d;
-}
-
-.red-button {
-    background-color: #ff0000;
-    color: #ffffff;
-}
-
-.red-button:hover {
-    background-color: #cc0101;
 }

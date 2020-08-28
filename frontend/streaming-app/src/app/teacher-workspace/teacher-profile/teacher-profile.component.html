@@ -63,10 +63,10 @@
                             <img mat-card-image *ngIf="this.classProfilePicture" [src]=this.classProfilePicture alt="Profile picture">
                             <img mat-card-image *ngIf="!this.classProfilePicture" src="../../../assets/imgs/cd6.png" alt="Profile picture">
                             <mat-card-subtitle class="profile-pic-edit-banner">
-                                <mat-icon aria-hidden="false" class="edit-picture-icon" *ngIf="!this.editProfilePicture" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
+                                <mat-icon aria-hidden="false" class="cursor-pointer edit-icon" *ngIf="!this.editProfilePicture" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
                                     edit
                                 </mat-icon>
-                                <mat-icon aria-hidden="false" class="edit-picture-icon" *ngIf="this.editProfilePicture && !mobileQuery.matches" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
+                                <mat-icon aria-hidden="false" class="cursor-pointer cancel-icon" *ngIf="this.editProfilePicture && !mobileQuery.matches" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
                                     cancel
                                 </mat-icon>
                             </mat-card-subtitle>
@@ -91,7 +91,7 @@
                             <mat-toolbar-row class="mat-toolbar-background">
                                 <span>Account Details</span>
                                 <span class="float-right-spacer"></span>
-                                <button mat-flat-button class="edit-button" (click)="editAccountClicked()">
+                                <button mat-flat-button class="green-button" (click)="editAccountClicked()">
                                     <span *ngIf="!this.editAccount">Edit</span>
                                     <span *ngIf="this.editAccount">Cancel</span>
                                 </button>
@@ -128,7 +128,7 @@
                             <mat-toolbar-row class="mat-toolbar-background">
                                 <span>Profile Details</span>
                                 <span class="float-right-spacer"></span>
-                                <button mat-flat-button class="edit-button" (click)="editProfileClicked()">
+                                <button mat-flat-button class="green-button" (click)="editProfileClicked()">
                                     <span *ngIf="!this.editProfile">Edit</span>
                                     <span *ngIf="this.editProfile">Cancel</span>
                                 </button>

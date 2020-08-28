@@ -9,25 +9,22 @@ h5 {
 
 /* Styling angular material tabs */
 
-::ng-deep.mat-tab-label.mat-tab-label-active {
-    color: #ffffff;
-}
-
+::ng-deep.mat-tab-label.mat-tab-label-active,
 ::ng-deep.mat-tab-label {
-    color: #ffffff;
+    color: #bdbdbd;
 }
 
 ::ng-deep.mat-ink-bar {
     /* background-color: var(--primary-color,#1F89CE) !important; */
-    background-color: var(--primary-color, #9b27b0) !important;
+    background-color: var(--primary-color, #4caf50) !important;
 }
 
 .tabgroup-background {
-    background-color: #373737;
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .tab-content {
-    background-color: #303030;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 
@@ -49,7 +46,7 @@ h5 {
 
 .profile-pic-uploaded-banner {
     color: #b1b1b1;
-    background-color: #2c2c2c;
+    background-color: #232d36;
     opacity: 0.7;
     width: calc(100% - 30px);
     font-size: 10px;
@@ -60,7 +57,7 @@ h5 {
 }
 
 .name-username {
-    color: #92979C;
+    color: #bdbdbd;
 }
 
 .name-username-desktop {
@@ -83,8 +80,8 @@ h5 {
 
 .biodata,
 .other-data {
-    background-color: #424242;
-    color: #b1b1b1;
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #bdbdbd;
     border-radius: 5px;
     padding: 5px;
     margin-bottom: 15px;
@@ -102,19 +99,17 @@ h5 {
 }
 
 .mat-toolbar-background {
-    background-color: #212121;
+    background-color: #232d36;
     color: #b1b1b1;
 }
 
-.edit-button {
-    background-color: #41ad0f;
-    color: #ffffff;
+.green-button {
     outline: none;
 }
 
 .edit-canvas {
-    background-color: #3a3a3a;
-    color: #c1c1c1;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #bdbdbd;
     border-radius: 0 0 5px 5px;
     padding: 5px;
     margin-bottom: 15px;
@@ -126,17 +121,13 @@ h5 {
 
 .profile-pic-edit-banner {
     color: #b1b1b1;
-    background-color: #2c2c2c;
+    background-color: #101d25;
     opacity: 0.7;
     width: calc(100% - 30px);
     position: absolute;
     transform: translateY(-60px);
     text-align: right;
     padding: 10px;
-}
-
-.edit-picture-icon {
-    cursor: pointer;
 }
 
 .padding-top-15 {
@@ -149,7 +140,7 @@ h5 {
 
 .edit-profile-picture-card {
     margin-bottom: 15px;
-    background-color: #212121;
+    background-color: #232d36;
     padding: 4px 2px 4px 2px;
 }
 
@@ -159,11 +150,11 @@ h5 {
 }
 
 .mat-list-item:not(:last-child) {
-    border-bottom: 1px solid #161616;
+    border-bottom: 1px solid #192127;
 }
 
 .mat-list-item:hover {
-    background-color: #373737;
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 .mat-list-base {
@@ -178,20 +169,19 @@ h5 {
     width: 100%;
 }
 
-::ng-deep.mat-form-field-label {
+:host ::ng-deep.mat-form-field-label {
     /*change color of label*/
     color: #fcf835 !important;
 }
 
-::ng-deep.mat-form-field-underline {
+:host ::ng-deep.mat-form-field-underline {
     /*change color of underline*/
     background-color: #7a7a7a !important;
 }
 
-::ng-deep.mat-form-field-ripple {
+:host ::ng-deep.mat-form-field-ripple {
     /*change color of underline when focused*/
     background-color: green !important;
-    ;
 }
 
 .options {

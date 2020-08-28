@@ -14,9 +14,14 @@
 .col-11,
 .col-12,
 h3,
-p {
+p,
+hr {
     padding: 0px;
     margin: 0px;
+}
+
+.mat-card {
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 
@@ -31,7 +36,7 @@ p {
 }
 
 .search-color {
-    background-color: #303030;
+    background-color: inherit;
     color: #bdbdbd;
 }
 
@@ -44,12 +49,12 @@ p {
 
 .dropdown-toggle-split {
     border-radius: 0px 5px 5px 0px;
-    background-color: #303030;
+    background-color: inherit;
 }
 
 .dropdown-menu,
 .dropdown-item {
-    background-color: #1d1d1d;
+    background-color: #232d36;
     color: #6c757c;
 }
 
@@ -78,17 +83,11 @@ p {
 }
 
 .green-button {
-    color: #ffffff;
-    background-color: #008000;
     width: 100%;
 }
 
 .create-institute-button {
     width: 100%;
-}
-
-.create-institute-padding {
-    padding: 0 15px;
 }
 
 .col-12.create-institute-button {
@@ -105,10 +104,6 @@ p {
 
 
 /* Styling layout for mobile view */
-
-.col-mobile {
-    padding-left: 0px !important;
-}
 
 .mat-divider {
     background-color: #6c757c;
@@ -137,25 +132,43 @@ p {
     display: flex;
     justify-content: center;
     padding-left: 0.8rem;
-    color: #c5c5c5;
+    color: #bdbdbd;
 }
 
 .mat-expansion-panel {
-    background-color: #424242;
-    margin-bottom: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 1px 1px 1px #1f1f1f;
+    margin-bottom: 0.7rem;
+}
+
+.mat-expansion-panel-header {
+    border-radius: 5px;
+    padding: 0 1rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
 .mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
-    background-color: #383838;
-    color: #c5c5c5;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
-::ng-deep .mat-expansion-indicator::after {
-    color: #c5c5c5;
+.mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.01) !important;
+}
+
+:host ::ng-deep .mat-expansion-indicator::after {
+    color: #f2aa4cff;
+}
+
+:host ::ng-deep .mat-expansion-panel-body {
+    padding: 0 1rem 1rem;
+    background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 .mat-action-row {
     padding: 16px 16px 16px 24px;
+    background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 .star-icon {
@@ -165,7 +178,7 @@ p {
 }
 
 .star-icon-active {
-    color: #fdd02d;
+    color: #f2aa4cff;
 }
 
 .star-icon-disabled {
@@ -247,20 +260,11 @@ a:active {
 
 /* Styling buttons */
 
-.green-button,
 .blue-button,
 .lightblue-button,
 .red-button {
     color: #ffffff;
     box-shadow: 1px 1px 2px #1d1d1d;
-}
-
-.green-button {
-    background-color: #008000;
-}
-
-.green-button:hover:not(:disabled) {
-    background-color: #3a9b0d;
 }
 
 .green-button:disabled {
@@ -305,19 +309,23 @@ a:active {
 
 /* Styling padding and margin */
 
-.margin-right-16 {
-    margin-right: 16px;
+.m-t-03 {
+    margin-top: 0.3rem;
 }
 
-.margin-right-10 {
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-r-10px {
     margin-right: 10px;
 }
 
-.margin-left-10 {
+.m-l-20px {
     margin-left: 20px;
 }
 
-.margin-left-0 {
+.m-l-0 {
     margin-left: 0;
 }
 
@@ -331,30 +339,4 @@ a:active {
 
 .padding-top-05 {
     padding-top: 0.5rem;
-}
-
-
-/* Styling search bar for responsive design */
-
-@media screen and (min-width: 600px) and (max-width: 1140px) {
-    .create-institute-padding {
-        padding-top: 0.5rem;
-    }
-}
-
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-
-/* Hide scrollbar for IE, Edge and Firefox */
-
-.no-scrollbar {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
 }

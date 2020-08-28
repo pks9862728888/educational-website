@@ -27,7 +27,7 @@ interface SetProfilePictureResponse {
 export class ChooseFromExistingComponent implements OnInit {
 
   // For detecting whether device is mobile
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
 
   // For storing image list
   imageList: ImageDetails[] = [];
@@ -47,7 +47,7 @@ export class ChooseFromExistingComponent implements OnInit {
 
   constructor(private media: MediaMatcher,
               private apiService: ApiService) {
-      this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+      this.mq = this.media.matchMedia('(max-width: 600px)');
   }
 
   ngOnInit(): void {

@@ -45,7 +45,7 @@
 .sidenav-container {
     width: 100%;
     height: 100%;
-    background-color: #303030;
+    background-color: #101d25;
     color: #FBFBFB;
 }
 
@@ -60,12 +60,12 @@
 .website-name {
     margin: 0px;
     padding: 7px 45px 7px 19px;
-    color: #fbd000;
+    color: #f2aa4cff;
 }
 
 .sidenav-background-color {
-    background-color: #262626;
-    color: #ffffff;
+    background-color: #232d36;
+    color: #fff;
 }
 
 .sidenav-content-less-padding {
@@ -79,16 +79,16 @@
 }
 
 .selected-nav-option {
-    background-color: #1D1D1D;
+    background-color: rgba(255, 255, 255, 0.08);
     outline: none;
     border-width: 2px 0px 2px 0px;
-    border-color: #343434;
+    border-color: rgba(255, 255, 255, 0.11);
     border-style: solid;
 }
 
 .sidenav-content-less-padding:hover,
 .sidenav-content-more-padding:hover {
-    background-color: #424242;
+    background-color: rgba(255, 255, 255, 0.08);
 }
 
 
@@ -100,8 +100,8 @@
 }
 
 .breadcrumb {
-    background-color: #383838;
-    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.65);
     margin-bottom: 10px;
     box-shadow: 0 1px 1px 0 #1d1d1d;
 }

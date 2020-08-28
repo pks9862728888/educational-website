@@ -2,13 +2,14 @@
 
 .profile-picture-dialogue {
     height: 100%;
+    min-width: 400px;
 }
 
 .profile-picture-dialogue-mobile {
     width: calc(100vw - 130px);
 }
 
-::ng-deep .mat-dialog-container {
+:host ::ng-deep .mat-dialog-container {
     background-color: #e7e7e7;
 }
 
@@ -19,56 +20,6 @@
 ::ng-deep .mat-typography h2 {
     margin: 0 0 0px !important;
     color: #2c2c2c !important;
-}
-
-.top-divider {
-    padding-bottom: 15px;
-}
-
-.bottom-divider {
-    margin-top: 5px;
-}
-
-.padding-bottom-35 {
-    padding-bottom: 30px;
-}
-
-.padding-top-5 {
-    padding-top: 5px;
-}
-
-
-/* Styling controls */
-
-.green-button {
-    background-color: #41ad0f;
-    color: #ffffff;
-}
-
-.green-button:hover:not([disabled]) {
-    background-color: #3a9b0d;
-}
-
-.red-button,
-.green-button,
-.blue-button {
-    color: #ffffff;
-}
-
-.red-button {
-    background-color: #ff0000;
-}
-
-.red-button:hover {
-    background-color: #cc0101;
-}
-
-.blue-button {
-    background-color: #1c33ff;
-}
-
-.blue-button:hover {
-    background-color: #1021b4;
 }
 
 
@@ -94,6 +45,11 @@
 ::ng-deep .mat-progress-spinner circle,
 ::ng-deep .mat-spinner circle {
     stroke: #46ad10;
+}
+
+.image-size {
+    width: 112px;
+    height: 112px;
 }
 
 .image-block {
@@ -134,7 +90,37 @@
     width: 100%;
 }
 
-.padding-bottom-15 {
+.divider-color {
+    color: #6c757d;
+}
+
+.p-t-5px {
     padding-top: 5px;
+}
+
+.p-b-15px {
     padding-bottom: 15px;
+}
+
+.p-b-30px {
+    padding-bottom: 30px;
+}
+
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-05 {
+    margin-bottom: 0.5rem;
+}
+
+@media screen and (max-width: 600px) {
+    .image-size {
+        width: 70px;
+        height: 70px;
+    }
 }
