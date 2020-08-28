@@ -3934,11 +3934,23 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
                     res['user'] = 'Anonymous User'
                 elif ans.user:
                     res['user_id'] = ans.user.pk
-                    user_data = models.InstituteStudents.objects.filter(
-                        user__pk=ans.user.pk,
-                        institute=institute
-                    ).first()
-                    if user_data.first_name and user_data.last_name:
+                    is_student = models.InstituteStudents.objects.filter(
+                        user__pk=ans.user.pk
+                    ).exists()
+                    user_data = None
+
+                    if is_student:
+                        user_data = models.InstituteStudents.objects.filter(
+                            user__pk=ans.user.pk,
+                            institute=institute
+                        ).first()
+                    else:
+                        user_data = models.UserProfile.objects.filter(
+                            user__pk=ans.user.pk,
+                            institute=institute
+                        ).first()
+
+                    if user_data and user_data.first_name and user_data.last_name:
                         res['user'] = user_data.first_name + ' ' + user_data.last_name
                     else:
                         res['user'] = str(ans.user)
