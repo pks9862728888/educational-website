@@ -2436,6 +2436,7 @@ class InstituteSubjectAddCourseContentView(APIView):
                             video_format = ffprobe.format()
                             duration = video_format['duration']
                             bit_rate = video_format['bit_rate']
+                            print(ffprobe.video_size)
 
                             _144p = Representation(Size(256, 144), Bitrate(95 * 1024, 64 * 1024))
                             _240p = Representation(Size(426, 240), Bitrate(150 * 1024, 94 * 1024))
