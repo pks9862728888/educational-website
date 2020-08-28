@@ -3920,15 +3920,15 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
                 if ans.anonymous:
                     res['user'] = 'Anonymous User'
                 elif ans.user:
+                    res['user_id'] = ans.user.pk
                     user_data = models.InstituteStudents.objects.filter(
-                        user=self.request.user,
+                        user__pk=ans.user.pk,
                         institute=institute
                     ).first()
-                    res['user_id'] = res.user.pk
                     if user_data.first_name and user_data.last_name:
                         res['user'] = user_data.first_name + ' ' + user_data.last_name
                     else:
-                        res['user'] = str(res.user)
+                        res['user'] = str(ans.user)
                 else:
                     res['user'] = 'Deleted User'
 
@@ -3941,3 +3941,94 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
         except Exception:
             return Response({'error': _('Internal server error occured.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseListQuestionView(APIView):
+    """View for listing question by instructor, admin and permitted student"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def get(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug').lower()
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject=subject,
+                user=self.request.user,
+                active=True,
+                is_banned=False
+        ).exists():
+            if not models.InstituteSubjectPermission.objects.filter(
+                    to=subject,
+                    invitee=self.request.user
+            ).exists() and not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_license(institute):
+            return Response({'error': _('Active license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        course_content = models.InstituteSubjectCourseContent.objects.filter(
+            pk=kwargs.get('course_content_pk')
+        ).first()
+
+        if not course_content:
+            return Response({'error': _('This study material may have been deleted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        questions = models.InstituteSubjectCourseContentQuestions.objects.filter(
+            course_content=course_content
+        )
+        response = list()
+        for q in questions:
+            res = dict()
+            res['id'] = q.id
+            res['question'] = q.question
+            res['rgb_color'] = q.rgb_color
+            res['created_on'] = str(q.created_on)
+            res['description'] = q.description
+            res['anonymous'] = q.anonymous
+
+            if q.anonymous:
+                res['user'] = 'Anonymous User'
+            elif q.user:
+                res['user_id'] = q.user.pk
+                user_data = models.InstituteStudents.objects.filter(
+                    user__pk=q.user.pk,
+                    institute=institute
+                ).first()
+                if user_data.first_name and user_data.last_name:
+                    res['user'] = user_data.first_name + ' ' + user_data.last_name
+                else:
+                    res['user'] = str(q.user)
+            else:
+                res['user'] = 'Deleted User'
+
+            res['upvotes'] = models.InstituteSubjectCourseContentQuestionUpvote.objects.filter(
+                course_content_question__pk=q.pk
+            ).count()
+            res['answer_count'] = models.InstituteSubjectCourseContentAnswer.objects.filter(
+                content_question__pk=q.pk
+            ).count()
+            response.append(res)
+
+        return Response(response, status=status.HTTP_200_OK)
