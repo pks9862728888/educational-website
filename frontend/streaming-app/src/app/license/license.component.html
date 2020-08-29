@@ -1,5 +1,5 @@
 <section>
-    <mat-card class="parent-container">
+    <mat-card>
         <div class="d-flex justify-content-between">
             <h3 [ngClass]="{'heading-text': !mobileQuery.matches && canPurchaseAnotherLicense}"><strong>License Details:</strong></h3>
             <div *ngIf="canPurchaseAnotherLicense">
@@ -26,11 +26,11 @@
                                     </mat-icon>
                                 </div>
                                 <div class="col-sm-8 col-md-6 col-lg-4">
-                                    <h3 class="header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(activeLicenseDetails.license_details.type) }}</h3>
-                                    <p class="header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(activeLicenseDetails.license_details.type) }}</p>
+                                    <h3 class="expansion-panel-header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(activeLicenseDetails.license_details.type) }}</h3>
+                                    <p class="expansion-panel-header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(activeLicenseDetails.license_details.type) }}</p>
                                 </div>
                                 <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="header-color">{{ getBillingType(activeLicenseDetails.license_details.billing) | titlecase}}</h3>
+                                    <h3 class="expansion-panel-header-color">{{ getBillingType(activeLicenseDetails.license_details.billing) | titlecase}}</h3>
                                 </div>
                             </mat-panel-title>
                         </mat-expansion-panel-header>
@@ -206,11 +206,11 @@
                                     </mat-icon>
                                 </div>
                                 <div class="col-sm-8 col-md-6 col-lg-4">
-                                    <h3 class="header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) }}</h3>
-                                    <p class="header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) }}</p>
+                                    <h3 class="expansion-panel-header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) }}</h3>
+                                    <p class="expansion-panel-header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) }}</p>
                                 </div>
                                 <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="header-color">{{ getBillingType(purchasedInactiveLicenseDetails.license_details.billing) | titlecase}}</h3>
+                                    <h3 class="expansion-panel-header-color">{{ getBillingType(purchasedInactiveLicenseDetails.license_details.billing) | titlecase}}</h3>
                                 </div>
                             </mat-panel-title>
                         </mat-expansion-panel-header>
@@ -370,11 +370,11 @@
                                     </mat-icon>
                                 </div>
                                 <div class="col-sm-8 col-md-6 col-lg-4">
-                                    <h3 class="header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(expiredLicenseDetails.license_details.type) }}</h3>
-                                    <p class="header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(expiredLicenseDetails.license_details.type) }}</p>
+                                    <h3 class="expansion-panel-header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(expiredLicenseDetails.license_details.type) }}</h3>
+                                    <p class="expansion-panel-header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(expiredLicenseDetails.license_details.type) }}</p>
                                 </div>
                                 <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="header-color">{{ getBillingType(expiredLicenseDetails.license_details.billing) | titlecase}}</h3>
+                                    <h3 class="expansion-panel-header-color">{{ getBillingType(expiredLicenseDetails.license_details.billing) | titlecase}}</h3>
                                 </div>
                             </mat-panel-title>
                         </mat-expansion-panel-header>

@@ -10,35 +10,47 @@ hr {
     word-wrap: break-word;
 }
 
+.mat-card {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #bdbdbd;
+}
+
 
 /* Styling expansion panel */
 
 .mat-expansion-panel {
-    background-color: #303030;
-    box-shadow: 0 1px 1px #4b4b4b;
+    background-color: rgba(255, 255, 255, 0.05);
+    box-shadow: 1px 1px 1px #1f1f1f;
     margin-bottom: 0.7rem;
 }
 
 .mat-expansion-panel-header {
-    border-radius: 10px;
+    border-radius: 5px;
+    padding: 0 1rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
-    background-color: #292929;
-    color: #c5c5c5;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
-.yellow-color {
+.mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+:host ::ng-deep .mat-expansion-indicator::after {
     color: #f2aa4cff;
 }
 
-::ng-deep .mat-expansion-indicator::after {
-    color: #bdbdbd;
+:host ::ng-deep .mat-expansion-panel-body {
+    padding: 0 1rem 1rem;
+    background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-.license-icon,
-.header-color {
-    color: #bdbdbd;
+.license-icon {
+    color: #03dac5;
 }
 
 .invite-top-separator,
@@ -78,5 +90,9 @@ hr {
 }
 
 .purchase-icon {
+    color: #f2aa4cff;
+}
+
+.yellow-color {
     color: #f2aa4cff;
 }

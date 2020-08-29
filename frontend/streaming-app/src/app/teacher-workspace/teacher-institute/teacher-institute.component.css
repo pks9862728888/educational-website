@@ -1,43 +1,18 @@
-/* Removing the bootstrap padding */
-
+.row,
 .col,
-.col-1,
-.col-2,
-.col-3,
 .col-4,
-.col-5,
-.col-6,
-.col-7,
 .col-8,
-.col-9,
-.col-10,
-.col-11,
 .col-12,
+.col-sm-4,
 h3,
 p,
 hr {
-    padding: 0px;
-    margin: 0px;
+    padding: 0;
+    margin: 0;
 }
 
 .mat-card {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-
-
-/* Styling search button */
-
-.input-group.padding-search {
-    padding: 0 15px;
-}
-
-.btn {
-    padding: 0.34rem 1rem 0rem 1rem;
-}
-
-.search-color {
-    background-color: inherit;
-    color: #bdbdbd;
+    background-color: rgba(255, 255, 255, 0.06);
 }
 
 
@@ -80,18 +55,6 @@ hr {
 
 .btn:focus {
     box-shadow: 0 0 0 0 #ffffff !important;
-}
-
-.green-button {
-    width: 100%;
-}
-
-.create-institute-button {
-    width: 100%;
-}
-
-.col-12.create-institute-button {
-    padding-top: 0.5rem;
 }
 
 .back {
@@ -194,22 +157,17 @@ hr {
     font-size: 12px;
 }
 
-.college-details {
-    /* padding: 0 24px; */
-    color: #c5c5c5;
-}
-
 .mat-list {
     margin: 5px 0;
 }
 
 .mat-list-item {
-    color: #c5c5c5;
+    color: #bdbdbd;
 }
 
 ul {
     margin: 5px 0px;
-    padding: 8px 16px;
+    padding: 8px 0px;
 }
 
 li {
@@ -308,6 +266,14 @@ a:active {
 
 
 /* Styling padding and margin */
+
+.p-r-05 {
+    padding-right: 0.5rem;
+}
+
+.p-l-05 {
+    padding-left: 0.5rem;
+}
 
 .m-t-03 {
     margin-top: 0.3rem;

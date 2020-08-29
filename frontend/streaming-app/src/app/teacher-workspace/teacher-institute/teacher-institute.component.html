@@ -65,7 +65,7 @@
                         </mat-panel-title>
                     </mat-expansion-panel-header>
 
-                    <div class="row college-details">
+                    <div class="row text-color">
                         <div class="col-12">
                             <ul class="role">
                                 <li>
@@ -82,7 +82,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-r-05]="!mq.matches">
                             <strong>Contact Information</strong>
                             <ul>
                                 <li>
@@ -130,7 +130,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-l-05]="!mq.matches" [class.p-r-05]="!mq.matches">
                             <strong>Additional Details</strong>
                             <ul>
                                 <li>
@@ -176,7 +176,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-l-05]="!mq.matches">
                             <strong>Statistical Information</strong>
                             <ul>
                                 <li>
@@ -224,7 +224,7 @@
                     </div>
 
                     <mat-action-row>
-                        <div class="m-r-10px">
+                        <div>
                             <button mat-flat-button class="green-button">Publish</button>
                         </div>
                         <div>
@@ -281,7 +281,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-r-05]="!mq.matches">
                             <strong>Contact Information</strong>
                             <ul>
                                 <li>
@@ -329,7 +329,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-r-05]="!mq.matches" [class.p-l-05]="!mq.matches">
                             <strong>Additional Details</strong>
                             <ul>
                                 <li>
@@ -375,7 +375,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-l-05]="!mq.matches">
                             <strong>Statistical Information</strong>
                             <ul>
                                 <li>
@@ -423,7 +423,7 @@
                     </div>
 
                     <mat-action-row>
-                        <div class="m-r-10px" *ngIf="institute.role === 'A'">
+                        <div *ngIf="institute.role === 'A'">
                             <button mat-flat-button class="green-button">Publish</button>
                         </div>
                         <div *ngIf="institute.role === 'A'">
@@ -480,7 +480,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-r-05]="!mq.matches">
                             <strong>Contact Information</strong>
                             <ul>
                                 <li>
@@ -528,7 +528,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-r-05]="!mq.matches" [class.p-l-05]="!mq.matches">
                             <strong>Additional Details</strong>
                             <ul>
                                 <li>
@@ -574,7 +574,7 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" [class.p-l-05]="!mq.matches">
                             <strong>Statistical Information</strong>
                             <ul>
                                 <li>
@@ -625,7 +625,7 @@
                     </div>
 
                     <mat-action-row>
-                        <div class="magin-right-10">
+                        <div class="m-r-10px">
                             <button mat-flat-button class="lightblue-button">Message</button>
                         </div>
                         <div *ngIf="showJoinInstituteProgressSpinner" class="m-l-20px m-r-10px">

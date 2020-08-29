@@ -16,7 +16,7 @@
             <div [ngClass]="{'institute-title': this.currentInstituteRole === 'A', 'padding-top-non-admin': this.currentInstituteRole !== 'A'}">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h2>{{ this.currentInstituteDetails.name | titlecase }}</h2>
+                        <h2 class="expansion-panel-header-color">{{ this.currentInstituteDetails.name | titlecase }}</h2>
                         <h3>Type: {{ this.getInstituteType(this.currentInstituteDetails.institute_category) }}</h3>
                         <h3>Role: {{ this.getRole() }}</h3>
                         <h3><span *ngIf="this.currentInstituteDetails.institute_profile.state">{{ this.getState(this.currentInstituteDetails.institute_profile.state) }},</span> {{ this.getInstituteCountry(this.currentInstituteDetails.country ) }}</h3>

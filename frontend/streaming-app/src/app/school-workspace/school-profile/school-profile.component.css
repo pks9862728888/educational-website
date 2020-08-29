@@ -20,7 +20,7 @@ ul {
 }
 
 .main-content {
-    background-color: #3f3f3f;
+    background-color: rgba(255, 255, 255, 0.08);
     overflow: hidden;
 }
 
@@ -52,7 +52,7 @@ ul {
 }
 
 .banner-background {
-    background-color: #5a5f69;
+    background-color: rgba(255, 255, 255, 0.11);
 }
 
 .edit-icon-banner {
@@ -98,8 +98,8 @@ li {
     padding: 1rem 0.5rem 1rem;
     border: 1px solid #6c757c;
     border-bottom: 0px;
-    color: #ffffff;
-    background-color: #3d3d3d;
+    color: #bdbdbd;
+    background-color: inherit;
 }
 
 .border-bottom-1 {
@@ -162,16 +162,6 @@ li {
     .col-6 {
         word-wrap: break-word;
     }
-}
-
-.green-button {
-    background-color: #008000;
-    color: #ffffff;
-    box-shadow: 1px 1px 2px #1d1d1d;
-}
-
-.green-button:hover {
-    background-color: #3a9b0d;
 }
 
 .blue-button {
