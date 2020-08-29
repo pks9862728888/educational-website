@@ -48,3 +48,19 @@ export interface ImageUploadResponse {
     url: string;
   };
 }
+
+export interface ImageDetails {
+  id: number;
+  image: string;
+  uploaded_on: string;
+  public_profile_picture: boolean;
+  class_profile_picture: boolean;
+}
+
+export interface SetProfilePictureResponse {
+  id: string;
+  image: string;
+  class_profile_picture: boolean;
+  uploaded_on: string;
+  public_profile_picture: boolean;
+}

@@ -1,3 +1,4 @@
+import { ChooseProfilePictureFromExistingComponent } from '../shared/choose-profile-picture-from-existing/choose-profile-picture-from-existing.component';
 import { InstituteApiService } from './../services/institute-api.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialSharedModule } from './material.shared.module';
@@ -25,6 +26,9 @@ import { AppDateAdapter, APP_DATE_FORMATS } from '../format-datepicker';
 import { UiActionControlsComponent } from './ui-action-controls/ui-action-controls.component';
 import { UiEditStudyMaterialComponent } from './ui-edit-study-material/ui-edit-study-material.component';
 import { UiAddContentComponent } from './ui-add-content/ui-add-content.component';
+import { UploadProfilePictureComponent } from '../shared/upload-profile-picture/upload-profile-picture.component';
+import { ImageCropperModule } from 'ngx-image-cropper';
+
 
 @NgModule({
   declarations: [
@@ -45,7 +49,9 @@ import { UiAddContentComponent } from './ui-add-content/ui-add-content.component
     UiAddExternalLinkComponent,
     UiActionControlsComponent,
     UiEditStudyMaterialComponent,
-    UiAddContentComponent
+    UiAddContentComponent,
+    ChooseProfilePictureFromExistingComponent,
+    UploadProfilePictureComponent
   ],
   imports: [
     CommonModule,
@@ -53,7 +59,8 @@ import { UiAddContentComponent } from './ui-add-content/ui-add-content.component
     FormsModule,
     ReactiveFormsModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    ImageCropperModule
   ],
   exports: [
     UiReloadComponent,
@@ -71,7 +78,9 @@ import { UiAddContentComponent } from './ui-add-content/ui-add-content.component
     UiUploadPdfComponent,
     UiAddExternalLinkComponent,
     UiEditStudyMaterialComponent,
-    UiAddContentComponent
+    UiAddContentComponent,
+    ChooseProfilePictureFromExistingComponent,
+    UploadProfilePictureComponent
   ],
   providers: [
     InstituteApiService,

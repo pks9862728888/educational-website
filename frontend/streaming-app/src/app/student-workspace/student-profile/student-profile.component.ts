@@ -9,8 +9,9 @@ import { ApiService } from '../../services/api.service';
 import { UiService } from '../../services/ui.service';
 import { getGender, getCountry, getLanguage } from '../../shared/utilityFunctions';
 import { UserProfileDetails, DeletedCurrentPictureResponse } from '../../models/profile.model';
-import { UploadProfilePictureComponent } from 'src/app/teacher-workspace/teacher-profile/upload-profile-picture/upload-profile-picture.component';
-import { ChooseFromExistingComponent } from 'src/app/teacher-workspace/teacher-profile/choose-from-existing/choose-from-existing.component';
+import { UploadProfilePictureComponent } from '../../shared/upload-profile-picture/upload-profile-picture.component';
+import { ChooseProfilePictureFromExistingComponent } from '../../shared/choose-profile-picture-from-existing/choose-profile-picture-from-existing.component';
+
 
 @Component({
   selector: 'app-student-profile',
@@ -275,7 +276,7 @@ export class StudentProfileComponent implements OnInit {
 
   // To choose from existing profile picture
   chooseFromExistingClicked() {
-    const dialogRef = this.dialog.open(ChooseFromExistingComponent);
+    const dialogRef = this.dialog.open(ChooseProfilePictureFromExistingComponent);
 
     this.profilePictureUpdatedDataSubscription = this.inAppDataTransferService.profilePictureUpdatedData$.subscribe(
       data => {

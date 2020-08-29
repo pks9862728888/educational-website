@@ -7,8 +7,8 @@ import { MediaMatcher } from '@angular/cdk/layout';
 import { ApiService } from '../../services/api.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { UploadProfilePictureComponent } from './upload-profile-picture/upload-profile-picture.component';
-import { ChooseFromExistingComponent } from './choose-from-existing/choose-from-existing.component';
+import { UploadProfilePictureComponent } from '../../shared/upload-profile-picture/upload-profile-picture.component';
+import { ChooseProfilePictureFromExistingComponent } from '../../shared/choose-profile-picture-from-existing/choose-profile-picture-from-existing.component';
 import { formatDate } from '../../format-datepicker';
 import { getLanguage, getGender, getCountry } from '../../shared/utilityFunctions'
 
@@ -276,7 +276,7 @@ export class TeacherProfileComponent implements OnInit {
 
   // To choose from existing profile picture
   chooseFromExistingClicked() {
-    const dialogRef = this.dialog.open(ChooseFromExistingComponent);
+    const dialogRef = this.dialog.open(ChooseProfilePictureFromExistingComponent);
 
     this.profilePictureUpdatedDataSubscription = this.inAppDataTransferService.profilePictureUpdatedData$.subscribe(
       data => {
