@@ -589,9 +589,8 @@ class SystemMessage(models.Model):
 @receiver(post_save, sender=User)
 def user_is_created(sender, instance, created, **kwargs):
     if created:
-        # Creating teacher profile
-        if instance.is_teacher:
-            UserProfile.objects.create(user=instance)
+        # Creating user profile
+        UserProfile.objects.create(user=instance)
 
         # Creates welcome message using task queue
         if instance.username != os.environ.get('SYSTEM_USER_USERNAME'):
