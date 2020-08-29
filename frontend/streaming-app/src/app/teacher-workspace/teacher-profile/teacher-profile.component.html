@@ -58,6 +58,14 @@
                         <h4>********</h4>
                     </div>
                 </div>
+                <div class='row m-tb-1'>
+                    <div class="col-5">
+                        <h4>Member Since:</h4>
+                    </div>
+                    <div class="col-7">
+                        <h4>{{ userProfileData.created_date | date}}</h4>
+                    </div>
+                </div>
             </mat-card>
             <!-- For editing account details -->
             <mat-card class="edit-canvas" *ngIf="this.editAccount">
@@ -157,7 +165,7 @@
                         <h4>Secondary Language:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ getLanguage(this.userProfileData.user_profile.primary_language) }}</h4>
+                        <h4>{{ getLanguage(this.userProfileData.user_profile.secondary_language) }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -165,7 +173,7 @@
                         <h4>Tertiary Language:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ getLanguage(this.userProfileData.user_profile.primary_language) }}</h4>
+                        <h4>{{ getLanguage(this.userProfileData.user_profile.tertiary_language) }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -174,14 +182,6 @@
                     </div>
                     <div class="col-7">
                         <h4>Teacher</h4>
-                    </div>
-                </div>
-                <div class='row m-tb-1'>
-                    <div class="col-5">
-                        <h4>Member Since:</h4>
-                    </div>
-                    <div class="col-7">
-                        <h4>{{ userProfileData.created_date | date}}</h4>
                     </div>
                 </div>
             </mat-card>

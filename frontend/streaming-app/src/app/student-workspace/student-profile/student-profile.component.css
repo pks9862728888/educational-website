@@ -1,0 +1,156 @@
+.row,
+.col-4,
+.col-5,
+.col-7,
+.col-sm-4,
+h4 {
+    margin: 0;
+    padding: 0;
+}
+
+.main-container {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.img {
+    object-fit: cover;
+}
+
+.mat-card-image {
+    margin: 0 !important;
+    height: 250px;
+    width: 250px;
+    overflow: hidden;
+}
+
+
+/* For edit-profile view */
+
+.float-right-spacer {
+    flex: 1 1 auto;
+}
+
+.mat-toolbar-background {
+    background-color: #171e25;
+    color: #b1b1b1;
+}
+
+.edit-canvas {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #bdbdbd;
+    border-radius: 0 0 5px 5px;
+}
+
+.profile-pic-edit-banner {
+    color: #b1b1b1;
+    background-color: #101d25;
+    opacity: 0.7;
+    width: 250px;
+    position: absolute;
+    transform: translateY(-45px);
+    text-align: right;
+    padding: 10px;
+}
+
+.edit-profile-picture-card {
+    background-color: rgba(255, 255, 255, 0.06);
+    padding: 4px 2px 4px 2px;
+}
+
+.mat-list-item {
+    color: #bdbdbd;
+    cursor: pointer;
+}
+
+.mat-list-item:not(:last-child) {
+    border-bottom: 1px solid #192127;
+}
+
+.mat-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.mat-list-base {
+    padding-top: 0px;
+}
+
+
+/* Styling edit profile form */
+
+.mat-form-field {
+    padding: 0 10px;
+    width: 100%;
+}
+
+:host ::ng-deep.mat-form-field-label {
+    /*change color of label*/
+    color: #4caf50 !important;
+}
+
+:host ::ng-deep.mat-form-field-underline {
+    /*change color of underline*/
+    background-color: #6c757d !important;
+}
+
+:host ::ng-deep.mat-form-field-ripple {
+    /*change color of underline when focused*/
+    background-color: green !important;
+}
+
+.options {
+    background-color: #101d25;
+    color: #bdbdbd;
+}
+
+.mat-datepicker-toggle {
+    color: white !important;
+}
+
+.hint-normal {
+    color: rgba(255, 255, 255, 0.37);
+}
+
+.hint-error {
+    color: #ff0000;
+}
+
+.p-t-1 {
+    padding-top: 1rem;
+}
+
+.p-t-15px {
+    padding-top: 15px;
+}
+
+.p-t-15px-mobile {
+    padding-top: 15px;
+}
+
+.p-b-2px {
+    padding-bottom: 2px;
+}
+
+.p-l-1 {
+    padding-left: 1rem;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-tb-1 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.mat-display-1 {
+    margin: 0px;
+}
+
+.margin-bottom-15 {
+    margin-bottom: 10px;
+}

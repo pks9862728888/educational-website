@@ -4,6 +4,9 @@ export const UNLIMITED = 99999;
 
 // For user
 export const userId = 'user_id';
+export const is_student = 'is_student_qwersf';
+export const is_teacher = 'is_teacher_jdlfgd';
+export const is_staff = 'is_staff_xcvxpd';
 
 // For institutes
 export const currentInstituteRole = 'currentInstituteRole';

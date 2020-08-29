@@ -1,0 +1,142 @@
+.full-body-container {
+    height: calc(100vh - 54px);
+    width: 100%;
+}
+
+
+/* Styling sidenav toggle icon */
+
+.toggle-icon-mobile,
+.toggle-icon-desktop {
+    left: 0;
+    z-index: 100;
+    background-color: #000000;
+    padding: 6px 0px 2px 0px;
+    cursor: pointer;
+}
+
+.toggle-icon-mobile {
+    top: 56px;
+    position: fixed;
+}
+
+.toggle-icon-desktop {
+    top: 0px;
+    position: absolute;
+}
+
+.icon {
+    color: #ffffff;
+}
+
+
+/* Styling sidenav */
+
+.sidenav-container-20 {
+    height: 100%;
+    width: 20%;
+}
+
+.sidenav-container-75 {
+    width: 75%;
+    height: 100%;
+}
+
+.sidenav-container {
+    width: 100%;
+    height: 100%;
+    background-color: #101d25;
+    color: #FBFBFB;
+}
+
+.is-mobile {
+    position: absolute;
+    z-index: 200;
+}
+
+
+/* Styling sidenav contents */
+
+.website-name {
+    margin: 0px;
+    padding: 7px 45px 7px 19px;
+    color: #f2aa4cff;
+}
+
+.sidenav-background-color {
+    background-color: #232d36;
+    color: #fff;
+}
+
+.sidenav-content-less-padding {
+    padding: 9px 20px;
+    cursor: pointer;
+}
+
+.sidenav-content-more-padding {
+    padding: 9px 30px;
+    cursor: pointer;
+}
+
+.selected-nav-option {
+    background-color: rgba(255, 255, 255, 0.08);
+    outline: none;
+    border-width: 2px 0px 2px 0px;
+    border-color: rgba(255, 255, 255, 0.11);
+    border-style: solid;
+}
+
+.sidenav-content-less-padding:hover,
+.sidenav-content-more-padding:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+
+/* Styling breadbrumb */
+
+.padding-main-content {
+    padding: 15px;
+}
+
+.breadcrumb {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 10px;
+    box-shadow: 0 1px 1px 0 #1d1d1d;
+}
+
+.mouse-pointer {
+    cursor: pointer;
+}
+
+.clickable-link {
+    color: #bdbdbd;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.active {
+    color: #858585;
+    cursor: default;
+    font-weight: normal;
+}
+
+
+/* Scrollbar */
+
+::-webkit-scrollbar {
+    /* required, although an apparent no-op */
+    color: rgb(0, 0, 0);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 50px;
+}
+
+@media screen and (min-width: 600px) {
+     ::-webkit-scrollbar {
+        width: 10px;
+    }
+}
