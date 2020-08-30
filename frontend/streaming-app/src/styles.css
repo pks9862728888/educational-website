@@ -87,7 +87,8 @@ button.active:focus {
 .edit-icon,
 .delete-icon,
 .add-icon,
-.preview-icon {
+.preview-icon,
+.message-icon {
     cursor: pointer;
 }
 
@@ -98,6 +99,10 @@ button.active:focus {
 
 .edit-icon {
     color: #bb86fc;
+}
+
+.message-icon {
+    color: #03dac5;
 }
 
 .delete-icon {
@@ -153,6 +158,10 @@ button.active:focus {
 
 .text-color {
     color: #bdbdbd;
+}
+
+.text-color-87 {
+    color: rgba(255, 255, 255, 0.87);
 }
 
 .cursor-pointer {

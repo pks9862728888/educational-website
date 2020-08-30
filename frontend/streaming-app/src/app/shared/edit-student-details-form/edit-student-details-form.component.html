@@ -1,0 +1,48 @@
+<div class="form-header d-flex justify-content-between align-center">
+    <h3 *ngIf="!mq.matches" class="form-heading">Edit Student Details Form:</h3>
+    <p *ngIf="mq.matches" class="form-heading">Edit Student Details Form:</p>
+    <mat-icon class="cancel-icon cursor-pointer" (click)="hideEditForm()">close</mat-icon>
+</div>
+<div class="p-1rem d-block">
+    <div class="m-t-1 m-b-1">
+        <app-ui-error-text *ngIf="error" [errorText]="error" (closeErrorTextEvent)="closeEditError()"></app-ui-error-text>
+    </div>
+    <form [formGroup]="editForm">
+        <mat-form-field appearance="outline">
+            <mat-label>First name</mat-label>
+            <input type="text" max="30" matInput formControlName="first_name" placeholder="First name">
+            <mat-error *ngIf="editForm.controls['first_name'].errors">
+                Can not be more than 30 characters.
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Last name</mat-label>
+            <input type="text" matInput formControlName="last_name" placeholder="Last name">
+            <mat-error *ngIf="editForm.controls['last_name'].errors">
+                Can not be more than 30 characters.
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Registration no</mat-label>
+            <input type="text" matInput formControlName="registration_no" placeholder="Registration no">
+            <mat-error *ngIf="editForm.controls['registration_no'].errors">
+                Can not be more than 15 characters.
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Enrollment no</mat-label>
+            <input type="text" matInput formControlName="enrollment_no" placeholder="Enrollment no">
+            <mat-error *ngIf="editForm.controls['enrollment_no'].errors">
+                Can not be more than 15 characters.
+            </mat-error>
+        </mat-form-field>
+    </form>
+    <div class="d-flex justify-content-end">
+        <button mat-flat-button [disabled]="editForm.invalid" (click)="submit()" class="green-button m-r-05">
+          <div class="d-flex align-center">
+            <mat-spinner class="m-r-05" [diameter]="25"></mat-spinner> Submit
+          </div>
+        </button>
+        <button mat-flat-button class="blue-button" (click)="resetEditForm()">Reset</button>
+    </div>
+</div>

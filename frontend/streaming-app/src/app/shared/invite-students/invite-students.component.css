@@ -1,0 +1,159 @@
+h3,
+hr,
+p,
+.row,
+.col-6 {
+    padding: 0;
+    margin: 0;
+}
+
+.stroked-button {
+    border: 1px solid #6c757d;
+}
+
+.tab {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+:host ::ng-deep .mat-tab-label .mat-tab-label-content {
+    color: #fff;
+}
+
+:host ::ng-deep .mat-tab-label {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+:host ::ng-deep .mat-tab-group.mat-primary .mat-ink-bar,
+:host ::ng-deep .mat-tab-nav-bar.mat-primary .mat-ink-bar {
+    background-color: #009284;
+}
+
+.invite-form {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.form-heading {
+    color: #318f89;
+}
+
+.form-header {
+    padding: 1rem;
+    background-color: #111d24;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.mat-expansion-panel {
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 1px 1px 1px #1f1f1f;
+    margin-bottom: 0.7rem;
+}
+
+.mat-expansion-panel-header {
+    border-radius: 5px;
+    padding: 0 1rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.01) !important;
+}
+
+:host ::ng-deep .mat-expansion-indicator::after {
+    color: #f2aa4cff;
+}
+
+:host ::ng-deep .mat-expansion-panel-body {
+    padding: 0 1rem 1rem;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.profile-pic {
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+}
+
+.details {
+    margin-top: 0.5rem;
+}
+
+.mat-form-field {
+    width: 100%;
+}
+
+:host ::ng-deep .mat-form-field-label {
+    /*change color of label*/
+    color: #3aa39c !important;
+}
+
+:host ::ng-deep .mat-form-field-outline {
+    border-radius: 5px;
+}
+
+:host ::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+    color: #318f89 !important;
+}
+
+.green-button:disabled {
+    color: #fff;
+    background-color: #0a5652;
+    opacity: 0.5;
+}
+
+.edit-form-background {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-radius: 5px;
+}
+
+@media screen and (max-width: 600px) {
+    .profile-pic {
+        border: 1px solid #ffffff;
+        width: 35px;
+        height: 35px;
+    }
+}
+
+:host ::ng-deep .mat-progress-spinner circle,
+:host ::ng-deep .mat-spinner circle {
+    stroke: #f2aa4cff;
+}
+
+.p-1rem {
+    padding: 1rem;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-b-07 {
+    margin-bottom: 0.7rem;
+}
+
+.m-r-1 {
+    margin-right: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-l-1 {
+    margin-left: 1rem;
+}

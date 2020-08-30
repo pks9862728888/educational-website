@@ -46,6 +46,8 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
           this.activeLink = 'SCHOOL_CLASSES';
         } else if (val.url.includes('license')) {
           this.activeLink = 'LICENSE';
+        } else if (val.url.includes('invite-students')) {
+          this.activeLink = 'INVITE_STUDENTS';
         }
       }
     });
@@ -102,6 +104,8 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
           this.router.navigate([this.baseUrl + '/classes']);
         } else if (link === 'LICENSE') {
           this.router.navigate([this.baseUrl + '/license']);
+        } else if (link === 'INVITE_STUDENTS') {
+          this.router.navigate([this.baseUrl + '/invite-students']);
         }
       }
     }
@@ -109,7 +113,6 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
   // For navbar
   performAction(link: string) {
-    // Hiding navbar if it is mobile
     if (this.mq.matches === true) {
       this.opened = false;
     }

@@ -28,6 +28,8 @@ import { UiEditStudyMaterialComponent } from './ui-edit-study-material/ui-edit-s
 import { UiAddContentComponent } from './ui-add-content/ui-add-content.component';
 import { UploadProfilePictureComponent } from '../shared/upload-profile-picture/upload-profile-picture.component';
 import { ImageCropperModule } from 'ngx-image-cropper';
+import { InviteStudentsComponent } from './invite-students/invite-students.component';
+import { EditStudentDetailsFormComponent } from './edit-student-details-form/edit-student-details-form.component';
 
 
 @NgModule({
@@ -51,7 +53,9 @@ import { ImageCropperModule } from 'ngx-image-cropper';
     UiEditStudyMaterialComponent,
     UiAddContentComponent,
     ChooseProfilePictureFromExistingComponent,
-    UploadProfilePictureComponent
+    UploadProfilePictureComponent,
+    InviteStudentsComponent,
+    EditStudentDetailsFormComponent
   ],
   imports: [
     CommonModule,
@@ -80,7 +84,9 @@ import { ImageCropperModule } from 'ngx-image-cropper';
     UiEditStudyMaterialComponent,
     UiAddContentComponent,
     ChooseProfilePictureFromExistingComponent,
-    UploadProfilePictureComponent
+    UploadProfilePictureComponent,
+    InviteStudentsComponent,
+    EditStudentDetailsFormComponent
   ],
   providers: [
     InstituteApiService,

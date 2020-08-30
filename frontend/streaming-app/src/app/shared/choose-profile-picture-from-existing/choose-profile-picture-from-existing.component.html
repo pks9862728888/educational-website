@@ -1,0 +1,31 @@
+<div [ngClass]="{'profile-picture-dialogue': !this.mq.matches , 'profile-picture-dialogue-mobile': this.mq.matches}">
+    <mat-dialog-content>
+        <h2 mat-dialog-title *ngIf="!this.selectedImageId">Select picture</h2>
+        <h2 mat-dialog-title *ngIf="this.selectedImageId">Preview picture</h2>
+        <mat-divider class="m-b-05 divider-color"></mat-divider>
+        <div class="fetch-data" *ngIf="this.showLoading">
+            <div class="inner-div">
+                <mat-spinner mode="indeterminate"></mat-spinner>
+                <h3 class="text-wait">Fetching data. Please Wait.</h3>
+            </div>
+        </div>
+        <div class="d-flex justify-content-start max-width" *ngIf="!this.selectedImageId">
+            <div class="image-size m-r-05 m-b-05 m-t-05" *ngFor="let image of this.imageList">
+                <img (click)="this.imageClicked(imageRef.id)" #imageRef [src]="image.image" [alt]="image.id" [id]="image.id" [ngClass]="{'profile-image-showcase': !mq.matches, 'profile-image-showcase-mobile': mq.matches}">
+            </div>
+        </div>
+        <div *ngIf="this.selectedImageId">
+            <div class="center-content">
+                <img [src]="this.selectedImageUrl" alt="Selected image" class="selected-image-preview">
+            </div>
+            <div class="text-center p-t-5px p-b-15px"><strong>Uploaded on:</strong> {{ this.selectedImageUploadedOn | date}}</div>
+            <mat-checkbox [(ngModel)]="alsoSetAsPrivateProfilePicture">Also set as public profile picture</mat-checkbox>
+        </div>
+    </mat-dialog-content>
+    <mat-divider class="m-t-05 divider-color"></mat-divider>
+    <div mat-dialog-actions class="p-b-30px" align="end">
+        <button id="setDialogueButton" mat-flat-button (click)="backClicked()" *ngIf="this.selectedImageId" class="blue-button">Back</button>
+        <button id="setDialogueButton" mat-flat-button (click)="setProfilePicture()" *ngIf="this.selectedImageId" class="green-button">Set</button>
+        <button id="closeDialogueButton" mat-flat-button [mat-dialog-close]="true" class="cancel-button">Close</button>
+    </div>
+</div>

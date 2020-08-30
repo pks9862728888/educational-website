@@ -1,0 +1,42 @@
+h3,
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.form-heading {
+    color: #318f89;
+}
+
+.form-header {
+    padding: 1rem;
+    background-color: #111d24;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.mat-form-field {
+    width: 100%;
+}
+
+:host ::ng-deep .mat-progress-spinner circle,
+:host ::ng-deep .mat-spinner circle {
+    stroke: #f2aa4cff;
+}
+
+.p-1rem {
+    padding: 1rem;
+    padding-top: 0;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}

@@ -1,5 +1,5 @@
 <mat-card>
-    <section *ngIf="this.showInstituteListView">
+    <section *ngIf="this.showInstituteListView" class="text-color">
         <!-- Filter bar -->
         <section class="d-flex justify-content-end">
             <!-- <div class="input-group">
@@ -40,9 +40,8 @@
         </div>
 
         <!-- For showing my institutes -->
+        <h4 class="text-color">My Institutes: <span *ngIf="isMyInstituteEmpty()">None</span></h4>
         <section *ngIf="!isMyInstituteEmpty()">
-            <h4 class="text-color">My Institutes: <span *ngIf="isMyInstituteEmpty()">None</span></h4>
-
             <mat-accordion>
                 <mat-expansion-panel *ngFor="let institute of teacherAdminInstitutesMinList" [expanded]="adminInstituteStep === institute.id" (opened)="setAdminInstituteStep(institute.id)">
                     <mat-expansion-panel-header [collapsedHeight]="'112px'" [expandedHeight]="'92px'">

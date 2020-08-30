@@ -10,6 +10,7 @@ import { LicenseCheckoutComponent } from '../license/license-checkout/license-ch
 import { LicenseReviewComponent } from './../license/license-review/license-review.component';
 import { PurchaseLicenseComponent } from '../license/purchase-license/purchase-license.component';
 import { ClassComponent } from '../shared/class/class.component';
+import { InviteStudentsComponent } from '../shared/invite-students/invite-students.component';
 
 const routes: Routes = [
   {
@@ -22,7 +23,8 @@ const routes: Routes = [
       { path: ':name/license', component: LicenseComponent, canActivate: [LicenseGuard] },
       { path: ':name/license/purchase', component: PurchaseLicenseComponent, canActivate: [PurchaseLicenseGuard]},
       { path: ':name/license/review', component: LicenseReviewComponent, canActivate: [PurchaseLicenseGuard]},
-      { path: ':name/license/checkout', component: LicenseCheckoutComponent, canActivate: [PurchaseLicenseGuard] }
+      { path: ':name/license/checkout', component: LicenseCheckoutComponent, canActivate: [PurchaseLicenseGuard] },
+      { path: ':name/invite-students', component: InviteStudentsComponent}
     ],
   }
 ];

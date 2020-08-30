@@ -12,7 +12,7 @@ h3 {
 }
 
 .card-background {
-    background-color: #383838;
+    background-color: inherit;
     color: #ffffff;
 }
 

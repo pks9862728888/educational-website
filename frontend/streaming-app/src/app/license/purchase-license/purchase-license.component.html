@@ -1,5 +1,5 @@
 <section>
-    <mat-card class="parent-container">
+    <div class="parent-container">
         <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
         <app-ui-reload *ngIf="showLoadingError" [errorText]="loadingErrorText" (retryEvent)="reloadLicensePlans()"></app-ui-reload>
         <section *ngIf="!showLoadingIndicator && !showLoadingError">
@@ -152,5 +152,5 @@
                 </div>
             </div>
         </section>
-    </mat-card>
+    </div>
 </section>

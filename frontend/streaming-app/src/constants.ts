@@ -181,11 +181,11 @@ export const INSTITUTE_CATEGORY_REVERSE = {
 };
 
 export const INSTITUTE_CATEGORY_FORM_FIELD_OPTIONS = [
-  {value: '', viewValue: ''},
+  // {value: '', viewValue: ''},
   {value: 'E', viewValue: 'Education'},
-  {value: 'A', viewValue: 'Art'},
-  {value: 'M', viewValue: 'Music'},
-  {value: 'D', viewValue: 'Dance'}
+  // {value: 'A', viewValue: 'Art'},
+  // {value: 'M', viewValue: 'Music'},
+  // {value: 'D', viewValue: 'Dance'}
 ];
 
 export const INSTITUTE_TYPE = {
