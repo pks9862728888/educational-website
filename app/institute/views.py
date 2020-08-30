@@ -1442,12 +1442,48 @@ class DeleteClassView(DestroyAPIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class ListSlugNamePairsView(APIView):
+    """View for getting the list of class slug and class names"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher,)
+
+    def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Invalid Institute.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=self.request.user,
+            active=True
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        class_list = models.InstituteClass.objects.filter(
+            class_institute=institute,
+        ).order_by('created_on')
+        response = list()
+
+        for c in class_list:
+            response.append({
+                'class_slug': c.class_slug,
+                'name': c.name
+            })
+
+        return Response(response, status.HTTP_200_OK)
+
+
 class ListAllClassView(APIView):
     """View for listing all classes"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher,)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()

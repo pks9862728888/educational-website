@@ -1665,8 +1665,10 @@ class InstituteStudents(models.Model):
         User, on_delete=models.CASCADE, related_name='institute_student_user')
     institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, related_name='institute_student_institute')
-    roll_no = models.CharField(
-        _('Roll no'), max_length=10, blank=True, default='')
+    enrollment_no = models.CharField(
+        _('Enrollment no'), max_length=15, blank=True, default='')
+    registration_no = models.CharField(
+        _('Registration no'), max_length=15, blank=True, default='')
     first_name = models.CharField(
         _('First name'), max_length=30, blank=True, default='')
     last_name = models.CharField(
@@ -1747,6 +1749,8 @@ class InstituteBannedStudent(models.Model):
     """Model to store banned student from institute"""
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='institute_banned_user')
+    banned_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='institute_banning_user')
     banned_institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, related_name='banned_institute')
     start_date = models.DateTimeField(
@@ -1764,6 +1768,8 @@ class InstituteClassBannedStudent(models.Model):
     """Model to store banned student from class"""
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='class_banned_user')
+    banned_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='class_banned_by')
     banned_class = models.ForeignKey(
         InstituteClass, on_delete=models.CASCADE, related_name='banned_class')
     start_date = models.DateTimeField(
@@ -1781,6 +1787,8 @@ class InstituteSubjectBannedStudent(models.Model):
     """Model to store banned student from subject"""
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='subject_banned_user')
+    banned_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='subject_banned_by')
     banned_subject = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE, related_name='banned_subject')
     start_date = models.DateTimeField(

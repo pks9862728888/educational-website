@@ -191,6 +191,11 @@ def get_question_list_url(institute_slug, subject_slug, course_content_pk):
                            'course_content_pk': course_content_pk})
 
 
+def get_classes_key_value_url(institute_slug):
+    return reverse("institute:get-class-slug-name-pairs",
+                   kwargs={'institute_slug': institute_slug})
+
+
 def create_teacher(email='abc@gmail.com', username='tempusername'):
     """Creates and return teacher"""
     return get_user_model().objects.create_user(
@@ -3827,103 +3832,135 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_list_question_success_by_admin(self):
+    #     """Test that admin can list all questions"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     question = ask_question(course_content, self.user)
+    #     answer = answer_question(question, self.user)
+    #
+    #     res = self.client.get(
+    #         get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['question'], question.question)
+    #     self.assertEqual(res.data[0]['answer_count'], 1)
+    #     self.assertEqual(res.data[0]['upvotes'], 0)
+    #
+    # def test_list_question_success_by_subject_incharge(self):
+    #     """Test that subject incharge can list all questions"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     create_institute_subject_permission(admin, self.user, subject)
+    #     question = ask_question(course_content, self.user)
+    #     answer = answer_question(question, self.user)
+    #
+    #     res = self.client.get(
+    #         get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_200_OK)
+    #     self.assertEqual(len(res.data), 1)
+    #     self.assertEqual(res.data[0]['question'], question.question)
+    #     self.assertEqual(res.data[0]['answer_count'], 1)
+    #     self.assertEqual(res.data[0]['upvotes'], 0)
+    #
+    # def test_list_question_fails_by_non_permitted_user(self):
+    #     """Test that non permitted user can not list all questions"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.active = True
+    #     order.end_date = timezone.now() + datetime.timedelta(days=10)
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     subject = create_subject(class_)
+    #     view = models.SubjectViewNames.objects.filter(
+    #         key='MI'
+    #     ).first()
+    #     course_content = models.InstituteSubjectCourseContent.objects.create(
+    #         view=view,
+    #         course_content_subject=subject,
+    #         title='a',
+    #         content_type='L'
+    #     )
+    #     question = ask_question(course_content, admin)
+    #     answer = answer_question(question, admin)
+    #
+    #     res = self.client.get(
+    #         get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
+    #     )
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
 
-    def test_list_question_success_by_admin(self):
-        """Test that admin can list all questions"""
+    def test_get_class_key_value_pair_success_admin(self):
+        """Test get class key value pair success by admin"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.active = True
-        order.end_date = timezone.now() + datetime.timedelta(days=10)
-        order.save()
         class_ = create_class(institute)
-        subject = create_subject(class_)
-        view = models.SubjectViewNames.objects.filter(
-            key='MI'
-        ).first()
-        course_content = models.InstituteSubjectCourseContent.objects.create(
-            view=view,
-            course_content_subject=subject,
-            title='a',
-            content_type='L'
-        )
-        question = ask_question(course_content, self.user)
-        answer = answer_question(question, self.user)
 
         res = self.client.get(
-            get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
+            get_classes_key_value_url(institute.institute_slug)
         )
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['question'], question.question)
-        self.assertEqual(res.data[0]['answer_count'], 1)
-        self.assertEqual(res.data[0]['upvotes'], 0)
+        self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
+        self.assertEqual(res.data[0]['name'], class_.name)
 
-    def test_list_question_success_by_subject_incharge(self):
-        """Test that subject incharge can list all questions"""
+    def test_get_class_key_value_pair_success_other_admin(self):
+        """Test get class key value pair success by admin"""
         admin = create_teacher()
         institute = create_institute(admin)
         lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.active = True
-        order.end_date = timezone.now() + datetime.timedelta(days=10)
-        order.save()
         class_ = create_class(institute)
-        subject = create_subject(class_)
-        view = models.SubjectViewNames.objects.filter(
-            key='MI'
-        ).first()
-        course_content = models.InstituteSubjectCourseContent.objects.create(
-            view=view,
-            course_content_subject=subject,
-            title='a',
-            content_type='L'
-        )
-        create_institute_subject_permission(admin, self.user, subject)
-        question = ask_question(course_content, self.user)
-        answer = answer_question(question, self.user)
+        create_invite(institute, admin, self.user, models.InstituteRole.ADMIN)
+        accept_invite(institute, self.user, models.InstituteRole.ADMIN)
 
         res = self.client.get(
-            get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
+            get_classes_key_value_url(institute.institute_slug)
         )
+
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['question'], question.question)
-        self.assertEqual(res.data[0]['answer_count'], 1)
-        self.assertEqual(res.data[0]['upvotes'], 0)
-
-    def test_list_question_fails_by_non_permitted_user(self):
-        """Test that non permitted user can not list all questions"""
-        admin = create_teacher()
-        institute = create_institute(admin)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.active = True
-        order.end_date = timezone.now() + datetime.timedelta(days=10)
-        order.save()
-        class_ = create_class(institute)
-        subject = create_subject(class_)
-        view = models.SubjectViewNames.objects.filter(
-            key='MI'
-        ).first()
-        course_content = models.InstituteSubjectCourseContent.objects.create(
-            view=view,
-            course_content_subject=subject,
-            title='a',
-            content_type='L'
-        )
-        question = ask_question(course_content, admin)
-        answer = answer_question(question, admin)
-
-        res = self.client.get(
-            get_question_list_url(institute.institute_slug, subject.subject_slug, course_content.pk)
-        )
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Permission denied.')
-
+        self.assertEqual(res.data[0]['class_slug'], class_.class_slug)
+        self.assertEqual(res.data[0]['name'], class_.name)
