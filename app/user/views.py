@@ -256,7 +256,6 @@ class SetDeleteProfilePictureView(APIView):
                 status=status.HTTP_200_OK
             )
 
-
 class RemoveClassProfilePictureView(APIView):
     """View for removing class profile picture"""
     authentication_classes = (TokenAuthentication, )

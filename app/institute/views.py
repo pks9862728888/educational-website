@@ -863,7 +863,7 @@ class AddStudentToInstituteView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         invitee = get_user_model().objects.filter(
-            email=request.data.get('user')
+            email=request.data.get('invitee_email')
         ).first()
 
         if not invitee:
@@ -901,13 +901,14 @@ class AddStudentToInstituteView(APIView):
                     inviter=self.request.user,
                 )
             response = {
-                'user': str(student.invitee),
+                'invitee_email': str(student.invitee),
                 'institute': institute.institute_slug,
                 'first_name': student.first_name,
                 'last_name': student.last_name,
                 'enrollment_no': student.enrollment_no,
                 'registration_no': student.registration_no,
-                'created_on': str(student.created_on)
+                'created_on': str(student.created_on),
+                'image': ''
             }
 
             if class_:
