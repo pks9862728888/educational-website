@@ -915,7 +915,8 @@ class AddStudentToInstituteView(APIView):
                 response['class_name'] = class_.name
 
             return Response(response, status=status.HTTP_201_CREATED)
-        except IntegrityError:
+        except IntegrityError as e:
+            print(e)
             return Response({'error': _('Student was already invited.')},
                             status=status.HTTP_400_BAD_REQUEST)
         except Exception:
@@ -981,8 +982,9 @@ class InstituteStudentListView(APIView):
                 invitee__pk=s.invitee.pk
             ).only('institute_class').first()
 
+
             if class_invite:
-                res['class_name'] = class_invite.institute_class__name
+                res['class_name'] = class_invite.institute_class.name
 
             response.append(res)
 
