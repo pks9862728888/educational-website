@@ -63,8 +63,8 @@ urlpatterns = [
          views.AddStudentToInstituteView.as_view(),
          name="add-student-to-institute"),
     path('<slug:institute_slug>/student-list/<slug:active_status>',
-         views.InactiveInstituteStudentListView.as_view(),
-         name="inactive-student-list"),
+         views.InstituteStudentListView.as_view(),
+         name="student-list"),
     # Institute class
     path('<slug:institute_slug>/create-class',
          views.CreateClassView.as_view(),

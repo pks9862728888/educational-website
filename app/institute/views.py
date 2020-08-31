@@ -901,8 +901,8 @@ class AddStudentToInstituteView(APIView):
                     inviter=self.request.user,
                 )
             response = {
-                'user': str(student.invitee),
-                'institute': institute.institute_slug,
+                'id': student.pk,
+                'invitee_email': str(student.invitee),
                 'first_name': student.first_name,
                 'last_name': student.last_name,
                 'enrollment_no': student.enrollment_no,
@@ -911,7 +911,7 @@ class AddStudentToInstituteView(APIView):
             }
 
             if class_:
-                response['class'] = class_.name
+                response['class_name'] = class_.name
 
             return Response(response, status=status.HTTP_201_CREATED)
         except IntegrityError:
@@ -922,7 +922,7 @@ class AddStudentToInstituteView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class InactiveInstituteStudentListView(APIView):
+class InstituteStudentListView(APIView):
     """View for getting inactive student list by permitted user"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
@@ -949,10 +949,19 @@ class InactiveInstituteStudentListView(APIView):
             return Response({'error': _('License not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        student_list = models.InstituteStudents.objects.filter(
-            institute=institute,
-            active=False
-        ).defer('inviter', 'edited', 'is_banned', 'active').order_by('created_on')
+        student_active = False
+        student_list = None
+        if kwargs.get('active_status') == 'active':
+            student_active = True
+            student_list = models.InstituteStudents.objects.filter(
+                institute=institute,
+                active=student_active
+            ).defer('inviter', 'edited', 'active').order_by('created_on')
+        else:
+            student_list = models.InstituteStudents.objects.filter(
+                institute=institute,
+                active=student_active
+            ).defer('inviter', 'edited', 'is_banned', 'active').order_by('created_on')
         response = list()
 
         for s in student_list:
@@ -964,12 +973,15 @@ class InactiveInstituteStudentListView(APIView):
             res['created_on'] = str(s.created_on)
             res['image'] = ''
 
+            if student_active:
+                res['is_banned'] = s.is_banned
+
             class_invite = models.InstituteClassStudents.objects.filter(
                 invitee__pk=s.invitee.pk
             ).only('institute_class').first()
 
             if class_invite:
-                res['class'] = class_invite.institute_class__name
+                res['class_name'] = class_invite.institute_class__name
 
             response.append(res)
 
