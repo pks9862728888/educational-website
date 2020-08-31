@@ -835,7 +835,7 @@ class InstitutePendingInviteMinDetailsTeacherView(ListAPIView):
 
 
 class AddStudentToInstituteView(APIView):
-    """View for adding user to institute"""
+    """View for adding user to institute by admin"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
@@ -915,13 +915,64 @@ class AddStudentToInstituteView(APIView):
                 response['class_name'] = class_.name
 
             return Response(response, status=status.HTTP_201_CREATED)
-        except IntegrityError as e:
-            print(e)
+        except IntegrityError:
             return Response({'error': _('Student was already invited.')},
                             status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             return Response({'error': _('Unknown error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class EditInstituteStudentDetailsView(APIView):
+    """View for editing student details by admin"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        student_details = models.InstituteStudents.objects.filter(
+            pk=request.data.get('id'),
+            institute=institute
+        ).defer('edited', 'institute', 'inviter').first()
+
+        if not student_details:
+            return Response({'error': _('Student may have been removed.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        student_details.first_name = request.data.get('first_name')
+        student_details.last_name = request.data.get('last_name')
+        student_details.enrollment_no = request.data.get('enrollment_no')
+        student_details.registration_no = request.data.get('registration_no')
+        student_details.save()
+
+        response = dict()
+        response['id'] = student_details.pk
+        response['invitee_email'] = str(student_details.invitee)
+        response['enrollment_no'] = student_details.enrollment_no
+        response['registration_no'] = student_details.registration_no
+        response['first_name'] = student_details.first_name
+        response['last_name'] = student_details.last_name
+        response['created_on'] = str(student_details.created_on)
+        if student_details.active:
+            response['is_banned'] = student_details.is_banned
+        response['image'] = ''
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class InstituteStudentListView(APIView):

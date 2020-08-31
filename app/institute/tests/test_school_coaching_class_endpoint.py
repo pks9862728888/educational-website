@@ -27,6 +27,11 @@ def get_institute_student_list_url(institute_slug, active_status):
                            'active_status': active_status})
 
 
+def get_edit_institute_student_details_url(institute_slug):
+    return reverse("institute:edit-institute-student-details",
+                   kwargs={'institute_slug': institute_slug})
+
+
 def get_institute_create_class_url(institute_slug):
     return reverse("institute:create-class",
                    kwargs={'institute_slug': institute_slug})
@@ -4340,3 +4345,132 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_edit_institute_active_student_details_success_by_admin(self):
+        """Test that admin can edit student details successfully."""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        student = create_student()
+        invitation = invite_student_to_college(student, institute, self.user, True)
+
+        payload = {
+            'first_name': 'a',
+            'last_name': 'b',
+            'enrollment_no': 'c',
+            'registration_no': 'd',
+            'id': invitation.pk
+        }
+
+        res = self.client.patch(
+            get_edit_institute_student_details_url(institute.institute_slug),
+            payload
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['first_name'], payload['first_name'])
+        self.assertEqual(res.data['last_name'], payload['last_name'])
+        self.assertEqual(res.data['enrollment_no'], payload['enrollment_no'])
+        self.assertEqual(res.data['registration_no'], payload['registration_no'])
+        self.assertEqual(res.data['id'], invitation.pk)
+        self.assertEqual(res.data['is_banned'], False)
+        self.assertEqual(res.data['invitee_email'], str(student))
+        self.assertIn('image', res.data)
+        self.assertIn('created_on', res.data)
+
+    def test_edit_institute_inactive_student_details_success_by_admin(self):
+        """Test that admin can edit student details successfully."""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        student = create_student()
+        invitation = invite_student_to_college(student, institute, self.user, False)
+
+        payload = {
+            'first_name': 'a',
+            'last_name': 'b',
+            'enrollment_no': 'c',
+            'registration_no': 'd',
+            'id': invitation.pk
+        }
+
+        res = self.client.patch(
+            get_edit_institute_student_details_url(institute.institute_slug),
+            payload
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['first_name'], payload['first_name'])
+        self.assertEqual(res.data['last_name'], payload['last_name'])
+        self.assertEqual(res.data['enrollment_no'], payload['enrollment_no'])
+        self.assertEqual(res.data['registration_no'], payload['registration_no'])
+        self.assertEqual(res.data['id'], invitation.pk)
+        self.assertEqual(res.data['invitee_email'], str(student))
+        self.assertIn('image', res.data)
+        self.assertIn('created_on', res.data)
+        self.assertNotIn('is_banned', res.data)
+
+    def test_edit_institute_student_details_fails_by_non_user(self):
+        """Test that non user can not edit student details."""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        student = create_student()
+        invitation = invite_student_to_college(student, institute, admin, True)
+
+        payload = {
+            'first_name': 'a',
+            'last_name': 'b',
+            'enrollment_no': 'c',
+            'registration_no': 'd',
+            'id': invitation.pk
+        }
+
+        res = self.client.patch(
+            get_edit_institute_student_details_url(institute.institute_slug),
+            payload
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_edit_wrong_institute_student_details_fails_by_admin(self):
+        """Test that non user can not edit student details."""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        student = create_student()
+        invitation = invite_student_to_college(student, institute, self.user, True)
+
+        payload = {
+            'first_name': 'a',
+            'last_name': 'b',
+            'enrollment_no': 'c',
+            'registration_no': 'd',
+            'id': 234
+        }
+
+        res = self.client.patch(
+            get_edit_institute_student_details_url(institute.institute_slug),
+            payload
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Student may have been removed.')
