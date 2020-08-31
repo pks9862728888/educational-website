@@ -21,9 +21,10 @@ def get_add_student_to_institute_url(institute_slug):
                    kwargs={'institute_slug': institute_slug})
 
 
-def get_inactive_institute_student_list_url(institute_slug):
+def get_institute_student_list_url(institute_slug, active_status):
     return reverse("institute:inactive-student-list",
-                   kwargs={'institute_slug': institute_slug})
+                   kwargs={'institute_slug': institute_slug,
+                           'active_status': active_status})
 
 
 def get_institute_create_class_url(institute_slug):
@@ -4191,7 +4192,7 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'No student with this email was found.')
-
+    #
     def test_listing_pending_user_success_by_admin(self):
         """Test that listing pending institute student invitation success"""
         institute = create_institute(self.user)
@@ -4205,7 +4206,7 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         invitation = invite_student_to_college(student, institute, self.user, False)
 
         res = self.client.get(
-            get_inactive_institute_student_list_url(institute.institute_slug)
+            get_institute_student_list_url(institute.institute_slug, 'inactive')
         )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -4233,7 +4234,7 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         accept_invite(institute, self.user, models.InstituteRole.STAFF)
 
         res = self.client.get(
-            get_inactive_institute_student_list_url(institute.institute_slug)
+            get_institute_student_list_url(institute.institute_slug, 'inactive')
         )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -4259,7 +4260,82 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         invitation = invite_student_to_college(student, institute, admin, False)
 
         res = self.client.get(
-            get_inactive_institute_student_list_url(institute.institute_slug)
+            get_institute_student_list_url(institute.institute_slug, 'inactive')
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['error'], 'Permission denied.')
+
+    def test_listing_active_user_success_by_admin(self):
+        """Test that listing pending institute student invitation success"""
+        institute = create_institute(self.user)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        student = create_student()
+        invitation = invite_student_to_college(student, institute, self.user, True)
+
+        res = self.client.get(
+            get_institute_student_list_url(institute.institute_slug, 'active')
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['registration_no'], invitation.registration_no)
+        self.assertEqual(res.data[0]['enrollment_no'], invitation.enrollment_no)
+        self.assertEqual(res.data[0]['invitee_email'], str(student))
+        self.assertEqual(res.data[0]['id'], invitation.pk)
+        self.assertEqual(res.data[0]['is_banned'], False)
+        self.assertIn('created_on', res.data[0])
+        self.assertIn('image', res.data[0])
+
+    def test_listing_pending_user_success_by_staff(self):
+        """Test that listing pending institute student invitation success"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        student = create_student()
+        invitation = invite_student_to_college(student, institute, admin, True)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
+
+        res = self.client.get(
+            get_institute_student_list_url(institute.institute_slug, 'active')
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['registration_no'], invitation.registration_no)
+        self.assertEqual(res.data[0]['enrollment_no'], invitation.enrollment_no)
+        self.assertEqual(res.data[0]['invitee_email'], str(student))
+        self.assertEqual(res.data[0]['id'], invitation.pk)
+        self.assertEqual(res.data[0]['is_banned'], False)
+        self.assertIn('created_on', res.data[0])
+        self.assertIn('image', res.data[0])
+
+    def test_listing_pending_user_fails_by_non_permitted_user(self):
+        """Test that listing pending institute student invitation success"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        student = create_student()
+        invitation = invite_student_to_college(student, institute, admin, True)
+
+        res = self.client.get(
+            get_institute_student_list_url(institute.institute_slug, 'active')
         )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
