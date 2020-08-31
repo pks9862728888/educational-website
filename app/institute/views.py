@@ -1021,6 +1021,8 @@ class InstituteStudentListView(APIView):
             res = dict()
             res['invitee_email'] = str(s.invitee)
             res['id'] = s.pk
+            res['first_name'] = s.first_name
+            res['last_name'] = s.last_name
             res['enrollment_no'] = s.enrollment_no
             res['registration_no'] = s.registration_no
             res['created_on'] = str(s.created_on)
@@ -1032,7 +1034,6 @@ class InstituteStudentListView(APIView):
             class_invite = models.InstituteClassStudents.objects.filter(
                 invitee__pk=s.invitee.pk
             ).only('institute_class').first()
-
 
             if class_invite:
                 res['class_name'] = class_invite.institute_class.name
