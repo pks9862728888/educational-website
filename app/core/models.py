@@ -1661,8 +1661,10 @@ class InstituteSubjectCourseContentAnswerUpvote(models.Model):
 
 class InstituteStudents(models.Model):
     """Model for storing student in institute"""
-    user = models.ForeignKey(
+    invitee = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='institute_student_user')
+    inviter = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name='institute_student_inviter', null=True)
     institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, related_name='institute_student_institute')
     enrollment_no = models.CharField(
@@ -1676,13 +1678,17 @@ class InstituteStudents(models.Model):
     created_on = models.DateTimeField(
         _('Created on'), default=timezone.now, blank=True)
     edited = models.BooleanField(
-        _('Edited'), default=False, blank=True)
+        _('Edited'), default=False, blank=True)   # For allowing invitee to change first name last name only once.
     active = models.BooleanField(
-        _('Edited'), default=False, blank=True)
+        _('Active'), default=False, blank=True)
+    is_banned = models.BooleanField(
+        _('Is Banned'), default=False, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.roll_no:
-            self.roll_no = self.roll_no.lower().strip()
+        if self.enrollment_no:
+            self.enrollment_no = self.enrollment_no.strip()
+        if self.registration_no:
+            self.registration_no = self.registration_no.strip()
         if self.first_name:
             self.first_name = self.first_name.lower().strip()
         if self.last_name:
@@ -1690,42 +1696,46 @@ class InstituteStudents(models.Model):
         super(InstituteStudents, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.user)
+        return str(self.invitee)
 
     class Meta:
-        unique_together = ('user', 'institute')
+        unique_together = ('invitee', 'institute')
 
 
 class InstituteClassStudents(models.Model):
     """Model for storing institute class students"""
     institute_class = models.ForeignKey(
         InstituteClass, on_delete=models.CASCADE, related_name='student_institute_class')
-    user = models.ForeignKey(
+    invitee = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='institute_class_student')
+    inviter = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name='class_student_inviter', null=True)
     active = models.BooleanField(_('Active'), default=False, blank=True)
     is_banned = models.BooleanField(_('Is Banned'), default=False, blank=True)
 
     def __str__(self):
-        return str(self.user)
+        return str(self.invitee)
 
     class Meta:
-        unique_together = ('user', 'institute_class')
+        unique_together = ('invitee', 'institute_class')
 
 
 class InstituteSubjectStudents(models.Model):
     """Model for storing institute subject students"""
     institute_subject = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE, related_name='student_institute_subject')
-    user = models.ForeignKey(
+    invitee = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='institute_subject_student')
+    inviter = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name='subject_student_inviter', null=True)
     active = models.BooleanField(_('Active'), default=False, blank=True)
     is_banned = models.BooleanField(_('Is Banned'), default=False, blank=True)
 
     def __str__(self):
-        return str(self.user)
+        return str(self.invitee)
 
     class Meta:
-        unique_together = ('user', 'institute_subject')
+        unique_together = ('invitee', 'institute_subject')
 
 
 class InstituteStudyMaterialPreviewStats(models.Model):

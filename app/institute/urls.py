@@ -59,6 +59,9 @@ urlpatterns = [
     path('pending-institute-invites-teacher',
          views.InstitutePendingInviteMinDetailsTeacherView.as_view(),
          name="pending-institute-invites-teacher"),
+    path('<slug:institute_slug>/add-student-to-institute',
+         views.AddStudentToInstituteView.as_view(),
+         name="add-student-to-institute"),
     # Institute class
     path('<slug:institute_slug>/create-class',
          views.CreateClassView.as_view(),

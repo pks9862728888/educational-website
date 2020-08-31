@@ -740,7 +740,8 @@ class InstituteUnexpiredPaidLicenseExistsView(APIView):
 
         if not models.InstitutePermission.objects.filter(
             institute=institute,
-            invitee=self.request.user
+            invitee=self.request.user,
+            active=True
         ).exists():
             return Response({'error': 'Permission denied.'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -831,6 +832,94 @@ class InstitutePendingInviteMinDetailsTeacherView(ListAPIView):
         context['user'] = self.request.user
         kwargs['context'] = context
         return serializer_class(*args, **kwargs)
+
+
+class AddStudentToInstituteView(APIView):
+    """View for adding user to institute"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=self.request.user,
+            active=True,
+            role=models.InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        order = get_unexpired_license(institute)
+        if not order:
+            return Response({'error': _('License not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        invitee = get_user_model().objects.filter(
+            email=request.data.get('user')
+        ).first()
+
+        if not invitee:
+            return Response({'error': _('No student with this email was found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not invitee.is_student:
+            return Response({'error': _('User is not a student.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        class_ = None
+        if request.data.get('class'):
+            class_ = models.InstituteClass.objects.filter(
+                class_slug=request.data.get('class'),
+                class_institute=institute
+            ).first()
+            if not class_:
+                return Response({'error': _('Class may have been deleted. Please refresh and try again.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            student = models.InstituteStudents.objects.create(
+                invitee=invitee,
+                inviter=self.request.user,
+                institute=institute,
+                enrollment_no=request.data.get('enrollment_no'),
+                registration_no=request.data.get('registration_no'),
+                first_name=request.data.get('first_name'),
+                last_name=request.data.get('last_name')
+            )
+            if class_:
+                models.InstituteClassStudents.objects.create(
+                    institute_class=class_,
+                    invitee=invitee,
+                    inviter=self.request.user,
+                )
+            response = {
+                'user': str(student.invitee),
+                'institute': institute.institute_slug,
+                'first_name': student.first_name,
+                'last_name': student.last_name,
+                'enrollment_no': student.enrollment_no,
+                'registration_no': student.registration_no,
+                'created_on': str(student.created_on)
+            }
+
+            if class_:
+                response['class'] = class_.name
+
+            return Response(response, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({'error': _('Student was already invited.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Unknown error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CreateInstituteView(CreateAPIView):
