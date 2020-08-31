@@ -21,6 +21,11 @@ def get_add_student_to_institute_url(institute_slug):
                    kwargs={'institute_slug': institute_slug})
 
 
+def get_inactive_institute_student_list_url(institute_slug):
+    return reverse("institute:inactive-student-list",
+                   kwargs={'institute_slug': institute_slug})
+
+
 def get_institute_create_class_url(institute_slug):
     return reverse("institute:create-class",
                    kwargs={'institute_slug': institute_slug})
@@ -383,6 +388,15 @@ def answer_question(question, user, answer='a', anonymous=True, rgb_color='#ffff
         answer=answer,
         rgb_color=rgb_color
     )
+
+
+def invite_student_to_college(student, institute, inviter, active=False):
+    return models.InstituteStudents.objects.create(
+            invitee=student,
+            institute=institute,
+            inviter=inviter,
+            active=active
+        )
 
 
 class SchoolCollegeAuthenticatedTeacherTests(TestCase):
@@ -3993,9 +4007,193 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
     #
     #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
     #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_add_student_to_institute_successful_by_admin(self):
+    #     """Test that admin can add student in institute"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     student = create_student()
+    #
+    #     payload = {
+    #         'user': str(student),
+    #         'class': class_.class_slug,
+    #         'enrollment_no': '123e',
+    #         'registration_no': '',
+    #         'first_name': '',
+    #         'last_name': ''
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_add_student_to_institute_url(institute.institute_slug),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+    #     self.assertEqual(res.data['user'], str(student))
+    #     self.assertEqual(res.data['institute'], institute.institute_slug)
+    #     self.assertEqual(res.data['first_name'], '')
+    #     self.assertEqual(res.data['last_name'], '')
+    #     self.assertEqual(res.data['enrollment_no'], payload['enrollment_no'])
+    #     self.assertEqual(res.data['registration_no'], '')
+    #     self.assertEqual(res.data['class'], class_.name)
+    #     self.assertIn('created_on', res.data)
+    #
+    # def test_add_student_to_institute_twice_by_admin_fails(self):
+    #     """Test that admin can add student in institute twice fails"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     student = create_student()
+    #
+    #     payload = {
+    #         'user': str(student),
+    #         'class': class_.class_slug,
+    #         'enrollment_no': '',
+    #         'registration_no': '',
+    #         'first_name': '',
+    #         'last_name': ''
+    #     }
+    #
+    #     self.client.post(
+    #         get_add_student_to_institute_url(institute.institute_slug),
+    #         payload
+    #     )
+    #     res = self.client.post(
+    #         get_add_student_to_institute_url(institute.institute_slug),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Student was already invited.')
+    #
+    # def test_add_already_added_student_to_institute_by_admin_fails(self):
+    #     """Test that existing student can not be added again"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     student = create_student()
+    #
+    #     payload = {
+    #         'user': str(student),
+    #         'class': class_.class_slug,
+    #         'enrollment_no': '123e',
+    #         'registration_no': '',
+    #         'first_name': '',
+    #         'last_name': ''
+    #     }
+    #
+    #     models.InstituteStudents.objects.create(
+    #         invitee=student,
+    #         institute=institute,
+    #         active=True
+    #     )
+    #     res = self.client.post(
+    #         get_add_student_to_institute_url(institute.institute_slug),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Student was already invited.')
+    #
+    # def test_add_student_to_institute_by_non_permitted_user_fails(self):
+    #     """Test that non permitted can add student in institute fails"""
+    #     admin = create_teacher()
+    #     institute = create_institute(admin)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     student = create_student()
+    #
+    #     payload = {
+    #         'user': str(student),
+    #         'class': class_.class_slug,
+    #         'enrollment_no': '123e',
+    #         'registration_no': '',
+    #         'first_name': '',
+    #         'last_name': ''
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_add_student_to_institute_url(institute.institute_slug),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'Permission denied.')
+    #
+    # def test_add_teacher_to_institute_student_fails_by_admin(self):
+    #     """Test that add teacher as student in institute fails"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #     teacher = create_teacher()
+    #
+    #     payload = {
+    #         'user': str(teacher),
+    #         'class': class_.class_slug,
+    #         'enrollment_no': '123e',
+    #         'registration_no': '',
+    #         'first_name': '',
+    #         'last_name': ''
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_add_student_to_institute_url(institute.institute_slug),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'User is not a student.')
+    #
+    # def test_add_invalid_user_to_institute_student_fails_by_admin(self):
+    #     """Test that add invalid user as student in institute fails"""
+    #     institute = create_institute(self.user)
+    #     lic = create_institute_license(institute, self.payload)
+    #     order = create_order(lic, institute)
+    #     order.paid = True
+    #     order.payment_date = timezone.now()
+    #     order.save()
+    #     class_ = create_class(institute)
+    #
+    #     payload = {
+    #         'user': 'absdffd@sfsdf.com',
+    #         'class': class_.class_slug,
+    #         'enrollment_no': '123e',
+    #         'registration_no': '',
+    #         'first_name': '',
+    #         'last_name': ''
+    #     }
+    #
+    #     res = self.client.post(
+    #         get_add_student_to_institute_url(institute.institute_slug),
+    #         payload
+    #     )
+    #
+    #     self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+    #     self.assertEqual(res.data['error'], 'No student with this email was found.')
 
-    def test_add_student_to_institute_successful_by_admin(self):
-        """Test that admin can add student in institute"""
+    def test_listing_pending_user_success_by_admin(self):
+        """Test that listing pending institute student invitation success"""
         institute = create_institute(self.user)
         lic = create_institute_license(institute, self.payload)
         order = create_order(lic, institute)
@@ -4004,98 +4202,23 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         order.save()
         class_ = create_class(institute)
         student = create_student()
+        invitation = invite_student_to_college(student, institute, self.user, False)
 
-        payload = {
-            'user': str(student),
-            'class': class_.class_slug,
-            'enrollment_no': '123e',
-            'registration_no': '',
-            'first_name': '',
-            'last_name': ''
-        }
-
-        res = self.client.post(
-            get_add_student_to_institute_url(institute.institute_slug),
-            payload
+        res = self.client.get(
+            get_inactive_institute_student_list_url(institute.institute_slug)
         )
 
-        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(res.data['user'], str(student))
-        self.assertEqual(res.data['institute'], institute.institute_slug)
-        self.assertEqual(res.data['first_name'], '')
-        self.assertEqual(res.data['last_name'], '')
-        self.assertEqual(res.data['enrollment_no'], payload['enrollment_no'])
-        self.assertEqual(res.data['registration_no'], '')
-        self.assertEqual(res.data['class'], class_.name)
-        self.assertIn('created_on', res.data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['registration_no'], invitation.registration_no)
+        self.assertEqual(res.data[0]['enrollment_no'], invitation.enrollment_no)
+        self.assertEqual(res.data[0]['invitee_email'], str(student))
+        self.assertEqual(res.data[0]['id'], invitation.pk)
+        self.assertIn('created_on', res.data[0])
+        self.assertIn('image', res.data[0])
 
-    def test_add_student_to_institute_twice_by_admin_fails(self):
-        """Test that admin can add student in institute twice fails"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        student = create_student()
-
-        payload = {
-            'user': str(student),
-            'class': class_.class_slug,
-            'enrollment_no': '',
-            'registration_no': '',
-            'first_name': '',
-            'last_name': ''
-        }
-
-        self.client.post(
-            get_add_student_to_institute_url(institute.institute_slug),
-            payload
-        )
-        res = self.client.post(
-            get_add_student_to_institute_url(institute.institute_slug),
-            payload
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Student was already invited.')
-
-    def test_add_already_added_student_to_institute_by_admin_fails(self):
-        """Test that existing student can not be added again"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        student = create_student()
-
-        payload = {
-            'user': str(student),
-            'class': class_.class_slug,
-            'enrollment_no': '123e',
-            'registration_no': '',
-            'first_name': '',
-            'last_name': ''
-        }
-
-        models.InstituteStudents.objects.create(
-            invitee=student,
-            institute=institute,
-            active=True
-        )
-        res = self.client.post(
-            get_add_student_to_institute_url(institute.institute_slug),
-            payload
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'Student was already invited.')
-
-    def test_add_student_to_institute_by_non_permitted_user_fails(self):
-        """Test that non permitted can add student in institute fails"""
+    def test_listing_pending_user_success_by_staff(self):
+        """Test that listing pending institute student invitation success"""
         admin = create_teacher()
         institute = create_institute(admin)
         lic = create_institute_license(institute, self.payload)
@@ -4105,75 +4228,39 @@ class SchoolCollegeAuthenticatedTeacherTests(TestCase):
         order.save()
         class_ = create_class(institute)
         student = create_student()
+        invitation = invite_student_to_college(student, institute, admin, False)
+        create_invite(institute, admin, self.user, models.InstituteRole.STAFF)
+        accept_invite(institute, self.user, models.InstituteRole.STAFF)
 
-        payload = {
-            'user': str(student),
-            'class': class_.class_slug,
-            'enrollment_no': '123e',
-            'registration_no': '',
-            'first_name': '',
-            'last_name': ''
-        }
+        res = self.client.get(
+            get_inactive_institute_student_list_url(institute.institute_slug)
+        )
 
-        res = self.client.post(
-            get_add_student_to_institute_url(institute.institute_slug),
-            payload
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data[0]['registration_no'], invitation.registration_no)
+        self.assertEqual(res.data[0]['enrollment_no'], invitation.enrollment_no)
+        self.assertEqual(res.data[0]['invitee_email'], str(student))
+        self.assertEqual(res.data[0]['id'], invitation.pk)
+        self.assertIn('created_on', res.data[0])
+        self.assertIn('image', res.data[0])
+
+    def test_listing_pending_user_fails_by_non_permitted_user(self):
+        """Test that listing pending institute student invitation success"""
+        admin = create_teacher()
+        institute = create_institute(admin)
+        lic = create_institute_license(institute, self.payload)
+        order = create_order(lic, institute)
+        order.paid = True
+        order.payment_date = timezone.now()
+        order.save()
+        class_ = create_class(institute)
+        student = create_student()
+        invitation = invite_student_to_college(student, institute, admin, False)
+
+        res = self.client.get(
+            get_inactive_institute_student_list_url(institute.institute_slug)
         )
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(res.data['error'], 'Permission denied.')
-
-    def test_add_teacher_to_institute_student_fails_by_admin(self):
-        """Test that add teacher as student in institute fails"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-        teacher = create_teacher()
-
-        payload = {
-            'user': str(teacher),
-            'class': class_.class_slug,
-            'enrollment_no': '123e',
-            'registration_no': '',
-            'first_name': '',
-            'last_name': ''
-        }
-
-        res = self.client.post(
-            get_add_student_to_institute_url(institute.institute_slug),
-            payload
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'User is not a student.')
-
-    def test_add_invalid_user_to_institute_student_fails_by_admin(self):
-        """Test that add invalid user as student in institute fails"""
-        institute = create_institute(self.user)
-        lic = create_institute_license(institute, self.payload)
-        order = create_order(lic, institute)
-        order.paid = True
-        order.payment_date = timezone.now()
-        order.save()
-        class_ = create_class(institute)
-
-        payload = {
-            'user': 'absdffd@sfsdf.com',
-            'class': class_.class_slug,
-            'enrollment_no': '123e',
-            'registration_no': '',
-            'first_name': '',
-            'last_name': ''
-        }
-
-        res = self.client.post(
-            get_add_student_to_institute_url(institute.institute_slug),
-            payload
-        )
-
-        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(res.data['error'], 'No student with this email was found.')

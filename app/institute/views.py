@@ -922,6 +922,60 @@ class AddStudentToInstituteView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class InactiveInstituteStudentListView(APIView):
+    """View for getting inactive student list by permitted user"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        order = get_unexpired_license(institute)
+        if not order:
+            return Response({'error': _('License not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        student_list = models.InstituteStudents.objects.filter(
+            institute=institute,
+            active=False
+        ).defer('inviter', 'edited', 'is_banned', 'active').order_by('created_on')
+        response = list()
+
+        for s in student_list:
+            res = dict()
+            res['invitee_email'] = str(s.invitee)
+            res['id'] = s.pk
+            res['enrollment_no'] = s.enrollment_no
+            res['registration_no'] = s.registration_no
+            res['created_on'] = str(s.created_on)
+            res['image'] = ''
+
+            class_invite = models.InstituteClassStudents.objects.filter(
+                invitee__pk=s.invitee.pk
+            ).only('institute_class').first()
+
+            if class_invite:
+                res['class'] = class_invite.institute_class__name
+
+            response.append(res)
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
 class CreateInstituteView(CreateAPIView):
     """View for creating institute by teacher"""
     authentication_classes = (TokenAuthentication,)
