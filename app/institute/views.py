@@ -762,7 +762,7 @@ class InstituteMinDetailsStudentView(ListAPIView):
     """
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsStudent)
-    serializer_class = serializer.InstituteMinDetailsSerializer
+    serializer_class = serializer.InstituteMinDetailsStudentSerializer
     queryset = models.Institute.objects.all()
 
     def get_serializer(self, *args, **kwargs):
@@ -787,14 +787,14 @@ class InstituteMinDetailsStudentView(ListAPIView):
             queryset = self.queryset.filter(
                 pk=institute.institute.pk
             ).first()
-            ser = self.get_serializer(queryset, many=False)
+            ser = self.get_serializer(queryset)
             response['active_institutes'].append(ser.data)
 
         for institute in invited_student_institutes:
             queryset = self.queryset.filter(
                 pk=institute.institute.pk
             ).first()
-            ser = self.get_serializer(queryset, many=False)
+            ser = self.get_serializer(queryset)
             response['invited_institutes'].append(ser.data)
 
         return Response(response, status=status.HTTP_200_OK)

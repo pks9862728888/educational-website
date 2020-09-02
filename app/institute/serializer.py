@@ -56,6 +56,65 @@ class InstituteProfileMinDetailsSerializer(serializers.ModelSerializer):
                             'recognition', 'state',)
 
 
+class InstituteMinDetailsStudentSerializer(CountryFieldMixin,
+                                           serializers.ModelSerializer):
+    """Serializer for getting min details of self institute by the student"""
+    institute_logo = serializers.SerializerMethodField()
+    institute_profile = InstituteProfileMinDetailsSerializer()
+    country = CountryField()
+    institute_statistics = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Institute
+        fields = ('id', 'name', 'country', 'role',
+                  'institute_category', 'type', 'created_date',
+                  'institute_slug', 'institute_profile',
+                  'institute_logo', 'institute_statistics')
+        read_only_fields = ('name', 'country', 'institute_category',
+                            'type', 'created_date', 'institute_slug', 'role',
+                            'institute_profile', 'institute_logo',
+                            'institute_statistics')
+
+    def get_institute_logo(self, instance):
+        """Returns the active logo of the institute"""
+        institute_logo_instances = instance.institute_logo.filter(
+            active=True)
+        try:
+            data = dict(InstituteLogoPictureOnlySerializer(
+                institute_logo_instances, many=True).data[0])
+            image = self.context['request'].build_absolute_uri(data['image'])
+            return {
+                'image': image,
+            }
+        except Exception:
+            return {}
+
+    def get_institute_statistics(self, instance):
+        """Finds and returns institute statistics"""
+        institute_permissions = models.InstitutePermission.objects.filter(
+            institute=instance.pk,
+            active=True
+        )
+        institute_students = models.InstituteStudents.objects.filter(
+            institute__pk=instance.pk,
+            active=True
+        ).count()
+        return {
+            'no_of_students': institute_students,
+            'no_of_faculties': institute_permissions.filter(
+                role=models.InstituteRole.FACULTY).count(),
+            'no_of_staff': institute_permissions.filter(
+                role=models.InstituteRole.STAFF).count(),
+            'no_of_admin': institute_permissions.filter(
+                role=models.InstituteRole.ADMIN).count()
+        }
+
+    def get_role(self, instance):
+        """Returns role as student"""
+        return 'Student'
+
+
 class InstituteMinDetailsSerializer(CountryFieldMixin,
                                     serializers.ModelSerializer):
     """Serializer for getting min details of self institute by the teacher"""
@@ -96,8 +155,12 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
             institute=instance.id,
             active=True
         )
+        institute_students = models.InstituteStudents.objects.filter(
+            institute__pk=instance.pk,
+            active=True
+        ).count()
         return {
-            'no_of_students': 0,
+            'no_of_students': institute_students,
             'no_of_faculties': institute_permissions.filter(
                 role=models.InstituteRole.FACULTY).count(),
             'no_of_staff': institute_permissions.filter(
