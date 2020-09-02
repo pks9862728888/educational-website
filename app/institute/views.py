@@ -936,7 +936,9 @@ class AddStudentToInstituteView(APIView):
                 enrollment_no=request.data.get('enrollment_no'),
                 registration_no=request.data.get('registration_no'),
                 first_name=request.data.get('first_name'),
-                last_name=request.data.get('last_name')
+                last_name=request.data.get('last_name'),
+                gender=request.data.get('gender'),
+                date_of_birth=request.data.get('date_of_birth')
             )
             if class_:
                 models.InstituteClassStudents.objects.create(
@@ -949,10 +951,12 @@ class AddStudentToInstituteView(APIView):
                 'invitee_email': str(student.invitee),
                 'first_name': student.first_name,
                 'last_name': student.last_name,
+                'gender': student.gender,
+                'date_of_birth': student.date_of_birth,
                 'enrollment_no': student.enrollment_no,
                 'registration_no': student.registration_no,
                 'created_on': str(student.created_on),
-                'image': ''
+                'image': '',
             }
 
             if class_:
