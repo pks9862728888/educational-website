@@ -43,6 +43,7 @@ export class InstituteApiService {
   instituteJoinedDetailUrl = `${this.instituteBaseUrl}joined-institutes-teacher`;
   institutePendingInvitesUrl = `${this.instituteBaseUrl}pending-institute-invites-teacher`;
   instituteCreateUrl = `${this.instituteBaseUrl}create`;
+  studentInstituteMinDetailsUrl = `${this.instituteBaseUrl}institute-min-details-student`;
 
   // Insitute license related urls
   instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
@@ -632,6 +633,13 @@ export class InstituteApiService {
       this.getEditInstituteStudentDetailsUrl(instituteSlug),
       data,
       { headers: this.getAuthHeader() }
+    );
+  }
+
+  getInstituteMinDetailsStudent() {
+    return this.httpClient.get(
+      this.studentInstituteMinDetailsUrl,
+      {headers: this.getAuthHeader()}
     );
   }
 

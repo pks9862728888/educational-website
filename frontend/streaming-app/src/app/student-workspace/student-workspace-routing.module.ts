@@ -1,3 +1,4 @@
+import { StudentInstitutesComponent } from './../shared/student-institutes/student-institutes.component';
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { StudentProfileComponent } from './student-profile/student-profile.component';
@@ -10,6 +11,7 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: '/student-workspace/profile', pathMatch: 'full' },
       { path: 'profile', component: StudentProfileComponent },
+      { path: 'institutes', component: StudentInstitutesComponent },
     ],
   }
 ];

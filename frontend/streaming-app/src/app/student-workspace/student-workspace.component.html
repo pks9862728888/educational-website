@@ -13,6 +13,9 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PROFILE'" (click)="performAction('PROFILE')">My Profile</div>
                 <mat-divider></mat-divider>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'INSTITUTES'" (click)="performAction('INSTITUTES')">My Institutes</div>
+                <mat-divider></mat-divider>
             </mat-nav-list>
         </mat-sidenav>
 
@@ -32,6 +35,9 @@
                         </li>
                         <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'PROFILE'" [ngClass]="{'active': activeLink === 'PROFILE'}">
                             <a (click)="navigate('PROFILE')">Profile</a>
+                        </li>
+                        <li class="breadcrumb-item mouse-pointer" *ngIf="activeLink === 'INSTITUTES'" [ngClass]="{'active': activeLink === 'INSTITUTES'}">
+                            <a (click)="navigate('INSTITUTES')">Institutes</a>
                         </li>
                     </ol>
                 </nav>

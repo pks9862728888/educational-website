@@ -4,6 +4,7 @@
 .col-8,
 .col-12,
 .col-sm-4,
+h2,
 h3,
 p,
 hr {
@@ -15,54 +16,20 @@ hr {
     background-color: rgba(255, 255, 255, 0.06);
 }
 
-
-/* Styling filter button */
-
-.input-group-text {
-    border-color: #6c757c;
-}
-
-.dropdown-toggle-split {
-    border-radius: 0px 5px 5px 0px;
-    background-color: inherit;
-}
-
-.dropdown-menu,
-.dropdown-item {
-    background-color: #232d36;
-    color: #6c757c;
-}
-
-.dropdown-item:hover {
-    background-color: #0784fa;
-    color: #ffffff;
-    cursor: pointer;
-    font-weight: normal;
-}
-
-.dropdown-divider {
-    border-top: 1px dotted #6c757d;
-}
-
-.dropdown-menu {
-    border: 1px solid #000000;
-}
-
-.applied-filter {
-    background-color: #0784fa;
-    color: #ffffff;
-}
-
-.btn:focus {
-    box-shadow: 0 0 0 0 #ffffff !important;
-}
-
 .back {
     background-color: red;
 }
 
 ::ng-deep .mat-typography h4 {
     margin: 0 0 0.3rem;
+}
+
+.translate-heading {
+    transform: translateY(0.7rem);
+}
+
+.translate-heading-mb {
+    transform: translateY(1rem);
 }
 
 
@@ -76,10 +43,6 @@ hr {
 
 
 /* Styling mat-expansion-panel */
-
-.text-color {
-    color: #bdbdbd;
-}
 
 .college-logo {
     width: 4rem;
@@ -172,6 +135,7 @@ ul {
 
 li {
     list-style-type: none;
+    color: #bdbdbd;
 }
 
 .role {
@@ -189,17 +153,9 @@ li {
     border: 1px solid #6c757d;
 }
 
-.error-container {
-    padding: 0.2rem 0.95rem 0;
-}
-
-.error-text {
-    border: 1px solid rgba(187, 134, 252);
-    background-color: rgba(187, 134, 252, 0.2);
-    color: #ffffff;
-    border-radius: 5px;
-    padding: 0.5rem;
-    text-align: center;
+:host ::ng-deep .mat-progress-spinner circle,
+:host ::ng-deep .mat-spinner circle {
+    stroke: #f2aa4cff;
 }
 
 
@@ -215,57 +171,18 @@ a:active {
     font-weight: bold;
 }
 
-
-/* Styling buttons */
-
-.blue-button,
-.lightblue-button,
-.red-button {
-    color: #ffffff;
-    box-shadow: 1px 1px 2px #1d1d1d;
-}
-
 .green-button:disabled {
     background-color: #008000;
     color: #fff;
     opacity: 0.4;
 }
 
-.blue-button {
-    background-color: #1c33ff;
-}
-
-.blue-button:hover {
-    background-color: #1021b4;
-}
-
-.lightblue-button {
-    background-color: #0784fa;
-}
-
-.lightblue-button:hover {
-    background-color: #0873d8;
-}
-
-.red-button {
-    background-color: #ff0000;
-}
-
-.red-button:hover {
-    background-color: #c40000;
-}
-
-.error-text {
-    border: 1px solid rgba(187, 134, 252);
-    background-color: rgba(187, 134, 252, 0.2);
-    color: #ffffff;
-    border-radius: 5px;
-    text-align: center;
-    margin: 1rem 0;
-}
-
 
 /* Styling padding and margin */
+
+.p-t-05 {
+    padding-top: 0.5rem;
+}
 
 .p-r-05 {
     padding-right: 0.5rem;
@@ -279,30 +196,14 @@ a:active {
     margin-top: 0.3rem;
 }
 
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
 .m-b-1 {
     margin-bottom: 1rem;
 }
 
-.m-r-10px {
-    margin-right: 10px;
-}
-
-.m-l-20px {
-    margin-left: 20px;
-}
-
 .m-l-0 {
     margin-left: 0;
-}
-
-.margin-top-15 {
-    margin-top: 1.5rem;
-}
-
-.padding-top-5 {
-    padding-top: 5px;
-}
-
-.padding-top-05 {
-    padding-top: 0.5rem;
 }

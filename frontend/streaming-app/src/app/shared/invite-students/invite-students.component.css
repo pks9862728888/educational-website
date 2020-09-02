@@ -7,6 +7,10 @@ p,
     margin: 0;
 }
 
+.col-6 {
+    word-wrap: break-word;
+}
+
 .stroked-button {
     border: 1px solid #6c757d;
 }

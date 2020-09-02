@@ -1,3 +1,5 @@
+import { UiService } from './../../services/ui.service';
+import { TeacherInstitutesMinDetailInterface, NameExistsStatus, InstituteCreatedEvent, StatusResponse } from './../../models/institute.model';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
@@ -12,72 +14,9 @@ import { COUNTRY,
          currentInstituteType } from './../../../constants';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
-import { MAT_SNACK_BAR_DATA, MatSnackBar } from '@angular/material/snack-bar';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ApiService } from '../../services/api.service';
-
-interface TeacherInstitutesMinDetailInterface {
-  id: number;
-  name: string;
-  country: string;
-  institute_category: string;
-  type: string;
-  created_date: string;
-  institute_slug: string;
-  role: string;
-  institute_profile: {
-    motto: string;
-    email: string;
-    phone: string;
-    website_url: string;
-    state: string;
-    recognition: string;
-  };
-  institute_logo: {
-    image: string;
-  };
-  institute_statistics: {
-    no_of_students: number;
-    no_of_faculties: number;
-    no_of_staff: number;
-    no_of_admin: number;
-  };
-}
-
-
-interface InstituteCreatedEvent {
-  status: boolean;
-  url: string;
-  type: string;
-}
-
-
-interface StatusResponse {
-  status: string;
-}
-
-
-interface NameExistsStatus {
-  status: boolean;
-}
-
-// For showing snackbar
-@Component({
-  template: `
-    <div class="snackbar-text">
-      {{ this.message }}
-    </div>
-  `,
-  styles: [`
-    .snackbar-text {
-      color: yellow;
-      text-align: center;
-    }
-  `]
-})
-export class SnackbarComponent {
-  constructor(@Inject(MAT_SNACK_BAR_DATA) public message: string) { }
-}
 
 
 @Component({
@@ -88,12 +27,6 @@ export class SnackbarComponent {
 export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
-
-  // For handling filters
-  appliedFilter = 'NONE';
-
-  // For handling search results
-  searched = false;
 
   // For handling views
   showInstituteListView = true;
@@ -117,11 +50,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
   // For handling views based on input from breadcrumb
   showInstituteListViewSubscription: Subscription;
-
-  // For handling institute preview view
   currentSelectedInstituteUrl: string;
-
-  // For showing status results
   instituteJoinDeclineError: string;
   createInstituteError: string;
 
@@ -129,6 +58,7 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
     private media: MediaMatcher,
     private instituteApiService: InstituteApiService,
     private apiService: ApiService,
+    private uiService: UiService,
     private inAppDataTransferService: InAppDataTransferService,
     private snackBar: MatSnackBar,
     private router: Router ) {
@@ -184,23 +114,6 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
     this.pendingInstituteInviteStep = index;
   }
 
-  setSearchedInstituteStep(index: number) {
-    this.searchedInstituteStep = index;
-  }
-
-  // For checking filter
-  checkFilter(filterName: string) {
-    if (this.appliedFilter === filterName) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  applyFilter(filterName: string) {
-    this.appliedFilter = filterName;
-  }
-
   // Returns true if empty, else false
   isMyInstituteEmpty() {
     return this.teacherAdminInstitutesMinList.length === 0;
@@ -239,11 +152,11 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
         } else {
           this.showCreateInstituteProgressSpinner = false;
           this.createInstituteDisabled = true;
-          this.createInstituteError = 'First fill out your profile details & then try again.';
+          this.createInstituteError = 'Error! First fill out your profile details & then try again.';
         }
       },
       error => {}
-    )
+    );
   }
 
   previewClicked(instituteSlug: string, role:string, type: string) {
@@ -256,15 +169,11 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   // Taking action based on whether institute is created or not
   instituteCreated(event: InstituteCreatedEvent){
     if (event.status === true) {
-      // Saving the url and showing appropriate message
       this.currentSelectedInstituteUrl = event.url;
-
-      // Show snackbar
-      this.snackBar.openFromComponent(SnackbarComponent, {
-        data: 'Institute created successfully!',
-        duration: 2000
-      });
-
+      this.uiService.showSnackBar(
+        'Institute created successfully!',
+        2000
+      );
       // Routing to institute preview
       const instituteSlug = event.url.substring(event.url.lastIndexOf('/') + 1, event.url.length);
       sessionStorage.setItem('currentInstituteSlug', instituteSlug);
@@ -301,11 +210,9 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
               if (result.status === 'ACCEPTED') {
                 this.teacherJoinedInstituteMinList.push(institute);
                 this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute));
-                // Show snackbar
-                this.snackBar.openFromComponent(SnackbarComponent, {
-                  data: 'Institute joined successfully!',
-                  duration: 2000
-                });
+                this.uiService.showSnackBar(
+                  'Institute joined successfully!', 2000
+                );
               }
             },
             error => {
@@ -337,10 +244,9 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
       (result: StatusResponse) => {
         if (result.status === 'DELETED') {
           this.pendingInstituteInviteMinList.splice(this.pendingInstituteInviteMinList.indexOf(institute), 1);
-          this.snackBar.openFromComponent(SnackbarComponent, {
-            data: 'Institute join request declined!',
-            duration: 2000
-          });
+          this.uiService.showSnackBar(
+            'Institute join request declined!',  2000
+          );
         }
       },
       error => {
@@ -357,6 +263,14 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
 
   getRole(key: string) {
     return INSTITUTE_ROLE[key];
+  }
+
+  closeJoinDeclineError() {
+    this.instituteJoinDeclineError = null;
+  }
+
+  closeCreateInstituteError() {
+    this.createInstituteError = null;
   }
 
   ngOnDestroy() {

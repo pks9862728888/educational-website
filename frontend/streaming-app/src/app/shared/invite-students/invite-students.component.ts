@@ -348,4 +348,8 @@ export class InviteStudentsComponent implements OnInit {
   closeInviteError() {
     this.inviteError = null;
   }
+
+  userIsAdmin() {
+
+  }
 }

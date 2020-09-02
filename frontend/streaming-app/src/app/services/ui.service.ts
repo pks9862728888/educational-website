@@ -1,10 +1,10 @@
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Injectable } from '@angular/core';
-import { SnackbarComponent } from '../teacher-workspace/teacher-institute/teacher-institute.component';
 import { MatDialog } from '@angular/material/dialog';
 import { UiDialogComponent } from '../shared/ui-dialog/ui-dialog.component';
-import { Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { UiActionControlsComponent } from '../shared/ui-action-controls/ui-action-controls.component';
+import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
 
 @Injectable({
   providedIn: 'root'

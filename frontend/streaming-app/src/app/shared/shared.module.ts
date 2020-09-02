@@ -30,6 +30,8 @@ import { UploadProfilePictureComponent } from '../shared/upload-profile-picture/
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { InviteStudentsComponent } from './invite-students/invite-students.component';
 import { EditStudentDetailsFormComponent } from './edit-student-details-form/edit-student-details-form.component';
+import { StudentInstitutesComponent } from './student-institutes/student-institutes.component';
+import { SnackbarComponent } from './snackbar/snackbar.component';
 
 
 @NgModule({
@@ -55,7 +57,9 @@ import { EditStudentDetailsFormComponent } from './edit-student-details-form/edi
     ChooseProfilePictureFromExistingComponent,
     UploadProfilePictureComponent,
     InviteStudentsComponent,
-    EditStudentDetailsFormComponent
+    EditStudentDetailsFormComponent,
+    StudentInstitutesComponent,
+    SnackbarComponent
   ],
   imports: [
     CommonModule,
@@ -86,7 +90,9 @@ import { EditStudentDetailsFormComponent } from './edit-student-details-form/edi
     ChooseProfilePictureFromExistingComponent,
     UploadProfilePictureComponent,
     InviteStudentsComponent,
-    EditStudentDetailsFormComponent
+    EditStudentDetailsFormComponent,
+    StudentInstitutesComponent,
+    SnackbarComponent
   ],
   providers: [
     InstituteApiService,

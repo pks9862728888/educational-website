@@ -71,7 +71,7 @@
                     <div class="d-flex justify-content-end">
                         <button mat-flat-button [disabled]="invitationForm.invalid" (click)="invite()" class="green-button m-r-05">
                           <div class="d-flex align-center">
-                            <mat-spinner *ngIf="showInvitingIndicator" class="m-r-05" [diameter]="25"></mat-spinner> Submit
+                            <mat-spinner *ngIf="showInvitingIndicator" [class.m-r-05]="!mq.matches" [diameter]="25"></mat-spinner> Submit
                           </div>
                         </button>
                         <button mat-flat-button [disabled]="showInvitingIndicator" class="blue-button" (click)="resetInviteForm()">Reset</button>
@@ -91,7 +91,7 @@
                                         <h3 *ngIf="!mq.matches && !student.first_name">{{ student.invitee_email | lowercase }}</h3>
                                         <p *ngIf="mq.matches && !student.first_name">{{ student.invitee_email | lowercase }}</p>
                                         <h3 *ngIf="!mq.matches && student.first_name">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
-                                        <p *ngIf="mq.matches && student.first_name">{{ student.last_name | titlecase}}&nbsp;{{ student.last_name | titlecase }}</p>
+                                        <p *ngIf="mq.matches && student.first_name">{{ student.first_name | titlecase}}&nbsp;{{ student.last_name | titlecase }}</p>
                                     </div>
                                     <div class="expansion-panel-header-color" *ngIf="!mq.matches && student.class_name">
                                         <h3>({{ student.class_name | titlecase }})</h3>
@@ -188,7 +188,7 @@
                               <span *ngIf="!mq.matches">Message</span>
                             </button>
                             <button mat-stroked-button class="stroked-button" [disabled]="student['delete']" (click)="deleteInvitedStudentConfirm(i)">
-                              <div class="d-flex align-center">
+                              <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
                                 <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">delete</mat-icon>
                                 <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>
                                 <span *ngIf="!mq.matches">Delete</span>
@@ -331,7 +331,7 @@
                               <span *ngIf="!mq.matches">Message</span>
                             </button>
                             <button mat-stroked-button [disabled]="student['delete']" class="stroked-button" (click)="deleteActiveStudentConfirm(i)">
-                              <div class="d-flex align-center">
+                              <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
                                 <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">delete</mat-icon>
                                 <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>
                                 <span *ngIf="!mq.matches">Delete</span>

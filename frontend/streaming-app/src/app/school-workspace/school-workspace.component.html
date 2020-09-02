@@ -12,7 +12,7 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                               'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_PERMISSIONS'" (click)="performAction('SCHOOL_PERMISSIONS')" *ngIf="purchasedLicenseExists">School Permissions</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'INVITE_STUDENTS'" (click)="performAction('INVITE_STUDENTS')" *ngIf="purchasedLicenseExists">School Students</div>
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'INVITE_STUDENTS'" (click)="performAction('INVITE_STUDENTS')" *ngIf="purchasedLicenseExists && userIsAdmin()">School Students</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'SCHOOL_CLASSES'" (click)="performAction('SCHOOL_CLASSES')" *ngIf="purchasedLicenseExists">School Classes</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
@@ -37,7 +37,7 @@
                         <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PROFILE'">Profile</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_PERMISSIONS'" *ngIf="purchasedLicenseExists">Permissions</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'INVITE_STUDENTS'" *ngIf="purchasedLicenseExists">Invite</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'INVITE_STUDENTS'" *ngIf="purchasedLicenseExists && userIsAdmin()">Invite</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SCHOOL_CLASSES'" *ngIf="purchasedLicenseExists">Classes</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'" *ngIf="userIsAdmin()">License</li>
                     </ol>

@@ -1,5 +1,5 @@
 import { AuthService } from '../services/auth.service';
-import { authTokenName, INSTITUTE_TYPE_REVERSE } from './../../constants';
+import { authTokenName, INSTITUTE_TYPE_REVERSE, is_student, is_teacher, is_staff } from './../../constants';
 import { CookieService } from 'ngx-cookie-service';
 import { Router, CanLoad } from '@angular/router';
 import { Injectable } from '@angular/core';
@@ -30,7 +30,7 @@ export class StudentWorkspaceGuard implements CanLoad {
 
   canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
-        if (sessionStorage.getItem('is_student') === 'true') {
+        if (sessionStorage.getItem(is_student) === 'true') {
           return true;
         } else {
           this.authService.logout();
@@ -52,7 +52,7 @@ export class TeacherWorkspaceGuard implements CanLoad {
 
   canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
-        if (sessionStorage.getItem('is_teacher') === 'true') {
+        if (sessionStorage.getItem(is_teacher) === 'true') {
           return true;
         } else {
           this.authService.logout();
@@ -74,7 +74,7 @@ export class StaffWorkspaceGuard implements CanLoad {
 
   canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {
-        if (sessionStorage.getItem('is_staff') === 'true') {
+        if (sessionStorage.getItem(is_staff) === 'true') {
           return true;
         } else {
           this.authService.logout();

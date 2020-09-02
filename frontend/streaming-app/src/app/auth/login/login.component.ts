@@ -1,4 +1,4 @@
-import { authTokenName } from './../../../constants';
+import { authTokenName, is_student, is_teacher, is_staff } from './../../../constants';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -30,10 +30,11 @@ export class LoginComponent implements OnInit {
   signUpHint = false;
   userType: string;
 
-  constructor( private formBuilder: FormBuilder,
-               private authService: AuthService,
-               private cookieService: CookieService,
-               private router: Router ) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private cookieService: CookieService,
+    private router: Router ) {}
 
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
@@ -42,24 +43,23 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // To login into account by communicating with backend server
   login() {
     this.authService.login(this.loginForm.value).subscribe(
       (result: ServerResponse) => {
         let expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 30);
+        expiryDate.setDate(expiryDate.getDate() + 1);
         this.cookieService.set(authTokenName,
           result.token, expiryDate, '/', '192.168.43.25', false, 'Strict');
         sessionStorage.setItem('user_id', result.id);
         if (result.is_teacher) {
           this.userType = 'TEACHER';
-          sessionStorage.setItem('is_teacher', result.is_teacher);
+          sessionStorage.setItem(is_teacher, result.is_teacher);
         } else if (result.is_student) {
           this.userType = 'STUDENT';
-          sessionStorage.setItem('is_student', result.is_student);
+          sessionStorage.setItem(is_student, result.is_student);
         } else if (result.is_staff) {
           this.userType = 'STAFF';
-          sessionStorage.setItem('is_staff', result.is_staff);
+          sessionStorage.setItem(is_staff, result.is_staff);
         }
         this.redirectToAppropriateWorkspace();
       },
@@ -72,12 +72,10 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  // To close the hint message to create a new account.
   closeMessage() {
     this.signUpHint = false;
   }
 
-  // To redirect to appropriate workspace
   redirectToAppropriateWorkspace() {
     this.authService.sendLoggedInStatusSignal(true);
     if (this.userType === 'STUDENT') {
