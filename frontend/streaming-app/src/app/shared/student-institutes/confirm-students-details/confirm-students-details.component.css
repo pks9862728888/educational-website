@@ -1,0 +1,65 @@
+h2,
+p,
+hr {
+    padding: 0;
+    margin: 0;
+}
+
+::ng-deep .mat-dialog-container {
+    background-color: #373737;
+    color: #bdbdbd;
+}
+
+.reload-background-color {
+    background-color: #111d24;
+    border-radius: 5px;
+}
+
+.mat-form-field {
+    width: 100%;
+}
+
+:host ::ng-deep .mat-form-field-label {
+    color: #3aa39c !important;
+}
+
+:host ::ng-deep .mat-form-field-outline {
+    border-radius: 5px;
+}
+
+:host ::ng-deep .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+    color: #318f89 !important;
+}
+
+.options {
+    background-color: #101d25;
+    color: #bdbdbd;
+}
+
+.mat-datepicker-toggle {
+    color: #318f89 !important;
+}
+
+.blue-button:disabled {
+    background-color: #0043fc;
+    color: #fff;
+    opacity: 0.5;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+@media screen and (min-width: 600px) {
+     ::ng-deep .mat-dialog-container {
+        min-width: 600px;
+    }
+}

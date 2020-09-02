@@ -18,12 +18,7 @@ export class UiService {
   private actionControlDialogData = new Subject<string>();
   actionControlDialogData$ = this.actionControlDialogData.asObservable();
 
-  private studentDetailsDialogData = new Subject<{
-    'first_name': string;
-    'last_name': string;
-    'date_of_birth': string;
-    'gender': string;
-  }>();
+  private studentDetailsDialogData = new Subject<boolean>();
   studentDetailsDialogData$ = this.studentDetailsDialogData.asObservable();
 
   constructor(

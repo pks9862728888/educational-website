@@ -1,0 +1,54 @@
+<h2 class="expansion-panel-header-color">Profile Details:</h2>
+<hr class="top-separator m-b-1">
+<p class="text-justify text-color">You can not change this later, so please check the details carefully.</p>
+<app-ui-loading *ngIf="showLoadingIndicator" [actionText]="'Loading profile details...'"></app-ui-loading>
+<div class="reload-background-color">
+    <app-ui-reload *ngIf="showReloadIndicator" [errorText]="'Unable to load profile details.'" (retryEvent)="loadProfileData()"></app-ui-reload>
+    <div class="m-t-1 m-b-1" *ngIf="errorText">
+        <app-ui-error-text [errorText]="errorText" [hideCloseButton]="true"></app-ui-error-text>
+    </div>
+</div>
+
+<div *ngIf="!showLoadingIndicator && !showReloadIndicator && !errorText" class="m-t-1">
+    <form [formGroup]="editForm">
+        <mat-form-field appearance="outline">
+            <mat-label>First name</mat-label>
+            <input type="text" max="30" matInput formControlName="first_name" placeholder="First name">
+            <mat-error *ngIf="editForm.controls['first_name'].errors">
+                Can not be more than 30 characters.
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Last name</mat-label>
+            <input type="text" matInput formControlName="last_name" placeholder="Last name">
+            <mat-error *ngIf="editForm.controls['last_name'].errors">
+                Can not be more than 30 characters.
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Gender *</mat-label>
+            <select matNativeControl formControlName="gender">
+          <option *ngFor="let gender of genderOptions" [value]="gender.value" class="options">{{ gender.viewValue }}</option>
+        </select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Birthday</mat-label>
+            <input matInput formControlName="date_of_birth" (click)="datepicker.open()" [max]="maxDate" [matDatepicker]="datepicker">
+            <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+            <mat-datepicker touchUi #datepicker></mat-datepicker>
+        </mat-form-field>
+    </form>
+    <div *ngIf="submitError" class="m-b-1">
+        <app-ui-error-text [errorText]="submitError" (closeErrorTextEvent)="closeSubmitError()"></app-ui-error-text>
+    </div>
+    <hr class="top-separator m-b-1" />
+    <div class="d-flex justify-content-end">
+        <button mat-raised-button [disabled]="editForm.invalid" (click)="submit()" class="green-button m-r-05">
+          <div class="d-flex align-center">
+            <mat-progress-spinner *ngIf="showSubmitIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner> Submit
+          </div>
+        </button>
+        <button mat-raised-button [disabled]="showSubmitIndicator" class="blue-button" (click)="resetEditForm()">Reset</button>
+    </div>
+</div>
+<button id="close" hidden [mat-dialog-close]='true'></button>

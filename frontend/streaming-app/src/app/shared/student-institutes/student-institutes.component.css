@@ -1,0 +1,201 @@
+.row,
+.col,
+.col-4,
+.col-8,
+.col-12,
+.col-sm-4,
+h2,
+h3,
+p,
+hr {
+    padding: 0;
+    margin: 0;
+}
+
+.mat-card {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.back {
+    background-color: red;
+}
+
+::ng-deep .mat-typography h4 {
+    margin: 0 0 0.3rem;
+}
+
+
+/* Styling layout for mobile view */
+
+.mat-divider {
+    background-color: #6c757c;
+    margin-top: 0.5rem;
+    margin-bottom: 0.2rem;
+}
+
+
+/* Styling mat-expansion-panel */
+
+.college-logo {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    object-fit: fit;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    border: 2px solid #c5c5c5;
+}
+
+.expansion-panel-title {
+    display: flex;
+    justify-content: center;
+    padding-left: 0.8rem;
+    color: #bdbdbd;
+}
+
+.mat-expansion-panel {
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 1px 1px 1px #1f1f1f;
+    margin-bottom: 0.7rem;
+}
+
+.mat-expansion-panel-header {
+    border-radius: 5px;
+    padding: 0 1rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.01) !important;
+}
+
+:host ::ng-deep .mat-expansion-indicator::after {
+    color: #f2aa4cff;
+}
+
+:host ::ng-deep .mat-expansion-panel-body {
+    padding: 0 1rem 1rem;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.mat-action-row {
+    padding: 16px 16px 16px 24px;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.star-icon {
+    height: 12px;
+    width: 12px;
+    font-size: 12px;
+}
+
+.star-icon-active {
+    color: #f2aa4cff;
+}
+
+.star-icon-disabled {
+    color: #7e7e7e;
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.rating-text {
+    font-size: 12px;
+}
+
+.mat-list {
+    margin: 5px 0;
+}
+
+.mat-list-item {
+    color: #bdbdbd;
+}
+
+ul {
+    margin: 5px 0px;
+    padding: 8px 0px;
+}
+
+li {
+    list-style-type: none;
+    color: #bdbdbd;
+}
+
+.role {
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+}
+
+.border-tlr {
+    border: 1px solid #6c757d;
+    border-bottom: 0px;
+    padding: 10px;
+}
+
+.border-btm {
+    border: 1px solid #6c757d;
+}
+
+:host ::ng-deep .mat-progress-spinner circle,
+:host ::ng-deep .mat-spinner circle {
+    stroke: #f2aa4cff;
+}
+
+
+/* styling links */
+
+a,
+a:visited {
+    color: #26f137;
+}
+
+a:hover,
+a:active {
+    font-weight: bold;
+}
+
+.green-button:disabled {
+    background-color: #008000;
+    color: #fff;
+    opacity: 0.4;
+}
+
+
+/* Styling padding and margin */
+
+.p-t-05 {
+    padding-top: 0.5rem;
+}
+
+.p-r-05 {
+    padding-right: 0.5rem;
+}
+
+.p-l-05 {
+    padding-left: 0.5rem;
+}
+
+.m-t-03 {
+    margin-top: 0.3rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-l-0 {
+    margin-left: 0;
+}
