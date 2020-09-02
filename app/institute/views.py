@@ -1007,6 +1007,8 @@ class EditInstituteStudentDetailsView(APIView):
         student_details.last_name = request.data.get('last_name')
         student_details.enrollment_no = request.data.get('enrollment_no')
         student_details.registration_no = request.data.get('registration_no')
+        student_details.gender = request.data.get('gender')
+        student_details.date_of_birth = request.data.get('date_of_birth')
         student_details.save()
 
         response = dict()
@@ -1016,6 +1018,8 @@ class EditInstituteStudentDetailsView(APIView):
         response['registration_no'] = student_details.registration_no
         response['first_name'] = student_details.first_name
         response['last_name'] = student_details.last_name
+        response['gender'] = student_details.gender
+        response['date_of_birth'] = student_details.date_of_birth
         response['created_on'] = str(student_details.created_on)
         if student_details.active:
             response['is_banned'] = student_details.is_banned
