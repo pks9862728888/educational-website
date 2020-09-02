@@ -16,10 +16,22 @@ p {
     margin: 0px;
 }
 
-.mat-card {
-    padding: 0px 16px 0px;
-    background-color: rgba(255, 255, 255, 0.06) !important;
-    color: #bdbdbd;
+.tab {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+:host ::ng-deep .mat-tab-label .mat-tab-label-content {
+    color: #fff;
+}
+
+:host ::ng-deep .mat-tab-label {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+:host ::ng-deep .mat-tab-group.mat-primary .mat-ink-bar,
+:host ::ng-deep .mat-tab-nav-bar.mat-primary .mat-ink-bar {
+    background-color: #009284;
 }
 
 .tab-header {
@@ -27,7 +39,7 @@ p {
 }
 
 .tab-content {
-    padding-top: 0.7rem;
+    padding: 1rem;
 }
 
 .search-color {

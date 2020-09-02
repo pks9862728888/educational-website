@@ -89,6 +89,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/list-all-class`;
   }
 
+  getClassListSlugAndNameListUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/get-class-slug-name-pairs`;
+  }
+
   createInstituteClassUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/create-class`;
   }
@@ -186,6 +190,19 @@ export class InstituteApiService {
 
   getSectionInchargeListUrl(sectionSlug: string) {
     return `${this.instituteBaseUrl}${sectionSlug}/list-section-incharges`;
+  }
+
+  // Institute Students url
+  getInstituteStudentAddUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/add-student-to-institute`;
+  }
+
+  getInstituteStudentsListUrl(instituteSlug: string, studentType: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/student-list/${studentType}`;
+  }
+
+  getEditInstituteStudentDetailsUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/edit-institute-student-details`;
   }
 
   constructor( private cookieService: CookieService,
@@ -323,13 +340,19 @@ export class InstituteApiService {
     );
   }
 
-  // To create class
   createInstituteClass(instituteSlug: string, name: string) {
     return this.httpClient.post(
       this.createInstituteClassUrl(instituteSlug),
       { 'name': name },
       { headers: this.getAuthHeader() }
-    )
+    );
+  }
+
+  getInstituteClassKeyValuePairs(instituteSlug: string) {
+    return this.httpClient.get(
+      this.getClassListSlugAndNameListUrl(instituteSlug),
+      { headers: this.getAuthHeader() }
+    );
   }
 
   // To delete class
@@ -577,7 +600,40 @@ export class InstituteApiService {
         ),
         {headers: this.getAuthHeader()}
       );
-    }
+  }
+
+  // Institute Student
+  inviteStudentToInstitute(
+    instituteSlug: string,
+    data: any
+  ) {
+    return this.httpClient.post(
+      this.getInstituteStudentAddUrl(instituteSlug),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getInstituteStudentsList(
+    instituteSlug: string,
+    studentType: string
+  ) {
+    return this.httpClient.get(
+      this.getInstituteStudentsListUrl(instituteSlug, studentType),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editInstituteStudentDetails(
+    instituteSlug: string,
+    data: any
+  ) {
+    return this.httpClient.patch(
+      this.getEditInstituteStudentDetailsUrl(instituteSlug),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
 
   // To load token from storage
   loadToken() {

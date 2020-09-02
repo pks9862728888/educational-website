@@ -40,7 +40,7 @@
     <div class="d-flex justify-content-end">
         <button mat-flat-button [disabled]="editForm.invalid" (click)="submit()" class="green-button m-r-05">
           <div class="d-flex align-center">
-            <mat-spinner class="m-r-05" [diameter]="25"></mat-spinner> Submit
+            <mat-spinner class="m-r-05" [diameter]="25" *ngIf="showSubmitIndicator"></mat-spinner> Submit
           </div>
         </button>
         <button mat-flat-button class="blue-button" (click)="resetEditForm()">Reset</button>

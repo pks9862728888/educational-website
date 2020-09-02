@@ -190,7 +190,7 @@
             <mat-card class="edit-canvas" *ngIf="editProfile">
                 <form (submit)="profileDetailsSubmit()" [formGroup]="this.editProfileForm">
                     <mat-form-field>
-                        <mat-label>Username</mat-label>
+                        <mat-label>Username *</mat-label>
                         <input matInput formControlName="username" placeholder="Your username">
                         <mat-error *ngIf="editProfileForm.controls['username'].errors?.required">
                             This field is required.
@@ -206,14 +206,14 @@
                     </mat-form-field>
                     <div formGroupName="user_profile">
                         <mat-form-field>
-                            <mat-label>First Name</mat-label>
+                            <mat-label>First Name *</mat-label>
                             <input matInput formControlName="first_name">
                             <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['first_name'].errors?.required">
                                 This field is required.
                             </mat-error>
                         </mat-form-field>
                         <mat-form-field>
-                            <mat-label>Last Name</mat-label>
+                            <mat-label>Last Name *</mat-label>
                             <input matInput formControlName="last_name">
                             <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['last_name'].errors?.required">
                                 This field is required.
@@ -230,7 +230,7 @@
                             </mat-hint>
                         </mat-form-field>
                         <mat-form-field>
-                            <mat-label>Gender</mat-label>
+                            <mat-label>Gender *</mat-label>
                             <select matNativeControl formControlName="gender">
                                 <option value="" class="options"></option>
                                 <option value="M" class="options">Male</option>
@@ -248,7 +248,7 @@
                             </select>
                         </mat-form-field>
                         <mat-form-field>
-                            <mat-label>Birthday</mat-label>
+                            <mat-label>Birthday *</mat-label>
                             <input matInput formControlName="date_of_birth" (click)="datepicker.open()" [max]="maxDate" [matDatepicker]="datepicker">
                             <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
                             <mat-datepicker touchUi #datepicker></mat-datepicker>

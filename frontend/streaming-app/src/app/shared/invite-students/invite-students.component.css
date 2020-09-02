@@ -11,6 +11,11 @@ p,
     border: 1px solid #6c757d;
 }
 
+.stroked-button:disabled {
+    color: #bdbdbd;
+    opacity: 0.5;
+}
+
 .tab {
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 5px;

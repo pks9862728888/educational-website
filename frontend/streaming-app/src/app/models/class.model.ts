@@ -23,3 +23,8 @@ export interface ClassPermittedUserDetails {
   'created_on': string;
   'image'?: string;
 }
+
+export interface ClassSlugNameResponse {
+  'class_slug': string;
+  'name': string;
+}

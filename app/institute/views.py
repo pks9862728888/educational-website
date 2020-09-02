@@ -756,6 +756,50 @@ class InstituteUnexpiredPaidLicenseExistsView(APIView):
             return Response({'status': True}, status=status.HTTP_200_OK)
 
 
+class InstituteMinDetailsStudentView(ListAPIView):
+    """
+    View for getting min details of institute by student
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsStudent)
+    serializer_class = serializer.InstituteMinDetailsSerializer
+    queryset = models.Institute.objects.all()
+
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.get_serializer_class()
+        context = self.get_serializer_context()
+        context['user'] = self.request.user
+        kwargs['context'] = context
+        return serializer_class(*args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        institutes = models.InstituteStudents.objects.filter(
+            invitee=self.request.user
+        ).only('institute').order_by('-created_on')
+        active_student_institutes = institutes.filter(active=True)
+        invited_student_institutes = institutes.filter(active=False)
+
+        response = {
+            'active_institutes': [],
+            'invited_institutes': []
+        }
+        for institute in active_student_institutes:
+            queryset = self.queryset.filter(
+                pk=institute.institute.pk
+            ).first()
+            ser = self.get_serializer(queryset, many=False)
+            response['active_institutes'].append(ser.data)
+
+        for institute in invited_student_institutes:
+            queryset = self.queryset.filter(
+                pk=institute.institute.pk
+            ).first()
+            ser = self.get_serializer(queryset, many=False)
+            response['invited_institutes'].append(ser.data)
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
 class InstituteMinDetailsTeacherView(ListAPIView):
     """
     View for getting the min details of institute

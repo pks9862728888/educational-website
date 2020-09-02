@@ -1,647 +1,645 @@
-<mat-card>
-    <mat-tab-group mat-stretch-tabs (selectedTabChange)="clickedTab($event)">
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <span class="tab-header">Admin</span>
-            </ng-template>
-            <ng-template matTabContent>
-                <div class="tab-content">
-                    <section class="row padding-bottom-07" *ngIf="this.currentInstituteRole === 'A'">
-                        <div class="col-12text-center error-text" *ngIf="this.inviteError">
-                            <h3>{{ this.inviteError }}</h3>
-                        </div>
-                        <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
-                            <h3>{{ this.invitedSuccessfully }}</h3>
-                        </div>
-                        <div class="col-12col-sm-6 col-md-4">
-                            <form [formGroup]="this.newInviteForm" class="input-group">
-                                <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Provide permission">
-                                <div class="input-group-append">
-                                    <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
-                                </div>
-                            </form>
-                        </div>
-                    </section>
-                    <hr class="top-separator" *ngIf="this.currentInstituteRole === 'A'" />
-                    <section [ngClass]="{'padding-top-07': this.currentInstituteRole === 'A'}">
-                        <h3>Admin:</h3>
-                        <mat-accordion *ngIf="!this.isActiveAdminListEmpty()">
-                            <mat-expansion-panel *ngFor="let admin of this.activeAdminList" [expanded]="this.activeAdminStep === admin.invitation_id" (opened)="setActiveAdminPanelStep(admin.invitation_id)">
-                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                                    <mat-panel-title>
-                                        <div>
-                                            <img *ngIf="!admin.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
-                                            <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
-                                        </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
-                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ admin.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ admin.email }}</p>
-                                        </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">admin</h3>
-                                        </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">active</h3>
-                                        </div>
-                                    </mat-panel-title>
-                                </mat-expansion-panel-header>
-                                <hr class="invite-top-separator" />
-                                <div class="row invite-body" *ngIf="mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Role:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>Admin</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Active Admin:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>True</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Invited By:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p *ngIf="admin.inviter === admin.email">Self</p>
-                                                <p *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Member since:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ admin.request_accepted_on | date }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row  invite-body" *ngIf="!mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Invited By:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3 *ngIf="admin.inviter === admin.email">Self</h3>
-                                                <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Member since:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ admin.request_accepted_on | date}}</h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr class="invite-bottom-separator" />
-                                <div class="col">
-                                    <div *ngIf="!mq.matches" class="action-row">
-                                        <button mat-button class="green-button">Send Message</button>
-                                    </div>
-                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
-                                    </div>
-                                </div>
-                            </mat-expansion-panel>
-                        </mat-accordion>
-                    </section>
-
-                    <section class="padding-bottom-07">
-                        <h3>Pending Admin Invitations:</h3>
-                        <mat-accordion *ngIf="!isInactiveAdminListEmpty()">
-                            <mat-expansion-panel *ngFor="let admin of this.inactiveAdminList" [expanded]="this.pendingAdminStep === admin.invitation_id" (opened)="setPendingAdminPanelStep(admin.invitation_id)">
-                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                                    <mat-panel-title>
-                                        <div>
-                                            <img *ngIf="!admin.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
-                                            <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
-                                        </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
-                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ admin.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ admin.email }}</p>
-                                        </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">admin</h3>
-                                        </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">inactive</h3>
-                                        </div>
-                                    </mat-panel-title>
-                                </mat-expansion-panel-header>
-                                <hr class="invite-top-separator" />
-                                <div class="row invite-body" *ngIf="mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Role:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>Admin</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Active Admin:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>False</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Invited By:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p *ngIf="admin.inviter === admin.email">Self</p>
-                                                <p *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Invited on:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ admin.requested_on | date }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row  invite-body" *ngIf="!mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Invited by:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3 *ngIf="admin.inviter === admin.email">Self</h3>
-                                                <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Invited on:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ admin.requested_on | date }}</h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr class="invite-bottom-separator" />
-                                <div class="col">
-                                    <div *ngIf="!mq.matches" class="action-row">
-                                        <button mat-button *ngIf="this.currentInstituteRole === 'A'" class="red-button margin-right-1">Cancel Invitation</button>
-                                        <button mat-button class="green-button">Send Message</button>
-                                    </div>
-                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
-                                        <mat-icon *ngIf="this.currentInstituteRole === 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
-                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
-                                    </div>
-                                </div>
-                            </mat-expansion-panel>
-                        </mat-accordion>
-                    </section>
-                </div>
-            </ng-template>
-        </mat-tab>
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <span class="tab-header">Staff</span>
-            </ng-template>
-            <ng-template matTabContent>
-                <div class="tab-content">
-                    <section class="row padding-bottom-07" *ngIf="this.currentInstituteRole !== 'F'">
-                        <div class="col-12text-center error-text" *ngIf="this.inviteError">
-                            <h3>{{ this.inviteError }}</h3>
-                        </div>
-                        <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
-                            <h3>{{ this.invitedSuccessfully }}</h3>
-                        </div>
-                        <div class="col-12col-sm-6 col-md-4 input-group">
-                            <form [formGroup]="this.newInviteForm" class="input-group">
-                                <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
-                                <div class="input-group-append">
-                                    <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
-                                </div>
-                            </form>
-                        </div>
-                    </section>
-                    <hr class="top-separator" *ngIf="userNotFaculty()" />
-                    <section [ngClass]="{'padding-top-07': userNotFaculty()}">
-                        <h3>Staffs:</h3>
-                        <mat-accordion *ngIf="!isActiveStaffListEmpty()">
-                            <mat-expansion-panel *ngFor="let staff of this.activeStaffList" [expanded]="this.activeStaffStep === staff.invitation_id" (opened)="setActiveStaffPanelStep(staff.invitation_id)">
-                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                                    <mat-panel-title>
-                                        <div>
-                                            <img *ngIf="!staff.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of active staff">
-                                            <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of active staff">
-                                        </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
-                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ staff.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ staff.email }}</p>
-                                        </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">staff</h3>
-                                        </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">active</h3>
-                                        </div>
-                                    </mat-panel-title>
-                                </mat-expansion-panel-header>
-                                <hr class="invite-top-separator" />
-                                <div class="row invite-body" *ngIf="mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Role:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>Staff</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Active Staff:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>True</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Invited By:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ staff.inviter }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Member since:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ staff.request_accepted_on | date }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row  invite-body" *ngIf="!mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Invited By:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ staff.inviter }}</h3>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Member since:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ staff.request_accepted_on | date}}</h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr class="invite-bottom-separator" />
-                                <div class="col">
-                                    <div *ngIf="!mq.matches" class="action-row">
-                                        <button mat-button class="green-button">Send Message</button>
-                                    </div>
-                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
-                                    </div>
-                                </div>
-                            </mat-expansion-panel>
-                        </mat-accordion>
-                    </section>
-
-                    <section class="padding-bottom-07">
-                        <h3>Pending Staff Invitations:</h3>
-                        <mat-accordion *ngIf="!isInactiveStaffListEmpty()">
-                            <mat-expansion-panel *ngFor="let staff of this.inactiveStaffList" [expanded]="this.pendingStaffStep === staff.invitation_id" (opened)="setPendingStaffPanelStep(staff.invitation_id)">
-                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                                    <mat-panel-title>
-                                        <div>
-                                            <img *ngIf="!staff.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of inactive staff">
-                                            <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of inactive staff">
-                                        </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4">
-                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ staff.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ staff.email }}</p>
-                                        </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">staff</h3>
-                                        </div>
-                                        <div class="col d-flex justify-content-lg-center" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">inactive</h3>
-                                        </div>
-                                    </mat-panel-title>
-                                </mat-expansion-panel-header>
-                                <hr class="invite-top-separator" />
-                                <div class="row invite-body" *ngIf="mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Role:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>Staff</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Active Staff:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>False</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Invited By:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ staff.inviter }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Invited on:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ staff.requested_on | date}}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row invite-body" *ngIf="!mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Invited By:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ staff.inviter }}</h3>
-                                            </div>
-                                        </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Invited on:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ staff.requested_on | date}}</h3>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <hr class="invite-bottom-separator" />
-                                <div class="col">
-                                    <div *ngIf="!mq.matches" class="action-row">
-                                        <button *ngIf="this.currentInstituteRole !== 'A'" mat-button class="red-button margin-right-1">Cancel Invitation</button>
-                                        <button mat-button class="green-button">Send Message</button>
-                                    </div>
-                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
-                                        <mat-icon *ngIf="this.currentInstituteRole !== 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
-                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
-                                    </div>
-                                </div>
-                            </mat-expansion-panel>
-                        </mat-accordion>
-                    </section>
-                </div>
-            </ng-template>
-        </mat-tab>
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <span class="tab-header">Faculty</span>
-            </ng-template>
-            <ng-template matTabContent>
-                <div class="tab-content">
-                    <div class="row padding-bottom-07" *ngIf="userNotFaculty()">
-                        <div class="col-12text-center error-text" *ngIf="this.inviteError">
-                            <h3>{{ this.inviteError }}</h3>
-                        </div>
-                        <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
-                            <h3>{{ this.invitedSuccessfully }}</h3>
-                        </div>
-                        <div class="col-12col-sm-6 col-md-4 input-group">
-                            <form [formGroup]="this.newInviteForm" class="input-group">
-                                <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
-                                <div class="input-group-append">
-                                    <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
-                                </div>
-                            </form>
-                        </div>
+<mat-tab-group mat-stretch-tabs class="tab" (selectedTabChange)="clickedTab($event)">
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <span class="tab-header">Admin</span>
+        </ng-template>
+        <ng-template matTabContent>
+            <div class="tab-content">
+                <section class="row padding-bottom-07" *ngIf="this.currentInstituteRole === 'A'">
+                    <div class="col-12 text-center error-text" *ngIf="this.inviteError">
+                        <h3>{{ this.inviteError }}</h3>
                     </div>
-                    <hr class="top-separator" *ngIf="userNotFaculty()" />
-                    <section [ngClass]="{'padding-top-07': userNotFaculty()}">
-                        <h3>Faculties:</h3>
-                        <mat-accordion *ngIf="!isActiveFacultyListEmpty()">
-                            <mat-expansion-panel *ngFor="let faculty of this.activeFacultyList" [expanded]="this.activeFacultyStep === faculty.invitation_id" (opened)="setActiveFacultyPanelStep(faculty.invitation_id)">
-                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                                    <mat-panel-title>
-                                        <div>
-                                            <img *ngIf="!faculty.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of active faculty">
-                                            <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of active faculty">
+                    <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
+                        <h3>{{ this.invitedSuccessfully }}</h3>
+                    </div>
+                    <div class="col-12col-sm-6 col-md-4">
+                        <form [formGroup]="this.newInviteForm" class="input-group">
+                            <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Provide permission">
+                            <div class="input-group-append">
+                                <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+                <hr class="top-separator" *ngIf="this.currentInstituteRole === 'A'" />
+                <section [ngClass]="{'padding-top-07': this.currentInstituteRole === 'A'}">
+                    <h3>Admin:</h3>
+                    <mat-accordion *ngIf="!this.isActiveAdminListEmpty()">
+                        <mat-expansion-panel *ngFor="let admin of this.activeAdminList" [expanded]="this.activeAdminStep === admin.invitation_id" (opened)="setActiveAdminPanelStep(admin.invitation_id)">
+                            <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                <mat-panel-title>
+                                    <div>
+                                        <img *ngIf="!admin.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                        <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
+                                    </div>
+                                    <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                        <h3 class="line-height-center" *ngIf="!mq.matches">{{ admin.email }}</h3>
+                                        <p class="invitee-name-mb" *ngIf="mq.matches">{{ admin.email }}</p>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">admin</h3>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">active</h3>
+                                    </div>
+                                </mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <hr class="invite-top-separator" />
+                            <div class="row invite-body" *ngIf="mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Role:</p>
                                         </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
-                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ faculty.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ faculty.email }}</p>
+                                        <div class="col">
+                                            <p>Admin</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">faculty</h3>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Active Admin:</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">active</h3>
+                                        <div class="col">
+                                            <p>True</p>
                                         </div>
-                                    </mat-panel-title>
-                                </mat-expansion-panel-header>
-                                <hr class="invite-top-separator" />
-                                <div class="row invite-body" *ngIf="mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Role:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>Faculty</p>
-                                            </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Invited By:</p>
                                         </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Active Faculty:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>True</p>
-                                            </div>
+                                        <div class="col">
+                                            <p *ngIf="admin.inviter === admin.email">Self</p>
+                                            <p *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</p>
                                         </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Invited By:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ faculty.inviter }}</p>
-                                            </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Member since:</p>
                                         </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Member since:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ faculty.request_accepted_on | date}}</p>
-                                            </div>
+                                        <div class="col">
+                                            <p>{{ admin.request_accepted_on | date }}</p>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="row  invite-body" *ngIf="!mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Invited By:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ faculty.inviter }}</h3>
-                                            </div>
+                            <div class="row  invite-body" *ngIf="!mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Invited By:</h3>
                                         </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Member since:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ faculty.request_accepted_on }}</h3>
-                                            </div>
+                                        <div class="col">
+                                            <h3 *ngIf="admin.inviter === admin.email">Self</h3>
+                                            <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Member since:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ admin.request_accepted_on | date}}</h3>
                                         </div>
                                     </div>
                                 </div>
-                                <hr class="invite-bottom-separator" />
-                                <div class="col">
-                                    <div *ngIf="!mq.matches" class="action-row">
-                                        <button mat-button class="green-button">Send Message</button>
-                                    </div>
-                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
-                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
-                                    </div>
+                            </div>
+                            <hr class="invite-bottom-separator" />
+                            <div class="col">
+                                <div *ngIf="!mq.matches" class="action-row">
+                                    <button mat-button class="green-button">Send Message</button>
                                 </div>
-                            </mat-expansion-panel>
-                        </mat-accordion>
-                    </section>
+                                <div *ngIf="mq.matches" class="d-flex justify-content-end">
+                                    <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                                </div>
+                            </div>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </section>
 
-                    <section class="padding-bottom-07">
-                        <h3>Pending Faculty Invitations:</h3>
-                        <mat-accordion *ngIf="!isInactiveFacultyListEmpty()">
-                            <mat-expansion-panel *ngFor="let faculty of this.inactiveFacultyList" [expanded]="this.pendingFacultyStep === faculty.invitation_id" (opened)="setPendingFacultyPanelStep(faculty.invitation_id)">
-                                <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                                    <mat-panel-title>
-                                        <div>
-                                            <img *ngIf="!faculty.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of inactive faculty">
-                                            <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of inactive faculty">
+                <section class="padding-bottom-07">
+                    <h3>Pending Admin Invitations:</h3>
+                    <mat-accordion *ngIf="!isInactiveAdminListEmpty()">
+                        <mat-expansion-panel *ngFor="let admin of this.inactiveAdminList" [expanded]="this.pendingAdminStep === admin.invitation_id" (opened)="setPendingAdminPanelStep(admin.invitation_id)">
+                            <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                <mat-panel-title>
+                                    <div>
+                                        <img *ngIf="!admin.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of admin">
+                                        <img *ngIf="admin.image" [src]="admin.image" class="profile-pic" alt="Profile picture of admin">
+                                    </div>
+                                    <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                        <h3 class="line-height-center" *ngIf="!mq.matches">{{ admin.email }}</h3>
+                                        <p class="invitee-name-mb" *ngIf="mq.matches">{{ admin.email }}</p>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">admin</h3>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">inactive</h3>
+                                    </div>
+                                </mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <hr class="invite-top-separator" />
+                            <div class="row invite-body" *ngIf="mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Role:</p>
                                         </div>
-                                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
-                                            <h3 class="line-height-center" *ngIf="!mq.matches">{{ faculty.email }}</h3>
-                                            <p class="invitee-name-mb" *ngIf="mq.matches">{{ faculty.email }}</p>
+                                        <div class="col">
+                                            <p>Admin</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">faculty</h3>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Active Admin:</p>
                                         </div>
-                                        <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
-                                            <h3 class="line-height-center">inactive</h3>
+                                        <div class="col">
+                                            <p>False</p>
                                         </div>
-                                    </mat-panel-title>
-                                </mat-expansion-panel-header>
-                                <hr class="invite-top-separator" />
-                                <div class="row invite-body" *ngIf="mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Role:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>Faculty</p>
-                                            </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Invited By:</p>
                                         </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Active Faculty:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>False</p>
-                                            </div>
+                                        <div class="col">
+                                            <p *ngIf="admin.inviter === admin.email">Self</p>
+                                            <p *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</p>
                                         </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Invited By:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ faculty.inviter }}</p>
-                                            </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Invited on:</p>
                                         </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <p>Requested on:</p>
-                                            </div>
-                                            <div class="col">
-                                                <p>{{ faculty.requested_on | date}}</p>
-                                            </div>
+                                        <div class="col">
+                                            <p>{{ admin.requested_on | date }}</p>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="row  invite-body" *ngIf="!mq.matches ">
-                                    <div class="col-12">
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Invited By:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ faculty.inviter }}</h3>
-                                            </div>
+                            <div class="row  invite-body" *ngIf="!mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Invited by:</h3>
                                         </div>
-                                        <div class="row invite-details">
-                                            <div class="col">
-                                                <h3>Requested on:</h3>
-                                            </div>
-                                            <div class="col">
-                                                <h3>{{ faculty.requested_on | date }}</h3>
-                                            </div>
+                                        <div class="col">
+                                            <h3 *ngIf="admin.inviter === admin.email">Self</h3>
+                                            <h3 *ngIf="admin.inviter !== admin.email">{{ admin.inviter }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Invited on:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ admin.requested_on | date }}</h3>
                                         </div>
                                     </div>
                                 </div>
-                                <hr class="invite-bottom-separator" />
-                                <div class="col">
-                                    <div *ngIf="!mq.matches" class="action-row">
-                                        <button *ngIf="this.currentInstituteRole === 'A'" mat-button class="red-button margin-right-1">Cancel Invitation</button>
-                                        <button mat-button class="green-button">Send Message</button>
+                            </div>
+                            <hr class="invite-bottom-separator" />
+                            <div class="col">
+                                <div *ngIf="!mq.matches" class="action-row">
+                                    <button mat-button *ngIf="this.currentInstituteRole === 'A'" class="red-button margin-right-1">Cancel Invitation</button>
+                                    <button mat-button class="green-button">Send Message</button>
+                                </div>
+                                <div *ngIf="mq.matches" class="d-flex justify-content-end">
+                                    <mat-icon *ngIf="this.currentInstituteRole === 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
+                                    <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                                </div>
+                            </div>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </section>
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <span class="tab-header">Staff</span>
+        </ng-template>
+        <ng-template matTabContent>
+            <div class="tab-content">
+                <section class="row padding-bottom-07" *ngIf="this.currentInstituteRole !== 'F'">
+                    <div class="col-12text-center error-text" *ngIf="this.inviteError">
+                        <h3>{{ this.inviteError }}</h3>
+                    </div>
+                    <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
+                        <h3>{{ this.invitedSuccessfully }}</h3>
+                    </div>
+                    <div class="col-12col-sm-6 col-md-4 input-group">
+                        <form [formGroup]="this.newInviteForm" class="input-group">
+                            <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                            <div class="input-group-append">
+                                <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+                <hr class="top-separator" *ngIf="userNotFaculty()" />
+                <section [ngClass]="{'padding-top-07': userNotFaculty()}">
+                    <h3>Staffs:</h3>
+                    <mat-accordion *ngIf="!isActiveStaffListEmpty()">
+                        <mat-expansion-panel *ngFor="let staff of this.activeStaffList" [expanded]="this.activeStaffStep === staff.invitation_id" (opened)="setActiveStaffPanelStep(staff.invitation_id)">
+                            <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                <mat-panel-title>
+                                    <div>
+                                        <img *ngIf="!staff.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of active staff">
+                                        <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of active staff">
                                     </div>
-                                    <div *ngIf="mq.matches" class="d-flex justify-content-end">
-                                        <mat-icon *ngIf="this.currentInstituteRole === 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
-                                        <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                                    <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                        <h3 class="line-height-center" *ngIf="!mq.matches">{{ staff.email }}</h3>
+                                        <p class="invitee-name-mb" *ngIf="mq.matches">{{ staff.email }}</p>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">staff</h3>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">active</h3>
+                                    </div>
+                                </mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <hr class="invite-top-separator" />
+                            <div class="row invite-body" *ngIf="mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Role:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>Staff</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Active Staff:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>True</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Invited By:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ staff.inviter }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Member since:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ staff.request_accepted_on | date }}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </mat-expansion-panel>
-                        </mat-accordion>
-                    </section>
+                            </div>
+
+                            <div class="row  invite-body" *ngIf="!mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Invited By:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ staff.inviter }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Member since:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ staff.request_accepted_on | date}}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="invite-bottom-separator" />
+                            <div class="col">
+                                <div *ngIf="!mq.matches" class="action-row">
+                                    <button mat-button class="green-button">Send Message</button>
+                                </div>
+                                <div *ngIf="mq.matches" class="d-flex justify-content-end">
+                                    <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                                </div>
+                            </div>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </section>
+
+                <section class="padding-bottom-07">
+                    <h3>Pending Staff Invitations:</h3>
+                    <mat-accordion *ngIf="!isInactiveStaffListEmpty()">
+                        <mat-expansion-panel *ngFor="let staff of this.inactiveStaffList" [expanded]="this.pendingStaffStep === staff.invitation_id" (opened)="setPendingStaffPanelStep(staff.invitation_id)">
+                            <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                <mat-panel-title>
+                                    <div>
+                                        <img *ngIf="!staff.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of inactive staff">
+                                        <img *ngIf="staff.image" [src]="staff.image" class="profile-pic" alt="Profile picture of inactive staff">
+                                    </div>
+                                    <div class="col-sm-8 col-md-6 col-lg-4">
+                                        <h3 class="line-height-center" *ngIf="!mq.matches">{{ staff.email }}</h3>
+                                        <p class="invitee-name-mb" *ngIf="mq.matches">{{ staff.email }}</p>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">staff</h3>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">inactive</h3>
+                                    </div>
+                                </mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <hr class="invite-top-separator" />
+                            <div class="row invite-body" *ngIf="mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Role:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>Staff</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Active Staff:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>False</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Invited By:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ staff.inviter }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Invited on:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ staff.requested_on | date}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row invite-body" *ngIf="!mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Invited By:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ staff.inviter }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Invited on:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ staff.requested_on | date}}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="invite-bottom-separator" />
+                            <div class="col">
+                                <div *ngIf="!mq.matches" class="action-row">
+                                    <button *ngIf="this.currentInstituteRole !== 'A'" mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                                    <button mat-button class="green-button">Send Message</button>
+                                </div>
+                                <div *ngIf="mq.matches" class="d-flex justify-content-end">
+                                    <mat-icon *ngIf="this.currentInstituteRole !== 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
+                                    <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                                </div>
+                            </div>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </section>
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <span class="tab-header">Faculty</span>
+        </ng-template>
+        <ng-template matTabContent>
+            <div class="tab-content">
+                <div class="row padding-bottom-07" *ngIf="userNotFaculty()">
+                    <div class="col-12text-center error-text" *ngIf="this.inviteError">
+                        <h3>{{ this.inviteError }}</h3>
+                    </div>
+                    <div class="col-12text-center success-text" *ngIf="this.invitedSuccessfully">
+                        <h3>{{ this.invitedSuccessfully }}</h3>
+                    </div>
+                    <div class="col-12col-sm-6 col-md-4 input-group">
+                        <form [formGroup]="this.newInviteForm" class="input-group">
+                            <input type="email" formControlName="invitee" class="form-control search-color" placeholder="Enter email to invite" aria-label="Search Institutes">
+                            <div class="input-group-append">
+                                <button [disabled]="this.newInviteForm.invalid" (click)="this.inviteUser()" class="btn" [ngClass]="{'invite-button-active': !this.newInviteForm.invalid, 'invite-button-disabled': this.newInviteForm.invalid}" type="submit">Invite</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </ng-template>
-        </mat-tab>
-    </mat-tab-group>
-</mat-card>
+                <hr class="top-separator" *ngIf="userNotFaculty()" />
+                <section [ngClass]="{'padding-top-07': userNotFaculty()}">
+                    <h3>Faculties:</h3>
+                    <mat-accordion *ngIf="!isActiveFacultyListEmpty()">
+                        <mat-expansion-panel *ngFor="let faculty of this.activeFacultyList" [expanded]="this.activeFacultyStep === faculty.invitation_id" (opened)="setActiveFacultyPanelStep(faculty.invitation_id)">
+                            <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                <mat-panel-title>
+                                    <div>
+                                        <img *ngIf="!faculty.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of active faculty">
+                                        <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of active faculty">
+                                    </div>
+                                    <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                        <h3 class="line-height-center" *ngIf="!mq.matches">{{ faculty.email }}</h3>
+                                        <p class="invitee-name-mb" *ngIf="mq.matches">{{ faculty.email }}</p>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">faculty</h3>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">active</h3>
+                                    </div>
+                                </mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <hr class="invite-top-separator" />
+                            <div class="row invite-body" *ngIf="mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Role:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>Faculty</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Active Faculty:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>True</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Invited By:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ faculty.inviter }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Member since:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ faculty.request_accepted_on | date}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row  invite-body" *ngIf="!mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Invited By:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ faculty.inviter }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Member since:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ faculty.request_accepted_on }}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="invite-bottom-separator" />
+                            <div class="col">
+                                <div *ngIf="!mq.matches" class="action-row">
+                                    <button mat-button class="green-button">Send Message</button>
+                                </div>
+                                <div *ngIf="mq.matches" class="d-flex justify-content-end">
+                                    <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                                </div>
+                            </div>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </section>
+
+                <section class="padding-bottom-07">
+                    <h3>Pending Faculty Invitations:</h3>
+                    <mat-accordion *ngIf="!isInactiveFacultyListEmpty()">
+                        <mat-expansion-panel *ngFor="let faculty of this.inactiveFacultyList" [expanded]="this.pendingFacultyStep === faculty.invitation_id" (opened)="setPendingFacultyPanelStep(faculty.invitation_id)">
+                            <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
+                                <mat-panel-title>
+                                    <div>
+                                        <img *ngIf="!faculty.image" src="../../../assets/imgs/cd6.png" class="profile-pic" alt="Profile picture of inactive faculty">
+                                        <img *ngIf="faculty.image" [src]="faculty.image" class="profile-pic" alt="Profile picture of inactive faculty">
+                                    </div>
+                                    <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                        <h3 class="line-height-center" *ngIf="!mq.matches">{{ faculty.email }}</h3>
+                                        <p class="invitee-name-mb" *ngIf="mq.matches">{{ faculty.email }}</p>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">faculty</h3>
+                                    </div>
+                                    <div class="col d-flex justify-content-lg-center expansion-panel-header-color" *ngIf="!mq.matches">
+                                        <h3 class="line-height-center">inactive</h3>
+                                    </div>
+                                </mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <hr class="invite-top-separator" />
+                            <div class="row invite-body" *ngIf="mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Role:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>Faculty</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Active Faculty:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>False</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Invited By:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ faculty.inviter }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <p>Requested on:</p>
+                                        </div>
+                                        <div class="col">
+                                            <p>{{ faculty.requested_on | date}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row  invite-body" *ngIf="!mq.matches ">
+                                <div class="col-12">
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Invited By:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ faculty.inviter }}</h3>
+                                        </div>
+                                    </div>
+                                    <div class="row invite-details">
+                                        <div class="col">
+                                            <h3>Requested on:</h3>
+                                        </div>
+                                        <div class="col">
+                                            <h3>{{ faculty.requested_on | date }}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="invite-bottom-separator" />
+                            <div class="col">
+                                <div *ngIf="!mq.matches" class="action-row">
+                                    <button *ngIf="this.currentInstituteRole === 'A'" mat-button class="red-button margin-right-1">Cancel Invitation</button>
+                                    <button mat-button class="green-button">Send Message</button>
+                                </div>
+                                <div *ngIf="mq.matches" class="d-flex justify-content-end">
+                                    <mat-icon *ngIf="this.currentInstituteRole === 'A'" class="line-height-center red-color margin-right-1">delete_forever</mat-icon>
+                                    <mat-icon class="line-height-center yellow-color">email</mat-icon>
+                                </div>
+                            </div>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </section>
+            </div>
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>
