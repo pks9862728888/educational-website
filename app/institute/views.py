@@ -1071,6 +1071,8 @@ class InstituteStudentListView(APIView):
             res['id'] = s.pk
             res['first_name'] = s.first_name
             res['last_name'] = s.last_name
+            res['gender'] = s.gender
+            res['date_of_birth'] = s.date_of_birth
             res['enrollment_no'] = s.enrollment_no
             res['registration_no'] = s.registration_no
             res['created_on'] = str(s.created_on)
