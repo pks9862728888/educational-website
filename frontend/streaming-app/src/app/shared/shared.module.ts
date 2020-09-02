@@ -32,6 +32,7 @@ import { InviteStudentsComponent } from './invite-students/invite-students.compo
 import { EditStudentDetailsFormComponent } from './edit-student-details-form/edit-student-details-form.component';
 import { StudentInstitutesComponent } from './student-institutes/student-institutes.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
+import { ConfirmNameComponent } from './student-institutes/confirm-name/confirm-name.component';
 
 
 @NgModule({
@@ -59,7 +60,8 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
     InviteStudentsComponent,
     EditStudentDetailsFormComponent,
     StudentInstitutesComponent,
-    SnackbarComponent
+    SnackbarComponent,
+    ConfirmNameComponent
   ],
   imports: [
     CommonModule,
@@ -92,7 +94,8 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
     InviteStudentsComponent,
     EditStudentDetailsFormComponent,
     StudentInstitutesComponent,
-    SnackbarComponent
+    SnackbarComponent,
+    ConfirmNameComponent
   ],
   providers: [
     InstituteApiService,

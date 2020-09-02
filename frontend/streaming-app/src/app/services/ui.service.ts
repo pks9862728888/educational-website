@@ -5,6 +5,7 @@ import { UiDialogComponent } from '../shared/ui-dialog/ui-dialog.component';
 import { Subject } from 'rxjs';
 import { UiActionControlsComponent } from '../shared/ui-action-controls/ui-action-controls.component';
 import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
+import { ConfirmNameComponent } from '../shared/student-institutes/confirm-name/confirm-name.component';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,9 @@ export class UiService {
 
   private actionControlDialogData = new Subject<string>();
   actionControlDialogData$ = this.actionControlDialogData.asObservable();
+
+  private nameDialogData = new Subject<{'first_name': string; 'last_name': string}>();
+  nameDialogData$ = this.nameDialogData.asObservable();
 
   constructor(
     private _snackBar: MatSnackBar,
@@ -46,6 +50,18 @@ export class UiService {
         this.actionControlDialogData.next(result);
       } else {
         this.actionControlDialogData.next();
+      }
+    });
+  }
+
+  openNameDialog() {
+    // Dialog to confirm student's name while joining institute
+    const dialogRef = this.dialog.open(ConfirmNameComponent);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.nameDialogData.next(result);
+      } else {
+        this.nameDialogData.next();
       }
     });
   }

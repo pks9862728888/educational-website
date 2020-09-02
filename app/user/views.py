@@ -327,9 +327,9 @@ class ProfilePictureCountView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class CheckNameExistsView(APIView):
+class CheckProfileDataExists(APIView):
     """View for checking whether user has filled
-    first name and last name in user profile"""
+    first name, last name, gender, date of birth, contact no in user profile"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
@@ -337,7 +337,8 @@ class CheckNameExistsView(APIView):
         """Returns true is user uploaded profile picture"""
         user = self.request.user
         if user.user_profile.first_name and\
-                user.user_profile.last_name:
+                user.user_profile.last_name and user.user_profile.gender and\
+                user.user_profile.phone and user.user_profile.date_of_birth:
             return Response(
                 {'status': True}, status=status.HTTP_200_OK)
         else:

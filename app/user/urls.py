@@ -48,9 +48,9 @@ urlpatterns = [
         name="user-profile-picture-count"
     ),
     path(
-        'check-name-exists',
-        views.CheckNameExistsView.as_view(),
-        name="check-name-exists"
+        'check-profile-data-exists',
+        views.CheckProfileDataExists.as_view(),
+        name="check-profile-data-exists"
     ),
     path('get-auth-token', obtain_auth_token, name='get-auth-token')
 ]

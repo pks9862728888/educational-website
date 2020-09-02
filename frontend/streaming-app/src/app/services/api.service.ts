@@ -43,7 +43,7 @@ export class ApiService {
   profilePictureCountUrl = `${this.baseUrlUser}user-profile-picture-count`;
   listProfilePictureUrl = `${this.baseUrlUser}list-profile-picture`;
   setProfilePictureUrl = `${this.baseUrlUser}set-profile-picture`;
-  userNameExistsUrl = `${this.baseUrlUser}check-name-exists`
+  userProfileDetailsExistsUrl = `${this.baseUrlUser}check-profile-data-exists`
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -109,8 +109,8 @@ export class ApiService {
     return this.httpClient.post(this.setProfilePictureUrl, JSON.stringify(data), {headers: this.getAuthHeaders()});
   }
 
-  checkNameExists() {
-    return this.httpClient.get(this.userNameExistsUrl, {headers: this.getAuthHeaders()});
+  checkUserProfileDetailsExists() {
+    return this.httpClient.get(this.userProfileDetailsExistsUrl, {headers: this.getAuthHeaders()});
   }
 
   // To load token from storage

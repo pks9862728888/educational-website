@@ -54,10 +54,13 @@ class Gender:
     MALE = 'M'
     FEMALE = 'F'
     OTHER = 'O'
+    NOT_MENTIONED = ''
+
     GENDER_IN_GENDER_CHOICES = [
         (MALE, _(u'Male')),
         (FEMALE, _(u'Female')),
-        (OTHER, _(u'Other'))
+        (OTHER, _(u'Other')),
+        (NOT_MENTIONED, _(u'Not Mentioned'))
     ]
 
 
@@ -524,6 +527,7 @@ class UserProfile(models.Model, Languages):
         _('Gender'),
         max_length=1,
         blank=True,
+        default=Gender.NOT_MENTIONED,
         choices=Gender.GENDER_IN_GENDER_CHOICES, )
     phone = PhoneNumberField(_('Phone'), null=True, blank=True)
     date_of_birth = models.DateField(
@@ -1675,6 +1679,14 @@ class InstituteStudents(models.Model):
         _('First name'), max_length=30, blank=True, default='')
     last_name = models.CharField(
         _('Last name'), max_length=30, blank=True, default='')
+    gender = models.CharField(
+        _('Gender'),
+        max_length=1,
+        blank=True,
+        default=Gender.NOT_MENTIONED,
+        choices=Gender.GENDER_IN_GENDER_CHOICES)
+    date_of_birth = models.DateField(
+        _('Date of Birth'), max_length=10, null=True, blank=True)
     created_on = models.DateTimeField(
         _('Created on'), default=timezone.now, blank=True)
     edited = models.BooleanField(

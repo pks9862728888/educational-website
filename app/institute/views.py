@@ -4348,3 +4348,54 @@ class InstituteSubjectCourseListQuestionView(APIView):
             response.append(res)
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class GetUserProfileDetailsOfInstituteView(APIView):
+    """View to get name, gender, and date of birth of student in institute"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsStudent)
+
+    def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('This institute does not exist.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        invitation = models.InstituteStudents.objects.filter(
+            institute=institute,
+            invitee=self.request.user
+        ).only('first_name', 'last_name', 'gender', 'date_of_birth').first()
+
+        if not invitation:
+            return Response({'error': _('Invitation may have been deleted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        user_profile_data = models.UserProfile.objects.filter(
+            user=self.request.user
+        ).only('first_name', 'last_name', 'gender', 'date_of_birth').first()
+
+        response = dict()
+
+        if invitation.first_name and invitation.last_name:
+            response['first_name'] = invitation.first_name
+            response['last_name'] = invitation.last_name
+        else:
+            response['first_name'] = user_profile_data.first_name
+            response['last_name'] = user_profile_data.last_name
+
+        if invitation.gender:
+            response['gender'] = invitation.gender
+        else:
+            response['gender'] = user_profile_data.gender
+
+        if invitation.date_of_birth:
+            response['date_of_birth'] = invitation.date_of_birth
+        elif user_profile_data.date_of_birth:
+            response['date_of_birth'] = user_profile_data.date_of_birth
+        else:
+            response['date_of_birth'] = ''
+
+        return Response(response, status=status.HTTP_200_OK)

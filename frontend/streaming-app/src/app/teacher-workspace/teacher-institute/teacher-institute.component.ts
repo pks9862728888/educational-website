@@ -1,5 +1,5 @@
 import { UiService } from './../../services/ui.service';
-import { TeacherInstitutesMinDetailInterface, NameExistsStatus, InstituteCreatedEvent, StatusResponse } from './../../models/institute.model';
+import { TeacherInstitutesMinDetailInterface, UserProfileDetailsExistsStatus, InstituteCreatedEvent, StatusResponse } from './../../models/institute.model';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
@@ -143,8 +143,8 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   createInstitute() {
     this.showCreateInstituteProgressSpinner = true;
     this.createInstituteError = null;
-    this.apiService.checkNameExists().subscribe(
-      (result: NameExistsStatus) => {
+    this.apiService.checkUserProfileDetailsExists().subscribe(
+      (result: UserProfileDetailsExistsStatus) => {
         if (result.status === true) {
           this.showCreateInstituteProgressSpinner = false;
           this.showInstituteListView = false;
@@ -200,8 +200,8 @@ export class TeacherInstituteComponent implements OnInit, OnDestroy {
   joinInstitute(institute: TeacherInstitutesMinDetailInterface) {
     this.showJoinInstituteProgressSpinner = true;
     this.instituteJoinDeclineError = null;
-    this.apiService.checkNameExists().subscribe(
-      (result: NameExistsStatus) => {
+    this.apiService.checkUserProfileDetailsExists().subscribe(
+      (result: UserProfileDetailsExistsStatus) => {
         if (result.status === true) {
           this.showJoinInstituteProgressSpinner = false;
           this.instituteApiService.acceptDeleteInstituteJoinInvitation(
