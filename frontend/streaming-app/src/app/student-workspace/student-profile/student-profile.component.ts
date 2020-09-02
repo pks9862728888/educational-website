@@ -1,3 +1,4 @@
+import { GENDER_FORM_FIELD_OPTIONS } from './../../../constants';
 import { Component, OnInit } from '@angular/core';
 import { formatDate } from 'src/app/format-datepicker';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
@@ -43,6 +44,7 @@ export class StudentProfileComponent implements OnInit {
 
   // Controls the maximum date of birth allowed
   maxDate: Date;
+  genderOptions = GENDER_FORM_FIELD_OPTIONS;
   profilePictureUpdatedDataSubscription: Subscription;
   getLanguage = getLanguage;
   getCountry = getCountry;
@@ -102,7 +104,7 @@ export class StudentProfileComponent implements OnInit {
       user_profile: this.formBuilder.group({
         first_name: [this.userProfileData.user_profile.first_name, [Validators.required] ],
         last_name: [this.userProfileData.user_profile.last_name, [Validators.required]],
-        phone: [this.userProfileData.user_profile.phone, ],
+        phone: [this.userProfileData.user_profile.phone, [Validators.required]],
         gender: [this.userProfileData.user_profile.gender, [Validators.required]],
         country: [this.userProfileData.user_profile.country, [Validators.required]],
         date_of_birth: [this.userProfileData.user_profile.date_of_birth, [Validators.required]],

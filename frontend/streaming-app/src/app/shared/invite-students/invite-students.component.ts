@@ -1,12 +1,13 @@
 import { Subscription } from 'rxjs';
 import { UiService } from './../../services/ui.service';
-import { currentInstituteSlug } from './../../../constants';
+import { currentInstituteSlug, GENDER_FORM_FIELD_OPTIONS, GENDER } from './../../../constants';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { ClassSlugNameResponse } from 'src/app/models/class.model';
+import { ClassSlugNameResponse } from '../../models/class.model';
 import { InstituteStudentMinDetails } from '../../models/student.model';
+import { formatDate } from '../../format-datepicker';
 
 @Component({
   selector: 'app-invite-students',
@@ -16,6 +17,8 @@ import { InstituteStudentMinDetails } from '../../models/student.model';
 export class InviteStudentsComponent implements OnInit {
 
   mq: MediaQueryList;
+  maxDate: Date;
+  genderOptions = GENDER_FORM_FIELD_OPTIONS;
   currentInstituteSlug: string;
   invitedStudentsStep: number;
   activeStudentsStep: number;
@@ -47,6 +50,7 @@ export class InviteStudentsComponent implements OnInit {
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
+    this.maxDate = new Date();
   }
 
   ngOnInit(): void {
@@ -56,6 +60,8 @@ export class InviteStudentsComponent implements OnInit {
       last_name: ['', [Validators.maxLength(30)]],
       registration_no: ['', [Validators.maxLength(15)]],
       enrollment_no: ['', [Validators.maxLength(15)]],
+      gender: [''],
+      date_of_birth: [],
       class: []
     });
     this.getClassList();
@@ -130,6 +136,10 @@ export class InviteStudentsComponent implements OnInit {
     }
     if (this.classes.length === 0) {
       delete data['class'];
+    }
+    if (data.date_of_birth) {
+      // Formatting date of birth in YYYY-MM-DD
+      data.date_of_birth = formatDate(data.date_of_birth);
     }
     this.showInvitingIndicator = true;
     this.closeInviteError();
@@ -347,6 +357,10 @@ export class InviteStudentsComponent implements OnInit {
 
   closeInviteError() {
     this.inviteError = null;
+  }
+
+  getGender(key: string) {
+    return GENDER[key];
   }
 
   userIsAdmin() {

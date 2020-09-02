@@ -103,7 +103,6 @@ p,
 }
 
 :host ::ng-deep .mat-form-field-label {
-    /*change color of label*/
     color: #3aa39c !important;
 }
 

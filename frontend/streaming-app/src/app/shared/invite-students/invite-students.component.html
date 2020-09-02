@@ -33,19 +33,11 @@
                                 Enter a valid email.
                             </mat-error>
                         </mat-form-field>
-                        <mat-form-field appearance="outline">
-                            <mat-label>First name</mat-label>
-                            <input type="text" max="30" matInput formControlName="first_name" placeholder="First name">
-                            <mat-error *ngIf="invitationForm.controls['first_name'].errors">
-                                Can not be more than 30 characters.
-                            </mat-error>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline">
-                            <mat-label>Last name</mat-label>
-                            <input type="text" matInput formControlName="last_name" placeholder="Last name">
-                            <mat-error *ngIf="invitationForm.controls['last_name'].errors">
-                                Can not be more than 30 characters.
-                            </mat-error>
+                        <mat-form-field class="full-width" appearance="outline">
+                            <mat-label>Class</mat-label>
+                            <select matNativeControl formControlName="class">
+                              <option *ngFor="let class of classes" [value]="class.class_slug" class="options">{{ class.name | titlecase }}</option>
+                            </select>
                         </mat-form-field>
                         <mat-form-field appearance="outline">
                             <mat-label>Registration no</mat-label>
@@ -61,11 +53,31 @@
                                 Can not be more than 15 characters.
                             </mat-error>
                         </mat-form-field>
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Class</mat-label>
-                            <select matNativeControl formControlName="class">
-                              <option *ngFor="let class of classes" [value]="class.class_slug" class="options">{{ class.name | titlecase }}</option>
+                        <mat-form-field appearance="outline">
+                            <mat-label>First name</mat-label>
+                            <input type="text" max="30" matInput formControlName="first_name" placeholder="First name">
+                            <mat-error *ngIf="invitationForm.controls['first_name'].errors">
+                                Can not be more than 30 characters.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline">
+                            <mat-label>Last name</mat-label>
+                            <input type="text" matInput formControlName="last_name" placeholder="Last name">
+                            <mat-error *ngIf="invitationForm.controls['last_name'].errors">
+                                Can not be more than 30 characters.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline">
+                            <mat-label>Gender *</mat-label>
+                            <select matNativeControl formControlName="gender">
+                                <option *ngFor="let gender of genderOptions" [value]="gender.value" class="options">{{ gender.viewValue }}</option>
                             </select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline">
+                            <mat-label>Birthday</mat-label>
+                            <input matInput formControlName="date_of_birth" (click)="datepicker.open()" [max]="maxDate" [matDatepicker]="datepicker">
+                            <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+                            <mat-datepicker touchUi #datepicker></mat-datepicker>
                         </mat-form-field>
                     </form>
                     <div class="d-flex justify-content-end">
@@ -147,6 +159,26 @@
                                 <div class="col-6">
                                     <h3 *ngIf="!mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
                                     <p *ngIf="mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Gender:</h3>
+                                    <p *ngIf="mq.matches">Gender:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ getGender(student.gender) }}</h3>
+                                    <p *ngIf="mq.matches">{{ getGender(student.gender) }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Date of Birth:</h3>
+                                    <p *ngIf="mq.matches">Date of Birth:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.date_of_birth | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.date_of_birth | date }}</p>
                                 </div>
                             </div>
                             <div class="row details">
@@ -280,6 +312,26 @@
                                 <div class="col-6">
                                     <h3 *ngIf="!mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
                                     <p *ngIf="mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Gender:</h3>
+                                    <p *ngIf="mq.matches">Gender:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ getGender(student.gender) }}</h3>
+                                    <p *ngIf="mq.matches">{{ getGender(student.gender) }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Date of Birth:</h3>
+                                    <p *ngIf="mq.matches">Date of Birth:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.date_of_birth | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.date_of_birth | date }}</p>
                                 </div>
                             </div>
                             <div class="row details">

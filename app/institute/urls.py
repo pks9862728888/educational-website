@@ -74,6 +74,9 @@ urlpatterns = [
     path('<slug:institute_slug>/get-institute-student-user-profile-details',
          views.GetUserProfileDetailsOfInstituteView.as_view(),
          name="get-institute-student-user-profile-details"),
+    path('<slug:institute_slug>/<int:invitation_id>/join-institute-student',
+         views.StudentJoinInstituteView.as_view(),
+         name="join-institute-student"),
     # Institute class
     path('<slug:institute_slug>/create-class',
          views.CreateClassView.as_view(),
