@@ -4426,14 +4426,15 @@ class StudentJoinInstituteView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         invitation = models.InstituteStudents.objects.filter(
-            pk=kwargs.get('invitation_id')
+            institute=institute,
+            invitee=self.request.user
         ).only('first_name', 'last_name', 'gender', 'date_of_birth', 'active', 'edited').first()
 
         if not invitation:
             return Response({'error': _('Invitation may have been deleted.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not invitation.invitee != self.request.user:
+        if invitation.invitee != self.request.user:
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
