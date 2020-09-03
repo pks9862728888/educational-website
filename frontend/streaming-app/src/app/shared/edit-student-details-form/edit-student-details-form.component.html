@@ -36,6 +36,18 @@
                 Can not be more than 15 characters.
             </mat-error>
         </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Gender *</mat-label>
+            <select matNativeControl formControlName="gender">
+              <option *ngFor="let gender of genderOptions" [value]="gender.value" class="options">{{ gender.viewValue }}</option>
+            </select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Birthday</mat-label>
+            <input matInput formControlName="date_of_birth" (click)="datepicker.open()" [max]="maxDate" [matDatepicker]="datepicker">
+            <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+            <mat-datepicker touchUi #datepicker></mat-datepicker>
+        </mat-form-field>
     </form>
     <div class="d-flex justify-content-end">
         <button mat-flat-button [disabled]="editForm.invalid" (click)="submit()" class="green-button m-r-05">

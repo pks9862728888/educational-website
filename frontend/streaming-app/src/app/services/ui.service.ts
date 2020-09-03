@@ -5,7 +5,7 @@ import { UiDialogComponent } from '../shared/ui-dialog/ui-dialog.component';
 import { Subject } from 'rxjs';
 import { UiActionControlsComponent } from '../shared/ui-action-controls/ui-action-controls.component';
 import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
-import { ConfirmNameComponent } from '../shared/student-institutes/confirm-name/confirm-name.component';
+import { ConfirmStudentsDetailsComponent } from '../shared/student-institutes/confirm-students-details/confirm-students-details.component';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +18,13 @@ export class UiService {
   private actionControlDialogData = new Subject<string>();
   actionControlDialogData$ = this.actionControlDialogData.asObservable();
 
-  private nameDialogData = new Subject<{'first_name': string; 'last_name': string}>();
-  nameDialogData$ = this.nameDialogData.asObservable();
+  private studentDetailsDialogData = new Subject<{
+    'first_name': string;
+    'last_name': string;
+    'date_of_birth': string;
+    'gender': string;
+  }>();
+  studentDetailsDialogData$ = this.studentDetailsDialogData.asObservable();
 
   constructor(
     private _snackBar: MatSnackBar,
@@ -54,14 +59,16 @@ export class UiService {
     });
   }
 
-  openNameDialog() {
-    // Dialog to confirm student's name while joining institute
-    const dialogRef = this.dialog.open(ConfirmNameComponent);
+  openStudentDetailsConfirmDialog(instituteSlug: string) {
+    // Dialog to confirm student's details while joining institute
+    const dialogRef = this.dialog.open(ConfirmStudentsDetailsComponent, {
+      data: {'instituteSlug': instituteSlug}
+    });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.nameDialogData.next(result);
+        this.studentDetailsDialogData.next(result);
       } else {
-        this.nameDialogData.next();
+        this.studentDetailsDialogData.next();
       }
     });
   }

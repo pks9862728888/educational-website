@@ -53,7 +53,8 @@ export const COUNTRY_FORM_FIELD_OPTIONS = [
 export const GENDER = {
     O: 'Others',
     M: 'Male',
-    F: 'Female'
+    F: 'Female',
+    '': 'Not Defined'
 };
 
 export const GENDER_REVERSE = {
@@ -63,7 +64,7 @@ export const GENDER_REVERSE = {
 };
 
 export const GENDER_FORM_FIELD_OPTIONS = [
-  {value: '', viewValue: ''},
+  {value: '', viewValue: 'Unknown'},
   {value: 'M', viewValue: 'Male'},
   {value: 'F', viewValue: 'Female'},
   {value: 'O', viewValue: 'Others'},

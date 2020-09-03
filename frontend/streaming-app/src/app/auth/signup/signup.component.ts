@@ -13,21 +13,18 @@ export class SignupComponent implements OnInit {
 
   hidePassword = true;
   hideConfirmPassword = true;
-
-  constructor( private formBuilder: FormBuilder,
-               private authService: AuthService,
-               private router: Router ) {}
-
   signupForm: FormGroup;
-
   serverResponseErrors = {
     emailError: null,
     usernameError: null,
     passwordError: null
   };
-
-  // Shows hint to login if user is present already with the email.
   loginHint = false;
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router ) {}
 
   ngOnInit(): void {
     this.signupForm = this.formBuilder.group({

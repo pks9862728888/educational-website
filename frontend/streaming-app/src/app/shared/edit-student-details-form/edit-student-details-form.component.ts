@@ -1,10 +1,10 @@
 import { InstituteApiService } from './../../services/institute-api.service';
-import { currentInstituteSlug } from './../../../constants';
+import { currentInstituteSlug, GENDER_FORM_FIELD_OPTIONS } from './../../../constants';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { environment } from './../../../environments/environment';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { InstituteStudentMinDetails } from '../../models/student.model';
+import { formatDate } from '../../format-datepicker';
 
 @Component({
   selector: 'app-edit-student-details-form',
@@ -14,6 +14,8 @@ import { InstituteStudentMinDetails } from '../../models/student.model';
 export class EditStudentDetailsFormComponent implements OnInit {
 
   mq: MediaQueryList;
+  maxDate: Date;
+  genderOptions = GENDER_FORM_FIELD_OPTIONS;
   error: string;
   editForm: FormGroup;
   @Output() hideEditFormEvent = new EventEmitter<void>();
@@ -29,21 +31,19 @@ export class EditStudentDetailsFormComponent implements OnInit {
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
+    this.maxDate = new Date();
   }
 
   ngOnInit(): void {
     this.editForm = this.formBuilder.group({
       first_name: [null, [Validators.maxLength(30)]],
       last_name: [null, [Validators.maxLength(30)]],
+      gender: [''],
+      date_of_birth: [''],
       registration_no: [null, [Validators.maxLength(15)]],
       enrollment_no: [null, [Validators.maxLength(15)]]
     });
-    this.editForm.patchValue({
-      first_name: this.student.first_name,
-      last_name: this.student.last_name,
-      registration_no: this.student.registration_no,
-      enrollment_no: this.student.enrollment_no
-    });
+    this.resetEditForm();
   }
 
   resetEditForm() {
@@ -51,7 +51,9 @@ export class EditStudentDetailsFormComponent implements OnInit {
       first_name: this.student.first_name,
       last_name: this.student.last_name,
       registration_no: this.student.registration_no,
-      enrollment_no: this.student.enrollment_no
+      enrollment_no: this.student.enrollment_no,
+      gender: this.student.gender,
+      date_of_birth: this.student.date_of_birth
     });
   }
 
@@ -69,8 +71,11 @@ export class EditStudentDetailsFormComponent implements OnInit {
     if (!data.enrollment_no) {
       data['enrollment_no'] = '';
     }
+    if (data.date_of_birth) {
+      // Formatting date of birth in YYYY-MM-DD
+      data.date_of_birth = formatDate(data.date_of_birth);
+    }
     data['id'] = this.student.id;
-    console.log(data);
     this.error = null;
     this.showSubmitIndicator = true;
     this.editForm.disable();

@@ -227,18 +227,18 @@
                             <mat-hint *ngIf="!phoneNumberError" class="hint-normal">
                                 Enter number in the format: +919999999999
                             </mat-hint>
+                            <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['phone'].errors?.required">
+                                This field is required.
+                            </mat-error>
                             <mat-hint *ngIf="phoneNumberError" class="hint-error">
                                 Invalid (Enter in format +919999999999)
                             </mat-hint>
                         </mat-form-field>
                         <mat-form-field>
-                            <mat-label>Gender</mat-label>
+                            <mat-label>Gender *</mat-label>
                             <select matNativeControl formControlName="gender">
-                              <option value="" class="options"></option>
-                              <option value="M" class="options">Male</option>
-                              <option value="F" class="options">Female</option>
-                              <option value="O" class="options">Others</option>
-                          </select>
+                                <option *ngFor="let gender of genderOptions" [value]="gender.value" class="options">{{ gender.viewValue }}</option>
+                            </select>
                             <mat-error *ngIf="editProfileForm.controls['user_profile']['controls']['gender'].errors?.required">
                                 This field is required.
                             </mat-error>

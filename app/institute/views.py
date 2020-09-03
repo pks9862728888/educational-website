@@ -4409,3 +4409,60 @@ class GetUserProfileDetailsOfInstituteView(APIView):
             response['date_of_birth'] = ''
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class StudentJoinInstituteView(APIView):
+    """View for student to join institute"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsStudent)
+
+    def post(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('This institute does not exist.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        invitation = models.InstituteStudents.objects.filter(
+            pk=kwargs.get('invitation_id')
+        ).only('first_name', 'last_name', 'gender', 'date_of_birth', 'active', 'edited').first()
+
+        if not invitation:
+            return Response({'error': _('Invitation may have been deleted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not invitation.invitee != self.request.user:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not invitation.edited:
+            invitation.first_name = request.data.get('first_name')
+            invitation.last_name = request.data.get('last_name')
+            invitation.gender = request.data.get('gender')
+            invitation.date_of_birth = request.data.get('date_of_birth')
+
+        invitation.active = True
+        invitation.edited = True
+        invitation.save()
+
+        assigned_class = models.InstituteClassStudents.objects.filter(
+            invitee=self.request.user,
+            institute_class__class_institute__pk=institute.pk
+        ).only('active').first()
+
+        if assigned_class:
+            assigned_class.active = True
+            assigned_class.save()
+
+            subjects = models.InstituteSubjectStudents.objects.filter(
+                invitee=self.request.user,
+                institute_subject__subject_class__pk=assigned_class.pk
+            ).only('active')
+
+            for subject in subjects:
+                subject.active = True
+                subject.save()
+
+        return Response({'status': 'OK'}, status.HTTP_200_OK)

@@ -1,3 +1,4 @@
+import { GENDER_FORM_FIELD_OPTIONS } from './../../../constants';
 import { InAppDataTransferService } from './../../services/in-app-data-transfer.service';
 import { Subscription } from 'rxjs';
 import { UserProfileDetails, DeletedCurrentPictureResponse } from './../../models/profile.model';
@@ -41,8 +42,8 @@ export class TeacherProfileComponent implements OnInit {
   usernameError: string;
   phoneNumberError: string;
 
-  // Controls the maximum date of birth allowed
   maxDate: Date;
+  genderOptions = GENDER_FORM_FIELD_OPTIONS;
   profilePictureUpdatedDataSubscription: Subscription;
   getLanguage = getLanguage;
   getCountry = getCountry;
@@ -102,7 +103,7 @@ export class TeacherProfileComponent implements OnInit {
       user_profile: this.formBuilder.group({
         first_name: [this.userProfileData.user_profile.first_name, [Validators.required] ],
         last_name: [this.userProfileData.user_profile.last_name, [Validators.required]],
-        phone: [this.userProfileData.user_profile.phone, ],
+        phone: [this.userProfileData.user_profile.phone, [Validators.required]],
         gender: [this.userProfileData.user_profile.gender, [Validators.required]],
         country: [this.userProfileData.user_profile.country, [Validators.required]],
         date_of_birth: [this.userProfileData.user_profile.date_of_birth, [Validators.required]],

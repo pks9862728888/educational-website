@@ -206,6 +206,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/edit-institute-student-details`;
   }
 
+  getLoadStudentConfrimProfileDetailsUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/get-institute-student-user-profile-details`;
+  }
+
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
 
@@ -640,6 +644,13 @@ export class InstituteApiService {
     return this.httpClient.get(
       this.studentInstituteMinDetailsUrl,
       {headers: this.getAuthHeader()}
+    );
+  }
+
+  loadStudentConfirmProfileDetails(instituteSlug: string) {
+    return this.httpClient.get(
+      this.getLoadStudentConfrimProfileDetailsUrl(instituteSlug),
+      { headers: this.getAuthHeader() }
     );
   }
 
