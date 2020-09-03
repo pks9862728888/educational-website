@@ -4366,6 +4366,7 @@ class GetUserProfileDetailsOfInstituteView(APIView):
     permission_classes = (IsAuthenticated, IsStudent)
 
     def get(self, *args, **kwargs):
+        print(kwargs.get('institute_slug'))
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
