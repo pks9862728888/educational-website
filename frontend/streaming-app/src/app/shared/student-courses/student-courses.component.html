@@ -1,0 +1,63 @@
+<div class="body-container">
+    <h2>My Courses:</h2>
+    <hr class="top-separator m-b-1" />
+    <section>
+        <div class="d-flex justify-content-between align-center expansion-panel-header-color ep-header" (click)="setOpenedPanelStep(0)">
+            <h3>Indian Institute of Technology, Agartala (Class 1)</h3>
+            <mat-icon class="m-l-0.5">
+                <span *ngIf="this.openedPanelStep !== 0">keyboard_arrow_down</span>
+                <span *ngIf="this.openedPanelStep === 0">keyboard_arrow_up</span>
+            </mat-icon>
+        </div>
+        <div *ngIf="openedPanelStep === 0" class="row" [class.m-t-1]="!mq.matches" [class.m-b-1]="!mq.matches && count > 3">
+            <div class="col-sm-4" [class.m-t-1]="mq.matches">
+                <div class="c-container cursor-pointer">
+                    <div class="c-image" *ngIf="true"></div>
+                    <img class="c-image" *ngIf="false" src="../../../assets/imgs/cd6.png" alt="Course image">
+                    <div class="c-overlay p-05rem">
+                        <h3 class="c-name">Biology</h3>
+                        <small class="c-description text-justify">{{ formatDescription(text) }}</small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <mat-icon class="bookmark cursor-pointer">
+                        <span *ngIf="false">star_border</span>
+                        <span *ngIf="true">star</span>
+                    </mat-icon>
+                </div>
+            </div>
+            <div class="col-sm-4" [class.m-t-1]="mq.matches">
+                <div class="c-container cursor-pointer">
+                    <div class="c-image" *ngIf="true"></div>
+                    <img class="c-image" *ngIf="false" src="../../../assets/imgs/cd6.png" alt="Course image">
+                    <div class="c-overlay p-05rem">
+                        <h3 class="c-name">Biology</h3>
+                        <small class="c-description text-justify">{{ formatDescription(text) }}</small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <mat-icon class="bookmark cursor-pointer">
+                        <span *ngIf="true">star_border</span>
+                        <span *ngIf="false">star</span>
+                    </mat-icon>
+                </div>
+            </div>
+            <div class="col-sm-4" [class.m-t-1]="mq.matches">
+                <div class="c-container cursor-pointer">
+                    <div class="c-image" *ngIf="false"></div>
+                    <img class="c-image" *ngIf="true" src="../../../assets/imgs/cd6.png" alt="Course image">
+                    <div class="c-overlay p-05rem">
+                        <h3 class="c-name">Biology</h3>
+                        <small class="c-description text-justify">{{ formatDescription(text) }}</small>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end">
+                    <mat-icon class="bookmark cursor-pointer">
+                        <span *ngIf="false">star_border</span>
+                        <span *ngIf="true">star</span>
+                    </mat-icon>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

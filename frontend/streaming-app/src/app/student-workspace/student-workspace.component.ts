@@ -34,6 +34,8 @@ export class StudentWorkspaceComponent implements OnInit {
           this.activeLink = 'PROFILE';
         } else if (val.url.includes('institutes')) {
           this.activeLink = 'INSTITUTES';
+        } else if (val.url.includes('courses')) {
+          this.activeLink = 'COURSES';
         }
       }
     });

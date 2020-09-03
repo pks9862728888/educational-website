@@ -1,0 +1,92 @@
+h2,
+h3,
+hr {
+    padding: 0;
+    margin: 0;
+}
+
+.body-container {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 5px;
+    box-shadow: 1px 1px 1px #1d1d1d;
+    z-index: 2;
+    padding: 1rem;
+    color: #bdbdbd;
+}
+
+.ep-header {
+    background-color: rgba(255, 255, 255, 0.06);
+    padding: 1rem;
+    cursor: pointer;
+}
+
+.ep-header:hover {
+    padding: 1.1rem;
+}
+
+.c-container {
+    z-index: 2;
+    box-shadow: 1px 1px 1px #1d1d1d;
+    overflow: hidden;
+    transform: translateY(-0.01rem);
+}
+
+.c-overlay {
+    background-color: #b3b3b3;
+    position: absolute;
+    height: 100px;
+    transform: translateY(-6.2rem);
+    z-index: 3;
+    box-shadow: 0 -1px 2px #1d1d1d;
+}
+
+.c-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    background-color: #1d4745;
+}
+
+.c-name {
+    color: #111d24;
+}
+
+.c-description {
+    color: #1d1d1d;
+}
+
+.bookmark {
+    height: 14px;
+    width: 14px;
+    font-size: 18px;
+    position: absolute;
+    z-index: 6;
+    transform: translate(-0.7rem, -1.5rem);
+    color: #003ada;
+}
+
+.c-container:hover,
+.c-container:hover+.d-flex {
+    transform: translateY(-0.3rem);
+    z-index: 3;
+}
+
+.p-05rem {
+    padding: 0.5rem;
+}
+
+.p-1rem {
+    padding: 1rem;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}
