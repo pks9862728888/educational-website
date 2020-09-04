@@ -1738,6 +1738,8 @@ class InstituteClassStudents(models.Model):
         User, on_delete=models.SET_NULL, related_name='class_student_inviter', null=True)
     active = models.BooleanField(_('Active'), default=False, blank=True)
     is_banned = models.BooleanField(_('Is Banned'), default=False, blank=True)
+    created_on = models.DateTimeField(
+        _('Created on'), default=timezone.now, blank=True)
 
     def __str__(self):
         return str(self.invitee)
@@ -1756,6 +1758,8 @@ class InstituteSubjectStudents(models.Model):
         User, on_delete=models.SET_NULL, related_name='subject_student_inviter', null=True)
     active = models.BooleanField(_('Active'), default=False, blank=True)
     is_banned = models.BooleanField(_('Is Banned'), default=False, blank=True)
+    created_on = models.DateTimeField(
+        _('Created on'), default=timezone.now, blank=True)
 
     def __str__(self):
         return str(self.invitee)
