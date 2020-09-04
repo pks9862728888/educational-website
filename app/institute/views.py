@@ -3529,7 +3529,7 @@ class InstituteStudentCourseListView(APIView):
         response = {
             'view_order': [],
             'courses': dict(),
-            'class': dict(),
+            'class_names': dict(),
             'favourite_courses': dict()
         }
 
@@ -3538,6 +3538,7 @@ class InstituteStudentCourseListView(APIView):
                 'name': 'Favourite Courses',
                 'institute_slug': 'BOOKMARKED'
             })
+            response['courses']['BOOKMARKED'] = list()
             for invite in institute_invites:
                 institute_slug = invite.institute.institute_slug
                 institute_pk = invite.institute.pk
@@ -3553,10 +3554,10 @@ class InstituteStudentCourseListView(APIView):
                 ).only('institute_class').first()
 
                 if class_invite:
-                    response['class'][institute_slug] = class_invite.institute_class.name
+                    response['class_names'][institute_slug] = class_invite.institute_class.name
                     class_slug = class_invite.institute_class.class_slug
                     class_pk = class_invite.institute_class.pk
-                    class_subjects = models.InstituteSubjects.objects.filter(
+                    class_subjects = models.InstituteSubject.objects.filter(
                         subject_class__pk=class_pk
                     ).only('name', 'subject_slug')
 
@@ -3571,7 +3572,8 @@ class InstituteStudentCourseListView(APIView):
                                 'subject_slug': subject.subject_slug,
                                 'subject_name': subject.name,
                                 'subject_description': 'Description of the subject',
-                                'subject_id': subject.pk
+                                'subject_id': subject.pk,
+                                'image': ''
                             }
                             if models.SubjectBookmarked.objects.filter(
                                 subject__pk=subject.pk,
