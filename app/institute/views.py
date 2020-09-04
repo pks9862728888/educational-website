@@ -1243,12 +1243,14 @@ class InstituteClassStudentListView(APIView):
         if kwargs.get('student_type') == 'active':
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
-                active=True
+                active=True,
+                is_banned=False
             ).only('invitee', 'created_on').order_by('created_on')
         elif kwargs.get('student_type') == 'inactive':
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
-                active=False
+                active=False,
+                is_banned=False
             ).only('invitee', 'created_on').order_by('created_on')
         elif kwargs.get('student_type') == 'banned':
             student_list = models.InstituteClassStudents.objects.filter(
