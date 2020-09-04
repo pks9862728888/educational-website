@@ -1,5 +1,7 @@
+import { InstituteApiService } from './../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
+import { StudentAllCoursesList, StudentCourseListViewOrder, StudentCourseDetails } from '../../models/student.model';
 
 @Component({
   selector: 'app-student-courses',
@@ -12,24 +14,42 @@ export class StudentCoursesComponent implements OnInit {
   openedPanelStep: number;
   showLoadingIndicator: boolean;
   showReload: boolean;
-  count = 0;
   text = 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis iure explicabo maiores nesciunt facilis consectetur rem distinctio unde laborum nostrum eligendi dolore animi fuga hic, eveniet, consequatur deleniti, porro voluptatem.';
 
-  viewOrder = [];
-  viewData = {};
+  viewOrder: StudentCourseListViewOrder[] = [];
+  courses: {string: StudentCourseDetails};
+  favouriteCourses: {string: StudentCourseDetails};
+  classNames = {};
 
   constructor(
-    private media: MediaMatcher
+    private media: MediaMatcher,
+    private instituteApiService: InstituteApiService
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
-    this.openedPanelStep = 0;
   }
 
   ngOnInit(): void {
+    this.getCourses()
   }
 
   getCourses() {
-
+    this.showLoadingIndicator = true;
+    this.showReload = false;
+    this.instituteApiService.getAllStudentCourses().subscribe(
+      (result: StudentAllCoursesList) => {
+        this.showLoadingIndicator = false;
+        this.viewOrder = result.view_order;
+        this.courses = result.courses;
+        this.favouriteCourses = result.favourite_courses;
+        this.classNames = result.class_names;
+        console.log(result);
+        console.log(this.courses);
+      },
+      errors => {
+        this.showLoadingIndicator = false;
+        this.showReload = true;
+      }
+    );
   }
 
   setOpenedPanelStep(step: number) {
@@ -56,4 +76,11 @@ export class StudentCoursesComponent implements OnInit {
     }
   }
 
+  isInstituteCourseListEmpty(institueSlug: string) {
+    if (this.courses[institueSlug].length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
