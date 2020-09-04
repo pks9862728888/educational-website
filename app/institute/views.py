@@ -1250,6 +1250,12 @@ class InstituteClassStudentListView(APIView):
                 institute_class__pk=class_.pk,
                 active=False
             ).only('invitee', 'created_on').order_by('created_on')
+        elif kwargs.get('student_type') == 'banned':
+            student_list = models.InstituteClassStudents.objects.filter(
+                institute_class__pk=class_.pk,
+                active=True,
+                is_banned=True
+            ).only('invitee', 'created_on', 'is_banned').order_by('created_on')
         response = list()
 
         for s in student_list:
@@ -1270,6 +1276,26 @@ class InstituteClassStudentListView(APIView):
             res['enrollment_no'] = student_details.enrollment_no
             res['registration_no'] = student_details.registration_no
             res['image'] = ''
+
+            if s.is_banned:
+                ban_details = models.InstituteClassBannedStudent.objects.filter(
+                    user__pk=s.invitee.pk,
+                    banned_class__pk=class_.pk,
+                    active=True
+                ).first()
+                res['reason'] = ban_details.reason
+                res['banned_on'] = str(ban_details.created_on)
+                res['ban_start_date'] = str(ban_details.start_date)
+
+                if ban_details.banned_by__user_profile.first_name:
+                    first_name = ban_details.banned_by.user_profile.first_name
+                    last_name = ban_details.banned_by.user_profile.last_name
+                    res['banned_by'] = first_name + ' ' + last_name
+                else:
+                    res['banned_by'] = str(ban_details.banned_by)
+
+                if ban_details.end_date:
+                    res['ban_end_date'] = str(ban_details.end_date)
 
             response.append(res)
 

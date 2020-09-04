@@ -13,6 +13,26 @@ export interface InstituteStudentMinDetails {
   image: string;
 };
 
+export interface InstituteBannedStudentMinDetails {
+  id: number;
+  invitee_email: string;
+  first_name: string;
+  last_name: string;
+  gender: string;
+  date_of_birth: string;
+  enrollment_no: string;
+  registration_no: string;
+  created_on: string;
+  class_name: string;
+  is_banned?: boolean;
+  image: string;
+  banned_by?: string;
+  banned_on?: string;
+  ban_start_date?: string;
+  ban_end_date?: string;
+  reason?: string;
+};
+
 
 export interface StudentCourseListViewOrder {
   name: string;
