@@ -28,20 +28,22 @@ export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private media: MediaMatcher,
-    private inAppDataTransferService: InAppDataTransferService) {
-
+    private inAppDataTransferService: InAppDataTransferService
+    ) {
     this.mq = this.media.matchMedia('(max-width: 768px)');
-    this.activeLink = 'SUBJECT_OVERVIEW';
+    this.activeLink = 'OVERVIEW';
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
         if(val.url.includes('overview')) {
-          this.activeLink = 'SUBJECT_OVERVIEW';
+          this.activeLink = 'OVERVIEW';
         } else if (val.url.includes('permissions')) {
-          this.activeLink = 'SUBJECT_PERMISSIONS';
+          this.activeLink = 'PERMISSIONS';
+        } else if (val.url.includes('students')) {
+          this.activeLink = 'STUDENTS';
         } else if (val.url.includes('create-course')) {
-          this.activeLink = 'CREATE_COURSE';
+          this.activeLink = 'CREATE-COURSE';
         } else if (val.url.includes('preview-course')) {
-          this.activeLink = 'PREVIEW_COURSE';
+          this.activeLink = 'PREVIEW-COURSE';
         }
       }
     });
@@ -88,16 +90,10 @@ export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
         this.navigateToAppropriateInstituteWorkspace('/profile');
       } else if (link === 'INSTITUTES') {
         this.router.navigate(['/teacher-workspace/institutes']);
+      } else if (link === 'PREVIEW-COURSE') {
+        this.router.navigate(['/preview-course-workspace/' + this.currentSubjectSlug.slice(0, -10) + '/preview']);
       } else {
-        if (link === 'SUBJECT_OVERVIEW') {
-          this.router.navigate([this.baseUrl + '/overview']);
-        } else if (link === 'SUBJECT_PERMISSIONS') {
-          this.router.navigate([this.baseUrl + '/permissions']);
-        } else if (link === 'CREATE_COURSE') {
-          this.router.navigate([this.baseUrl + '/create-course']);
-        } else if (link === 'PREVIEW_COURSE') {
-          this.router.navigate(['/preview-course-workspace/' + this.currentSubjectSlug.slice(0, -10) + '/preview']);
-        }
+        this.router.navigate([this.baseUrl + '/' + link.toLowerCase()]);
       }
     }
   }

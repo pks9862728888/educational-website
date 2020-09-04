@@ -1,4 +1,4 @@
-import { currentClassSlug, currentInstituteType, paymentComplete, purchasedLicenseExists, INSTITUTE_TYPE_REVERSE, hasClassPerm } from './../../constants';
+import { currentClassSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, hasClassPerm } from './../../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
@@ -24,21 +24,24 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
   tempBreadcrumbLinkName: string;
   routerEventsSubscription: Subscription;
 
-  constructor( private router: Router,
-               private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService) {
+  constructor(
+    private router: Router,
+    private media: MediaMatcher,
+    private inAppDataTransferService: InAppDataTransferService) {
     this.mq = this.media.matchMedia('(max-width: 768px)');
-    this.activeLink = 'CLASS_PROFILE';
+    this.activeLink = 'PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
         if(val.url.includes('profile')) {
-          this.activeLink = 'CLASS_PROFILE';
+          this.activeLink = 'PROFILE';
         } else if (val.url.includes('subjects')) {
-          this.activeLink = 'CLASS_SUBJECTS';
+          this.activeLink = 'SUBJECTS';
         } else if (val.url.includes('permissions')) {
-          this.activeLink = 'CLASS_PERMISSIONS';
+          this.activeLink = 'PERMISSIONS';
+        } else if (val.url.includes('students')) {
+          this.activeLink = 'STUDENTS';
         } else if (val.url.includes('sections')) {
-          this.activeLink = 'CLASS_SECTIONS';
+          this.activeLink = 'SECTIONS';
         }
       }
     });
@@ -85,15 +88,7 @@ export class ClassWorkspaceComponent implements OnInit, OnDestroy {
       } else if (link === 'EXIT_CLASS' || link === 'INSTITUTE') {
         this.navigateToAppropriateInstituteWorkspace('/classes');
       } else {
-        if (link === 'CLASS_PROFILE') {
-          this.router.navigate([this.baseUrl + '/profile']);
-        } else if (link === 'CLASS_PERMISSIONS') {
-          this.router.navigate([this.baseUrl + '/permissions']);
-        } else if (link === 'CLASS_SUBJECTS') {
-          this.router.navigate([this.baseUrl + '/subjects']);
-        } else if (link === 'CLASS_SECTIONS') {
-          this.router.navigate([this.baseUrl + '/sections']);
-        }
+        this.router.navigate([this.baseUrl + '/' + link.toLowerCase()]);
       }
     }
   }

@@ -5,6 +5,7 @@ import { ClassWorkspaceComponent } from './class-workspace.component';
 import { ClassProfileComponent } from './class-profile/class-profile.component';
 import { ClassSubjectsComponent } from './class-subjects/class-subjects.component';
 import { ClassPermissionsComponent } from './class-permissions/class-permissions.component';
+import { ClassStudentsComponent } from '../shared/class-students/class-students.component';
 
 const routes: Routes = [
   {
@@ -13,6 +14,7 @@ const routes: Routes = [
     children: [
       { path: ':name/profile', component: ClassProfileComponent },
       { path: ':name/permissions', component: ClassPermissionsComponent },
+      { path: ':name/students', component: ClassStudentsComponent },
       { path: ':name/subjects', component: ClassSubjectsComponent },
       { path: ':name/sections', component: ClassSectionComponent }
     ]

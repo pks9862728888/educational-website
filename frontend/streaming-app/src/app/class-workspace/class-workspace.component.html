@@ -8,13 +8,15 @@
             <mat-nav-list>
                 <h1 *ngIf="mq.matches" class="website-name">EduWeb</h1>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CLASS_PROFILE'" (click)="navigate('CLASS_PROFILE')">Class Profile</div>
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PROFILE'" (click)="navigate('PROFILE')">Class Profile</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CLASS_PERMISSIONS'" (click)="navigate('CLASS_PERMISSIONS')">Class Permissions</div>
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PERMISSIONS'" (click)="navigate('PERMISSIONS')">Class Permissions</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CLASS_SUBJECTS'" (click)="navigate('CLASS_SUBJECTS')">Class Subjects</div>
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'STUDENTS'" (click)="navigate('STUDENTS')">Class Students</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CLASS_SECTIONS'" (click)="navigate('CLASS_SECTIONS')">Class Sections</div>
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'SUBJECTS'" (click)="navigate('SUBJECTS')">Class Subjects</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'SECTIONS'" (click)="navigate('SECTIONS')">Class Sections</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'EXIT_CLASS'" (click)="navigate('EXIT_CLASS')">Exit Class</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
@@ -35,10 +37,11 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
                         <li class="breadcrumb-item clickable-link"><a (click)="navigate('INSTITUTE')">Institute</a></li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CLASS_PROFILE'">Profile</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CLASS_PERMISSIONS'">Permissions</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CLASS_SUBJECTS'">Subjects</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CLASS_SECTIONS'">Sections</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'PROFILE'">Profile</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'PERMISSIONS'">Permissions</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'STUDENTS'">Students</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SUBJECTS'">Subjects</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'SECTIONS'">Sections</li>
                     </ol>
                 </nav>
 

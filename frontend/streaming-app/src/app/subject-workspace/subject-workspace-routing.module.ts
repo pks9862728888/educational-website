@@ -5,6 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from "@angular/core";
 import { SubjectWorkspaceComponent } from './subject-workspace.component';
 import { SubjectPermissionComponent } from './subject-permission/subject-permission.component';
+import { SubjectStudentsComponent } from '../shared/subject-students/subject-students.component';
 
 
 const routes: Routes = [
@@ -14,6 +15,7 @@ const routes: Routes = [
     children: [
       { path: ':name/overview', component: SubjectOverviewComponent },
       { path: ':name/permissions', component: SubjectPermissionComponent },
+      { path: ':name/students', component: SubjectStudentsComponent },
       { path: ':name/course-guidelines', component: CourseGuidelinesComponent },
       { path: ':name/create-course', component: CreateCourseComponent }
     ]

@@ -34,6 +34,8 @@ import { StudentInstitutesComponent } from './student-institutes/student-institu
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { ConfirmStudentsDetailsComponent } from './student-institutes/confirm-students-details/confirm-students-details.component';
 import { StudentCoursesComponent } from './student-courses/student-courses.component';
+import { ClassStudentsComponent } from './class-students/class-students.component';
+import { SubjectStudentsComponent } from './subject-students/subject-students.component';
 
 
 @NgModule({
@@ -59,6 +61,8 @@ import { StudentCoursesComponent } from './student-courses/student-courses.compo
     ChooseProfilePictureFromExistingComponent,
     UploadProfilePictureComponent,
     InstituteStudentsComponent,
+    ClassStudentsComponent,
+    SubjectStudentsComponent,
     EditStudentDetailsFormComponent,
     StudentInstitutesComponent,
     SnackbarComponent,
@@ -94,11 +98,13 @@ import { StudentCoursesComponent } from './student-courses/student-courses.compo
     ChooseProfilePictureFromExistingComponent,
     UploadProfilePictureComponent,
     InstituteStudentsComponent,
+    ClassStudentsComponent,
+    SubjectStudentsComponent,
     EditStudentDetailsFormComponent,
     StudentInstitutesComponent,
     SnackbarComponent,
     ConfirmStudentsDetailsComponent,
-    StudentCoursesComponent
+    StudentCoursesComponent,
   ],
   providers: [
     InstituteApiService,
