@@ -33,51 +33,12 @@
                                 Enter a valid email.
                             </mat-error>
                         </mat-form-field>
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Class</mat-label>
-                            <select matNativeControl formControlName="class">
-                            <option *ngFor="let class of classes" [value]="class.class_slug" class="options">{{ class.name | titlecase }}</option>
-                          </select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline">
-                            <mat-label>Registration no</mat-label>
-                            <input type="text" matInput formControlName="registration_no" placeholder="Registration no">
-                            <mat-error *ngIf="invitationForm.controls['registration_no'].errors">
-                                Can not be more than 15 characters.
-                            </mat-error>
-                        </mat-form-field>
                         <mat-form-field appearance="outline">
                             <mat-label>Enrollment no</mat-label>
                             <input type="text" matInput formControlName="enrollment_no" placeholder="Enrollment no">
                             <mat-error *ngIf="invitationForm.controls['enrollment_no'].errors">
                                 Can not be more than 15 characters.
                             </mat-error>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline">
-                            <mat-label>First name</mat-label>
-                            <input type="text" max="30" matInput formControlName="first_name" placeholder="First name">
-                            <mat-error *ngIf="invitationForm.controls['first_name'].errors">
-                                Can not be more than 30 characters.
-                            </mat-error>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline">
-                            <mat-label>Last name</mat-label>
-                            <input type="text" matInput formControlName="last_name" placeholder="Last name">
-                            <mat-error *ngIf="invitationForm.controls['last_name'].errors">
-                                Can not be more than 30 characters.
-                            </mat-error>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline">
-                            <mat-label>Gender *</mat-label>
-                            <select matNativeControl formControlName="gender">
-                              <option *ngFor="let gender of genderOptions" [value]="gender.value" class="options">{{ gender.viewValue }}</option>
-                          </select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline">
-                            <mat-label>Birthday</mat-label>
-                            <input matInput formControlName="date_of_birth" (click)="datepicker.open()" [max]="maxDate" [matDatepicker]="datepicker">
-                            <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
-                            <mat-datepicker touchUi #datepicker></mat-datepicker>
                         </mat-form-field>
                     </form>
                     <div class="d-flex justify-content-end">
@@ -90,7 +51,7 @@
                     </div>
                 </div>
             </div>
-            <h3 *ngIf="isInvitedStudentsEmpty()">No students found.</h3>
+            <h3 *ngIf="isInvitedStudentsEmpty()" [class.m-t-1]="showInvitationForm">No students found.</h3>
             <div class="m-t-1" *ngIf="!isInvitedStudentsEmpty()">
                 <mat-accordion>
                     <mat-expansion-panel *ngFor="let student of invitedStudents; let i=index;" [expanded]="invitedStudentsStep === i" (opened)="setInvitedStudentsStep(i)">
@@ -204,7 +165,7 @@
                         </div>
                         <hr class="top-separator m-t-1 m-b-1" />
                         <div class="text-color edit-form-background m-b-1" *ngIf="student['edit']">
-                            <app-edit-student-details-form [student]="student" (hideEditFormEvent)="hideInvitedStudentEditForm()" (editedStudentDetails)="updateInvitedStudentData($event)"></app-edit-student-details-form>
+                            <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="true" (hideEditFormEvent)="hideInvitedStudentEditForm()" (editedStudentDetails)="updateInvitedStudentData($event)"></app-edit-student-details-form>
                         </div>
                         <div class="d-flex justify-content-end text-color">
                             <button mat-stroked-button class="stroked-button m-r-05" [disabled]="student['edit'] || student['delete']" (click)="editInvitedStudentDetails(i)">

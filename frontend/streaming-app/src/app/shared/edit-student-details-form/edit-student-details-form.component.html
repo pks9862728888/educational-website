@@ -22,7 +22,7 @@
                 Can not be more than 30 characters.
             </mat-error>
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" [hidden]="hideRegistrationNumber">
             <mat-label>Registration no</mat-label>
             <input type="text" matInput formControlName="registration_no" placeholder="Registration no">
             <mat-error *ngIf="editForm.controls['registration_no'].errors">
@@ -42,9 +42,9 @@
               <option *ngFor="let gender of genderOptions" [value]="gender.value" class="options">{{ gender.viewValue }}</option>
             </select>
         </mat-form-field>
-        <mat-form-field appearance="outline">
+        <mat-form-field appearance="outline" (click)="datepicker.open()">
             <mat-label>Birthday</mat-label>
-            <input matInput formControlName="date_of_birth" (click)="datepicker.open()" [max]="maxDate" [matDatepicker]="datepicker">
+            <input matInput formControlName="date_of_birth" [max]="maxDate" [matDatepicker]="datepicker">
             <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
             <mat-datepicker touchUi #datepicker></mat-datepicker>
         </mat-form-field>

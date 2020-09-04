@@ -43,7 +43,6 @@ export class ClassStudentsComponent implements OnInit {
 
   invitedStudents: InstituteStudentMinDetails[] = [];
   activeStudents: InstituteStudentMinDetails[] = [];
-  classes: ClassSlugNameResponse[] = [];
 
   constructor(
     private media: MediaMatcher,
@@ -60,15 +59,8 @@ export class ClassStudentsComponent implements OnInit {
   ngOnInit(): void {
     this.invitationForm = this.formBuilder.group({
       invitee_email: ['', [Validators.required, Validators.email]],
-      first_name: ['', [Validators.maxLength(30)]],
-      last_name: ['', [Validators.maxLength(30)]],
-      registration_no: ['', [Validators.maxLength(15)]],
       enrollment_no: ['', [Validators.maxLength(15)]],
-      gender: [''],
-      date_of_birth: [],
-      class: []
     });
-    this.getClassList();
     this.getInvitedStudentsList();
   }
 
@@ -103,8 +95,9 @@ export class ClassStudentsComponent implements OnInit {
   getActiveStudentsList() {
     this.activeStudentsLoadingIndicator = true;
     this.showActiveStudentsReload = false;
-    this.instituteApiService.getInstituteStudentsList(
+    this.instituteApiService.getClassStudentsList(
       this.currentInstituteSlug,
+      this.currentClassSlug,
       'active'
     ).subscribe(
       (result: InstituteStudentMinDetails[]) => {
@@ -128,30 +121,15 @@ export class ClassStudentsComponent implements OnInit {
 
   invite() {
     let data = this.invitationForm.value;
-    if (!data.first_name) {
-      data.first_name = '';
-    }
-    if (!data.last_name) {
-      data.last_name = '';
-    }
     if (!data.enrollment_no) {
       data.enrollment_no = '';
-    }
-    if (!data.registration_no) {
-      data.registration_no = '';
-    }
-    if (this.classes.length === 0) {
-      delete data['class'];
-    }
-    if (data.date_of_birth) {
-      // Formatting date of birth in YYYY-MM-DD
-      data.date_of_birth = formatDate(data.date_of_birth);
     }
     this.showInvitingIndicator = true;
     this.closeInviteError();
     this.invitationForm.disable();
-    this.instituteApiService.inviteStudentToInstitute(
+    this.instituteApiService.inviteStudentToClass(
       this.currentInstituteSlug,
+      this.currentClassSlug,
       data
     ).subscribe(
       (result: InstituteStudentMinDetails) => {
@@ -181,28 +159,8 @@ export class ClassStudentsComponent implements OnInit {
     );
   }
 
-  getClassList() {
-    this.instituteApiService.getInstituteClassKeyValuePairs(
-      this.currentInstituteSlug
-    ).subscribe(
-      (result: ClassSlugNameResponse[]) => {
-        this.classes = result;
-        this.patchClassToForm();
-      }
-    );
-  }
-
-  patchClassToForm() {
-    if (this.classes.length > 0) {
-      this.invitationForm.patchValue({
-        class: this.classes[0].class_slug
-      });
-    }
-  }
-
   showInviteForm() {
     this.closeInviteError();
-    this.patchClassToForm();
     this.showInvitationForm = true;
   }
 
@@ -214,7 +172,6 @@ export class ClassStudentsComponent implements OnInit {
   resetInviteForm() {
     this.closeInviteError();
     this.invitationForm.reset();
-    this.patchClassToForm();
   }
 
   setInvitedStudentsStep(step: number) {
@@ -368,9 +325,4 @@ export class ClassStudentsComponent implements OnInit {
   getGender(key: string) {
     return GENDER[key];
   }
-
-  userIsAdmin() {
-
-  }
-
 }

@@ -223,6 +223,13 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/join-institute-student`;
   }
 
+  getInviteStudentToClassUrl(
+    instituteSlug: string,
+    classSlug: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/add-student-to-class`;
+  }
+
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
 
@@ -693,6 +700,21 @@ export class InstituteApiService {
         classSlug,
         studentType
       ),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  inviteStudentToClass(
+    instituteSlug: string,
+    classSlug: string,
+    data: any
+  ) {
+    return this.httpClient.post(
+      this.getInviteStudentToClassUrl(
+        instituteSlug,
+        classSlug
+      ),
+      data,
       { headers: this.getAuthHeader() }
     );
   }

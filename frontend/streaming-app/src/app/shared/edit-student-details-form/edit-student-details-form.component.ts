@@ -18,6 +18,7 @@ export class EditStudentDetailsFormComponent implements OnInit {
   genderOptions = GENDER_FORM_FIELD_OPTIONS;
   error: string;
   editForm: FormGroup;
+  @Input() hideRegistrationNumber: boolean;
   @Output() hideEditFormEvent = new EventEmitter<void>();
   @Output() editedStudentDetails = new EventEmitter<InstituteStudentMinDetails>();
   @Input() student: InstituteStudentMinDetails;
