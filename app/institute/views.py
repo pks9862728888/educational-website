@@ -978,6 +978,7 @@ class EditInstituteStudentDetailsView(APIView):
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def patch(self, request, *args, **kwargs):
+        print(request.data)
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
@@ -1113,7 +1114,7 @@ class AddStudentToClassView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         class_ = models.InstituteClass.objects.filter(
-            class_institute=kwargs.get('class_slug')
+            class_slug=kwargs.get('class_slug')
         ).only('name').first()
 
         if not class_:
@@ -1174,7 +1175,7 @@ class AddStudentToClassView(APIView):
                 inviter=self.request.user,
             )
             response = {
-                'id': class_student.pk,
+                'id': institute_student.pk,
                 'invitee_email': str(institute_student.invitee),
                 'first_name': institute_student.first_name,
                 'last_name': institute_student.last_name,
@@ -1193,84 +1194,6 @@ class AddStudentToClassView(APIView):
         except Exception:
             return Response({'error': _('Unknown error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class EditClassStudentDetailsView(APIView):
-    """View for editing student details by admin"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def patch(self, request, *args, **kwargs):
-        institute = models.Institute.objects.filter(
-            institute_slug=kwargs.get('institute_slug')
-        ).only('name').first()
-
-        if not institute:
-            return Response({'error': _('Institute not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        class_ = models.InstituteClass.objects.filter(
-            class_institute=kwargs.get('class_slug')
-        ).only('name').first()
-
-        if not class_:
-            return Response({'error': _('Class not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not models.InstituteClassPermission.objects.filter(
-                invitee=self.request.user,
-                to__pk=class_.pk
-        ).exists():
-            if not models.InstitutePermission.objects.filter(
-                    invitee=self.request.user,
-                    institute__pk=institute.pk,
-                    active=True,
-                    role=models.InstituteRole.ADMIN
-            ).exists():
-                return Response({'error': _('Permission denied.')},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-        class_student = models.InstituteClassStudents.objects.filter(
-            pk=request.data.get('id'),
-            institute_class__pk=class_.pk
-        ).first()
-
-        if not class_student:
-            return Response({'error': _('Student may have been removed.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        institute_student = models.InstituteStudents.objects.filter(
-            invitee__pk=class_student.invitee.pk,
-            institute__pk=institute.pk
-        ).first()
-
-        if not institute_student:
-            return Response({'error': _('Student may have been removed.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        institute_student.first_name = request.data.get('first_name')
-        institute_student.last_name = request.data.get('last_name')
-        institute_student.registration_no = request.data.get('registration_no')
-        institute_student.gender = request.data.get('gender')
-        institute_student.date_of_birth = request.data.get('date_of_birth')
-        institute_student.save()
-
-        response = dict()
-        response['id'] = class_student.pk
-        response['invitee_email'] = str(institute_student.invitee)
-        response['enrollment_no'] = institute_student.enrollment_no
-        response['registration_no'] = institute_student.registration_no
-        response['first_name'] = institute_student.first_name
-        response['last_name'] = institute_student.last_name
-        response['gender'] = institute_student.gender
-        response['date_of_birth'] = institute_student.date_of_birth
-        response['created_on'] = str(class_student.created_on)
-
-        if class_student.active:
-            response['is_banned'] = class_student.is_banned
-
-        response['image'] = ''
-        return Response(response, status=status.HTTP_200_OK)
 
 
 class InstituteClassStudentListView(APIView):
@@ -1326,20 +1249,20 @@ class InstituteClassStudentListView(APIView):
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
                 active=False
-            ).only('invitee', 'is_banned', 'created_on').order_by('created_on')
+            ).only('invitee', 'created_on').order_by('created_on')
         response = list()
 
         for s in student_list:
             res = dict()
             res['invitee_email'] = str(s.invitee)
-            res['id'] = s.pk
             res['created_on'] = str(s.created_on)
 
             student_details = models.InstituteStudents.objects.filter(
                 invitee__pk=s.invitee.pk,
                 institute=institute
-            ).defer('invitee', 'inviter', 'institute', 'created_on', 'edited')
+            ).defer('invitee', 'inviter', 'institute', 'created_on', 'edited').first()
 
+            res['id'] = student_details.pk
             res['first_name'] = student_details.first_name
             res['last_name'] = student_details.last_name
             res['gender'] = student_details.gender
