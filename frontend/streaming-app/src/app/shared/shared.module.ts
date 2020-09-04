@@ -28,7 +28,7 @@ import { UiEditStudyMaterialComponent } from './ui-edit-study-material/ui-edit-s
 import { UiAddContentComponent } from './ui-add-content/ui-add-content.component';
 import { UploadProfilePictureComponent } from '../shared/upload-profile-picture/upload-profile-picture.component';
 import { ImageCropperModule } from 'ngx-image-cropper';
-import { InviteStudentsComponent } from './invite-students/invite-students.component';
+import { InstituteStudentsComponent } from './institute-students/institute-students.component';
 import { EditStudentDetailsFormComponent } from './edit-student-details-form/edit-student-details-form.component';
 import { StudentInstitutesComponent } from './student-institutes/student-institutes.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
@@ -58,7 +58,7 @@ import { StudentCoursesComponent } from './student-courses/student-courses.compo
     UiAddContentComponent,
     ChooseProfilePictureFromExistingComponent,
     UploadProfilePictureComponent,
-    InviteStudentsComponent,
+    InstituteStudentsComponent,
     EditStudentDetailsFormComponent,
     StudentInstitutesComponent,
     SnackbarComponent,
@@ -93,7 +93,7 @@ import { StudentCoursesComponent } from './student-courses/student-courses.compo
     UiAddContentComponent,
     ChooseProfilePictureFromExistingComponent,
     UploadProfilePictureComponent,
-    InviteStudentsComponent,
+    InstituteStudentsComponent,
     EditStudentDetailsFormComponent,
     StudentInstitutesComponent,
     SnackbarComponent,

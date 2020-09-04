@@ -35,19 +35,19 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
     private instituteApiService: InstituteApiService
     ) {
     this.mq = this.media.matchMedia('(max-width: 768px)');
-    this.activeLink = 'SCHOOL_PROFILE';
+    this.activeLink = 'PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
         if(val.url.includes('profile')) {
-          this.activeLink = 'SCHOOL_PROFILE';
+          this.activeLink = 'PROFILE';
         } else if (val.url.includes('permissions')) {
-          this.activeLink = 'SCHOOL_PERMISSIONS';
+          this.activeLink = 'PERMISSIONS';
         } else if (val.url.includes('classes')) {
-          this.activeLink = 'SCHOOL_CLASSES';
+          this.activeLink = 'CLASSES';
         } else if (val.url.includes('license')) {
           this.activeLink = 'LICENSE';
-        } else if (val.url.includes('invite-students')) {
-          this.activeLink = 'INVITE_STUDENTS';
+        } else if (val.url.includes('students')) {
+          this.activeLink = 'STUDENTS';
         }
       }
     });
@@ -95,18 +95,7 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
         sessionStorage.removeItem('paymentComplete');
         this.router.navigate(['/teacher-workspace/institutes']);
       } else {
-        const instituteSlug = sessionStorage.getItem('currentInstituteSlug');
-        if (link === 'SCHOOL_PROFILE') {
-          this.router.navigate([this.baseUrl + '/profile']);
-        } else if (link === 'SCHOOL_PERMISSIONS') {
-          this.router.navigate([this.baseUrl + '/permissions']);
-        } else if (link === 'SCHOOL_CLASSES') {
-          this.router.navigate([this.baseUrl + '/classes']);
-        } else if (link === 'LICENSE') {
-          this.router.navigate([this.baseUrl + '/license']);
-        } else if (link === 'INVITE_STUDENTS') {
-          this.router.navigate([this.baseUrl + '/invite-students']);
-        }
+        this.router.navigate([this.baseUrl + '/' + link.toLowerCase()]);
       }
     }
   }
