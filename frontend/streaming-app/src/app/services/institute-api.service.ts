@@ -58,6 +58,7 @@ export class InstituteApiService {
 
   // Institute subject related urls
   addSubjectInchargeUrl = `${this.instituteBaseUrl}add-subject-permission`;
+  allStudentCoursesUrl = `${this.instituteBaseUrl}list-all-student-institute-courses`;
 
   // Institute section related urls
   addSectionInchargeUrl = `${this.instituteBaseUrl}add-section-permission`;
@@ -662,6 +663,13 @@ export class InstituteApiService {
     return this.httpClient.post(
       this.getStudentJoinInstituteUrl(instituteSlug),
       data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getAllStudentCourses() {
+    return this.httpClient.get(
+      this.allStudentCoursesUrl,
       { headers: this.getAuthHeader() }
     );
   }
