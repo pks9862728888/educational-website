@@ -164,6 +164,14 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${pk}/delete-subject-course-content`;
   }
 
+  getClassStudentsListUrl(
+    instituteSlug: string,
+    classSlug: string,
+    studentType: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/student-list/${studentType}`;
+  }
+
   // Subject course preview related urls
   getMinSubjectCoursePreviewDetailsUrl(instituteSlug: string, subjectSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/subject-course-preview-min-details`;
@@ -670,6 +678,21 @@ export class InstituteApiService {
   getAllStudentCourses() {
     return this.httpClient.get(
       this.allStudentCoursesUrl,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getClassStudentsList(
+    instituteSlug: string,
+    classSlug: string,
+    studentType: string
+    ) {
+    return this.httpClient.get(
+      this.getClassStudentsListUrl(
+        instituteSlug,
+        classSlug,
+        studentType
+      ),
       { headers: this.getAuthHeader() }
     );
   }

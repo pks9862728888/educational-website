@@ -1317,12 +1317,12 @@ class InstituteClassStudentListView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         student_list = None
-        if kwargs.get('type') == 'active':
+        if kwargs.get('student_type') == 'active':
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
                 active=True
             ).only('invitee', 'created_on').order_by('created_on')
-        elif kwargs.get('type') == 'inactive':
+        elif kwargs.get('student_type') == 'inactive':
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
                 active=False
