@@ -3508,10 +3508,82 @@ class InstituteSubjectEditCourseContentView(APIView):
                 )
 
             return Response(response, status=status.HTTP_200_OK)
-        except Exception as e:
-            print(e)
+        except Exception:
             return Response({'error': 'Bad Request'},
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteStudentCourseListView(APIView):
+    """
+    View for listing all course of institute.
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsStudent)
+
+    def get(self, *args, **kwargs):
+        institute_invites = models.InstituteStudents.objects.filter(
+            invitee=self.request.user,
+            active=True
+        ).only('institute').order_by('-created_on')
+
+        response = {
+            'view_order': [],
+            'courses': dict(),
+            'class': dict(),
+            'favourite_courses': dict()
+        }
+
+        if institute_invites:
+            response['view_order'].append({
+                'name': 'Favourite Courses',
+                'institute_slug': 'BOOKMARKED'
+            })
+            for invite in institute_invites:
+                institute_slug = invite.institute.institute_slug
+                institute_pk = invite.institute.pk
+                response['view_order'].append({
+                    'name': invite.institute.name,
+                    'institute_slug': institute_slug
+                })
+                response['courses'][institute_slug] = list()
+                class_invite = models.InstituteClassStudents.objects.filter(
+                    institute_class__class_institute__pk=institute_pk,
+                    invitee=self.request.user,
+                    active=True
+                ).only('institute_class').first()
+
+                if class_invite:
+                    response['class'][institute_slug] = class_invite.institute_class.name
+                    class_slug = class_invite.institute_class.class_slug
+                    class_pk = class_invite.institute_class.pk
+                    class_subjects = models.InstituteSubjects.objects.filter(
+                        subject_class__pk=class_pk
+                    ).only('name', 'subject_slug')
+
+                    for subject in class_subjects:
+                        if models.InstituteSubjectStudents.objects.filter(
+                            institute_subject__pk=subject.pk,
+                            invitee=self.request.user
+                        ).exists():
+                            subject_course_details = {
+                                'institute_slug': institute_slug,
+                                'class_slug': class_slug,
+                                'subject_slug': subject.subject_slug,
+                                'subject_name': subject.name,
+                                'subject_description': 'Description of the subject',
+                                'subject_id': subject.pk
+                            }
+                            if models.SubjectBookmarked.objects.filter(
+                                subject__pk=subject.pk,
+                                user=self.request.user
+                            ).exists():
+                                subject_course_details['BOOKMARKED'] = True
+                                response['courses']['BOOKMARKED'].append(subject_course_details)
+                            else:
+                                subject_course_details['BOOKMARKED'] = False
+                                response['courses'][institute_slug].append(subject_course_details)
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class InstituteSubjectCoursePreviewMinDetails(APIView):

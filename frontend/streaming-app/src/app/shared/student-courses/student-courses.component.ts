@@ -10,17 +10,26 @@ export class StudentCoursesComponent implements OnInit {
 
   mq: MediaQueryList;
   openedPanelStep: number;
+  showLoadingIndicator: boolean;
+  showReload: boolean;
   count = 0;
   text = 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis iure explicabo maiores nesciunt facilis consectetur rem distinctio unde laborum nostrum eligendi dolore animi fuga hic, eveniet, consequatur deleniti, porro voluptatem.';
+
+  viewOrder = [];
+  viewData = {};
 
   constructor(
     private media: MediaMatcher
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
+    this.openedPanelStep = 0;
   }
 
   ngOnInit(): void {
-    this.openedPanelStep = 0;
+  }
+
+  getCourses() {
+
   }
 
   setOpenedPanelStep(step: number) {
@@ -36,6 +45,14 @@ export class StudentCoursesComponent implements OnInit {
       return this.text.slice(0, 106) + '...';
     } else {
       return this.text;
+    }
+  }
+
+  isMyCourseEmpty() {
+    if (this.viewOrder.length === 0) {
+      return true;
+    } else {
+      return false;
     }
   }
 

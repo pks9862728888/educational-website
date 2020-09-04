@@ -1,7 +1,10 @@
 <div class="body-container">
     <h2>My Courses:</h2>
     <hr class="top-separator m-b-1" />
-    <section>
+    <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="'Loading Courses...'"></app-ui-loading>
+    <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load course details.'" (retryEvent)="getCourses()"></app-ui-reload>
+    <h3 *ngIf="isMyCourseEmpty()">No courses found.</h3>
+    <section *ngIf="!showLoadingIndicator && !showReload && !isMyCourseEmpty()">
         <div class="d-flex justify-content-between align-center expansion-panel-header-color ep-header" (click)="setOpenedPanelStep(0)">
             <h3>Indian Institute of Technology, Agartala (Class 1)</h3>
             <mat-icon class="m-l-0.5">

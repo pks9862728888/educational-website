@@ -144,6 +144,9 @@ urlpatterns = [
          views.InstituteSubjectDeleteModuleView.as_view(),
          name='delete-subject-view'),
     # Institute Subject preview course
+    path('list-all-student-institute-courses',
+         views.InstituteStudentCourseListView.as_view(),
+         name='list-all-student-institute-courses'),
     path('<slug:institute_slug>/<slug:subject_slug>/subject-course-preview-min-details',
          views.InstituteSubjectCoursePreviewMinDetails.as_view(),
          name='subject-course-preview-min-details'),

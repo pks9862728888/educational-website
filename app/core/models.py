@@ -1229,6 +1229,20 @@ def create_institute_subject_statistics_instance(sender, instance, created, *arg
             name='Module 1')
 
 
+class SubjectBookmarked(models.Model):
+    """Stores bookmarked subject by student"""
+    subject = models.ForeignKey(
+        InstituteSubject, on_delete=models.CASCADE, related_name='bookmarked_subject')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='subject_bookmarking_user')
+
+    class Meta:
+        unique_together = ('subject', 'user')
+
+    def __str__(self):
+        return str(self.user)
+
+
 class InstituteSubjectStatistics(models.Model):
     """Stores Institute Subject Statistics"""
     statistics_subject = models.OneToOneField(
