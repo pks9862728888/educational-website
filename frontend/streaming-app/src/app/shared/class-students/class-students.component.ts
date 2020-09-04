@@ -236,11 +236,13 @@ export class ClassStudentsComponent implements OnInit {
   tabChanged(activeTab) {
     this.activeStudentsStep = null;
     this.invitedStudentsStep = null;
+    this.bannedStudentsStep = null;
     this.activeStudentEditIndex = null;
     this.invitedStudentEditIndex = null;
+    this.bannedStudentEditIndex = null;
     if (activeTab.index === 0) {
       this.getInvitedStudentsList();
-    } else if (activeTab.index === 0) {
+    } else if (activeTab.index === 1) {
       this.getActiveStudentsList();
     } else {
       this.getBannedStudentsList();
@@ -389,14 +391,14 @@ export class ClassStudentsComponent implements OnInit {
       }
     );
     this.uiService.openDialog(
-      'Are you sure you want to remove student \'' + name + '\'?',
+      'Are you sure you want to unban student \'' + name + '\'?',
       'No',
       'Yes'
     );
   }
 
   removeBannedStudent(index: number) {
-    this.activeStudents[index]['delete'] = true;
+    this.bannedStudents[index]['delete'] = true;
     console.log(index);
   }
 

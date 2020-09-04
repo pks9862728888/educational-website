@@ -30,7 +30,7 @@ export interface InstituteBannedStudentMinDetails {
   banned_on?: string;
   ban_start_date?: string;
   ban_end_date?: string;
-  reason?: string;
+  banning_reason?: string;
 };
 
 
