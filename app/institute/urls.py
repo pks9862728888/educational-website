@@ -99,7 +99,7 @@ urlpatterns = [
     path('<slug:class_slug>/has-class-perm',
          views.CheckClassPermView.as_view(),
          name='has-class-perm'),
-    path('<slug:institute_slug>/<slug:class_slug>/student-list/<slug:active_status>',
+    path('<slug:institute_slug>/<slug:class_slug>/student-list/<slug:student_type>',
          views.InstituteClassStudentListView.as_view(),
          name="student-list"),
     path('<slug:institute_slug>/<slug:class_slug>/add-student-to-class',
