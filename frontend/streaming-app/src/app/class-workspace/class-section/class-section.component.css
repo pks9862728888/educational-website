@@ -4,6 +4,7 @@
 .col-sm-8,
 .col-md-6,
 .col-lg-4,
+h2,
 h3,
 hr,
 p {
@@ -21,11 +22,7 @@ p {
 
 .mat-card {
     padding: 0px 16px 0px;
-    background-color: #3B3B3B;
-    color: #bdbdbd;
-}
-
-.text-color {
+    background-color: rgba(255, 255, 255, 0.05);
     color: #bdbdbd;
 }
 
@@ -33,22 +30,34 @@ p {
 /* For displaying class list */
 
 .mat-expansion-panel {
-    background-color: #303030;
-    box-shadow: 0 1px 1px #4b4b4b;
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 1px 1px 1px #1f1f1f;
     margin-bottom: 0.7rem;
 }
 
 .mat-expansion-panel-header {
-    border-radius: 10px;
+    border-radius: 5px;
+    padding: 0 1rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
 .mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
-    background-color: #292929;
-    color: #c5c5c5;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
-::ng-deep .mat-expansion-indicator::after {
+.mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.01) !important;
+}
+
+:host ::ng-deep .mat-expansion-indicator::after {
     color: #f2aa4cff;
+}
+
+:host ::ng-deep .mat-expansion-panel-body {
+    padding: 0 1rem 1rem;
+    background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 .header {
@@ -71,20 +80,20 @@ p {
 
 .green-button:disabled {
     color: #fff;
-    background-color: #008000;
+    background-color: #0a5652;
     opacity: 0.7;
 }
 
 .create-button-mb {
     color: #fff;
-    background-color: #008000;
+    background-color: #0a5652;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
 }
 
 .create-button-mb:disabled {
     color: #fff;
-    background-color: #008000;
+    background-color: #0a5652;
     opacity: 0.3;
 }
 

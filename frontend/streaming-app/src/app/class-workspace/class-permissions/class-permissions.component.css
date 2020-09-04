@@ -18,7 +18,7 @@ p {
 }
 
 .mat-card {
-    background-color: #3B3B3B;
+    background-color: rgba(255, 255, 255, 0.06);
     color: #bdbdbd;
 }
 
@@ -47,22 +47,34 @@ p {
 /* For displaying people list */
 
 .mat-expansion-panel {
-    background-color: #303030;
-    box-shadow: 0 1px 1px #4b4b4b;
+    background-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 1px 1px 1px #1f1f1f;
     margin-bottom: 0.7rem;
 }
 
 .mat-expansion-panel-header {
-    border-radius: 10px;
+    border-radius: 5px;
+    padding: 0 1rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
 .mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
-    background-color: #292929;
-    color: #c5c5c5;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
-::ng-deep .mat-expansion-indicator::after {
+.mat-expansion-panel-header:hover {
+    background-color: rgba(255, 255, 255, 0.01) !important;
+}
+
+:host ::ng-deep .mat-expansion-indicator::after {
     color: #f2aa4cff;
+}
+
+:host ::ng-deep .mat-expansion-panel-body {
+    padding: 0 1rem 1rem;
+    background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 p {
@@ -138,31 +150,9 @@ p {
     }
 }
 
-.green-button {
+.green-button:disabled {
     color: #ffffff;
-    background-color: #008000;
-}
-
-.blue-button {
-    color: #ffffff;
-    background-color: #0784fa;
-}
-
-.red-button {
-    color: #ffffff;
-    background-color: #ff0000;
-}
-
-.red-button:hover {
-    background-color: #c40000;
-}
-
-.green-button:hover {
-    background-color: #1f6100;
-}
-
-.blue-button:hover {
-    background-color: #0674db;
+    background-color: #0a5652;
 }
 
 .red-color {
@@ -176,24 +166,12 @@ p {
 
 /* Margins and padding */
 
-.padding-top-07 {
-    padding-top: 0.7rem;
-}
-
-.padding-bottom-07 {
-    padding-bottom: 0.7rem;
-}
-
-.margin-right-1 {
+.m-r-1 {
     margin-right: 1rem;
 }
 
-.margin-bottom-1 {
+.m-b-1 {
     margin-bottom: 1rem;
-}
-
-.padding-left-1 {
-    padding-left: 1rem;
 }
 
 .break-word {

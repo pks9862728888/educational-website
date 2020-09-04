@@ -42,6 +42,7 @@ export class StudentCoursesComponent implements OnInit {
         this.courses = result.courses;
         this.favouriteCourses = result.favourite_courses;
         this.classNames = result.class_names;
+        this.openedPanelStep = 0;
         console.log(result);
         console.log(this.courses);
       },
