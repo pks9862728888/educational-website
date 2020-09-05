@@ -1280,16 +1280,17 @@ class InstituteClassStudentListView(APIView):
             res['image'] = ''
 
             if s.is_banned:
+                res['is_banned'] = s.is_banned
                 ban_details = models.InstituteClassBannedStudent.objects.filter(
                     user__pk=s.invitee.pk,
                     banned_class__pk=class_.pk,
                     active=True
                 ).first()
-                res['reason'] = ban_details.reason
+                res['banning_reason'] = ban_details.reason
                 res['banned_on'] = str(ban_details.created_on)
                 res['ban_start_date'] = str(ban_details.start_date)
 
-                if ban_details.banned_by__user_profile.first_name:
+                if ban_details.banned_by.user_profile.first_name:
                     first_name = ban_details.banned_by.user_profile.first_name
                     last_name = ban_details.banned_by.user_profile.last_name
                     res['banned_by'] = first_name + ' ' + last_name

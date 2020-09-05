@@ -1805,8 +1805,9 @@ class InstituteBannedStudent(models.Model):
         _('Created On'), default=timezone.now, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.reason:
-            self.reason = self.reason.strip()
+        if not self.reason:
+            raise ValueError(_('You need to provide a reason for banning.'))
+        self.reason = self.reason.strip()
         super(InstituteBannedStudent, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -1826,15 +1827,16 @@ class InstituteClassBannedStudent(models.Model):
     end_date = models.DateTimeField(
         _('End Date'), blank=True, null=True)
     reason = models.CharField(
-        _('Reason'), max_length=100, blank=False, null=False)
+        _('Reason'), max_length=500, blank=False, null=False)
     active = models.BooleanField(
         _('Ban Active'), default=True, blank=True)
     created_on = models.DateTimeField(
         _('Created On'), default=timezone.now, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.reason:
-            self.reason = self.reason.strip()
+        if not self.reason:
+            raise ValueError(_('You need to provide a reason for banning.'))
+        self.reason = self.reason.strip()
         super(InstituteClassBannedStudent, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -1861,8 +1863,9 @@ class InstituteSubjectBannedStudent(models.Model):
         _('Created On'), default=timezone.now, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.reason:
-            self.reason = self.reason.strip()
+        if not self.reason:
+            raise ValueError(_('You need to provide a reason for banning.'))
+        self.reason = self.reason.strip()
         super(InstituteSubjectBannedStudent, self).save(*args, **kwargs)
 
     def __str__(self):
