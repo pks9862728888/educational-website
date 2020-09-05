@@ -1245,13 +1245,13 @@ class InstituteClassStudentListView(APIView):
                 institute_class__pk=class_.pk,
                 active=True,
                 is_banned=False
-            ).only('invitee', 'created_on').order_by('created_on')
+            ).only('invitee', 'created_on', 'is_banned').order_by('created_on')
         elif kwargs.get('student_type') == 'inactive':
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
                 active=False,
                 is_banned=False
-            ).only('invitee', 'created_on').order_by('created_on')
+            ).only('invitee', 'created_on', 'is_banned').order_by('created_on')
         elif kwargs.get('student_type') == 'banned':
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
@@ -1264,6 +1264,7 @@ class InstituteClassStudentListView(APIView):
             res = dict()
             res['invitee_email'] = str(s.invitee)
             res['created_on'] = str(s.created_on)
+            res['is_banned'] = s.is_banned
 
             student_details = models.InstituteStudents.objects.filter(
                 invitee__pk=s.invitee.pk,
@@ -1280,7 +1281,246 @@ class InstituteClassStudentListView(APIView):
             res['image'] = ''
 
             if s.is_banned:
-                res['is_banned'] = s.is_banned
+                ban_details = models.InstituteClassBannedStudent.objects.filter(
+                    user__pk=s.invitee.pk,
+                    banned_class__pk=class_.pk,
+                    active=True
+                ).first()
+                res['banning_reason'] = ban_details.reason
+                res['banned_on'] = str(ban_details.created_on)
+                res['ban_start_date'] = str(ban_details.start_date)
+
+                if ban_details.banned_by.user_profile.first_name:
+                    first_name = ban_details.banned_by.user_profile.first_name
+                    last_name = ban_details.banned_by.user_profile.last_name
+                    res['banned_by'] = first_name + ' ' + last_name
+                else:
+                    res['banned_by'] = str(ban_details.banned_by)
+
+                if ban_details.end_date:
+                    res['ban_end_date'] = str(ban_details.end_date)
+
+            response.append(res)
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class AddStudentToSubjectView(APIView):
+    """View for adding user to class by permitted faculty, admin or class staff"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('name').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).only('name').first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('name').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            invitee=self.request.user,
+            to__pk=subject.pk,
+        ).exists():
+            has_class_perm =  models.InstituteClassPermission.objects.filter(
+                invitee=self.request.user,
+                to__pk=class_.pk
+            ).exists()
+            if not has_class_perm and not models.InstitutePermission.objects.filter(
+                invitee=self.request.user,
+                institute__pk=institute.pk,
+                active=True,
+                role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        order = get_unexpired_license(institute)
+        if not order:
+            return Response({'error': _('License not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        invitee = get_user_model().objects.filter(
+            email=request.data.get('invitee_email')
+        ).first()
+
+        if not invitee:
+            return Response({'error': _('No student with this email was found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not invitee.is_student:
+            return Response({'error': _('User is not a student.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            institute_student = models.InstituteStudents.objects.filter(
+                invitee=invitee,
+                institute__pk=institute.pk
+            ).only('first_name', 'last_name', 'enrollment_no',
+                   'registration_no', 'gender', 'date_of_birth').first()
+
+            if institute_student:
+                if request.data.get('enrollment_no'):
+                    institute_student.enrollment_no = request.data.get('enrollment_no')
+                    institute_student.save()
+            else:
+                institute_student = models.InstituteStudents.objects.create(
+                    invitee=invitee,
+                    inviter=self.request.user,
+                    institute=institute,
+                    enrollment_no=request.data.get('enrollment_no')
+                )
+
+            if not models.InstituteClassStudents.objects.filter(
+                insitute_class__pk=class_.pk,
+                invitee=invitee
+            ).exists():
+                models.InstituteClassStudents.objects.create(
+                    institute_class=class_,
+                    invitee=invitee,
+                    inviter=self.request.user,
+                )
+            subject_student = models.InstituteSubjectStudents.objects.create(
+                institute_subject=subject,
+                invitee=invitee,
+                inviter=self.request.user
+            )
+            response = {
+                'id': institute_student.pk,
+                'invitee_email': str(institute_student.invitee),
+                'first_name': institute_student.first_name,
+                'last_name': institute_student.last_name,
+                'gender': institute_student.gender,
+                'date_of_birth': institute_student.date_of_birth,
+                'enrollment_no': institute_student.enrollment_no,
+                'registration_no': institute_student.registration_no,
+                'created_on': str(subject_student.created_on),
+                'image': '',
+            }
+
+            return Response(response, status=status.HTTP_201_CREATED)
+        except IntegrityError:
+            return Response({'error': _('Student was already invited.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Unknown error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectStudentListView(APIView):
+    """
+    View for getting active and inactive student list
+    by permitted user (admin and class staff)
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('name').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        class_ = models.InstituteClass.objects.filter(
+            class_slug=kwargs.get('class_slug')
+        ).only('name').first()
+
+        if not class_:
+            return Response({'error': _('Class not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('name').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                invitee=self.request.user,
+                to__pk=subject.pk,
+        ).exists():
+            has_class_perm = models.InstituteClassPermission.objects.filter(
+                invitee=self.request.user,
+                to__pk=class_.pk
+            ).exists()
+            if not has_class_perm and not models.InstitutePermission.objects.filter(
+                    invitee=self.request.user,
+                    institute__pk=institute.pk,
+                    active=True,
+                    role=models.InstituteRole.ADMIN
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        order = get_unexpired_license(institute)
+        if not order:
+            return Response({'error': _('License not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        student_list = None
+        if kwargs.get('student_type') == 'active':
+            student_list = models.InstituteSubjectStudents.objects.filter(
+                institute_subject__pk=subject.pk,
+                active=True,
+                is_banned=False
+            ).only('invitee', 'created_on', 'is_banned').order_by('created_on')
+        elif kwargs.get('student_type') == 'inactive':
+            student_list = models.InstituteSubjectStudents.objects.filter(
+                institute_subject__pk=subject.pk,
+                active=False,
+                is_banned=False
+            ).only('invitee', 'created_on', 'is_banned').order_by('created_on')
+        elif kwargs.get('student_type') == 'banned':
+            student_list = models.InstituteSubjectStudents.objects.filter(
+                institute_subject__pk=subject.pk,
+                active=True,
+                is_banned=True
+            ).only('invitee', 'created_on', 'is_banned').order_by('created_on')
+        response = list()
+
+        for s in student_list:
+            res = dict()
+            res['invitee_email'] = str(s.invitee)
+            res['created_on'] = str(s.created_on)
+            res['is_banned'] = s.is_banned
+
+            student_details = models.InstituteStudents.objects.filter(
+                invitee__pk=s.invitee.pk,
+                institute=institute
+            ).defer('invitee', 'inviter', 'institute', 'created_on', 'edited').first()
+
+            res['id'] = student_details.pk
+            res['first_name'] = student_details.first_name
+            res['last_name'] = student_details.last_name
+            res['gender'] = student_details.gender
+            res['date_of_birth'] = student_details.date_of_birth
+            res['enrollment_no'] = student_details.enrollment_no
+            res['registration_no'] = student_details.registration_no
+            res['image'] = ''
+
+            if s.is_banned:
                 ban_details = models.InstituteClassBannedStudent.objects.filter(
                     user__pk=s.invitee.pk,
                     banned_class__pk=class_.pk,
