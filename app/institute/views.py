@@ -1037,17 +1037,19 @@ class InstituteStudentListView(APIView):
     def get(self, *args, **kwargs):
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not models.InstitutePermission.objects.filter(
-                institute=institute,
-                invitee=self.request.user,
-                active=True
-        ).exists():
+        requester_perm = models.InstitutePermission.objects.filter(
+            institute=institute,
+            invitee=self.request.user,
+            active=True
+        ).only('role').first()
+
+        if not requester_perm:
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -1056,19 +1058,22 @@ class InstituteStudentListView(APIView):
             return Response({'error': _('License not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        student_active = False
         student_list = None
-        if kwargs.get('active_status') == 'active':
-            student_active = True
+        if kwargs.get('student_type') == 'active':
             student_list = models.InstituteStudents.objects.filter(
-                institute=institute,
-                active=student_active
-            ).defer('inviter', 'edited', 'active').order_by('created_on')
-        else:
+                institute__pk=institute.pk,
+                active=True
+            ).defer('inviter', 'edited', 'is_banned').order_by('created_on')
+        elif kwargs.get('student_type') == 'inactive':
             student_list = models.InstituteStudents.objects.filter(
-                institute=institute,
-                active=student_active
-            ).defer('inviter', 'edited', 'is_banned', 'active').order_by('created_on')
+                institute__pk=institute.pk,
+                active=False
+            ).defer('inviter', 'edited', 'is_banned').order_by('created_on')
+        elif kwargs.get('student_type') == 'banned':
+            student_list = models.InstituteStudents.objects.filter(
+                institute__pk=institute.pk,
+                is_banned=True
+            ).defer('inviter', 'edited', 'is_banned').order_by('created_on')
         response = list()
 
         for s in student_list:
@@ -1084,8 +1089,25 @@ class InstituteStudentListView(APIView):
             res['created_on'] = str(s.created_on)
             res['image'] = ''
 
-            if student_active:
-                res['is_banned'] = s.is_banned
+            if s.is_banned:
+                ban_details = models.InstituteBannedStudent.objects.filter(
+                    user__pk=s.invitee.pk,
+                    banned_institute__pk=institute.pk
+                ).first()
+                res['banning_reason'] = ban_details.reason
+                res['banned_on'] = str(ban_details.created_on)
+                res['ban_start_date'] = str(ban_details.start_date)
+                res['active'] = s.active
+
+                if ban_details.banned_by.user_profile.first_name:
+                    first_name = ban_details.banned_by.user_profile.first_name
+                    last_name = ban_details.banned_by.user_profile.last_name
+                    res['banned_by'] = first_name + ' ' + last_name
+                else:
+                    res['banned_by'] = str(ban_details.banned_by)
+
+                if ban_details.end_date:
+                    res['ban_end_date'] = str(ban_details.end_date)
 
             class_invite = models.InstituteClassStudents.objects.filter(
                 invitee__pk=s.invitee.pk
@@ -1096,7 +1118,10 @@ class InstituteStudentListView(APIView):
 
             response.append(res)
 
-        return Response(response, status=status.HTTP_200_OK)
+        return Response({
+            'data': response,
+            'has_perm': requester_perm.role
+        }, status=status.HTTP_200_OK)
 
 
 class AddStudentToClassView(APIView):
