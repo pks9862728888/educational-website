@@ -1062,12 +1062,14 @@ class InstituteStudentListView(APIView):
         if kwargs.get('student_type') == 'active':
             student_list = models.InstituteStudents.objects.filter(
                 institute__pk=institute.pk,
-                active=True
+                active=True,
+                is_banned=False
             ).defer('inviter', 'edited', 'is_banned').order_by('created_on')
         elif kwargs.get('student_type') == 'inactive':
             student_list = models.InstituteStudents.objects.filter(
                 institute__pk=institute.pk,
-                active=False
+                active=False,
+                is_banned=False
             ).defer('inviter', 'edited', 'is_banned').order_by('created_on')
         elif kwargs.get('student_type') == 'banned':
             student_list = models.InstituteStudents.objects.filter(
@@ -1090,6 +1092,7 @@ class InstituteStudentListView(APIView):
             res['image'] = ''
 
             if s.is_banned:
+                res['is_banned'] = s.is_banned
                 ban_details = models.InstituteBannedStudent.objects.filter(
                     user__pk=s.invitee.pk,
                     banned_institute__pk=institute.pk
