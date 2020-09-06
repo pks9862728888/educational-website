@@ -7,7 +7,7 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
@@ -978,7 +978,6 @@ class EditInstituteStudentDetailsView(APIView):
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def patch(self, request, *args, **kwargs):
-        print(request.data)
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
         ).first()
@@ -988,10 +987,11 @@ class EditInstituteStudentDetailsView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not models.InstitutePermission.objects.filter(
-                institute=institute,
-                invitee=self.request.user,
-                active=True,
-                role=models.InstituteRole.ADMIN
+            institute=institute,
+            invitee=self.request.user,
+            active=True
+        ).filter(
+            Q(role=models.InstituteRole.ADMIN) | Q(role=models.InstituteRole.STAFF),
         ).exists():
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -1157,8 +1157,10 @@ class AddStudentToClassView(APIView):
                 institute__pk=institute.pk
             ).only('first_name', 'last_name', 'enrollment_no',
                    'registration_no', 'gender', 'date_of_birth').first()
+            active_student = False
 
             if institute_student:
+                active_student = True
                 if request.data.get('enrollment_no'):
                     institute_student.enrollment_no = request.data.get('enrollment_no')
                     institute_student.save()
@@ -1173,6 +1175,7 @@ class AddStudentToClassView(APIView):
                 institute_class=class_,
                 invitee=invitee,
                 inviter=self.request.user,
+                active=active_student
             )
             response = {
                 'id': institute_student.pk,
@@ -1185,6 +1188,7 @@ class AddStudentToClassView(APIView):
                 'registration_no': institute_student.registration_no,
                 'created_on': str(class_student.created_on),
                 'image': '',
+                'active': class_student.active
             }
 
             return Response(response, status=status.HTTP_201_CREATED)
@@ -1221,18 +1225,22 @@ class InstituteClassStudentListView(APIView):
             return Response({'error': _('Class not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not models.InstituteClassPermission.objects.filter(
-            to__pk=class_.pk,
+        has_class_perm = False
+        requester_perm = models.InstitutePermission.objects.filter(
+            institute__pk=institute.pk,
             invitee=self.request.user,
-        ).exists:
-            if not models.InstitutePermission.objects.filter(
-                institute__pk=institute.pk,
-                invitee=self.request.user,
-                active=True,
-                role=models.InstituteRole.ADMIN
-            ).exists():
-                return Response({'error': _('Permission denied.')},
-                                status=status.HTTP_400_BAD_REQUEST)
+            active=True
+        ).only('role').first()
+
+        if not requester_perm:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if models.InstituteClassPermission.objects.filter(
+            to__pk=class_.pk,
+            invitee=self.request.user
+        ).exists():
+            has_class_perm = True
 
         order = get_unexpired_license(institute)
         if not order:
@@ -1302,11 +1310,15 @@ class InstituteClassStudentListView(APIView):
 
             response.append(res)
 
-        return Response(response, status=status.HTTP_200_OK)
+        return Response({
+            'data': response,
+            'role': requester_perm.role,
+            'has_perm': has_class_perm
+        }, status=status.HTTP_200_OK)
 
 
 class AddStudentToSubjectView(APIView):
-    """View for adding user to class by permitted faculty, admin or class staff"""
+    """View for adding user to subject by permitted faculty, admin or class staff"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
@@ -1336,21 +1348,21 @@ class AddStudentToSubjectView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not models.InstituteSubjectPermission.objects.filter(
-            invitee=self.request.user,
-            to__pk=subject.pk,
+                invitee=self.request.user,
+                to__pk=subject.pk,
         ).exists():
-            has_class_perm =  models.InstituteClassPermission.objects.filter(
-                invitee=self.request.user,
-                to__pk=class_.pk
-            ).exists()
-            if not has_class_perm and not models.InstitutePermission.objects.filter(
-                invitee=self.request.user,
-                institute__pk=institute.pk,
-                active=True,
-                role=models.InstituteRole.ADMIN
+            if not models.InstituteClassPermission.objects.filter(
+                    invitee=self.request.user,
+                    to__pk=class_.pk
             ).exists():
-                return Response({'error': _('Permission denied.')},
-                                status=status.HTTP_400_BAD_REQUEST)
+                if not models.InstitutePermission.objects.filter(
+                    invitee=self.request.user,
+                    institute__pk=institute.pk,
+                    role=models.InstituteRole.ADMIN,
+                    active=True
+                ).exists():
+                    return Response({'error': _('Permission denied.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
         order = get_unexpired_license(institute)
         if not order:
@@ -1369,6 +1381,8 @@ class AddStudentToSubjectView(APIView):
             return Response({'error': _('User is not a student.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        student_is_active = False
+
         try:
             institute_student = models.InstituteStudents.objects.filter(
                 invitee=invitee,
@@ -1377,30 +1391,30 @@ class AddStudentToSubjectView(APIView):
                    'registration_no', 'gender', 'date_of_birth').first()
 
             if institute_student:
-                if request.data.get('enrollment_no'):
-                    institute_student.enrollment_no = request.data.get('enrollment_no')
-                    institute_student.save()
+                student_is_active = True
             else:
+                student_is_active = False
                 institute_student = models.InstituteStudents.objects.create(
                     invitee=invitee,
                     inviter=self.request.user,
-                    institute=institute,
-                    enrollment_no=request.data.get('enrollment_no')
+                    institute=institute
                 )
 
             if not models.InstituteClassStudents.objects.filter(
-                insitute_class__pk=class_.pk,
+                institute_class__pk=class_.pk,
                 invitee=invitee
             ).exists():
                 models.InstituteClassStudents.objects.create(
                     institute_class=class_,
                     invitee=invitee,
                     inviter=self.request.user,
+                    active=student_is_active
                 )
             subject_student = models.InstituteSubjectStudents.objects.create(
                 institute_subject=subject,
                 invitee=invitee,
-                inviter=self.request.user
+                inviter=self.request.user,
+                active=student_is_active
             )
             response = {
                 'id': institute_student.pk,
@@ -1413,6 +1427,7 @@ class AddStudentToSubjectView(APIView):
                 'registration_no': institute_student.registration_no,
                 'created_on': str(subject_student.created_on),
                 'image': '',
+                'active': subject_student.active
             }
 
             return Response(response, status=status.HTTP_201_CREATED)
@@ -1457,22 +1472,32 @@ class InstituteSubjectStudentListView(APIView):
             return Response({'error': _('Subject not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not models.InstituteSubjectPermission.objects.filter(
+        has_subject_perm = False
+        perm = models.InstitutePermission.objects.filter(
+            invitee=self.request.user,
+            institute__pk=institute.pk,
+            active=True
+        ).only('role').first()
+
+        if not perm or perm.role != models.InstituteRole.ADMIN:
+            if not models.InstituteSubjectPermission.objects.filter(
                 invitee=self.request.user,
-                to__pk=subject.pk,
-        ).exists():
-            has_class_perm = models.InstituteClassPermission.objects.filter(
-                invitee=self.request.user,
-                to__pk=class_.pk
-            ).exists()
-            if not has_class_perm and not models.InstitutePermission.objects.filter(
-                    invitee=self.request.user,
-                    institute__pk=institute.pk,
-                    active=True,
-                    role=models.InstituteRole.ADMIN
+                to__pk=subject.pk
             ).exists():
-                return Response({'error': _('Permission denied.')},
-                                status=status.HTTP_400_BAD_REQUEST)
+                if not models.InstituteClassPermission.objects.filter(
+                    invitee=self.request.user,
+                    to__pk=class_.pk
+                ).exists():
+                    return Response({'error': _('Permission denied.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
+                has_subject_perm = True
+
+        if not has_subject_perm and models.InstituteSubjectPermission.objects.filter(
+            invitee=self.request.user,
+            to__pk=subject.pk
+        ).exists():
+            has_subject_perm = True
 
         order = get_unexpired_license(institute)
         if not order:
@@ -1495,9 +1520,8 @@ class InstituteSubjectStudentListView(APIView):
         elif kwargs.get('student_type') == 'banned':
             student_list = models.InstituteSubjectStudents.objects.filter(
                 institute_subject__pk=subject.pk,
-                active=True,
                 is_banned=True
-            ).only('invitee', 'created_on', 'is_banned').order_by('created_on')
+            ).only('invitee', 'created_on', 'active', 'is_banned').order_by('created_on')
         response = list()
 
         for s in student_list:
@@ -1521,14 +1545,14 @@ class InstituteSubjectStudentListView(APIView):
             res['image'] = ''
 
             if s.is_banned:
-                ban_details = models.InstituteClassBannedStudent.objects.filter(
+                ban_details = models.InstituteSubjectBannedStudent.objects.filter(
                     user__pk=s.invitee.pk,
-                    banned_class__pk=class_.pk,
-                    active=True
+                    banned_subject__pk=subject.pk
                 ).first()
                 res['banning_reason'] = ban_details.reason
                 res['banned_on'] = str(ban_details.created_on)
                 res['ban_start_date'] = str(ban_details.start_date)
+                res['active'] = s.active
 
                 if ban_details.banned_by.user_profile.first_name:
                     first_name = ban_details.banned_by.user_profile.first_name
@@ -1542,7 +1566,11 @@ class InstituteSubjectStudentListView(APIView):
 
             response.append(res)
 
-        return Response(response, status=status.HTTP_200_OK)
+        return Response({
+            'requester_role': perm.role,
+            'has_perm': has_subject_perm,
+            'data': response
+        }, status=status.HTTP_200_OK)
 
 
 class CreateInstituteView(CreateAPIView):
