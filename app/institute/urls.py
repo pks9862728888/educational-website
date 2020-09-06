@@ -100,7 +100,7 @@ urlpatterns = [
          views.CheckClassPermView.as_view(),
          name='has-class-perm'),
     # Institute Class Student
-    path('<slug:institute_slug>/<slug:class_slug>/student-list/<slug:student_type>',
+    path('<slug:institute_slug>/<slug:class_slug>/class-student-list/<slug:student_type>',
          views.InstituteClassStudentListView.as_view(),
          name="class-student-list"),
     path('<slug:institute_slug>/<slug:class_slug>/add-student-to-class',
@@ -120,7 +120,7 @@ urlpatterns = [
          views.ListSubjectInstructorsView.as_view(),
          name='list-subject-instructors'),
     # Institute Subject Student
-    path('<slug:institute_slug>/<slug:class_slug>/<slug:subject_slug>/student-list/<slug:student_type>',
+    path('<slug:institute_slug>/<slug:class_slug>/<slug:subject_slug>/subject-student-list/<slug:student_type>',
          views.InstituteSubjectStudentListView.as_view(),
          name="subject-student-list"),
     path('<slug:institute_slug>/<slug:class_slug>/<slug:subject_slug>/add-student-to-subject',

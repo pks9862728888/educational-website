@@ -169,7 +169,16 @@ export class InstituteApiService {
     classSlug: string,
     studentType: string
   ) {
-    return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/student-list/${studentType}`;
+    return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/class-student-list/${studentType}`;
+  }
+
+  getSubjectStudentsListUrl(
+    instituteSlug: string,
+    classSlug: string,
+    subjectSlug: string,
+    studentType: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/${subjectSlug}/subject-student-list/${studentType}`;
   }
 
   // Subject course preview related urls
@@ -229,6 +238,15 @@ export class InstituteApiService {
   ) {
     return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/add-student-to-class`;
   }
+
+  getInviteStudentToSubjectUrl(
+    instituteSlug: string,
+    classSlug: string,
+    subjectSlug: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/${subjectSlug}/add-student-to-subject`;
+  }
+
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -713,6 +731,40 @@ export class InstituteApiService {
       this.getInviteStudentToClassUrl(
         instituteSlug,
         classSlug
+      ),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getSubjectStudentsList(
+    instituteSlug: string,
+    classSlug: string,
+    subjectSlug: string,
+    studentType: string
+    ) {
+    return this.httpClient.get(
+      this.getSubjectStudentsListUrl(
+        instituteSlug,
+        classSlug,
+        subjectSlug,
+        studentType
+      ),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  inviteStudentToSubject(
+    instituteSlug: string,
+    classSlug: string,
+    subjectSlug: string,
+    data: any
+  ) {
+    return this.httpClient.post(
+      this.getInviteStudentToSubjectUrl(
+        instituteSlug,
+        classSlug,
+        subjectSlug
       ),
       data,
       { headers: this.getAuthHeader() }

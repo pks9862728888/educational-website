@@ -1,1 +1,571 @@
-<p>subject-students works!</p>
+<mat-tab-group mat-stretch-tabs dynamicHeight class="tab" (selectedTabChange)="tabChanged($event)">
+    <mat-tab>
+        <ng-template mat-tab-label>Invited<span *ngIf="!mq.matches">&nbsp;Students</span></ng-template>
+        <div class="m-r-1 m-l-1 m-b-1 m-t-1" *ngIf="invitedStudentsGetError">
+            <app-ui-error-text [errorText]="invitedStudentsGetError" [hideCloseButton]="true"></app-ui-error-text>
+        </div>
+        <div class="m-r-1 m-l-1" *ngIf="showInvitedStudentsReload">
+            <app-ui-reload [errorText]="'Unable to load students list.'" (retryEvent)="getInvitedStudentsList()"></app-ui-reload>
+        </div>
+        <div class="m-r-1 m-l-1" *ngIf="invitedStudentsLoadingIndicator">
+            <app-ui-loading [actionText]="'Loading Invited Students...'"></app-ui-loading>
+        </div>
+        <div class="m-t-1 m-r-1 m-l-1 m-b-1 text-color-87" *ngIf="!invitedStudentsLoadingIndicator && !showInvitedStudentsReload && !invitedStudentsGetError">
+            <div class="d-flex justify-content-end">
+                <button mat-stroked-button class="stroked-button" *ngIf="!showInvitationForm" (click)="showInviteForm()"><mat-icon class="add-icon">add</mat-icon> Student</button>
+            </div>
+            <div class="invite-form m-t-1" *ngIf="showInvitationForm">
+                <div class="form-header d-flex justify-content-between align-center">
+                    <h3 class="form-heading">Invitation Form:</h3>
+                    <mat-icon class="cancel-icon cursor-pointer" [hidden]="showInvitingIndicator" (click)="hideInviteForm()">close</mat-icon>
+                </div>
+                <div class="p-1rem">
+                    <div class="m-b-1">
+                        <app-ui-error-text *ngIf="inviteError" [errorText]="inviteError" (closeErrorTextEvent)="closeInviteError()"></app-ui-error-text>
+                    </div>
+                    <form [formGroup]="invitationForm">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Email of student</mat-label>
+                            <input type="email" matInput formControlName="invitee_email" placeholder="Email of student *">
+                            <mat-error *ngIf="invitationForm.controls['invitee_email'].errors?.required">
+                                This field is required.
+                            </mat-error>
+                            <mat-error *ngIf="invitationForm.controls['invitee_email'].errors?.email">
+                                Enter a valid email.
+                            </mat-error>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline">
+                            <mat-label>Enrollment no</mat-label>
+                            <input type="text" matInput formControlName="enrollment_no" placeholder="Enrollment no">
+                            <mat-error *ngIf="invitationForm.controls['enrollment_no'].errors">
+                                Can not be more than 15 characters.
+                            </mat-error>
+                        </mat-form-field>
+                    </form>
+                    <div class="d-flex justify-content-end">
+                        <button mat-flat-button [disabled]="invitationForm.invalid" (click)="invite()" class="green-button m-r-05">
+                        <div class="d-flex align-center">
+                          <mat-spinner *ngIf="showInvitingIndicator" [class.m-r-05]="!mq.matches" [diameter]="25"></mat-spinner> Submit
+                        </div>
+                      </button>
+                        <button mat-flat-button [disabled]="showInvitingIndicator" class="blue-button" (click)="resetInviteForm()">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <h3 *ngIf="isInvitedStudentsEmpty()" [class.m-t-1]="showInvitationForm">No students found.</h3>
+            <div class="m-t-1" *ngIf="!isInvitedStudentsEmpty()">
+                <mat-accordion>
+                    <mat-expansion-panel *ngFor="let student of invitedStudents; let i=index;" [expanded]="invitedStudentsStep === i" (opened)="setInvitedStudentsStep(i)">
+                        <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'60px'">
+                            <mat-panel-title>
+                                <div class="d-flex align-center">
+                                    <div class="d-flex expansion-panel-header-color align-center m-r-05">
+                                        <img *ngIf="!student.image" src="../../../assets/imgs/cd6.png" class="profile-pic m-r-05" alt="Profile picture of student">
+                                        <img *ngIf="student.image" [src]="student.image" class="profile-pic m-r-05" alt="Profile picture of student">
+                                        <h3 *ngIf="!mq.matches && !student.first_name">{{ student.invitee_email | lowercase }}</h3>
+                                        <p *ngIf="mq.matches && !student.first_name">{{ student.invitee_email | lowercase }}</p>
+                                        <h3 *ngIf="!mq.matches && student.first_name">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
+                                        <p *ngIf="mq.matches && student.first_name">{{ student.first_name | titlecase}}&nbsp;{{ student.last_name | titlecase }}</p>
+                                    </div>
+                                    <div class="expansion-panel-header-color" *ngIf="!mq.matches && student.class_name">
+                                        <h3>({{ student.class_name | titlecase }})</h3>
+                                    </div>
+                                </div>
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <hr class="top-separator m-b-1" />
+                        <div class="text-color">
+                            <div class="row details" *ngIf="mq.matches && student.class_name">
+                                <div class="col-6">
+                                    <p>Class:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ student.class_name | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Registration no:</h3>
+                                    <p *ngIf="mq.matches">Registration no:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.registration_no }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.registration_no }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Enrollment no:</h3>
+                                    <p *ngIf="mq.matches">Enrollment no:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.enrollment_no }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.enrollment_no }}</p>
+                                </div>
+                            </div>
+                            <div class="row details" *ngIf="student.first_name">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Email:</h3>
+                                    <p *ngIf="mq.matches">Email:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.invitee_email | lowercase }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.invitee_email | lowercase}}</p>
+                                </div>
+                            </div>
+                            <div class="row details" *ngIf="!student.first_name">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Name:</h3>
+                                    <p *ngIf="mq.matches">Name:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Gender:</h3>
+                                    <p *ngIf="mq.matches">Gender:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ getGender(student.gender) }}</h3>
+                                    <p *ngIf="mq.matches">{{ getGender(student.gender) }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Date of Birth:</h3>
+                                    <p *ngIf="mq.matches">Date of Birth:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.date_of_birth | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.date_of_birth | date }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Invited On:</h3>
+                                    <p *ngIf="mq.matches">Invited On:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.created_on | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.created_on | date }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Invitation Status:</h3>
+                                    <p *ngIf="mq.matches">Invitation Status:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Pending</h3>
+                                    <p *ngIf="mq.matches">Pending</p>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="top-separator m-t-1 m-b-1" />
+                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit']">
+                            <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="true" (hideEditFormEvent)="hideInvitedStudentEditForm()" (editedStudentDetails)="updateInvitedStudentData($event)"></app-edit-student-details-form>
+                        </div>
+                        <div class="d-flex justify-content-end text-color">
+                            <button mat-stroked-button class="stroked-button m-r-05" [disabled]="student['edit'] || student['delete']" (click)="editInvitedStudentDetails(i)">
+                            <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">edit</mat-icon>
+                            <span *ngIf="!mq.matches">Details</span>
+                          </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05">
+                            <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">visibility</mat-icon>
+                            <span *ngIf="!mq.matches">Manage</span>
+                          </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05" *ngIf="!mq.matches">
+                            <mat-icon class="message-icon" [class.m-r-05]="!mq.matches">mail</mat-icon>
+                            <span *ngIf="!mq.matches">Message</span>
+                          </button>
+                            <button mat-stroked-button class="stroked-button" [disabled]="student['delete']" (click)="deleteInvitedStudentConfirm(i)">
+                            <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
+                              <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">delete</mat-icon>
+                              <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>
+                              <span *ngIf="!mq.matches">Delete</span>
+                            </div>
+                          </button>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </div>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>Active<span *ngIf="!mq.matches">&nbsp;Students</span></ng-template>
+        <div class="m-r-1 m-l-1 m-b-1 m-t-1" *ngIf="activeStudentsGetError">
+            <app-ui-error-text [errorText]="activeStudentsGetError" [hideCloseButton]="true"></app-ui-error-text>
+        </div>
+        <div class="m-r-1 m-l-1" *ngIf="showActiveStudentsReload">
+            <app-ui-reload [errorText]="'Unable to load students list.'" (retryEvent)="getActiveStudentsList()"></app-ui-reload>
+        </div>
+        <div class="m-r-1 m-l-1" *ngIf="activeStudentsLoadingIndicator">
+            <app-ui-loading [actionText]="'Loading Active Students...'"></app-ui-loading>
+        </div>
+        <div class="m-t-1 m-r-1 m-l-1 m-b-1 text-color-87" *ngIf="!activeStudentsGetError && !activeStudentsLoadingIndicator && !showActiveStudentsReload">
+            <h3 *ngIf="isActiveStudentsEmpty()">No students found.</h3>
+            <div class="m-t-1" *ngIf="!isActiveStudentsEmpty()">
+                <mat-accordion>
+                    <mat-expansion-panel *ngFor="let student of activeStudents; let i=index;" [expanded]="activeStudentsStep === i" (opened)="setActiveStudentsStep(i)">
+                        <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'60px'">
+                            <mat-panel-title>
+                                <div class="d-flex align-center">
+                                    <div class="d-flex expansion-panel-header-color align-center m-r-05">
+                                        <img *ngIf="!student.image" src="../../../assets/imgs/cd6.png" class="profile-pic m-r-05" alt="Profile picture of student">
+                                        <img *ngIf="student.image" [src]="student.image" class="profile-pic m-r-05" alt="Profile picture of student">
+                                        <h3 *ngIf="!mq.matches && !student.first_name">{{ student.invitee_email | lowercase }}</h3>
+                                        <p *ngIf="mq.matches && !student.first_name">{{ student.invitee_email | lowercase }}</p>
+                                        <h3 *ngIf="!mq.matches && student.first_name">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
+                                        <p *ngIf="mq.matches && student.first_name">{{ student.last_name | titlecase}}&nbsp;{{ student.last_name | titlecase }}</p>
+                                    </div>
+                                    <div class="expansion-panel-header-color" *ngIf="!mq.matches && student.class_name">
+                                        <h3>({{ student.class_name | titlecase }})</h3>
+                                    </div>
+                                </div>
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <hr class="top-separator m-b-1" />
+                        <div class="text-color">
+                            <div class="row details" *ngIf="mq.matches && student.class_name">
+                                <div class="col-6">
+                                    <p>Class:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ student.class_name | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Registration no:</h3>
+                                    <p *ngIf="mq.matches">Registration no:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.registration_no }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.registration_no }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Enrollment no:</h3>
+                                    <p *ngIf="mq.matches">Enrollment no:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.enrollment_no }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.enrollment_no }}</p>
+                                </div>
+                            </div>
+                            <div class="row details" *ngIf="student.first_name">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Email:</h3>
+                                    <p *ngIf="mq.matches">Email:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.invitee_email | lowercase }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.invitee_email | lowercase}}</p>
+                                </div>
+                            </div>
+                            <div class="row details" *ngIf="!student.first_name">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Name:</h3>
+                                    <p *ngIf="mq.matches">Name:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Gender:</h3>
+                                    <p *ngIf="mq.matches">Gender:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ getGender(student.gender) }}</h3>
+                                    <p *ngIf="mq.matches">{{ getGender(student.gender) }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Date of Birth:</h3>
+                                    <p *ngIf="mq.matches">Date of Birth:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.date_of_birth | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.date_of_birth | date }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Invited On:</h3>
+                                    <p *ngIf="mq.matches">Invited On:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.created_on | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.created_on | date }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Is Banned:</h3>
+                                    <p *ngIf="mq.matches">Is Banned:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches"><span *ngIf="student.is_banned">Yes</span><span *ngIf="!student.is_banned">No</span></h3>
+                                    <p *ngIf="mq.matches"><span *ngIf="student.is_banned">Yes</span><span *ngIf="!student.is_banned">No</span></p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Invitation Status:</h3>
+                                    <p *ngIf="mq.matches">Invitation Status:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Accepted</h3>
+                                    <p *ngIf="mq.matches">Accepted</p>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="top-separator m-t-1 m-b-1" />
+                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit']">
+                            <app-edit-student-details-form [student]="student" (hideEditFormEvent)="hideActiveStudentEditForm()" (editedStudentDetails)="updateActiveStudentData($event)"></app-edit-student-details-form>
+                        </div>
+                        <div class="d-flex justify-content-end text-color">
+                            <button mat-stroked-button [disabled]="student['edit'] || student['delete']" class="stroked-button m-r-05" (click)="editActiveStudentDetails(i)">
+                          <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">edit</mat-icon>
+                          <span *ngIf="!mq.matches">Details</span>
+                        </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05">
+                          <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">visibility</mat-icon>
+                          <span *ngIf="!mq.matches">Manage</span>
+                        </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05" *ngIf="!mq.matches">
+                          <mat-icon class="message-icon" [class.m-r-05]="!mq.matches">mail</mat-icon>
+                          <span *ngIf="!mq.matches">Message</span>
+                        </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button" (click)="deleteActiveStudentConfirm(i)">
+                          <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
+                            <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">delete</mat-icon>
+                            <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>
+                            <span *ngIf="!mq.matches">Delete</span>
+                          </div>
+                        </button>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </div>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>Banned<span *ngIf="!mq.matches">&nbsp;Students</span></ng-template>
+        <div class="m-r-1 m-l-1 m-b-1 m-t-1" *ngIf="bannedStudentsGetError">
+            <app-ui-error-text [errorText]="bannedStudentsGetError" [hideCloseButton]="true"></app-ui-error-text>
+        </div>
+        <div class="m-r-1 m-l-1" *ngIf="showBannedStudentsReload">
+            <app-ui-reload [errorText]="'Unable to load students list.'" (retryEvent)="getBannedStudentsList()"></app-ui-reload>
+        </div>
+        <div class="m-r-1 m-l-1" *ngIf="bannedStudentsLoadingIndicator">
+            <app-ui-loading [actionText]="'Loading Banned Students...'"></app-ui-loading>
+        </div>
+        <div class="m-t-1 m-r-1 m-l-1 m-b-1 text-color-87" *ngIf="!bannedStudentsGetError && !bannedStudentsLoadingIndicator && !showBannedStudentsReload">
+            <h3 *ngIf="isBannedStudentsEmpty()">No students found.</h3>
+            <div class="m-t-1" *ngIf="!isBannedStudentsEmpty()">
+                <mat-accordion>
+                    <mat-expansion-panel *ngFor="let student of bannedStudents; let i=index;" [expanded]="bannedStudentsStep === i" (opened)="setBannedStudentsStep(i)">
+                        <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'60px'">
+                            <mat-panel-title>
+                                <div class="d-flex align-center">
+                                    <div class="d-flex expansion-panel-header-color align-center m-r-05">
+                                        <img *ngIf="!student.image" src="../../../assets/imgs/cd6.png" class="profile-pic m-r-05" alt="Profile picture of student">
+                                        <img *ngIf="student.image" [src]="student.image" class="profile-pic m-r-05" alt="Profile picture of student">
+                                        <h3 *ngIf="!mq.matches && !student.first_name">{{ student.invitee_email | lowercase }}</h3>
+                                        <p *ngIf="mq.matches && !student.first_name">{{ student.invitee_email | lowercase }}</p>
+                                        <h3 *ngIf="!mq.matches && student.first_name">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
+                                        <p *ngIf="mq.matches && student.first_name">{{ student.last_name | titlecase}}&nbsp;{{ student.last_name | titlecase }}</p>
+                                    </div>
+                                    <div class="expansion-panel-header-color" *ngIf="!mq.matches && student.class_name">
+                                        <h3>({{ student.class_name | titlecase }})</h3>
+                                    </div>
+                                </div>
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <hr class="top-separator m-b-1" />
+                        <div class="text-color">
+                            <div class="row details" *ngIf="mq.matches && student.class_name">
+                                <div class="col-6">
+                                    <p>Class:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ student.class_name | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Registration no:</h3>
+                                    <p *ngIf="mq.matches">Registration no:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.registration_no }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.registration_no }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Enrollment no:</h3>
+                                    <p *ngIf="mq.matches">Enrollment no:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.enrollment_no }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.enrollment_no }}</p>
+                                </div>
+                            </div>
+                            <div class="row details" *ngIf="student.first_name">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Email:</h3>
+                                    <p *ngIf="mq.matches">Email:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.invitee_email | lowercase }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.invitee_email | lowercase}}</p>
+                                </div>
+                            </div>
+                            <div class="row details" *ngIf="!student.first_name">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Name:</h3>
+                                    <p *ngIf="mq.matches">Name:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.first_name | titlecase }}&nbsp;{{ student.last_name | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Gender:</h3>
+                                    <p *ngIf="mq.matches">Gender:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ getGender(student.gender) }}</h3>
+                                    <p *ngIf="mq.matches">{{ getGender(student.gender) }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Date of Birth:</h3>
+                                    <p *ngIf="mq.matches">Date of Birth:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.date_of_birth | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.date_of_birth | date }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Invited On:</h3>
+                                    <p *ngIf="mq.matches">Invited On:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.created_on | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.created_on | date }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Invitation Status:</h3>
+                                    <p *ngIf="mq.matches">Invitation Status:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Accepted</h3>
+                                    <p *ngIf="mq.matches">Accepted</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Is Banned:</h3>
+                                    <p *ngIf="mq.matches">Is Banned:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches"><span *ngIf="student.is_banned">Yes</span><span *ngIf="!student.is_banned">No</span></h3>
+                                    <p *ngIf="mq.matches"><span *ngIf="student.is_banned">Yes</span><span *ngIf="!student.is_banned">No</span></p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Banned By:</h3>
+                                    <p *ngIf="mq.matches">Banned By:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.banned_by | titlecase }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.banned_by | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Banned On:</h3>
+                                    <p *ngIf="mq.matches">Banned On:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.ban_start_date | date }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.ban_start_date | date }}</p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Banned Upto:</h3>
+                                    <p *ngIf="mq.matches">Banned Upto:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">
+                                        <span *ngIf="student.ban_end_date">{{ student.ban_end_date | date }}</span>
+                                        <span *ngIf="!student.ban_end_date">Forever</span>
+                                    </h3>
+                                    <p *ngIf="mq.matches">
+                                        <span *ngIf="student.ban_end_date">{{ student.ban_end_date | date }}</span>
+                                        <span *ngIf="!student.ban_end_date">Forever</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row details">
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">Banning Reason:</h3>
+                                    <p *ngIf="mq.matches">Banning Reason:</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 *ngIf="!mq.matches">{{ student.banning_reason }}</h3>
+                                    <p *ngIf="mq.matches">{{ student.banning_reason }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="top-separator m-t-1 m-b-1" />
+                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit']">
+                            <app-edit-student-details-form [student]="student" (hideEditFormEvent)="hideBannedStudentEditForm()" (editedStudentDetails)="updateBannedStudentData($event)"></app-edit-student-details-form>
+                        </div>
+                        <div class="d-flex justify-content-end text-color">
+                            <button mat-stroked-button [disabled]="student['edit'] || student['delete']" class="stroked-button m-r-05" (click)="editBannedStudentDetails(i)">
+                            <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">edit</mat-icon>
+                            <span *ngIf="!mq.matches">Details</span>
+                          </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05">
+                            <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">visibility</mat-icon>
+                            <span *ngIf="!mq.matches">Manage</span>
+                          </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05" *ngIf="!mq.matches">
+                            <mat-icon class="message-icon" [class.m-r-05]="!mq.matches">mail</mat-icon>
+                            <span *ngIf="!mq.matches">Message</span>
+                          </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button" (click)="removeBannedStudentConfirm(i)">
+                            <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
+                              <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">close</mat-icon>
+                              <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>
+                              <span *ngIf="!mq.matches">Unban</span>
+                            </div>
+                          </button>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+        </div>
+    </mat-tab>
+</mat-tab-group>
