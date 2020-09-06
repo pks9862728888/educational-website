@@ -1120,7 +1120,7 @@ class InstituteStudentListView(APIView):
 
         return Response({
             'data': response,
-            'has_perm': requester_perm.role
+            'requester_role': requester_perm.role
         }, status=status.HTTP_200_OK)
 
 
