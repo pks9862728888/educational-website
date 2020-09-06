@@ -217,7 +217,7 @@ export class InstituteApiService {
   }
 
   getInstituteStudentsListUrl(instituteSlug: string, studentType: string) {
-    return `${this.instituteBaseUrl}${instituteSlug}/student-list/${studentType}`;
+    return `${this.instituteBaseUrl}${instituteSlug}/institute-student-list/${studentType}`;
   }
 
   getEditInstituteStudentDetailsUrl(instituteSlug: string) {

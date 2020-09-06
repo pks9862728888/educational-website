@@ -1,6 +1,8 @@
+import { INSTITUTE_ROLE_REVERSE } from 'src/constants';
+import { InstituteStudentResponse, InstituteBannedStudentMinDetails, InstituteBannedStudentResponse } from './../../models/student.model';
 import { Subscription } from 'rxjs';
 import { UiService } from './../../services/ui.service';
-import { currentInstituteSlug, GENDER_FORM_FIELD_OPTIONS, GENDER } from './../../../constants';
+import { currentInstituteSlug, GENDER_FORM_FIELD_OPTIONS, GENDER, currentInstituteRole } from './../../../constants';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
@@ -20,26 +22,37 @@ export class InstituteStudentsComponent implements OnInit {
   maxDate: Date;
   genderOptions = GENDER_FORM_FIELD_OPTIONS;
   currentInstituteSlug: string;
-  invitedStudentsStep: number;
-  activeStudentsStep: number;
+  currentInstituteRole: string;
+
   showInvitationForm: boolean;
   invitationForm: FormGroup;
   showInvitingIndicator: boolean;
   inviteError: string;
+
+  invitedStudentsStep: number;
   invitedStudentsLoadingIndicator: boolean;
   showInvitedStudentsReload: boolean;
   invitedStudentsGetError: string;
+  invitedStudentEditIndex: number;
+  deleteInvitedStudentSubscription: Subscription;
+
+  activeStudentsStep: number;
   activeStudentsLoadingIndicator: boolean;
   showActiveStudentsReload: boolean;
   activeStudentsGetError: string;
   activeStudentEditIndex: number;
-  invitedStudentEditIndex: number;
-
-  deleteInvitedStudentSubscription: Subscription;
   deleteActiveStudentSubscription: Subscription;
+
+  bannedStudentsStep: number;
+  bannedStudentsLoadingIndicator: boolean;
+  showBannedStudentsReload: boolean;
+  bannedStudentsGetError: string;
+  bannedStudentEditIndex: number;
+  removeBannedStudentSubscription: Subscription;
 
   invitedStudents: InstituteStudentMinDetails[] = [];
   activeStudents: InstituteStudentMinDetails[] = [];
+  bannedStudents: InstituteBannedStudentMinDetails[] = [];
   classes: ClassSlugNameResponse[] = [];
 
   constructor(
@@ -75,9 +88,10 @@ export class InstituteStudentsComponent implements OnInit {
       this.currentInstituteSlug,
       'inactive'
     ).subscribe(
-      (result: InstituteStudentMinDetails[]) => {
+      (result: InstituteStudentResponse) => {
         this.invitedStudentsLoadingIndicator = false;
-        this.invitedStudents = result;
+        this.invitedStudents = result.data;
+        this.currentInstituteRole = result.requester_role
       },
       errors => {
         this.invitedStudentsLoadingIndicator = false;
@@ -101,9 +115,37 @@ export class InstituteStudentsComponent implements OnInit {
       this.currentInstituteSlug,
       'active'
     ).subscribe(
-      (result: InstituteStudentMinDetails[]) => {
+      (result: InstituteStudentResponse) => {
         this.activeStudentsLoadingIndicator = false;
-        this.activeStudents = result;
+        this.activeStudents = result.data;
+        this.currentInstituteRole = result.requester_role
+      },
+      errors => {
+        this.activeStudentsLoadingIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.activeStudentsGetError = errors.error.error;
+          } else {
+            this.showActiveStudentsReload = true;
+          }
+        } else {
+          this.showActiveStudentsReload = true;
+        }
+      }
+    );
+  }
+
+  getBannedStudentsList() {
+    this.bannedStudentsLoadingIndicator = true;
+    this.showBannedStudentsReload = false;
+    this.instituteApiService.getInstituteStudentsList(
+      this.currentInstituteSlug,
+      'banned'
+    ).subscribe(
+      (result: InstituteBannedStudentResponse) => {
+        this.bannedStudentsLoadingIndicator = false;
+        this.bannedStudents = result.data;
+        this.currentInstituteRole = result.requester_role
       },
       errors => {
         this.activeStudentsLoadingIndicator = false;
@@ -225,21 +267,27 @@ export class InstituteStudentsComponent implements OnInit {
     }
   }
 
-  tabChanged(activeTab) {
-    this.activeStudentsStep = null;
-    this.invitedStudentsStep = null;
-    this.activeStudentEditIndex = null;
-    this.invitedStudentEditIndex = null;
-    if (activeTab.index === 0) {
-      this.getInvitedStudentsList();
-    } else {
-      this.getActiveStudentsList();
+  setBannedStudentsStep(step: number) {
+    this.bannedStudentsStep = step;
+    if (this.bannedStudentEditIndex !== null && this.bannedStudentEditIndex !== undefined) {
+      this.hideBannedStudentEditForm();
     }
   }
 
-  editActiveStudentDetails(index: number) {
-    this.activeStudentEditIndex = index;
-    this.activeStudents[index]['edit'] = true;
+  tabChanged(activeTab) {
+    this.invitedStudentsStep = null;
+    this.activeStudentsStep = null;
+    this.bannedStudentsStep = null;
+    this.invitedStudentEditIndex = null;
+    this.activeStudentEditIndex = null;
+    this.bannedStudentEditIndex = null;
+    if (activeTab.index === 0) {
+      this.getInvitedStudentsList();
+    } else if (activeTab.index === 1) {
+      this.getActiveStudentsList();
+    } else {
+      this.getBannedStudentsList();
+    }
   }
 
   editInvitedStudentDetails(index: number) {
@@ -247,14 +295,29 @@ export class InstituteStudentsComponent implements OnInit {
     this.invitedStudents[index]['edit'] = true;
   }
 
-  hideActiveStudentEditForm() {
-    this.activeStudents[this.activeStudentEditIndex]['edit'] = false;
-    this.activeStudentEditIndex = null;
+  editActiveStudentDetails(index: number) {
+    this.activeStudentEditIndex = index;
+    this.activeStudents[index]['edit'] = true;
+  }
+
+  editBannedStudentDetails(index: number) {
+    this.bannedStudentEditIndex = index;
+    this.bannedStudents[index]['edit'] = true;
   }
 
   hideInvitedStudentEditForm() {
     this.invitedStudents[this.invitedStudentEditIndex]['edit'] = false;
     this.invitedStudentEditIndex = null;
+  }
+
+  hideActiveStudentEditForm() {
+    this.activeStudents[this.activeStudentEditIndex]['edit'] = false;
+    this.activeStudentEditIndex = null;
+  }
+
+  hideBannedStudentEditForm() {
+    this.bannedStudents[this.bannedStudentEditIndex]['edit'] = false;
+    this.bannedStudentEditIndex = null;
   }
 
   updateActiveStudentData(studentData: InstituteStudentMinDetails) {
@@ -281,6 +344,19 @@ export class InstituteStudentsComponent implements OnInit {
       2000
     );
     this.hideInvitedStudentEditForm();
+  }
+
+  updateBannedStudentData(studentData: InstituteBannedStudentMinDetails) {
+    this.bannedStudents.splice(
+      this.bannedStudentEditIndex,
+      1,
+      studentData
+    );
+    this.uiService.showSnackBar(
+      'Updated student data successfully!',
+      2000
+    );
+    this.hideBannedStudentEditForm();
   }
 
   deleteInvitedStudentConfirm(index: number) {
@@ -339,6 +415,34 @@ export class InstituteStudentsComponent implements OnInit {
     console.log(index);
   }
 
+  removeBannedStudentConfirm(index: number) {
+    let name = '';
+    if (this.bannedStudents[index].first_name) {
+      name = this.bannedStudents[index].first_name + ' ' + this.bannedStudents[index].last_name;
+      name = name.toUpperCase();
+    } else {
+      name = this.bannedStudents[index].invitee_email;
+    }
+    this.removeBannedStudentSubscription = this.uiService.dialogData$.subscribe(
+      (data) => {
+        if (data === true) {
+          this.removeBannedStudent(index);
+        }
+        this.removeBannedStudentSubscription.unsubscribe();
+      }
+    );
+    this.uiService.openDialog(
+      'Do you really want to unban student \'' + name + '\'?',
+      'No',
+      'Yes'
+    );
+  }
+
+  removeBannedStudent(index: number) {
+    this.bannedStudents[index]['delete'] = true;
+    console.log(index);
+  }
+
   isInvitedStudentsEmpty() {
     if (this.invitedStudents.length === 0) {
       return true;
@@ -355,6 +459,14 @@ export class InstituteStudentsComponent implements OnInit {
     }
   }
 
+  isBannedStudentsEmpty() {
+    if (this.bannedStudents.length === 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   closeInviteError() {
     this.inviteError = null;
   }
@@ -364,6 +476,10 @@ export class InstituteStudentsComponent implements OnInit {
   }
 
   userIsAdmin() {
-
+    if (this.currentInstituteRole === INSTITUTE_ROLE_REVERSE['Admin']) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
