@@ -1,3 +1,6 @@
+import { InstituteStudentResponse, InstituteBannedStudentResponse } from './../../models/student.model';
+import { INSTITUTE_ROLE_REVERSE } from 'src/constants';
+import { currentSubjectSlug, currentInstituteRole, hasClassPerm } from './../../../constants';
 import { Component, OnInit } from '@angular/core';
 import { GENDER, currentInstituteSlug, currentClassSlug, GENDER_FORM_FIELD_OPTIONS } from '../../../constants';
 import { InstituteBannedStudentMinDetails, InstituteStudentMinDetails } from '../../models/student.model';
@@ -19,6 +22,9 @@ export class SubjectStudentsComponent implements OnInit {
   genderOptions = GENDER_FORM_FIELD_OPTIONS;
   currentInstituteSlug: string;
   currentClassSlug: string;
+  currentSubjectSlug: string;
+  currentInstituteRole: string;
+  hasPerm: boolean;
 
   invitedStudentsStep: number;
   activeStudentsStep: number;
@@ -61,13 +67,13 @@ export class SubjectStudentsComponent implements OnInit {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentClassSlug = sessionStorage.getItem(currentClassSlug);
+    this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
     this.maxDate = new Date();
   }
 
   ngOnInit(): void {
     this.invitationForm = this.formBuilder.group({
-      invitee_email: ['', [Validators.required, Validators.email]],
-      enrollment_no: ['', [Validators.maxLength(15)]],
+      invitee_email: ['', [Validators.required, Validators.email]]
     });
     this.getInvitedStudentsList();
   }
@@ -75,15 +81,17 @@ export class SubjectStudentsComponent implements OnInit {
   getInvitedStudentsList() {
     this.invitedStudentsLoadingIndicator = true;
     this.showInvitedStudentsReload = false;
-    this.instituteApiService.getClassStudentsList(
+    this.instituteApiService.getSubjectStudentsList(
       this.currentInstituteSlug,
       this.currentClassSlug,
+      this.currentSubjectSlug,
       'inactive'
     ).subscribe(
-      (result: InstituteStudentMinDetails[]) => {
+      (result: InstituteStudentResponse) => {
         this.invitedStudentsLoadingIndicator = false;
-        this.invitedStudents = result;
-        console.log(result);
+        this.invitedStudents = result.data;
+        this.currentInstituteRole = result.requester_role;
+        this.hasPerm = result.has_perm;
       },
       errors => {
         this.invitedStudentsLoadingIndicator = false;
@@ -103,14 +111,17 @@ export class SubjectStudentsComponent implements OnInit {
   getActiveStudentsList() {
     this.activeStudentsLoadingIndicator = true;
     this.showActiveStudentsReload = false;
-    this.instituteApiService.getClassStudentsList(
+    this.instituteApiService.getSubjectStudentsList(
       this.currentInstituteSlug,
       this.currentClassSlug,
+      this.currentSubjectSlug,
       'active'
     ).subscribe(
-      (result: InstituteStudentMinDetails[]) => {
+      (result: InstituteStudentResponse) => {
+        this.activeStudents = result.data;
+        this.currentInstituteRole = result.requester_role;
         this.activeStudentsLoadingIndicator = false;
-        this.activeStudents = result;
+        this.hasPerm = result.has_perm;
       },
       errors => {
         this.activeStudentsLoadingIndicator = false;
@@ -130,14 +141,17 @@ export class SubjectStudentsComponent implements OnInit {
   getBannedStudentsList() {
     this.bannedStudentsLoadingIndicator = true;
     this.showBannedStudentsReload = false;
-    this.instituteApiService.getClassStudentsList(
+    this.instituteApiService.getSubjectStudentsList(
       this.currentInstituteSlug,
       this.currentClassSlug,
+      this.currentSubjectSlug,
       'banned'
     ).subscribe(
-      (result: InstituteBannedStudentMinDetails[]) => {
+      (result: InstituteBannedStudentResponse) => {
         this.bannedStudentsLoadingIndicator = false;
-        this.bannedStudents = result;
+        this.bannedStudents = result.data;
+        this.currentInstituteRole = result.requester_role;
+        this.hasPerm = result.has_perm;
       },
       errors => {
         this.bannedStudentsLoadingIndicator = false;
@@ -156,15 +170,13 @@ export class SubjectStudentsComponent implements OnInit {
 
   invite() {
     let data = this.invitationForm.value;
-    if (!data.enrollment_no) {
-      data.enrollment_no = '';
-    }
     this.showInvitingIndicator = true;
     this.closeInviteError();
     this.invitationForm.disable();
-    this.instituteApiService.inviteStudentToClass(
+    this.instituteApiService.inviteStudentToSubject(
       this.currentInstituteSlug,
       this.currentClassSlug,
+      this.currentSubjectSlug,
       data
     ).subscribe(
       (result: InstituteStudentMinDetails) => {
@@ -176,7 +188,11 @@ export class SubjectStudentsComponent implements OnInit {
           2000
         );
         this.showInvitationForm = false;
-        this.invitedStudents.unshift(result);
+        if (result.active) {
+          this.activeStudents.unshift(result);
+        } else{
+          this.invitedStudents.unshift(result);
+        }
       },
       errors => {
         this.invitationForm.enable();
@@ -429,5 +445,21 @@ export class SubjectStudentsComponent implements OnInit {
 
   getGender(key: string) {
     return GENDER[key];
+  }
+
+  hasSubjectPerm() {
+    if (this.hasPerm || this.currentInstituteRole === INSTITUTE_ROLE_REVERSE['Admin']) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  userIsStaff() {
+    if (this.currentInstituteRole === INSTITUTE_ROLE_REVERSE['Staff']) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

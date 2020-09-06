@@ -11,8 +11,8 @@
             <app-ui-loading [actionText]="'Loading Invited Students...'"></app-ui-loading>
         </div>
         <div class="m-t-1 m-r-1 m-l-1 m-b-1 text-color-87" *ngIf="!invitedStudentsLoadingIndicator && !showInvitedStudentsReload && !invitedStudentsGetError">
-            <div class="d-flex justify-content-end">
-                <button mat-stroked-button class="stroked-button" *ngIf="!showInvitationForm" (click)="showInviteForm()"><mat-icon class="add-icon">add</mat-icon> Student</button>
+            <div class="d-flex justify-content-end" *ngIf="!showInvitationForm && hasClassPerm()">
+                <button mat-stroked-button class="stroked-button" (click)="showInviteForm()"><mat-icon class="add-icon">add</mat-icon> Student</button>
             </div>
             <div class="invite-form m-t-1" *ngIf="showInvitationForm">
                 <div class="form-header d-flex justify-content-between align-center">
@@ -165,23 +165,23 @@
                             </div>
                         </div>
                         <hr class="top-separator m-t-1 m-b-1" />
-                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit']">
-                            <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="true" (hideEditFormEvent)="hideInvitedStudentEditForm()" (editedStudentDetails)="updateInvitedStudentData($event)"></app-edit-student-details-form>
+                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit'] && hasClassPerm()">
+                            <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="!userIsAdmin()" (hideEditFormEvent)="hideInvitedStudentEditForm()" (editedStudentDetails)="updateInvitedStudentData($event)"></app-edit-student-details-form>
                         </div>
                         <div class="d-flex justify-content-end text-color">
-                            <button mat-stroked-button class="stroked-button m-r-05" [disabled]="student['edit'] || student['delete']" (click)="editInvitedStudentDetails(i)">
+                            <button mat-stroked-button class="stroked-button m-r-05" [disabled]="student['edit'] || student['delete']" *ngIf="hasClassPerm()" (click)="editInvitedStudentDetails(i)">
                               <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">edit</mat-icon>
                               <span *ngIf="!mq.matches">Details</span>
                             </button>
-                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05">
+                            <button mat-stroked-button [disabled]="student['delete']" *ngIf="hasClassPerm()" class="stroked-button m-r-05">
                               <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">visibility</mat-icon>
                               <span *ngIf="!mq.matches">Manage</span>
                             </button>
-                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05" *ngIf="!mq.matches">
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button" [class.m-r-05]="hasClassPerm()" *ngIf="!mq.matches">
                               <mat-icon class="message-icon" [class.m-r-05]="!mq.matches">mail</mat-icon>
                               <span *ngIf="!mq.matches">Message</span>
                             </button>
-                            <button mat-stroked-button class="stroked-button" [disabled]="student['delete']" (click)="deleteInvitedStudentConfirm(i)">
+                            <button mat-stroked-button class="stroked-button" [disabled]="student['delete']" *ngIf="hasClassPerm()" (click)="deleteInvitedStudentConfirm(i)">
                               <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
                                 <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">delete</mat-icon>
                                 <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>
@@ -329,29 +329,29 @@
                             </div>
                         </div>
                         <hr class="top-separator m-t-1 m-b-1" />
-                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit']">
-                            <app-edit-student-details-form [student]="student" (hideEditFormEvent)="hideActiveStudentEditForm()" (editedStudentDetails)="updateActiveStudentData($event)"></app-edit-student-details-form>
+                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit'] && hasClassPerm()">
+                            <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="!userIsAdmin()" (hideEditFormEvent)="hideActiveStudentEditForm()" (editedStudentDetails)="updateActiveStudentData($event)"></app-edit-student-details-form>
                         </div>
                         <div class="d-flex justify-content-end text-color">
-                            <button mat-stroked-button [disabled]="student['edit'] || student['delete']" class="stroked-button m-r-05" (click)="editActiveStudentDetails(i)">
-                            <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">edit</mat-icon>
-                            <span *ngIf="!mq.matches">Details</span>
-                          </button>
-                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05">
-                            <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">visibility</mat-icon>
-                            <span *ngIf="!mq.matches">Manage</span>
-                          </button>
-                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05" *ngIf="!mq.matches">
-                            <mat-icon class="message-icon" [class.m-r-05]="!mq.matches">mail</mat-icon>
-                            <span *ngIf="!mq.matches">Message</span>
-                          </button>
-                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button" (click)="deleteActiveStudentConfirm(i)">
-                            <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
-                              <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">delete</mat-icon>
-                              <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>
-                              <span *ngIf="!mq.matches">Delete</span>
-                            </div>
-                          </button>
+                            <button mat-stroked-button [disabled]="student['edit'] || student['delete']" *ngIf="hasClassPerm()" class="stroked-button m-r-05" (click)="editActiveStudentDetails(i)">
+                              <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">edit</mat-icon>
+                              <span *ngIf="!mq.matches">Details</span>
+                            </button>
+                            <button mat-stroked-button [disabled]="student['delete']" *ngIf="hasClassPerm()" class="stroked-button m-r-05">
+                              <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">visibility</mat-icon>
+                              <span *ngIf="!mq.matches">Manage</span>
+                            </button>
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button" [class.m-r-05]="hasClassPerm()" *ngIf="!mq.matches">
+                              <mat-icon class="message-icon" [class.m-r-05]="!mq.matches">mail</mat-icon>
+                              <span *ngIf="!mq.matches">Message</span>
+                            </button>
+                            <button mat-stroked-button [disabled]="student['delete']" *ngIf="hasClassPerm()" class="stroked-button" (click)="deleteActiveStudentConfirm(i)">
+                              <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
+                                <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">delete</mat-icon>
+                                <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>
+                                <span *ngIf="!mq.matches">Delete</span>
+                              </div>
+                            </button>
                         </div>
                     </mat-expansion-panel>
                 </mat-accordion>
@@ -477,8 +477,14 @@
                                     <p *ngIf="mq.matches">Invitation Status:</p>
                                 </div>
                                 <div class="col-6">
-                                    <h3 *ngIf="!mq.matches">Accepted</h3>
-                                    <p *ngIf="mq.matches">Accepted</p>
+                                    <h3 *ngIf="!mq.matches">
+                                        <span *ngIf="student.active">Accepted</span>
+                                        <span *ngIf="!student.active">Pending</span>
+                                    </h3>
+                                    <p *ngIf="mq.matches">
+                                        <span *ngIf="student.active">Accepted</span>
+                                        <span *ngIf="!student.active">Pending</span>
+                                    </p>
                                 </div>
                             </div>
                             <div class="row details">
@@ -539,23 +545,23 @@
                             </div>
                         </div>
                         <hr class="top-separator m-t-1 m-b-1" />
-                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit']">
-                            <app-edit-student-details-form [student]="student" (hideEditFormEvent)="hideBannedStudentEditForm()" (editedStudentDetails)="updateBannedStudentData($event)"></app-edit-student-details-form>
+                        <div class="text-color edit-form-background m-b-1" *ngIf="student['edit'] && hasClassPerm()">
+                            <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="!userIsAdmin()" (hideEditFormEvent)="hideBannedStudentEditForm()" (editedStudentDetails)="updateBannedStudentData($event)"></app-edit-student-details-form>
                         </div>
                         <div class="d-flex justify-content-end text-color">
-                            <button mat-stroked-button [disabled]="student['edit'] || student['delete']" class="stroked-button m-r-05" (click)="editBannedStudentDetails(i)">
+                            <button mat-stroked-button [disabled]="student['edit'] || student['delete']" class="stroked-button m-r-05" *ngIf="hasClassPerm()" (click)="editBannedStudentDetails(i)">
                               <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">edit</mat-icon>
                               <span *ngIf="!mq.matches">Details</span>
                             </button>
-                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05">
+                            <button mat-stroked-button [disabled]="student['delete']" *ngIf="hasClassPerm()" class="stroked-button m-r-05">
                               <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">visibility</mat-icon>
                               <span *ngIf="!mq.matches">Manage</span>
                             </button>
-                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05" *ngIf="!mq.matches">
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button m-r-05" [class.m-r-05]="hasClassPerm()" *ngIf="!mq.matches">
                               <mat-icon class="message-icon" [class.m-r-05]="!mq.matches">mail</mat-icon>
                               <span *ngIf="!mq.matches">Message</span>
                             </button>
-                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button" (click)="removeBannedStudentConfirm(i)">
+                            <button mat-stroked-button [disabled]="student['delete']" class="stroked-button" *ngIf="hasClassPerm()" (click)="removeBannedStudentConfirm(i)">
                               <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
                                 <mat-icon class="delete-icon" *ngIf="!student['delete']" [class.m-r-05]="!mq.matches">close</mat-icon>
                                 <mat-spinner mode="indeterminate" *ngIf="student['delete']" [diameter]="20" [class.m-r-05]="!mq.matches"></mat-spinner>

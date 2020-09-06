@@ -10,6 +10,7 @@ export interface InstituteStudentMinDetails {
   created_on: string;
   class_name: string;
   is_banned?: boolean;
+  active?: boolean;
   image: string;
 };
 
@@ -31,8 +32,20 @@ export interface InstituteBannedStudentMinDetails {
   ban_start_date?: string;
   ban_end_date?: string;
   banning_reason?: string;
+  active: boolean;
 };
 
+export interface InstituteStudentResponse {
+  data: InstituteStudentMinDetails[],
+  requester_role: string;
+  has_perm: boolean;
+}
+
+export interface InstituteBannedStudentResponse {
+  data: InstituteBannedStudentMinDetails[],
+  requester_role: string;
+  has_perm: boolean;
+}
 
 export interface StudentCourseListViewOrder {
   name: string;

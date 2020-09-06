@@ -54,7 +54,7 @@ export const GENDER = {
     O: 'Others',
     M: 'Male',
     F: 'Female',
-    '': 'Not Assigned'
+    '': 'Unknown'
 };
 
 export const GENDER_REVERSE = {
