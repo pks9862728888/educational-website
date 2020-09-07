@@ -90,7 +90,7 @@ export class ClassSubjectsComponent implements OnInit {
     if (this.createSubjectForm.value.name.length > 0) {
       this.createSubjectForm.disable();
       let type: string;
-      if (this.createSubjectForm.value.type) {
+      if (!this.createSubjectForm.value.type) {
         type = SUBJECT_TYPE_REVERSE['MANDATORY'];
       } else {
         type = SUBJECT_TYPE_REVERSE['OPTIONAL'];

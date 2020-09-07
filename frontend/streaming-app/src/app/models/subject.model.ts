@@ -120,3 +120,16 @@ export interface StudyMaterialPreviewDetails {
     total_pages?: number; // For pdf
   };
 }
+
+export interface SubjectPeerDetails {
+  name: string;
+  user_id: number;
+  enrollment_no?: string;
+  image: string;
+}
+
+export interface SubjectPeersResponse {
+  view_order: Array<string>;
+  instructors: SubjectPeerDetails[];
+  students: SubjectPeerDetails[];
+}

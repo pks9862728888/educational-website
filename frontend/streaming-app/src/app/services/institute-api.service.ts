@@ -248,6 +248,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/${subjectSlug}/add-student-to-subject`;
   }
 
+  getCoursePeersUrl(instituteSlug: string, subjectSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/list-subject-peers`;
+  }
+
 
   constructor( private cookieService: CookieService,
                private httpClient: HttpClient ) { }
@@ -768,6 +772,13 @@ export class InstituteApiService {
         subjectSlug
       ),
       data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getCoursePeers(instituteSlug: string, subjectSlug: string) {
+    return this.httpClient.get(
+      this.getCoursePeersUrl(instituteSlug, subjectSlug),
       { headers: this.getAuthHeader() }
     );
   }

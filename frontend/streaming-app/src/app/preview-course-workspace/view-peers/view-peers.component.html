@@ -1,33 +1,25 @@
 <mat-card>
     <h2>Other Course Members:</h2>
     <hr class="top-separator m-b-1 m-t-03">
-    <div class="m-b-1">
-        <h3>Faculties: 1</h3>
-        <div class="row">
-            <div class="col-12 col-md-4" [ngClass]="{'m-b-1': mq.matches, 'p-r-1': !mq.matches}">
-                <div class="student-container d-flex align-center justify-content-between">
-                    <div class="d-flex align-center">
-                        <img src="../../../assets/imgs/cd6.png" class="student-dp m-r-05" alt="">
-                        <p>Swarnima Deb Purkyastha</p>
-                    </div>
-                    <mat-icon class="preview-icon m-l-05">visibility</mat-icon>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="m-b-1">
-        <h3>Students: 99</h3>
-        <div class="row">
-            <div class="col-12 col-md-4" [ngClass]="{'m-b-1': mq.matches, 'p-r-1': !mq.matches}">
-                <div class="student-container d-flex align-center justify-content-between">
-                    <div class="d-flex">
-                        <img src="../../../assets/imgs/cd6.png" class="student-dp m-r-05" alt="">
-                        <div>
-                            <p>Swarnima Deb Purkyastha</p>
-                            <small>BC6126</small>
+    <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Course Members...'"></app-ui-loading>
+    <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load course members.'" (retryEvent)="getCoursePeers()"></app-ui-reload>
+    <app-ui-error-text *ngIf="errorText" [errorText]="errorText" [hideCloseButton]="true"></app-ui-error-text>
+    <div *ngIf="!loadingIndicator && !reloadIndicator && !errorText">
+        <div class="m-b-1" *ngFor="let view of viewOrder; let i=index">
+            <h3>{{ view | titlecase }}: {{ getMembersCount(i) }}</h3>
+            <div class="row">
+                <div *ngFor="let member of getMembersList(i)" class="col-12 col-md-4" [ngClass]="{'m-b-1': mq.matches, 'p-r-1': !mq.matches}">
+                    <div class="student-container d-flex align-center justify-content-between">
+                        <div class="d-flex">
+                            <img *ngIf="!member.image" src="../../../assets/imgs/cd6.png" class="student-dp m-r-05" alt="Profile picture of user">
+                            <img *ngIf="member.image" [src]="member.image" class="student-dp m-r-05" alt="Profile picture of user">
+                            <div class="align-self-center">
+                                <p>{{ member.name | titlecase }}</p>
+                                <small *ngIf="i !== 0">{{ member.enrollment_no }}</small>
+                            </div>
                         </div>
+                        <mat-icon class="preview-icon cursor-pointer m-l-05">visibility</mat-icon>
                     </div>
-                    <mat-icon class="preview-icon m-l-05">visibility</mat-icon>
                 </div>
             </div>
         </div>
