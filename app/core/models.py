@@ -1748,6 +1748,21 @@ class InstituteClassStudents(models.Model):
         unique_together = ('invitee', 'institute_class')
 
 
+@receiver(post_save, sender=InstituteClassStudents)
+def add_student_to_subject(sender, instance, created, *args, **kwargs):
+    if created:
+        for subject in InstituteSubject.objects.filter(
+            subject_class__pk=instance.institute_class.pk,
+            type=InstituteSubjectType.MANDATORY
+        ):
+            InstituteSubjectStudents.objects.create(
+                institute_subject=subject,
+                invitee=instance.invitee,
+                inviter=instance.inviter,
+                active=instance.active
+            )
+
+
 class InstituteSubjectStudents(models.Model):
     """Model for storing institute subject students"""
     institute_subject = models.ForeignKey(

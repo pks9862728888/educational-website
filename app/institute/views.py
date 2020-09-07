@@ -1205,11 +1205,6 @@ class AddStudentToClassView(APIView):
                 inviter=self.request.user,
                 active=active_student
             )
-            for sub in models.InstituteSubject.objects.filter(
-                subject_class__pk=class_.pk,
-                type=models.InstituteSubjectType.MANDATORY
-            ).select_related('student_institute_subject'):
-                print(sub)
 
             response = {
                 'id': institute_student.pk,
