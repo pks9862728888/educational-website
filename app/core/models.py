@@ -1745,6 +1745,8 @@ class InstituteClassStudents(models.Model):
         InstituteClass, on_delete=models.CASCADE, related_name='student_institute_class')
     invitee = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='institute_class_student')
+    institute_profile = models.OneToOneField(
+        InstituteStudents, on_delete=models.CASCADE, related_name='class_student_institute_profile')
     inviter = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='class_student_inviter', null=True)
     active = models.BooleanField(_('Active'), default=False, blank=True)
