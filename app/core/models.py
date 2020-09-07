@@ -1809,8 +1809,8 @@ class InstituteStudyMaterialPreviewStats(models.Model):
 
 class InstituteBannedStudent(models.Model):
     """Model to store banned student from institute"""
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='institute_banned_user')
+    institute_student = models.ForeignKey(
+        InstituteStudents, on_delete=models.CASCADE, related_name='institute_banned_student')
     banned_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='institute_banning_user')
     banned_institute = models.ForeignKey(
@@ -1833,13 +1833,13 @@ class InstituteBannedStudent(models.Model):
         super(InstituteBannedStudent, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.user)
+        return str(self.institute_student.invitee)
 
 
 class InstituteClassBannedStudent(models.Model):
     """Model to store banned student from class"""
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='class_banned_user')
+    institute_student = models.ForeignKey(
+        InstituteStudents, on_delete=models.CASCADE, related_name='class_banned_student')
     banned_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='class_banned_by')
     banned_class = models.ForeignKey(
@@ -1862,13 +1862,13 @@ class InstituteClassBannedStudent(models.Model):
         super(InstituteClassBannedStudent, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.user)
+        return str(self.institute_student.invitee)
 
 
 class InstituteSubjectBannedStudent(models.Model):
     """Model to store banned student from subject"""
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='subject_banned_user')
+    institute_student = models.ForeignKey(
+        InstituteStudents, on_delete=models.CASCADE, related_name='subject_banned_student')
     banned_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='subject_banned_by')
     banned_subject = models.ForeignKey(
@@ -1891,7 +1891,7 @@ class InstituteSubjectBannedStudent(models.Model):
         super(InstituteSubjectBannedStudent, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.user)
+        return str(self.institute_student.invitee)
 
 
 class InstituteLastSeen(models.Model):
