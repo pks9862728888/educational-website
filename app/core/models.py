@@ -1234,7 +1234,7 @@ def create_institute_subject_statistics_instance(sender, instance, created, *arg
             ).only('invitee'):
                 InstituteSubjectStudents.objects.create(
                     institute_subject=instance,
-                    invitee=student,
+                    invitee=student.invitee,
                     active=student.active
                 )
 
