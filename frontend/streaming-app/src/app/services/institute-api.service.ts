@@ -44,6 +44,7 @@ export class InstituteApiService {
   institutePendingInvitesUrl = `${this.instituteBaseUrl}pending-institute-invites-teacher`;
   instituteCreateUrl = `${this.instituteBaseUrl}create`;
   studentInstituteMinDetailsUrl = `${this.instituteBaseUrl}institute-min-details-student`;
+  bookmarkCourseUrl = `${this.instituteBaseUrl}bookmark-course`;
 
   // Insitute license related urls
   instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
@@ -767,6 +768,14 @@ export class InstituteApiService {
         subjectSlug
       ),
       data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  bookmarkInstituteCourse(subjectId: string) {
+    return this.httpClient.post(
+      this.bookmarkCourseUrl,
+      { 'subject_id': subjectId },
       { headers: this.getAuthHeader() }
     );
   }

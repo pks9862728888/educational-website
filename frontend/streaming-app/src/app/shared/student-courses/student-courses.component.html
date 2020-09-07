@@ -1,10 +1,10 @@
 <div class="body-container">
     <h2>My Courses:</h2>
-    <hr class="top-separator m-b-1" />
+    <hr class="top-separator m-b-1 m-t-03" />
     <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="'Loading Courses...'"></app-ui-loading>
     <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load course details.'" (retryEvent)="getCourses()"></app-ui-reload>
     <h3 *ngIf="isMyCourseEmpty()">No courses found.</h3>
-    <section *ngIf="!showLoadingIndicator && !showReload && !isMyCourseEmpty()">
+    <div *ngIf="!showLoadingIndicator && !showReload && !isMyCourseEmpty()">
         <div *ngFor="let institute of viewOrder; let i=index">
             <div class="d-flex justify-content-between align-center expansion-panel-header-color ep-header m-b-1" (click)="setOpenedPanelStep(i)">
                 <h3>{{ institute.name | titlecase }} <span *ngIf="classNames[institute.institute_slug]">({{ classNames[institute.institute_slug] | titlecase }})</span></h3>
@@ -16,8 +16,8 @@
             <div *ngIf="openedPanelStep === i" [class.m-t-1]="!mq.matches">
                 <h3 *ngIf="isInstituteCourseListEmpty(institute.institute_slug)" class="m-b-1 m-l-1">No course content found.</h3>
                 <div class="row">
-                    <div class="col-sm-4 m-b-1" *ngFor="let course of courses[institute.institute_slug]">
-                        <div class="c-container cursor-pointer">
+                    <div class="col-sm-4 m-b-1" *ngFor="let course of getCourseList(institute)">
+                        <div class="c-container cursor-pointer" (click)="openCourse(course)">
                             <div class="c-image" *ngIf="!course.image"></div>
                             <img class="c-image" *ngIf="course.image" [src]="course.image" alt="Course image">
                             <div class="c-overlay p-05rem">
@@ -35,5 +35,5 @@
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 </div>

@@ -35,6 +35,7 @@ hr {
     background-color: #b3b3b3;
     position: absolute;
     height: 100px;
+    width: 100%;
     transform: translateY(-6.2rem);
     z-index: 3;
     box-shadow: 0 -1px 2px #1d1d1d;
@@ -68,7 +69,6 @@ hr {
 .c-container:hover,
 .c-container:hover+.d-flex {
     transform: translateY(-0.3rem);
-    z-index: 3;
 }
 
 .p-05rem {
@@ -77,6 +77,10 @@ hr {
 
 .p-1rem {
     padding: 1rem;
+}
+
+.m-t-03 {
+    margin-top: 0.3rem;
 }
 
 .m-t-1 {
