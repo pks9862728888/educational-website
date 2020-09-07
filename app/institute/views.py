@@ -4292,7 +4292,7 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
     def get(self, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': 'Subject not found.'},
@@ -4306,46 +4306,59 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not models.InstituteSubjectPermission.objects.filter(
-                to=subject,
-                invitee=self.request.user
-        ).exists():
-            if not models.InstitutePermission.objects.filter(
-                    institute=institute,
-                    invitee=self.request.user,
-                    role=models.InstituteRole.ADMIN,
-                    active=True
+        requester_role = None
+        if self.request.user.is_student:
+            requester_role = 'STUDENT'
+
+            if not models.InstituteSubjectStudents.objects.filter(
+                    institute_subject__pk=subject.pk,
+                    invitee=self.request.user
             ).exists():
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-        if self.request.user.is_teacher:
-            if not get_unexpired_license(institute):
-                return Response({'error': _('Institute license expired or not found.')},
-                                status=status.HTTP_400_BAD_REQUEST)
-        else:
             if not get_active_license(institute):
                 return Response({'error': _('Institute has no active license. Contact institute.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        elif self.request.user.is_teacher:
+            requester_role = 'TEACHER'
+
+            if not models.InstituteSubjectPermission.objects.filter(
+                    to=subject,
+                    invitee=self.request.user
+            ).exists():
+                if not models.InstitutePermission.objects.filter(
+                        institute=institute,
+                        invitee=self.request.user,
+                        role=models.InstituteRole.ADMIN,
+                        active=True
+                ).exists():
+                    return Response({'error': _('Permission denied.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+            if not get_unexpired_license(institute):
+                return Response({'error': _('Institute license expired or not found.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
         view = models.SubjectViewNames.objects.filter(
             view_subject=subject,
             key=kwargs.get('view_key')
-        ).first()
+        ).only('view_subject', 'key').first()
 
         if not view:
             return Response({'error': _('Module not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         data = models.InstituteSubjectCourseContent.objects.filter(
-            course_content_subject=subject,
-            view=view).order_by('order')
+            course_content_subject__pk=subject.pk,
+            view__pk=view.pk).order_by('order')
         response = None
 
         if view.key != 'MI' and view.key != 'CO':
             response = dict()
             view_weeks = models.SubjectViewWeek.objects.filter(
-                week_view=view)
+                week_view=view).only('value')
             for week in view_weeks:
                 week_data = data.filter(week__value=week.value)
                 week_data_response = list()
