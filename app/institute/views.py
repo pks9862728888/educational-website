@@ -4137,6 +4137,88 @@ class BookmarkInstituteCourse(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
+class ListSubjectPeers(APIView):
+    """View for listing students and faculties of subject"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsStudent)
+
+    def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+            institute_subject__pk=subject.pk,
+            invitee=self.request.user,
+            active=True,
+            is_banned=False
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if models.InstituteClassStudents.objects.filter(
+            institute_class__pk=institute.pk,
+            invitee=self.request.user,
+            is_banned=True
+        ):
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_license(institute):
+            return Response({'error': _('Active license not found or expired. Contact your institute.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        students = list()
+        instructors = list()
+        for invite in models.InstituteSubjectStudents.objects.filter(
+            institute_subject__pk=subject.pk,
+            active=True,
+            is_banned=False
+        ).only('invitee').order_by('enrollment_no'):
+            student_details = dict()
+            student_details['image'] = ''
+            student_details['user_id'] = invite.invitee.pk
+            invitee = models.InstituteStudents.objects.filter(
+                institute__pk=institute.pk,
+                invitee__pk=invite.invitee.pk
+            ).only('first_name', 'last_name', 'enrollment_no').first()
+            student_details['name'] = invitee.first_name + ' ' + invitee.last_name
+            student_details['enrollment_no'] = invitee.enrollment_no
+            students.append(student_details)
+
+        for invite in models.InstituteSubjectPermission.objects.filter(
+            to__pk=subject.pk
+        ).order_by('created_on'):
+            instructor_details = dict()
+            instructor_details['image'] = ''
+            instructor_details['user_id'] = invite.invitee.pk
+
+            if invite.invitee.first_name:
+                instructor_details['name'] = invite.invitee.first_name + ' ' + invite.invitee.last_name
+            else:
+                instructor_details['name'] = str(invite.invitee)
+
+            instructors.append(instructor_details)
+
+        return Response({
+            'instructors': instructors,
+            'students': students,
+            'view_order': ['Instructors', 'Students']
+        }, status=status.HTTP_200_OK)
+
+
 class InstituteSubjectCoursePreviewMinDetails(APIView):
     """
     View for getting min course statistics by admin, subject incharge and
