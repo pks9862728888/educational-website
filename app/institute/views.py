@@ -4148,7 +4148,7 @@ class InstituteSubjectCoursePreviewMinDetails(APIView):
     def get(self, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -4156,24 +4156,34 @@ class InstituteSubjectCoursePreviewMinDetails(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug').lower()
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not models.InstituteSubjectPermission.objects.filter(
-                to=subject,
+        requester_type = None
+        if self.request.user.is_student:
+            if not models.InstituteSubjectStudents.objects.filter(
+                institute_subject__pk=subject.pk,
                 invitee=self.request.user
-        ).exists():
-            if not models.InstitutePermission.objects.filter(
-                institute=institute,
-                invitee=self.request.user,
-                role=models.InstituteRole.ADMIN,
-                active=True
             ).exists():
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
+
+        elif self.request.user.is_teacher:
+            if not models.InstituteSubjectPermission.objects.filter(
+                    to=subject,
+                    invitee=self.request.user
+            ).exists():
+                if not models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    invitee=self.request.user,
+                    role=models.InstituteRole.ADMIN,
+                    active=True
+                ).exists():
+                    return Response({'error': _('Permission denied.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
         order = get_unexpired_license(institute)
 
