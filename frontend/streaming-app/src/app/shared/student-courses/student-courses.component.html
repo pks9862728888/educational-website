@@ -21,13 +21,13 @@
                             <div class="c-image" *ngIf="!course.image"></div>
                             <img class="c-image" *ngIf="course.image" [src]="course.image" alt="Course image">
                             <div class="c-overlay p-05rem">
-                                <h3 class="c-name">{{ course.name | titlecase }}</h3>
+                                <h3 class="c-name">{{ course.subject_name | titlecase }}</h3>
                                 <small class="c-description text-justify">{{ formatDescription(course.description) }}</small>
                             </div>
                         </div>
                         <div class="d-flex justify-content-end">
-                            <mat-icon class="bookmark cursor-pointer">
-                                <span *ngIf="course['BOOKMARKED']">star_border</span>
+                            <mat-icon class="bookmark cursor-pointer" (click)="bookmark(course)">
+                                <span *ngIf="!course['BOOKMARKED']">star_border</span>
                                 <span *ngIf="course['BOOKMARKED']">star</span>
                             </mat-icon>
                         </div>

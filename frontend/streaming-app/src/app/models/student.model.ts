@@ -66,11 +66,11 @@ export interface StudentCourseDetails {
 
 export interface StudentAllCoursesList {
   view_order: StudentCourseListViewOrder[];
-  courses: {
+  courses: [{
     string: StudentCourseDetails;
-  };
+  }];
   class_names: {}
-  favourite_courses: {
+  favourite_courses: [{
     string: StudentCourseDetails;
-  };
+  }];
 }

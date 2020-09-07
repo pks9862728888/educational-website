@@ -17,8 +17,8 @@ export class StudentCoursesComponent implements OnInit {
   text = 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis iure explicabo maiores nesciunt facilis consectetur rem distinctio unde laborum nostrum eligendi dolore animi fuga hic, eveniet, consequatur deleniti, porro voluptatem.';
 
   viewOrder: StudentCourseListViewOrder[] = [];
-  courses: {string: StudentCourseDetails};
-  favouriteCourses: {string: StudentCourseDetails};
+  courses: [{string: StudentCourseDetails}];
+  favouriteCourses: [{string: StudentCourseDetails}];
   classNames = {};
 
   constructor(
@@ -42,15 +42,24 @@ export class StudentCoursesComponent implements OnInit {
         this.courses = result.courses;
         this.favouriteCourses = result.favourite_courses;
         this.classNames = result.class_names;
-        this.openedPanelStep = 0;
+        if (this.favouriteCourses.length > 0) {
+          this.openedPanelStep = 0;
+        }
         console.log(result);
+        console.log(this.viewOrder);
         console.log(this.courses);
+        console.log(this.favouriteCourses);
+        console.log(this.classNames);
       },
       errors => {
         this.showLoadingIndicator = false;
         this.showReload = true;
       }
     );
+  }
+
+  bookmark(course: StudentCourseDetails) {
+
   }
 
   setOpenedPanelStep(step: number) {

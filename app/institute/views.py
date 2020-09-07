@@ -4093,6 +4093,40 @@ class InstituteStudentCourseListView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class BookmarkInstituteCourse(APIView):
+    """View for bookmarking course by authenticated user"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsStudent)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            pk=request.data.get('subject_id')
+        ).only('subject_class').first()
+
+        if not subject:
+            return Response({'error': _('Course may have been removed.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectStudents.objects.filter(
+            institute_subject__pk=subject.pk,
+            invitee=self.request.user,
+            active=True
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            models.SubjectBookmarked.objects.create(
+                subject=subject,
+                user=self.request.user
+            )
+            return Response({'status': 'OK'},
+                            status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
 class InstituteSubjectCoursePreviewMinDetails(APIView):
     """
     View for getting min course statistics by admin, subject incharge and
