@@ -4043,7 +4043,7 @@ class InstituteStudentCourseListView(APIView):
                 'name': 'Favourite Courses',
                 'institute_slug': 'BOOKMARKED'
             })
-            response['courses']['BOOKMARKED'] = list()
+            response['favourite_courses']['BOOKMARKED'] = list()
             for invite in institute_invites:
                 institute_slug = invite.institute.institute_slug
                 institute_pk = invite.institute.pk
@@ -4085,7 +4085,7 @@ class InstituteStudentCourseListView(APIView):
                                 user=self.request.user
                             ).exists():
                                 subject_course_details['BOOKMARKED'] = True
-                                response['courses']['BOOKMARKED'].append(subject_course_details)
+                                response['favourite_courses']['BOOKMARKED'].append(subject_course_details)
                             else:
                                 subject_course_details['BOOKMARKED'] = False
                                 response['courses'][institute_slug].append(subject_course_details)
@@ -4119,7 +4119,7 @@ class BookmarkInstituteCourse(APIView):
             if models.SubjectBookmarked.objects.filter(
                 subject=subject,
                 user=self.request.user
-            ).exists:
+            ).exists():
                 models.SubjectBookmarked.objects.filter(
                     subject=subject,
                     user=self.request.user
