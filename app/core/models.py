@@ -1228,6 +1228,16 @@ def create_institute_subject_statistics_instance(sender, instance, created, *arg
             key='M1',
             name='Module 1')
 
+        if instance.type == InstituteSubjectType.MANDATORY:
+            for student in InstituteClassStudents.objects.filter(
+                institute_class__pk=instance.subject_class.pk
+            ).only('invitee'):
+                InstituteSubjectStudents.objects.create(
+                    institute_subject=instance,
+                    invitee=student,
+                    active=student.active
+                )
+
 
 class SubjectBookmarked(models.Model):
     """Stores bookmarked subject by student"""

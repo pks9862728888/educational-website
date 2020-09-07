@@ -3,10 +3,8 @@
         <app-ui-error-text [errorText]="errorLoading" [hideCloseButton]="true"></app-ui-error-text>
     </div>
     <mat-card class="m-b-1">
-        <div>
-            <h3>Course Instructors:</h3>
-        </div>
-        <hr class="top-separator m-b-1" />
+        <h2>Course Instructors:</h2>
+        <hr class="top-separator m-b-1 m-t-03" />
         <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Instructors...'"></app-ui-loading>
         <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load instructors.'" (retryEvent)="loadMinPreviewDetails()"></app-ui-reload>
         <h3 *ngIf="errorLoading && !mq.matches">Error occured!</h3>
@@ -34,10 +32,8 @@
         </div>
     </mat-card>
     <mat-card>
-        <div>
-            <h3>Course Content:</h3>
-        </div>
-        <hr class="top-separator m-b-1" />
+        <h2>Course Content:</h2>
+        <hr class="top-separator m-b-1 m-t-03" />
         <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Course Content...'"></app-ui-loading>
         <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load contents.'" (retryEvent)="loadMinPreviewDetails()"></app-ui-reload>
         <h3 *ngIf="errorLoading && !mq.matches">Error occured!</h3>

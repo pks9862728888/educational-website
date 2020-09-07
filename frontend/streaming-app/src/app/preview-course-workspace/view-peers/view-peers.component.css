@@ -1,3 +1,4 @@
+h2,
 h3,
 hr,
 p,
@@ -46,12 +47,16 @@ p,
     padding-right: 1rem;
 }
 
-.m-b-1 {
-    margin-bottom: 1rem;
+.m-t-03 {
+    margin-top: 0.3rem;
 }
 
 .m-r-05 {
     margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
 }
 
 .m-l-05 {

@@ -1,3 +1,4 @@
+h2,
 h3,
 h4,
 p,
@@ -149,6 +150,10 @@ a.nav-link {
 
 .p-b-1 {
     padding-bottom: 1rem;
+}
+
+.m-t-03 {
+    margin-top: 0.3rem;
 }
 
 .m-t-05 {

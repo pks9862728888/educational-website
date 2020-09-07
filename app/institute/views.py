@@ -4306,10 +4306,7 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        requester_role = None
         if self.request.user.is_student:
-            requester_role = 'STUDENT'
-
             if not models.InstituteSubjectStudents.objects.filter(
                     institute_subject__pk=subject.pk,
                     invitee=self.request.user
@@ -4322,8 +4319,6 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
                                 status=status.HTTP_400_BAD_REQUEST)
 
         elif self.request.user.is_teacher:
-            requester_role = 'TEACHER'
-
             if not models.InstituteSubjectPermission.objects.filter(
                     to=subject,
                     invitee=self.request.user
