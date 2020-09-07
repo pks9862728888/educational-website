@@ -4116,12 +4116,22 @@ class BookmarkInstituteCourse(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            models.SubjectBookmarked.objects.create(
+            if models.SubjectBookmarked.objects.filter(
                 subject=subject,
                 user=self.request.user
-            )
-            return Response({'status': 'OK'},
-                            status=status.HTTP_201_CREATED)
+            ).exists:
+                models.SubjectBookmarked.objects.filter(
+                    subject=subject,
+                    user=self.request.user
+                ).delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                models.SubjectBookmarked.objects.create(
+                    subject=subject,
+                    user=self.request.user
+                )
+                return Response({'status': 'OK'},
+                                status=status.HTTP_201_CREATED)
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_400_BAD_REQUEST)
