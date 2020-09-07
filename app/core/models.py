@@ -1060,22 +1060,18 @@ class InstituteBanner(models.Model):
 class InstitutePermission(models.Model):
     """Creates Institute permissions model"""
     institute = models.ForeignKey(
-        'Institute', related_name='permissions', on_delete=models.CASCADE
-    )
+        'Institute', related_name='permissions', on_delete=models.CASCADE)
     inviter = models.ForeignKey(
         'User', related_name='invites', on_delete=models.SET_NULL,
-        null=True
-    )
+        null=True)
     invitee = models.ForeignKey(
-        'User', related_name='requests', on_delete=models.CASCADE
-    )
+        'User', related_name='requests', on_delete=models.CASCADE)
     role = models.CharField(
         _('Permission'),
         choices=InstituteRole.ROLE_IN_INSTITUTE_ROLES,
         max_length=1,
         null=False,
-        blank=False
-    )
+        blank=False)
     active = models.BooleanField(_('Active'), default=False)
     request_date = models.DateTimeField(
         _('Request Date'), default=timezone.now, editable=False)
@@ -1229,14 +1225,14 @@ def create_institute_subject_statistics_instance(sender, instance, created, *arg
             name='Module 1')
 
         if instance.type == InstituteSubjectType.MANDATORY:
-            for student in InstituteClassStudents.objects.filter(
+            for invite in InstituteClassStudents.objects.filter(
                 institute_class__pk=instance.subject_class.pk
-            ).only('invitee'):
+            ).only('institute_student'):
                 InstituteSubjectStudents.objects.create(
                     institute_subject=instance,
-                    invitee=student.invitee,
-                    inviter=student.inviter,
-                    active=student.active
+                    institute_student=invite.institute_student,
+                    inviter=invite.inviter,
+                    active=invite.active
                 )
 
 
@@ -1743,9 +1739,7 @@ class InstituteClassStudents(models.Model):
     """Model for storing institute class students"""
     institute_class = models.ForeignKey(
         InstituteClass, on_delete=models.CASCADE, related_name='student_institute_class')
-    invitee = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='institute_class_student')
-    institute_profile = models.OneToOneField(
+    institute_student = models.OneToOneField(
         InstituteStudents, on_delete=models.CASCADE, related_name='class_student_institute_profile')
     inviter = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='class_student_inviter', null=True)
@@ -1755,10 +1749,10 @@ class InstituteClassStudents(models.Model):
         _('Created on'), default=timezone.now, blank=True)
 
     def __str__(self):
-        return str(self.invitee)
+        return str(self.institute_student.invitee)
 
     class Meta:
-        unique_together = ('invitee', 'institute_class')
+        unique_together = ('institute_student', 'institute_class')
 
 
 @receiver(post_save, sender=InstituteClassStudents)
@@ -1770,7 +1764,7 @@ def add_student_to_subject(sender, instance, created, *args, **kwargs):
         ):
             InstituteSubjectStudents.objects.create(
                 institute_subject=subject,
-                invitee=instance.invitee,
+                institute_student=instance.institute_student,
                 inviter=instance.inviter,
                 active=instance.active
             )
@@ -1780,8 +1774,8 @@ class InstituteSubjectStudents(models.Model):
     """Model for storing institute subject students"""
     institute_subject = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE, related_name='student_institute_subject')
-    invitee = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='institute_subject_student')
+    institute_student = models.OneToOneField(
+        InstituteStudents, on_delete=models.CASCADE, related_name='subject_student_institute_profile')
     inviter = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='subject_student_inviter', null=True)
     active = models.BooleanField(_('Active'), default=False, blank=True)
@@ -1790,10 +1784,10 @@ class InstituteSubjectStudents(models.Model):
         _('Created on'), default=timezone.now, blank=True)
 
     def __str__(self):
-        return str(self.invitee)
+        return str(self.institute_student.invitee)
 
     class Meta:
-        unique_together = ('invitee', 'institute_subject')
+        unique_together = ('institute_student', 'institute_subject')
 
 
 class InstituteStudyMaterialPreviewStats(models.Model):
