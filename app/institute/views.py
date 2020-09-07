@@ -4464,7 +4464,7 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
         """Only permitted student can ask question."""
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -4472,7 +4472,7 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug').lower()
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
@@ -4480,7 +4480,7 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
 
         if not models.InstituteSubjectStudents.objects.filter(
                 institute_subject=subject,
-                user=self.request.user,
+                institute_student__invitee=self.request.user,
                 active=True
         ).exists():
                 return Response({'error': _('Permission denied.')},
@@ -4488,7 +4488,7 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
 
         course_content = models.InstituteSubjectCourseContent.objects.filter(
             pk=kwargs.get('course_content_id')
-        ).first()
+        ).only('order').first()
 
         if not course_content:
             return Response({'error': _('Course content not found.')},
@@ -4548,7 +4548,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
         """Only permitted subject incharge and permitted student can ask question."""
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -4556,7 +4556,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug').lower()
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
@@ -4566,7 +4566,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
 
         if not models.InstituteSubjectStudents.objects.filter(
                 institute_subject=subject,
-                user=self.request.user,
+                institute_student__invitee=self.request.user,
                 active=True
         ).exists():
             if not models.InstituteSubjectPermission.objects.filter(
@@ -4666,9 +4666,10 @@ class InstituteSubjectUpvoteDownvoteQuestionView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not models.InstituteSubjectStudents.objects.filter(
-                institute_subject=subject,
-                user=self.request.user,
-                active=True
+            institute_subject=subject,
+            institute_student__invitee=self.request.user,
+            active=True,
+            is_banned=False
         ).exists():
             if not models.InstituteSubjectPermission.objects.filter(
                     to=subject,
@@ -4679,7 +4680,7 @@ class InstituteSubjectUpvoteDownvoteQuestionView(APIView):
 
         question = models.InstituteSubjectCourseContentQuestions.objects.filter(
             pk=kwargs.get('question_pk')
-        ).first()
+        ).only('user').first()
 
         if not question:
             return Response({'error': _('Question may have been deleted or not found.')},
@@ -4726,7 +4727,7 @@ class InstituteSubjectUpvoteDownvoteAnswerView(APIView):
     def post(self, request, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -4742,7 +4743,7 @@ class InstituteSubjectUpvoteDownvoteAnswerView(APIView):
 
         if not models.InstituteSubjectStudents.objects.filter(
                 institute_subject=subject,
-                user=self.request.user,
+                institute_student__inivitee=self.request.user,
                 active=True
         ).exists():
             if not models.InstituteSubjectPermission.objects.filter(
@@ -4754,7 +4755,7 @@ class InstituteSubjectUpvoteDownvoteAnswerView(APIView):
 
         answer = models.InstituteSubjectCourseContentAnswer.objects.filter(
             pk=kwargs.get('answer_pk')
-        ).first()
+        ).only('user').first()
 
         if not answer:
             return Response({'error': _('Answer may have been deleted or not found.')},
@@ -4833,7 +4834,7 @@ class InstituteSubjectCourseContentDeleteAnswerView(APIView):
 
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -4906,7 +4907,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
 
         if not models.InstituteSubjectStudents.objects.filter(
             institute_subject=subject,
-            user=self.request.user,
+            institute_student__invitee=self.request.user,
             active=True,
             is_banned=False
         ).exists():
@@ -5010,7 +5011,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
 
         if not models.InstituteSubjectStudents.objects.filter(
                 institute_subject=subject,
-                user=self.request.user,
+                institute_student__invitee=self.request.user,
                 active=True,
                 is_banned=False
         ).exists():
