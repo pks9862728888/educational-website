@@ -4186,7 +4186,7 @@ class ListSubjectPeers(APIView):
             institute_subject__pk=subject.pk,
             active=True,
             is_banned=False
-        ).only('invitee').order_by('enrollment_no'):
+        ).only('invitee'):
             student_details = dict()
             student_details['image'] = ''
             student_details['user_id'] = invite.invitee.pk
@@ -4205,8 +4205,9 @@ class ListSubjectPeers(APIView):
             instructor_details['image'] = ''
             instructor_details['user_id'] = invite.invitee.pk
 
-            if invite.invitee.first_name:
-                instructor_details['name'] = invite.invitee.first_name + ' ' + invite.invitee.last_name
+            if invite.invitee.user_profile.first_name:
+                instructor_details['name'] = invite.invitee.user_profile.first_name + ' ' +\
+                                             invite.invitee.user_profile.last_name
             else:
                 instructor_details['name'] = str(invite.invitee)
 
