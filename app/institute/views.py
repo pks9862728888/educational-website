@@ -7,7 +7,7 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from django.db.models import Max, Q
+from django.db.models import Max, Q, F
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
@@ -4521,7 +4521,7 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
                 'upvoted': False
             }
             if question.anonymous:
-                response['user'] = 'Anonymous User'
+                response['user'] = 'Anonymous User(self)'
             else:
                 user_info = models.InstituteStudents.objects.filter(
                     invitee=self.request.user,
@@ -4621,7 +4621,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
             }
 
             if ans.anonymous:
-                response['user'] = 'Anonymous User'
+                response['user'] = 'Anonymous User(self)'
             else:
                 user_details = None
 
@@ -4831,7 +4831,7 @@ class InstituteSubjectCourseContentDeleteQuestionView(APIView):
 
 
 class InstituteSubjectCourseContentDeleteAnswerView(APIView):
-    """View for deleting answer by self or instructor"""
+    """View for deleting answer by self"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacherOrStudent)
 
@@ -4851,10 +4851,7 @@ class InstituteSubjectCourseContentDeleteAnswerView(APIView):
             return Response({'error': _('Subject not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if answer.user.pk != self.request.user.pk and not models.InstituteSubjectPermission.objects.filter(
-            to=subject,
-            invitee=self.request.user
-        ).exists():
+        if answer.user.pk != self.request.user.pk:
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -4866,15 +4863,15 @@ class InstituteSubjectCourseContentDeleteAnswerView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class InstituteSubjectCourseContentPinAnswerView(APIView):
+class InstituteSubjectCourseContentPinUnpinAnswerView(APIView):
     """View for pinning answer by asker of question"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacherOrStudent)
 
-    def post(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         answer = models.InstituteSubjectCourseContentAnswer.objects.filter(
             pk=kwargs.get('answer_pk')
-        ).first()
+        ).only('pin').first()
 
         if not answer:
             return Response({'error': _('Answer may have been deleted.')},
@@ -4885,10 +4882,23 @@ class InstituteSubjectCourseContentPinAnswerView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            answer.pin = True
+            pin_status = None
+            if 'pin' in request.data:
+                answer.pin = True
+                pin_status = 'PINNED'
+            else:
+                answer.pin = False
+                pin_status = 'UNPINNED'
             answer.save()
-            return Response({'status': 'OK'},
-                            status=status.HTTP_201_CREATED)
+            return Response({'status': pin_status},
+                            status=status.HTTP_200_OK)
+        except IntegrityError as e:
+            if 'unique_pinned_answer_constraint' in str(e):
+                return Response({'error': _('Error! You can not pin more than 1 answer.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': _('Error! Could not pin answer.')},
+                                status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -4948,7 +4958,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
 
         answers = models.InstituteSubjectCourseContentAnswer.objects.filter(
             content_question=question
-        ).order_by('pin', '-created_on')
+        ).order_by('-created_on').order_by('-pin')
 
         try:
             response = list()
@@ -4962,11 +4972,13 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
                 res['rgb_color'] = ans.rgb_color
                 res['answer'] = ans.answer
 
-                if ans.user and ans.user.pk == self.request.user.pk:
-                    res['user_id'] = ans.user.pk
-
                 if ans.anonymous:
-                    res['user'] = 'Anonymous User'
+                    if ans.user and ans.user.pk == self.request.user.pk:
+                        res['user_id'] = ans.user.pk
+                        res['user'] = 'Anonymous User(self)'
+                    else:
+                        res['user'] = 'Anonymous User'
+
                 elif ans.user:
                     res['user_id'] = ans.user.pk
                     is_student = models.InstituteStudents.objects.filter(
@@ -5072,11 +5084,12 @@ class InstituteSubjectCourseListQuestionView(APIView):
             res['description'] = q.description
             res['anonymous'] = q.anonymous
 
-            if q.user and q.user.pk == self.request.user.pk:
-                res['user_id'] = q.user.pk
-
             if q.anonymous:
-                res['user'] = 'Anonymous User'
+                if q.user and q.user.pk == self.request.user.pk:
+                    res['user_id'] = q.user.pk
+                    res['user'] = 'Anonymous User(self)'
+                else:
+                    res['user'] = 'Anonymous User'
             elif q.user:
                 res['user_id'] = q.user.pk
                 user_data = models.InstituteStudents.objects.filter(

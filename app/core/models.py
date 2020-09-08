@@ -11,6 +11,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
 from django.core.validators import EmailValidator, MinLengthValidator, \
     ProhibitNullCharactersValidator, validate_image_file_extension
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
@@ -1651,7 +1652,17 @@ class InstituteSubjectCourseContentAnswer(models.Model):
         return str(self.content_question)
 
     class Meta:
-        unique_together = ('content_question', 'answer')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['content_question', 'answer'],
+                name='unique_answer_constraint'
+            ),
+            models.UniqueConstraint(
+                fields=['content_question', 'pin'],
+                condition=Q(pin=True),
+                name='unique_pinned_answer_constraint'
+            ),
+        ]
 
 
 class InstituteSubjectCourseContentQuestionUpvote(models.Model):
