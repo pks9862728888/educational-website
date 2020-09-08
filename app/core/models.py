@@ -1599,6 +1599,8 @@ class InstituteSubjectCourseContentQuestions(models.Model):
         _('Anonymous'), default=False, blank=True)
     question = models.CharField(
         _('Question'), max_length=256, blank=False, null=False)
+    edited = models.BooleanField(
+        _('Question Edited'), default=False, blank=True)
     description = models.CharField(
         _('Description'), max_length=2000, blank=True, default='')
     rgb_color = models.CharField(
@@ -1633,6 +1635,8 @@ class InstituteSubjectCourseContentAnswer(models.Model):
         _('Anonymous'), default=False, blank=True)
     answer = models.CharField(
         _('Answer'), max_length=2000, blank=False, null=False)
+    edited = models.BooleanField(
+        _('Answer Edited'), default=False, blank=True)
     rgb_color = models.CharField(
         _('RGB color'), max_length=26, blank=False, null=False)
     created_on = models.DateTimeField(

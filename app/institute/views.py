@@ -4518,7 +4518,8 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
                 'upvotes': 0,
                 'answer_count': 0,
                 'user_id': self.request.user.pk,
-                'upvoted': False
+                'upvoted': False,
+                'edited': question.edited
             }
             if question.anonymous:
                 response['user'] = 'Anonymous User(self)'
@@ -4617,7 +4618,8 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
                 'content_question_id': ans.content_question.pk,
                 'upvotes': 0,
                 'user_id': self.request.user.pk,
-                'upvoted': False
+                'upvoted': False,
+                'edited': ans.edited
             }
 
             if ans.anonymous:
@@ -4863,6 +4865,174 @@ class InstituteSubjectCourseContentDeleteAnswerView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class InstituteSubjectCourseContentEditAnswerView(APIView):
+    """View for editing answer by self"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacherOrStudent)
+
+    def patch(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        ans = models.InstituteSubjectCourseContentAnswer.objects.filter(
+            pk=kwargs.get('answer_pk')
+        ).first()
+
+        if not ans:
+            return Response({'error': _('Answer may have been deleted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not ans.user.pk != self.request.user.pk:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if 'anonymous' in request.data:
+                ans.anonymous = request.data.get('anonymous')
+            if 'answer' in request.data:
+                ans.answer = request.data.get('answer')
+            ans.edited = True
+            ans.save()
+
+            response = {
+                'id': ans.pk,
+                'created_on': str(ans.created_on),
+                'current_time': str(timezone.now()),
+                'pin': ans.pin,
+                'anonymous': ans.anonymous,
+                'rgb_color': ans.rgb_color,
+                'answer': ans.answer,
+                'edited': ans.edited
+            }
+
+            if ans.anonymous:
+                if ans.user and ans.user.pk == self.request.user.pk:
+                    response['user_id'] = ans.user.pk
+                    response['user'] = 'Anonymous User(self)'
+                else:
+                    response['user'] = 'Anonymous User'
+
+            elif ans.user:
+                response['user_id'] = ans.user.pk
+                is_student = models.InstituteStudents.objects.filter(
+                    invitee__pk=ans.user.pk
+                ).exists()
+                user_data = None
+
+                if is_student:
+                    user_data = models.InstituteStudents.objects.filter(
+                        invitee__pk=ans.user.pk,
+                        institute=institute
+                    ).only('first_name', 'last_name').first()
+                else:
+                    user_data = models.UserProfile.objects.filter(
+                        user__pk=ans.user.pk
+                    ).only('first_name', 'last_name').first()
+
+                if user_data and user_data.first_name and user_data.last_name:
+                    response['user'] = user_data.first_name + ' ' + user_data.last_name
+                else:
+                    response['user'] = str(ans.user)
+            else:
+                response['user'] = 'Deleted User'
+
+            response['upvotes'] = models.InstituteSubjectCourseContentAnswerUpvote.objects.filter(
+                course_content_answer__pk=ans.pk
+            ).count()
+            response['upvoted'] = models.InstituteSubjectCourseContentAnswerUpvote.objects.filter(
+                course_content_answer__pk=ans.pk,
+                user=self.request.user
+            ).exists()
+
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectCourseContentEditQuestionView(APIView):
+    """View for editing question by question asker"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsStudent)
+
+    def patch(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.InstituteSubjectCourseContentQuestions.objects.filter(
+            pk=kwargs.get('question_pk')
+        ).first()
+
+        if not question:
+            return Response({'error': _('Question may have been deleted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not question.user.pk != self.request.user.pk:
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if 'anonymous' in request.data:
+                question.anonymous = request.data.get('anonymous')
+            if 'question' in request.data:
+                question.question = request.data.get('question')
+            if 'description' in request.data:
+                question.description = request.data.get('description')
+            question.edited = True
+            question.save()
+
+            response = dict()
+            response['id'] = question.id
+            response['question'] = question.question
+            response['rgb_color'] = question.rgb_color
+            response['created_on'] = str(question.created_on)
+            response['current_time'] = str(timezone.now())
+            response['description'] = question.description
+            response['anonymous'] = question.anonymous
+            response['edited'] = question.edited
+
+            if question.anonymous:
+                response['user_id'] = question.user.pk
+                response['user'] = 'Anonymous User(self)'
+            elif question.user:
+                response['user_id'] = question.user.pk
+                user_data = models.InstituteStudents.objects.filter(
+                    invitee__pk=question.user.pk,
+                    institute__pk=institute.pk
+                ).only('first_name', 'last_name').first()
+                if user_data.first_name and user_data.last_name:
+                    response['user'] = user_data.first_name + ' ' + user_data.last_name
+                else:
+                    response['user'] = str(question.user)
+
+            response['upvotes'] = models.InstituteSubjectCourseContentQuestionUpvote.objects.filter(
+                course_content_question__pk=question.pk
+            ).count()
+            response['answer_count'] = models.InstituteSubjectCourseContentAnswer.objects.filter(
+                content_question__pk=question.pk
+            ).count()
+            response['upvoted'] = models.InstituteSubjectCourseContentQuestionUpvote.objects.filter(
+                course_content_question__pk=question.pk,
+                user=self.request.user
+            ).exists()
+
+            return Response(response, status=status.HTTP_200_OK)
+
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
 class InstituteSubjectCourseContentPinUnpinAnswerView(APIView):
     """View for pinning answer by asker of question"""
     authentication_classes = (TokenAuthentication,)
@@ -4971,6 +5141,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
                 res['anonymous'] = ans.anonymous
                 res['rgb_color'] = ans.rgb_color
                 res['answer'] = ans.answer
+                res['edited'] = ans.edited
 
                 if ans.anonymous:
                     if ans.user and ans.user.pk == self.request.user.pk:
@@ -5083,6 +5254,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
             res['current_time'] = str(timezone.now())
             res['description'] = q.description
             res['anonymous'] = q.anonymous
+            response['edited'] = q.edited
 
             if q.anonymous:
                 if q.user and q.user.pk == self.request.user.pk:
