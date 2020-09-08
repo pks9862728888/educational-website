@@ -182,6 +182,54 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${classSlug}/${subjectSlug}/subject-student-list/${studentType}`;
   }
 
+  getAskQuestionInCourseContentUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    courseContentId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${courseContentId}/ask-new-question`;
+  }
+
+  getLoadAllInstituteSubjectCourseContentQuestionsUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    courseContentId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${courseContentId}/list-questions`;
+  }
+
+  getLoadAnswerOfInstituteCourseQuestionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${questionId}/list-answers`;
+  }
+
+  getAnswerQuestionOfInstituteCourseContentUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${questionId}/answer-question`;
+  }
+
+  getUpvoteDownvoteInstituteCourseContentQuestionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${questionId}/upvote-downvote-question`;
+  }
+
+  getUpvoteDownvoteInstituteCourseContentAnswerUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    answerId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${answerId}/upvote-downvote-answer`;
+  }
+
   // Subject course preview related urls
   getMinSubjectCoursePreviewDetailsUrl(instituteSlug: string, subjectSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/subject-course-preview-min-details`;
@@ -789,6 +837,104 @@ export class InstituteApiService {
       { 'subject_id': subjectId },
       { headers: this.getAuthHeader() }
     );
+  }
+
+  askQuestionInCourseContent(
+    instituteSlug: string,
+    subjectSlug: string,
+    courseContentId: string,
+    data: any
+  ) {
+    return this.httpClient.post(
+      this.getAskQuestionInCourseContentUrl(
+        instituteSlug,
+        subjectSlug,
+        courseContentId
+      ),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  loadAllInstituteSubjectCourseContentQuestions(
+    instituteSlug: string,
+    subjectSlug: string,
+    courseContentId: string,
+  ) {
+    return this.httpClient.get(
+      this.getLoadAllInstituteSubjectCourseContentQuestionsUrl(
+        instituteSlug,
+        subjectSlug,
+        courseContentId
+      ),
+      { headers: this.getAuthHeader() }
+    )
+  }
+
+  loadAnswerOfInstituteCourseQuestion(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return this.httpClient.get(
+      this.getLoadAnswerOfInstituteCourseQuestionUrl(
+        instituteSlug,
+        subjectSlug,
+        questionId
+      ),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  answerQuestionOfInstituteCourseContent(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string,
+    data: any
+  ) {
+    return this.httpClient.post(
+      this.getAnswerQuestionOfInstituteCourseContentUrl(
+        instituteSlug,
+        subjectSlug,
+        questionId
+      ),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  upvoteDownvoteInstituteCourseContentQuestion(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string,
+    data: any
+  ) {
+    return this.httpClient.post(
+      this.getUpvoteDownvoteInstituteCourseContentQuestionUrl(
+        instituteSlug,
+        subjectSlug,
+        questionId
+      ),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  upvoteDownvoteInstituteCourseContentAnswer(
+    instituteSlug: string,
+    subjectSlug: string,
+    answerId: string,
+    data: any
+  ) {
+    return this.httpClient.post(
+      this.getUpvoteDownvoteInstituteCourseContentAnswerUrl(
+        instituteSlug,
+        subjectSlug,
+        answerId
+      ),
+      data,
+      { headers: this.getAuthHeader() }
+    )
   }
 
   // To load token from storage

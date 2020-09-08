@@ -81,6 +81,10 @@ h3 {
     outline: none;
 }
 
+.top-separator {
+    opacity: 0.3;
+}
+
 .green-button:disabled {
     background-color: rgba(10, 86, 82, 0.5);
     color: rgba(255, 255, 255, 0.5);
@@ -93,6 +97,12 @@ h3 {
 
 .form-separator {
     background-color: rgba(255, 255, 255, 0.05);
+}
+
+.b-b-1:not(:last-child) {
+    border-color: rgba(108, 117, 125, 0.1);
+    border-style: solid;
+    border-width: 0 0 1px 0;
 }
 
 .p-t-05 {
@@ -125,7 +135,7 @@ h3 {
 }
 
 .p-l-3p6 {
-    padding-left: 3.6rem;
+    padding-left: 3.45rem;
 }
 
 .p-l-1 {

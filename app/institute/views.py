@@ -4995,7 +4995,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
     def get(self, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -5003,7 +5003,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug').lower()
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
@@ -5033,7 +5033,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
 
         course_content = models.InstituteSubjectCourseContent.objects.filter(
             pk=kwargs.get('course_content_pk')
-        ).first()
+        ).only('order').first()
 
         if not course_content:
             return Response({'error': _('This study material may have been deleted.')},

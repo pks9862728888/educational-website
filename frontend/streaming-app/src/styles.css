@@ -131,6 +131,18 @@ button.active:focus {
     color: #4caf50;
 }
 
+.upvote-icon-inactive {
+    color: #9cc59d;
+}
+
+.upvote-icon-active {
+    color: #4caf50;
+}
+
+.comment-count-icon {
+    color: #7fc0ba;
+}
+
 
 /* Message color globally */
 
@@ -188,4 +200,8 @@ button.active:focus {
 
 .top-separator {
     background-color: #6c757d;
+}
+
+.width-100 {
+    width: 100%;
 }

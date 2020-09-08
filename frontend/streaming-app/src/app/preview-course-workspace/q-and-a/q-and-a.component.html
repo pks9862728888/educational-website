@@ -5,7 +5,7 @@
 </div>
 <section *ngIf="!showSpecificQuestionView && !loadingQuestionsIndicator && !reloadQuestionsIndicator && !loadingQuestionsError">
     <div class="d-flex justify-content-between m-b-05">
-        <p class="text-color" [class.t-no]="!showAskQuestionForm">123 questions</p>
+        <p class="text-color" [class.t-no]="!showAskQuestionForm">{{ getQuestionCount() }} questions</p>
         <button mat-stroked-button class="outline" (click)="toggleAskQuestion()" *ngIf="!showAskQuestionForm">
           <mat-icon class='m-r-05 add-icon'>add</mat-icon>
           <span class="m-r-05">Question</span>
@@ -24,11 +24,11 @@
                 <textarea formControlName="description" rows="5" type="text" class="form-control" placeholder="Details (optional)"></textarea>
             </div>
             <div class="form-group">
-                <mat-slide-toggle formGroupName="anonymous">Ask anonymously!</mat-slide-toggle>
+                <mat-slide-toggle formControlName="anonymous">Ask anonymously!</mat-slide-toggle>
             </div>
         </form>
         <div class="d-flex align-center">
-            <button mat-flat-button [disabled]="submitQuestionIndicator" class="cancel-button m-r-05" (click)="toggleAskQuestion()">
+            <button mat-flat-button [disabled]="submitQuestionIndicator && submitQuestionIndicator" class="cancel-button m-r-05" (click)="toggleAskQuestion()">
               Cancel
             </button>
             <button mat-flat-button [disabled]="askQuestionForm.invalid" class="green-button" (click)="askQuestion()">
@@ -40,34 +40,36 @@
             </button>
         </div>
     </div>
-    <p *ngIf="false">No questions found.</p>
-    <div class="question">
-        <div class="d-flex justify-content-between align-center p-t-05">
-            <div class="d-flex">
-                <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
-                    <span class="name-dp" [ngStyle]="{'background-color': getBackgroundColor()}">NP</span>
-                </div>
-                <div class="text-justify cursor-pointer p-b-05" (click)="questionClicked()">
-                    <h3 class="question-color">What is the name of dog?</h3>
-                    <p class="text-color">{{ formatText(text) }} </p>
-                </div>
-            </div>
-            <div class="m-l-1 text-color">
-                <div>
-                    <div class="d-flex align-center m-b-05">
-                        <p>3</p>
-                        <mat-icon class="m-l-03 icon-p-size cursor-pointer">arrow_upward</mat-icon>
+    <p *ngIf="!questionExists()">No questions found.</p>
+    <div *ngIf="questionExists()">
+        <div class="question" *ngFor="let question of questions">
+            <div class="d-flex justify-content-between align-center p-t-05">
+                <div class="d-flex cursor-pointer width-100" (click)="questionClicked(question)">
+                    <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
+                        <span class="name-dp" [ngStyle]="{'background-color': question.rgb_color}">{{ getNameInitials(question.user) | uppercase }}</span>
                     </div>
-                    <div class="d-flex align-center">
-                        <p>0</p>
-                        <mat-icon class="m-l-03 icon-p-size">comment</mat-icon>
+                    <div class="text-justify p-b-05">
+                        <h3 class="question-color">{{ question.question }}</h3>
+                        <p class="text-color">{{ formatText(question.description) }}</p>
                     </div>
                 </div>
+                <div class="m-l-1 text-color">
+                    <div>
+                        <div class="d-flex align-center m-b-05">
+                            <p class="upvote-icon-inactive">{{ question.upvotes }}</p>
+                            <mat-icon class="m-l-03 icon-p-size upvote-icon-inactive" [class.cursor-pointer]="!userIsSelf(question.user_id)" [class.upvote-icon-active]="question.upvoted" (click)="upvoteQuestion(question.id, question.user_id, question.upvoted)">arrow_upward</mat-icon>
+                        </div>
+                        <div class="d-flex align-center">
+                            <p class="comment-count-icon">{{ question.answer_count }}</p>
+                            <mat-icon class="m-l-03 icon-p-size comment-count-icon">comment</mat-icon>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="d-flex p-b-07" [class.p-l-3p6]="!mq.matches">
-            <small class="m-r-03 cursor-pointer name-color">Nidhi Pal</small> -
-            <small class="m-l-03 text-color">Asked 8 days ago.</small>
+            <div class="d-flex p-b-07" [class.p-l-3p6]="!mq.matches">
+                <small class="m-r-03 name-color" [class.cursor-pointer]="!question.anonymous">{{ question.user | titlecase }}</small> -
+                <small class="m-l-03 text-color">Asked {{ getTimeElapsed(question.created_on, question.current_time) }} ago.</small>
+            </div>
         </div>
     </div>
 </section>
@@ -79,26 +81,28 @@
     <div class="question-specific-question">
         <div class="d-flex">
             <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
-                <span class="name-dp" [ngStyle]="{'background-color': getBackgroundColor()}">NP</span>
+                <span class="name-dp" [ngStyle]="{'background-color': selectedQuestion.rgb_color}">{{ getNameInitials(selectedQuestion.user) | uppercase }}</span>
             </div>
-            <div class="text-justify p-b-05">
+            <div class="text-justify width-100 p-b-05">
                 <div class="d-flex justify-content-between">
-                    <h3 class="question-color">What is the name of dog?</h3>
+                    <div>
+                        <h3 class="question-color">{{ selectedQuestion.question }}</h3>
+                    </div>
                     <div class="d-flex align-center">
-                        <p>3</p>
-                        <mat-icon class="m-l-03 icon-p-size cursor-pointer">arrow_upward</mat-icon>
+                        <p class="upvote-icon-inactive">{{ selectedQuestion.upvotes }}</p>
+                        <mat-icon class="m-l-03 icon-p-size upvote-icon-inactive" [class.cursor-pointer]="!userIsSelf(selectedQuestion.user_id)" [class.upvote-icon-active]="selectedQuestion.upvoted" (click)="upvoteQuestion(selectedQuestion.id, selectedQuestion.user_id, selectedQuestion.upvoted)">arrow_upward</mat-icon>
                     </div>
                 </div>
-                <p class="text-color">{{ text }}</p>
+                <p class="text-color">{{ formatText(selectedQuestion.description) }}</p>
             </div>
         </div>
         <div class="d-flex" [class.p-l-3p6]="!mq.matches">
-            <small class="m-r-03 cursor-pointer name-color">Nidhi Pal</small> -
-            <small class="m-l-03 text-color">Asked 8 days ago.</small>
+            <small class="m-r-03 cursor-pointer name-color">{{ selectedQuestion.user | titlecase}}</small> -
+            <small class="m-l-03 text-color">Asked {{ getTimeElapsed(selectedQuestion.created_on, selectedQuestion.current_time) }} ago.</small>
         </div>
         <div class="d-flex justify-content-between p-t-1 stats-color" *ngIf="!loadingAnswersIndicator && !reloadLoadAnswerIndicator && !loadAnswerError">
             <div>
-                <p>12 replies</p>
+                <p>{{ getAnswerCount() }} replies</p>
             </div>
             <div>
                 <p class="cursor-pointer">Follow Replies</p>
@@ -111,34 +115,34 @@
         <app-ui-error-text [errorText]="loadAnswerError" [hideCloseButton]="true"></app-ui-error-text>
     </div>
     <div *ngIf="!loadingAnswersIndicator && !reloadLoadAnswerIndicator && !loadAnswerError">
-        <div class="p-t-1 p-b-1 p-r-1 p-l-1">
+        <div class="p-t-1 p-b-1 p-r-1 p-l-1 b-b-1" *ngFor="let answer of answers">
             <div class="d-flex">
                 <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
-                    <span class="name-dp" [ngStyle]="{'background-color': getBackgroundColor()}">NP</span>
+                    <span class="name-dp" [ngStyle]="{'background-color': answer.rgb_color}">{{ getNameInitials(answer.user) | uppercase }}</span>
                 </div>
-                <div class="text-justify p-b-05">
+                <div class="text-justify width-100 p-b-05">
                     <div class="d-flex justify-content-between align-center">
                         <div>
-                            <h3 class="question-color cursor-pointer">Sunai Pal</h3>
-                            <small class="text-color">1 day ago</small>
+                            <h3 class="question-color" [class.cursor-pointer]="!answer.anonymous">{{ answer.user | titlecase }}</h3>
+                            <small class="text-color">{{ getTimeElapsed(answer.created_on, answer.current_time) }} ago</small>
                         </div>
                         <div class="d-flex m-l-05 text-color">
-                            <div class="m-r-05">
+                            <div class="m-r-05" *ngIf="userIsSelf(answer.user_id)">
                                 <mat-icon class="edit-icon icon-p-size cursor-pointer">edit</mat-icon>
                             </div>
-                            <div class="m-r-05">
+                            <div class="m-r-05" *ngIf="userIsSelf(answer.user_id)">
                                 <mat-icon class="delete-icon cursor-pointer">delete</mat-icon>
                             </div>
-                            <div class="m-r-05">
+                            <div class="m-r-05" *ngIf="userIsQuestionAsker()">
                                 <mat-icon class="pin-icon cursor-pointer">push_pin</mat-icon>
                             </div>
                             <div class="d-flex">
-                                <p>3</p>
-                                <mat-icon class="m-l-03 icon-p-size cursor-pointer">arrow_upward</mat-icon>
+                                <p class="upvote-icon-inactive">{{ answer.upvotes }}</p>
+                                <mat-icon class="m-l-03 icon-p-size upvote-icon-inactive" [class.cursor-pointer]="!userIsSelf(answer.user_id)" [class.upvote-icon-active]="answer.upvoted" (click)="upvoteAnswer(answer.id, answer.user_id, answer.upvoted)">arrow_upward</mat-icon>
                             </div>
                         </div>
                     </div>
-                    <p class="text-color p-t-1">{{ text }}</p>
+                    <p class="text-color p-t-1">{{ answer.answer }}</p>
                 </div>
             </div>
         </div>
@@ -152,8 +156,8 @@
             <div class="form-group">
                 <textarea rows="5" formControlName="answer" type="text" class="form-control" placeholder="Add an Answer"></textarea>
             </div>
-            <div class="form-group">
-                <mat-slide-toggle formGroupName="anonymous">Answer anonymously!</mat-slide-toggle>
+            <div class="form-group" [hidden]="hideAnswerAnonymouslyOption">
+                <mat-slide-toggle formControlName="anonymous">Answer anonymously!</mat-slide-toggle>
             </div>
         </form>
         <button mat-flat-button [disabled]="answerForm.invalid" class="green-button" (click)="answerClicked()">

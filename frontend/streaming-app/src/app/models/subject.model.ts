@@ -133,3 +133,33 @@ export interface SubjectPeersResponse {
   instructors: SubjectPeerDetails[];
   students: SubjectPeerDetails[];
 }
+
+
+export interface CourseContentQuestion {
+  id: number;
+  question: string;
+  rgb_color: string;
+  created_on: string;
+  current_time: string;
+  description: string;
+  anonymous: boolean;
+  user: string;
+  user_id?: number;
+  upvotes: number;
+  answer_count: number;
+  upvoted: boolean;
+}
+
+export interface CourseContentAnswers {
+  id: number;
+  created_on: string;
+  current_time: string;
+  pin: boolean;
+  anonymous: boolean;
+  rgb_color: string;
+  answer: string;
+  user: string;
+  user_id?: number;
+  upvotes: number;
+  upvoted: boolean;
+}
