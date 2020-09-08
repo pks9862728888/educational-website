@@ -19,7 +19,7 @@ export class QAndAComponent implements OnInit {
   currentInstituteSlug: string;
   currentSubjectSlug: string;
   getTimeElapsed = getTimeElapsed;
-  hideAnswerAnonymouslyOption: boolean;
+  hideOptionsForTeacher: boolean;
   @Input() content: StudyMaterialPreviewDetails;
   colors = [
     'rgba(191, 207, 46, 0.5)',
@@ -69,9 +69,9 @@ export class QAndAComponent implements OnInit {
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
     if (sessionStorage.getItem(is_teacher) === 'true') {
-      this.hideAnswerAnonymouslyOption = true;
+      this.hideOptionsForTeacher = true;
     } else {
-      this.hideAnswerAnonymouslyOption = false;
+      this.hideOptionsForTeacher = false;
     }
   }
 
@@ -597,6 +597,95 @@ export class QAndAComponent implements OnInit {
     }
   }
 
+  editQuestion(question: CourseContentQuestion) {
+    this.editQuestionForm.enable();
+    this.editQuestionForm.reset();
+    this.editQuestionSubmitError = null;
+    this.editQuestionSubmitIndicator = false;
+    for (let q in this.questions) {
+      if (this.questions[q].id === question.id) {
+        this.questions[q]['edit'] = true;
+        this.editQuestionForm.patchValue({
+          question: question.question,
+          description: question.description,
+          anonymous: question.anonymous
+        });
+      } else {
+        this.questions[q]['edit'] = false;
+      }
+    }
+  }
+
+  closeEditQuestion() {
+    this.editQuestionForm.enable();
+    this.editQuestionForm.reset();
+    this.editQuestionSubmitError = null;
+    this.editQuestionSubmitIndicator = false;
+    for (let q in this.questions) {
+      this.questions[q]['edit'] = false;
+    }
+  }
+
+  resetEditQuestion(question: CourseContentQuestion) {
+    this.editQuestionForm.patchValue({
+      question: question.question,
+      description: question.description,
+      anonymous: question.anonymous
+    });
+  }
+
+  submitEditQuestion(questionId: number) {
+    this.editQuestionForm.patchValue({
+      question: this.editQuestionForm.value.question.trim()
+    });
+    if (!this.editQuestionForm.invalid) {
+      let data = this.editQuestionForm.value;
+      if (!data['anonymous']) {
+        data['anonymous'] = false;
+      }
+      if (data['description']) {
+        data['description'] = data['description'].trim();
+      } else {
+        data['description'] = '';
+      }
+      this.editQuestionSubmitIndicator = true;
+      this.editQuestionSubmitError = null;
+      this.editQuestionForm.disable();
+      this.instituteApiService.editInstituteCourseContentQuestion(
+        this.currentInstituteSlug,
+        this.currentSubjectSlug,
+        questionId.toString(),
+        data
+      ).subscribe(
+        (result: CourseContentQuestion) => {
+          this.editQuestionSubmitIndicator = false;
+          const questionIndex = this.getIndex(this.questions, questionId);
+          if (questionIndex > -1) {
+            this.questions.splice(+questionIndex, 1, result);
+          }
+          this.uiService.showSnackBar(
+            'Question updated successfully!',
+            2000
+          );
+          this.closeEditQuestion();
+        },
+        errors => {
+          this.editQuestionSubmitIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.editQuestionSubmitError = errors.error.error;
+            } else {
+              this.editQuestionSubmitError = 'Error occured!';
+            }
+          } else {
+            this.editQuestionSubmitError = 'Error occured!';
+          }
+          this.editQuestionForm.enable();
+        }
+      );
+    }
+  }
+
   getBackgroundColor() {
     const idx = Math.floor(Math.random() * this.colors.length);
     return this.colors[idx];
@@ -667,7 +756,11 @@ export class QAndAComponent implements OnInit {
     this.editAnswerSubmitError = null;
   }
 
+  closeEditQuestionSubmitError() {
+    this.editQuestionSubmitError = null;
+  }
+
   closeSubmitQuestionError() {
-    this.submitQuestionError = null;
+    this.editQuestionSubmitError = null;
   }
 }

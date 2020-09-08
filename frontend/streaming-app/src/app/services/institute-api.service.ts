@@ -246,6 +246,15 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${insituteSlug}/${subjectSlug}/${answerId}/edit-answer`;
   }
 
+  getEditInstituteCourseContentQuestionUrl(
+    insituteSlug: string,
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${insituteSlug}/${subjectSlug}/${questionId}/edit-question`;
+  }
+
+
   // Subject course preview related urls
   getMinSubjectCoursePreviewDetailsUrl(instituteSlug: string, subjectSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/subject-course-preview-min-details`;
@@ -982,6 +991,23 @@ export class InstituteApiService {
         instituteSlug,
         subjectSlug,
         answerId
+      ),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editInstituteCourseContentQuestion(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string,
+    data: any
+  ) {
+    return this.httpClient.patch(
+      this.getEditInstituteCourseContentQuestionUrl(
+        instituteSlug,
+        subjectSlug,
+        questionId
       ),
       data,
       { headers: this.getAuthHeader() }

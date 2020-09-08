@@ -5,8 +5,8 @@
 </div>
 <section *ngIf="!showSpecificQuestionView && !loadingQuestionsIndicator && !reloadQuestionsIndicator && !loadingQuestionsError">
     <div class="d-flex justify-content-between m-b-05">
-        <p class="text-color" [class.t-no]="!showAskQuestionForm">{{ getQuestionCount() }} questions</p>
-        <button mat-stroked-button class="outline" (click)="toggleAskQuestion()" *ngIf="!showAskQuestionForm">
+        <p class="text-color" [class.t-no]="!showAskQuestionForm && !hideOptionsForTeacher">{{ getQuestionCount() }} questions</p>
+        <button mat-stroked-button class="outline" (click)="toggleAskQuestion()" *ngIf="!showAskQuestionForm && !hideOptionsForTeacher">
           <mat-icon class='m-r-05 add-icon'>add</mat-icon>
           <span class="m-r-05">Question</span>
         </button>
@@ -39,36 +39,72 @@
               </div>
             </button>
         </div>
+        <hr class="top-separator m-t-1" />
     </div>
     <p *ngIf="!questionExists()">No questions found.</p>
     <div *ngIf="questionExists()">
         <div class="question" *ngFor="let question of questions">
-            <div class="d-flex justify-content-between align-center p-t-05">
-                <div class="d-flex cursor-pointer width-100" (click)="questionClicked(question)">
-                    <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
-                        <span class="name-dp" [ngStyle]="{'background-color': question.rgb_color}">{{ getNameInitials(question.user) | uppercase }}</span>
+            <div *ngIf="!question['edit']">
+                <div class="d-flex justify-content-between align-center p-t-05">
+                    <div class="d-flex cursor-pointer width-100" (click)="questionClicked(question)">
+                        <div class="m-r-1 p-t-05" *ngIf="!mq.matches">
+                            <span class="name-dp" [ngStyle]="{'background-color': question.rgb_color}">{{ getNameInitials(question.user) | uppercase }}</span>
+                        </div>
+                        <div class="text-justify p-b-05">
+                            <h3 class="question-color">{{ question.question }}</h3>
+                            <p class="text-color">{{ formatText(question.description) }}</p>
+                        </div>
                     </div>
-                    <div class="text-justify p-b-05">
-                        <h3 class="question-color">{{ question.question }}</h3>
-                        <p class="text-color">{{ formatText(question.description) }}</p>
+                    <div class="m-l-1 text-color">
+                        <div>
+                            <div class="d-flex align-center m-b-05">
+                                <p class="upvote-icon-inactive">{{ question.upvotes }}</p>
+                                <mat-icon class="m-l-03 icon-p-size upvote-icon-inactive" [class.cursor-pointer]="!userIsSelf(question.user_id)" [class.upvote-icon-active]="question.upvoted" (click)="upvoteQuestion(question.id, question.user_id, question.upvoted)">arrow_upward</mat-icon>
+                            </div>
+                            <div class="d-flex align-center">
+                                <p class="comment-count-icon">{{ question.answer_count }}</p>
+                                <mat-icon class="m-l-03 icon-p-size comment-count-icon">comment</mat-icon>
+                            </div>
+                            <mat-icon class="edit-icon m-l-09 m-t-03 icon-p-size cursor-pointer" *ngIf="userIsSelf(question.user_id)" (click)="editQuestion(question)">edit</mat-icon>
+                        </div>
                     </div>
                 </div>
-                <div class="m-l-1 text-color">
-                    <div>
-                        <div class="d-flex align-center m-b-05">
-                            <p class="upvote-icon-inactive">{{ question.upvotes }}</p>
-                            <mat-icon class="m-l-03 icon-p-size upvote-icon-inactive" [class.cursor-pointer]="!userIsSelf(question.user_id)" [class.upvote-icon-active]="question.upvoted" (click)="upvoteQuestion(question.id, question.user_id, question.upvoted)">arrow_upward</mat-icon>
-                        </div>
-                        <div class="d-flex align-center">
-                            <p class="comment-count-icon">{{ question.answer_count }}</p>
-                            <mat-icon class="m-l-03 icon-p-size comment-count-icon">comment</mat-icon>
-                        </div>
-                    </div>
+                <div class="d-flex p-b-07" [class.p-l-3p6]="!mq.matches">
+                    <small class="m-r-03 name-color" [class.cursor-pointer]="!question.anonymous">{{ question.user | titlecase }}</small> -
+                    <small class="m-l-03 text-color">Asked {{ getTimeElapsed(question.created_on, question.current_time) }} ago.</small>
+                    <small class="m-l-03 text-color" *ngIf="question.edited">| Edited</small>
                 </div>
             </div>
-            <div class="d-flex p-b-07" [class.p-l-3p6]="!mq.matches">
-                <small class="m-r-03 name-color" [class.cursor-pointer]="!question.anonymous">{{ question.user | titlecase }}</small> -
-                <small class="m-l-03 text-color">Asked {{ getTimeElapsed(question.created_on, question.current_time) }} ago.</small>
+            <div class="m-t-1 m-b-1" *ngIf="question['edit']">
+                <div class="m-b-1" *ngIf="editQuestionSubmitError">
+                    <app-ui-error-text [errorText]="editQuestionSubmitError" (closeErrorTextEvent)="closeEditQuestionSubmitError()"></app-ui-error-text>
+                </div>
+                <form [formGroup]="editQuestionForm">
+                    <div class="form-group">
+                        <input formControlName="question" type="text" class="form-control" placeholder="Title of Question">
+                    </div>
+                    <div class="form-group">
+                        <textarea formControlName="description" rows="5" type="text" class="form-control" placeholder="Details (optional)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <mat-slide-toggle formControlName="anonymous">Ask anonymously!</mat-slide-toggle>
+                    </div>
+                </form>
+                <div class="d-flex align-center">
+                    <button mat-flat-button [disabled]="editQuestionSubmitIndicator" class="blue-button m-r-05" (click)="resetEditQuestion(question)">
+                      Reset
+                    </button>
+                    <button mat-flat-button [disabled]="editQuestionSubmitIndicator" class="cancel-button m-r-05" (click)="closeEditQuestion()">
+                      Cancel
+                    </button>
+                    <button mat-flat-button [disabled]="editQuestionForm.invalid" class="green-button" (click)="submitEditQuestion(question.id)">
+                      <div class="d-flex align-center">
+                        <mat-spinner *ngIf="editQuestionSubmitIndicator" mode="indeterminate" class="m-r-05" [diameter]="20"></mat-spinner>
+                        <span *ngIf="!editQuestionSubmitIndicator">Submit</span>
+                        <span *ngIf="editQuestionSubmitIndicator">Submitting...</span>
+                      </div>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -157,7 +193,7 @@
                     <div class="form-group">
                         <textarea rows="5" formControlName="answer" type="text" class="form-control" placeholder="Add an Answer"></textarea>
                     </div>
-                    <div class="form-group" [hidden]="hideAnswerAnonymouslyOption">
+                    <div class="form-group" [hidden]="hideOptionsForTeacher">
                         <mat-slide-toggle formControlName="anonymous">Answer anonymously!</mat-slide-toggle>
                     </div>
                 </form>
@@ -184,7 +220,7 @@
             <div class="form-group">
                 <textarea rows="5" formControlName="answer" type="text" class="form-control" placeholder="Add an Answer"></textarea>
             </div>
-            <div class="form-group" [hidden]="hideAnswerAnonymouslyOption">
+            <div class="form-group" [hidden]="hideOptionsForTeacher">
                 <mat-slide-toggle formControlName="anonymous">Answer anonymously!</mat-slide-toggle>
             </div>
         </form>
