@@ -4385,7 +4385,7 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
         if self.request.user.is_student:
             if not models.InstituteSubjectStudents.objects.filter(
                     institute_subject__pk=subject.pk,
-                    invitee=self.request.user
+                    institute_student__invitee=self.request.user
             ).exists():
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -4513,16 +4513,20 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
                 'description': question.description,
                 'rgb_color': question.rgb_color,
                 'anonymous': question.anonymous,
-                'created_on': str(question.created_on)
+                'created_on': str(question.created_on),
+                'current_time': str(timezone.now()),
+                'upvotes': 0,
+                'answer_count': 0,
+                'user_id': self.request.user.pk,
+                'upvoted': False
             }
             if question.anonymous:
                 response['user'] = 'Anonymous User'
             else:
-                response['user_id'] = self.request.user.pk
                 user_info = models.InstituteStudents.objects.filter(
-                    user=self.request.user,
+                    invitee=self.request.user,
                     institute=institute
-                ).first()
+                ).only('first_name', 'last_name').first()
                 if user_info.first_name and user_info.last_name:
                     response['user'] = user_info.first_name + ' ' + user_info.last_name
                 else:
@@ -4534,7 +4538,8 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
         except IntegrityError:
             return Response({'error': _('This question already exists.')},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Internal server error. Contact us.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -4582,7 +4587,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
 
         question = models.InstituteSubjectCourseContentQuestions.objects.filter(
             pk=kwargs.get('question_pk')
-        ).first()
+        ).only('anonymous').first()
 
         if not question:
             return Response({'error': _('Question may have been deleted or not found.')},
@@ -4608,23 +4613,27 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
                 'role': role,
                 'pin': ans.pin,
                 'created_on': str(ans.created_on),
-                'content_question_id': ans.content_question.pk
+                'current_time': str(timezone.now()),
+                'content_question_id': ans.content_question.pk,
+                'upvotes': 0,
+                'user_id': self.request.user.pk,
+                'upvoted': False
             }
+
             if ans.anonymous:
                 response['user'] = 'Anonymous User'
             else:
-                response['user_id'] = self.request.user.pk
                 user_details = None
 
                 if role == 'Student':
                     user_details = models.InstituteStudents.objects.filter(
-                        user=self.request.user,
+                        invitee=self.request.user,
                         institute=institute
-                    ).first()
+                    ).only('first_name', 'last_name').first()
                 else:
                     user_details = models.UserProfile.objects.filter(
                         user=self.request.user
-                    ).first()
+                    ).only('first_name', 'last_name').first()
 
                 if user_details.first_name and user_details.last_name:
                     response['user'] = user_details.first_name + ' ' + user_details.last_name
@@ -4639,7 +4648,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
             return Response({'error': _('This answer has already been posted.')},
                             status=status.HTTP_400_BAD_REQUEST)
         except Exception:
-            return Response({'error': _('Internal server error occured.')},
+            return Response({'error': _('Internal server error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -4649,9 +4658,10 @@ class InstituteSubjectUpvoteDownvoteQuestionView(APIView):
     permission_classes = (IsAuthenticated, IsTeacherOrStudent)
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -4659,7 +4669,7 @@ class InstituteSubjectUpvoteDownvoteQuestionView(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug').lower()
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
@@ -4705,7 +4715,7 @@ class InstituteSubjectUpvoteDownvoteQuestionView(APIView):
                 ).first()
 
                 if not res or res.user.pk != self.request.user.pk:
-                    return Response({'error': 'Permission denied.'},
+                    return Response({'error': _('Question was not upvoted.')},
                                     status=status.HTTP_400_BAD_REQUEST)
                 else:
                     res.delete()
@@ -4741,9 +4751,10 @@ class InstituteSubjectUpvoteDownvoteAnswerView(APIView):
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+
         if not models.InstituteSubjectStudents.objects.filter(
                 institute_subject=subject,
-                institute_student__inivitee=self.request.user,
+                institute_student__invitee=self.request.user,
                 active=True
         ).exists():
             if not models.InstituteSubjectPermission.objects.filter(
@@ -4891,7 +4902,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
     def get(self, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -4899,7 +4910,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug').lower()
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
@@ -4929,7 +4940,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
 
         question = models.InstituteSubjectCourseContentQuestions.objects.filter(
             pk=kwargs.get('question_pk')
-        ).first()
+        ).only('rgb_color').first()
 
         if not question:
             return Response({'error': _('Question may have been deleted.')},
@@ -4937,7 +4948,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
 
         answers = models.InstituteSubjectCourseContentAnswer.objects.filter(
             content_question=question
-        ).order_by('created_on').order_by('pin')
+        ).order_by('pin', '-created_on')
 
         try:
             response = list()
@@ -4945,29 +4956,33 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
                 res = dict()
                 res['id'] = ans.pk
                 res['created_on'] = str(ans.created_on)
+                res['current_time'] = str(timezone.now())
                 res['pin'] = ans.pin
                 res['anonymous'] = ans.anonymous
                 res['rgb_color'] = ans.rgb_color
                 res['answer'] = ans.answer
+
+                if ans.user and ans.user.pk == self.request.user.pk:
+                    res['user_id'] = ans.user.pk
+
                 if ans.anonymous:
                     res['user'] = 'Anonymous User'
                 elif ans.user:
                     res['user_id'] = ans.user.pk
                     is_student = models.InstituteStudents.objects.filter(
-                        user__pk=ans.user.pk
+                        invitee__pk=ans.user.pk
                     ).exists()
                     user_data = None
 
                     if is_student:
                         user_data = models.InstituteStudents.objects.filter(
-                            user__pk=ans.user.pk,
+                            invitee__pk=ans.user.pk,
                             institute=institute
-                        ).first()
+                        ).only('first_name', 'last_name').first()
                     else:
                         user_data = models.UserProfile.objects.filter(
-                            user__pk=ans.user.pk,
-                            institute=institute
-                        ).first()
+                            user__pk=ans.user.pk
+                        ).only('first_name', 'last_name').first()
 
                     if user_data and user_data.first_name and user_data.last_name:
                         res['user'] = user_data.first_name + ' ' + user_data.last_name
@@ -4979,11 +4994,15 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
                 res['upvotes'] = models.InstituteSubjectCourseContentAnswerUpvote.objects.filter(
                     course_content_answer__pk=ans.pk
                 ).count()
+                res['upvoted'] = models.InstituteSubjectCourseContentAnswerUpvote.objects.filter(
+                    course_content_answer__pk=ans.pk,
+                    user=self.request.user
+                ).exists()
                 response.append(res)
 
             return Response(response, status=status.HTTP_200_OK)
         except Exception:
-            return Response({'error': _('Internal server error occured.')},
+            return Response({'error': _('Internal server error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -5041,7 +5060,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
 
         questions = models.InstituteSubjectCourseContentQuestions.objects.filter(
             course_content=course_content
-        )
+        ).order_by('-created_on')
         response = list()
         for q in questions:
             res = dict()
@@ -5049,17 +5068,21 @@ class InstituteSubjectCourseListQuestionView(APIView):
             res['question'] = q.question
             res['rgb_color'] = q.rgb_color
             res['created_on'] = str(q.created_on)
+            res['current_time'] = str(timezone.now())
             res['description'] = q.description
             res['anonymous'] = q.anonymous
+
+            if q.user and q.user.pk == self.request.user.pk:
+                res['user_id'] = q.user.pk
 
             if q.anonymous:
                 res['user'] = 'Anonymous User'
             elif q.user:
                 res['user_id'] = q.user.pk
                 user_data = models.InstituteStudents.objects.filter(
-                    user__pk=q.user.pk,
-                    institute=institute
-                ).first()
+                    invitee__pk=q.user.pk,
+                    institute__pk=institute.pk
+                ).only('first_name', 'last_name').first()
                 if user_data.first_name and user_data.last_name:
                     res['user'] = user_data.first_name + ' ' + user_data.last_name
                 else:
@@ -5073,6 +5096,10 @@ class InstituteSubjectCourseListQuestionView(APIView):
             res['answer_count'] = models.InstituteSubjectCourseContentAnswer.objects.filter(
                 content_question__pk=q.pk
             ).count()
+            res['upvoted'] = models.InstituteSubjectCourseContentQuestionUpvote.objects.filter(
+                course_content_question__pk=q.pk,
+                user=self.request.user
+            ).exists()
             response.append(res)
 
         return Response(response, status=status.HTTP_200_OK)
