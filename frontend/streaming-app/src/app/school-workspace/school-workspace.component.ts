@@ -1,4 +1,4 @@
-import { currentInstituteSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE, webAppName } from './../../constants';
+import { currentInstituteSlug, currentInstituteRole, INSTITUTE_ROLE_REVERSE, webAppName, is_student, is_teacher } from './../../constants';
 import { InstituteApiService } from './../services/institute-api.service';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
@@ -16,6 +16,7 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
   title = webAppName;
+  userType: string;
   currentInstituteSlug: string;
   currentInstituteRole: string;
   baseUrl: string;
@@ -48,11 +49,18 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
           this.activeLink = 'LICENSE';
         } else if (val.url.includes('students')) {
           this.activeLink = 'STUDENTS';
+        } else if (val.url.includes('student-courses')) {
+          this.activeLink = 'STUDENT-COURSES';
         }
       }
     });
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentInstituteRole = sessionStorage.getItem(currentInstituteRole);
+    if (sessionStorage.getItem(is_student) === 'true') {
+      this.userType = 'STUDENT';
+    } else if (sessionStorage.getItem(is_teacher) === 'true') {
+      this.userType = 'TEACHER';
+    }
     this.baseUrl = '/school-workspace/' + this.currentInstituteSlug;
     this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherFullInstituteView$.subscribe(
       () => {
@@ -92,8 +100,12 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
       if (link === 'HOME') {
         this.router.navigate(['/home']);
       } else if (link === 'EXIT' || link === 'INSTITUTES') {
-        sessionStorage.removeItem('paymentComplete');
-        this.router.navigate(['/teacher-workspace/institutes']);
+        if (this.userType === 'TEACHER') {
+          sessionStorage.removeItem('paymentComplete');
+          this.router.navigate(['/teacher-workspace/institutes']);
+        } else if (this.userType === 'STUDENT') {
+          this.router.navigate(['/student-workspace/institutes']);
+        }
       } else {
         this.router.navigate([this.baseUrl + '/' + link.toLowerCase()]);
       }
@@ -118,6 +130,22 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
 
   userIsAdmin() {
     if (this.currentInstituteRole == INSTITUTE_ROLE_REVERSE['Admin']) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  userIsStudent() {
+    if (this.userType === 'STUDENT') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  userIsTeacher() {
+    if (this.userType === 'TEACHER') {
       return true;
     } else {
       return false;
