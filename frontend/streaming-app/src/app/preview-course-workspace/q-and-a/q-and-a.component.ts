@@ -32,13 +32,24 @@ export class QAndAComponent implements OnInit {
   reloadQuestionsIndicator: boolean;
   loadingQuestionsError: string;
   showSpecificQuestionView = false;
+
   answerForm: FormGroup;
   submitAnswerError: string;
   submitAnswerIndicator: boolean;
+
+  editAnswerForm: FormGroup;
+  editAnswerSubmitError: string;
+  editAnswerSubmitIndicator: boolean;
+
+  editQuestionForm: FormGroup;
+  editQuestionSubmitError: string;
+  editQuestionSubmitIndicator: boolean;
+
   showAskQuestionForm = false;
   askQuestionForm: FormGroup;
   submitQuestionIndicator: boolean;
   submitQuestionError: string;
+
   loadingAnswersIndicator: boolean;
   reloadLoadAnswerIndicator: boolean;
   loadAnswerError: string;
@@ -75,6 +86,15 @@ export class QAndAComponent implements OnInit {
       anonymous: [false, ]
     });
     this.loadQuestions();
+    this.editAnswerForm = this.formBuilder.group({
+      answer: [null, [Validators.required]],
+      anonymous: [false, ]
+    });
+    this.editQuestionForm = this.formBuilder.group({
+      question: [null, [Validators.required]],
+      description: [null, ],
+      anonymous: [false, ]
+    });
   }
 
   loadQuestions() {
@@ -495,6 +515,88 @@ export class QAndAComponent implements OnInit {
     }
   }
 
+  editAnswer(answer: CourseContentAnswers) {
+    this.editAnswerForm.enable();
+    this.editAnswerForm.reset();
+    this.editAnswerSubmitError = null;
+    this.editAnswerSubmitIndicator = false;
+    for (let ans in this.answers) {
+      if (this.answers[ans].id === answer.id) {
+        this.answers[ans]['edit'] = true;
+        this.editAnswerForm.patchValue({
+          answer: answer.answer,
+          anonymous: answer.anonymous
+        });
+      } else {
+        this.answers[ans]['edit'] = false;
+      }
+    }
+  }
+
+  closeEditAnswer() {
+    this.editAnswerForm.enable();
+    this.editAnswerForm.reset();
+    this.editAnswerSubmitError = null;
+    this.editAnswerSubmitIndicator = false;
+    for (let ans in this.answers) {
+      this.answers[ans]['edit'] = false;
+    }
+  }
+
+  resetEditAnswer(answer: CourseContentAnswers) {
+    this.editAnswerForm.patchValue({
+      answer: answer.answer,
+      anonymous: answer.anonymous
+    });
+  }
+
+  submitEditAnswer(answerId: number) {
+    this.editAnswerForm.patchValue({
+      answer: this.editAnswerForm.value.answer.trim()
+    });
+    if (!this.editAnswerForm.invalid) {
+      let data = this.editAnswerForm.value;
+      if (!data['anonymous']) {
+        data['anonymous'] = false;
+      }
+      this.editAnswerSubmitIndicator = true;
+      this.editAnswerSubmitError = null;
+      this.editAnswerForm.disable();
+      this.instituteApiService.editInstituteCourseContentAnswer(
+        this.currentInstituteSlug,
+        this.currentSubjectSlug,
+        answerId.toString(),
+        data
+      ).subscribe(
+        (result: CourseContentAnswers) => {
+          this.editAnswerSubmitIndicator = false;
+          const answerIndex = this.getIndex(this.answers, answerId);
+          if (answerIndex > -1) {
+            this.answers.splice(+answerIndex, 1, result);
+          }
+          this.uiService.showSnackBar(
+            'Answer updated successfully!',
+            2000
+          );
+          this.closeEditAnswer();
+        },
+        errors => {
+          this.editAnswerSubmitIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.editAnswerSubmitError = errors.error.error;
+            } else {
+              this.editAnswerSubmitError = 'Error occured!';
+            }
+          } else {
+            this.editAnswerSubmitError = 'Error occured!';
+          }
+          this.editAnswerForm.enable();
+        }
+      )
+    }
+  }
+
   getBackgroundColor() {
     const idx = Math.floor(Math.random() * this.colors.length);
     return this.colors[idx];
@@ -559,6 +661,10 @@ export class QAndAComponent implements OnInit {
 
   closeSubmitAnswerErrorText() {
     this.submitAnswerError = null;
+  }
+
+  closeEditAnswerErrorText() {
+    this.editAnswerSubmitError = null;
   }
 
   closeSubmitQuestionError() {

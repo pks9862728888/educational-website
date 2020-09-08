@@ -238,6 +238,14 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${answerId}/pin-unpin-answer`;
   }
 
+  getEditInstituteCourseContentAnswerUrl(
+    insituteSlug: string,
+    subjectSlug: string,
+    answerId: string
+  ) {
+    return `${this.instituteBaseUrl}${insituteSlug}/${subjectSlug}/${answerId}/edit-answer`;
+  }
+
   // Subject course preview related urls
   getMinSubjectCoursePreviewDetailsUrl(instituteSlug: string, subjectSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/subject-course-preview-min-details`;
@@ -958,6 +966,23 @@ export class InstituteApiService {
   pinUnpinInstituteCourseContentAnswer(answerId: string, data: any) {
     return this.httpClient.patch(
       this.getPinUnpinInstituteCourseContentAnswerUrl(answerId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editInstituteCourseContentAnswer(
+    instituteSlug: string,
+    subjectSlug: string,
+    answerId: string,
+    data: any
+  ) {
+    return this.httpClient.patch(
+      this.getEditInstituteCourseContentAnswerUrl(
+        instituteSlug,
+        subjectSlug,
+        answerId
+      ),
       data,
       { headers: this.getAuthHeader() }
     );

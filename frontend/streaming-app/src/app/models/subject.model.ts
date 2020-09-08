@@ -148,6 +148,7 @@ export interface CourseContentQuestion {
   upvotes: number;
   answer_count: number;
   upvoted: boolean;
+  edited: boolean;
 }
 
 export interface CourseContentAnswers {
@@ -162,4 +163,5 @@ export interface CourseContentAnswers {
   user_id?: number;
   upvotes: number;
   upvoted: boolean;
+  edited: boolean;
 }
