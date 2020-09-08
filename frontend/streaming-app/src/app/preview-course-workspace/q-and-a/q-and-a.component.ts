@@ -1,3 +1,4 @@
+import { Subscription } from 'rxjs';
 import { currentInstituteSlug, currentSubjectSlug, userId, is_teacher } from './../../../constants';
 import { UiService } from './../../services/ui.service';
 import { InstituteApiService } from './../../services/institute-api.service';
@@ -41,6 +42,7 @@ export class QAndAComponent implements OnInit {
   loadingAnswersIndicator: boolean;
   reloadLoadAnswerIndicator: boolean;
   loadAnswerError: string;
+  deleteAnswerSubscription: Subscription;
 
   questions: CourseContentQuestion[] = [];
   answers: CourseContentAnswers[] = [];
@@ -255,6 +257,115 @@ export class QAndAComponent implements OnInit {
         }
       )
     }
+  }
+
+  deleteAnswerConfirm(answer: CourseContentAnswers) {
+    this.deleteAnswerSubscription = this.uiService.dialogData$.subscribe(
+      result => {
+        if (result === true) {
+         this.deleteAnswer(answer);
+        }
+        this.deleteAnswerSubscription.unsubscribe();
+      }
+    )
+    this.uiService.openDialog(
+      'Confirm delete answer?',
+      'No',
+      'Yes'
+    );
+  }
+
+  deleteAnswer(answer: CourseContentAnswers) {
+    this.instituteApiService.deleteInstituteCourseContentAnswer(
+      this.currentSubjectSlug,
+      answer.id.toString()
+    ).subscribe(
+      () => {
+        const answerIndex = this.getIndex(this.answers, answer.id);
+        if (answerIndex >= 0) {
+          this.answers.splice(+answerIndex, 1);
+        }
+        this.uiService.showSnackBar(
+          'Answer deleted successfully!',
+          2500
+        );
+        const questionIndex = this.getIndex(this.questions, this.selectedQuestion.id);
+        if (questionIndex >= 0) {
+          this.questions[questionIndex]['answer_count'] -= 1;
+        }
+      },
+      errors => {
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              2500
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error! Unable to delete answer.',
+              2500
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error! Unable to delete answer.',
+            2500
+          );
+        }
+      }
+    )
+  }
+
+  pinUnpinAnswer(answerId: number, pinned: boolean) {
+    let data = {};
+    if (pinned) {
+      data['unpin'] = true;
+    } else {
+      data['pin'] = true;
+    }
+    this.instituteApiService.pinUnpinInstituteCourseContentAnswer(
+      answerId.toString(),
+      data
+    ).subscribe(
+      (result: {status: string} ) => {
+        let statusText = '';
+        const answerIndex = this.getIndex(this.answers, answerId);
+        if (answerIndex > -1) {
+          if (result.status === 'PINNED') {
+            this.answers[answerIndex]['pin'] = true;
+            statusText = 'Answer Pinned!';
+          } else {
+            this.answers[answerIndex]['pin'] = false;
+            statusText = 'Answer Unpinned!';
+          }
+          this.uiService.showSnackBar(
+            statusText,
+            2000
+          );
+        }
+      },
+      errors => {
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              2500
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error! Could not pin answer.',
+              2000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error! Could not pin answer.',
+            2500
+          );
+        }
+      }
+    );
   }
 
   showAllQuestionView() {

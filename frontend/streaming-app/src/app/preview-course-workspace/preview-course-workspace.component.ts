@@ -18,6 +18,7 @@ export class PreviewCourseWorkspaceComponent implements OnInit {
   currentInstituteSlug: string;
   currentSubjectSlug: string;
   currentInstituteType: string;
+  userType: string;
   baseUrl: string;
   opened: boolean;
   activeLink: string;
@@ -57,6 +58,11 @@ export class PreviewCourseWorkspaceComponent implements OnInit {
         this.chageDetectorRef.detectChanges();
       }
     );
+    if (sessionStorage.getItem(is_teacher) === 'true') {
+      this.userType = 'TEACHER';
+    } else {
+      this.userType = 'STUDENT';
+    }
   }
 
   ngOnInit(): void {

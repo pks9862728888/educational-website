@@ -16,11 +16,11 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                    'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'COURSE_PREVIEW'" [class.m-t-05]="!mq.matches" (click)="navigate('COURSE_PREVIEW')">Course Preview</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'VIEW_PEERS'" (click)="navigate('VIEW_PEERS')">View Peers</div>
+                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'VIEW_PEERS'" *ngIf="userType === 'STUDENT'" (click)="navigate('VIEW_PEERS')">View Peers</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'JOIN_GROUPS'" (click)="navigate('JOIN_GROUPS')">Join Groups</div>
+                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'JOIN_GROUPS'" *ngIf="userType === 'STUDENT'" (click)="navigate('JOIN_GROUPS')">Join Groups</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'ANNOUNCEMENTS'" (click)="navigate('ANNOUNCEMENTS')">Announcements</div>
+                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'ANNOUNCEMENTS'" *ngIf="userType === 'STUDENT'" (click)="navigate('ANNOUNCEMENTS')">Announcements</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                  'sidenav-content-more-padding': !mq.matches}" (click)="navigate('EXIT_COURSE')">
                     <span *ngIf="!userIsTeacher()">Exit Course</span>

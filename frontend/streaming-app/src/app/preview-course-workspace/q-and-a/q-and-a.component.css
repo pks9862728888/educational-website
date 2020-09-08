@@ -15,9 +15,15 @@ h3 {
 }
 
 .question {
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding: 1rem 0.5rem;
+}
+
+.question:not(:first-child) {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.question:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .question:hover {
@@ -97,6 +103,10 @@ h3 {
 
 .form-separator {
     background-color: rgba(255, 255, 255, 0.05);
+}
+
+.check-icon {
+    color: #C6FF00;
 }
 
 .b-b-1:not(:last-child) {

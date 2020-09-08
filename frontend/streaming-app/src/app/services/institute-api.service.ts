@@ -230,6 +230,14 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${answerId}/upvote-downvote-answer`;
   }
 
+  getDeleteInstituteCourseContentAnswerUrl(subjectSlug: string, answerId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${answerId}/delete-answer`;
+  }
+
+  getPinUnpinInstituteCourseContentAnswerUrl(answerId: string) {
+    return `${this.instituteBaseUrl}${answerId}/pin-unpin-answer`;
+  }
+
   // Subject course preview related urls
   getMinSubjectCoursePreviewDetailsUrl(instituteSlug: string, subjectSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/subject-course-preview-min-details`;
@@ -934,7 +942,25 @@ export class InstituteApiService {
       ),
       data,
       { headers: this.getAuthHeader() }
-    )
+    );
+  }
+
+  deleteInstituteCourseContentAnswer(
+    subjectSlug: string,
+    answerId: string
+  ) {
+    return this.httpClient.delete(
+      this.getDeleteInstituteCourseContentAnswerUrl(subjectSlug, answerId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  pinUnpinInstituteCourseContentAnswer(answerId: string, data: any) {
+    return this.httpClient.patch(
+      this.getPinUnpinInstituteCourseContentAnswerUrl(answerId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
   }
 
   // To load token from storage

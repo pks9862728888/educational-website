@@ -123,7 +123,10 @@
                 <div class="text-justify width-100 p-b-05">
                     <div class="d-flex justify-content-between align-center">
                         <div>
-                            <h3 class="question-color" [class.cursor-pointer]="!answer.anonymous">{{ answer.user | titlecase }}</h3>
+                            <div class="d-flex align-center">
+                                <h3 class="question-color" [class.cursor-pointer]="!answer.anonymous">{{ answer.user | titlecase }}</h3>
+                                <mat-icon *ngIf="answer.pin" class="m-l-03 check-icon">check</mat-icon>
+                            </div>
                             <small class="text-color">{{ getTimeElapsed(answer.created_on, answer.current_time) }} ago</small>
                         </div>
                         <div class="d-flex m-l-05 text-color">
@@ -131,10 +134,10 @@
                                 <mat-icon class="edit-icon icon-p-size cursor-pointer">edit</mat-icon>
                             </div>
                             <div class="m-r-05" *ngIf="userIsSelf(answer.user_id)">
-                                <mat-icon class="delete-icon cursor-pointer">delete</mat-icon>
+                                <mat-icon class="delete-icon cursor-pointer" (click)="deleteAnswerConfirm(answer)">delete</mat-icon>
                             </div>
                             <div class="m-r-05" *ngIf="userIsQuestionAsker()">
-                                <mat-icon class="pin-icon cursor-pointer">push_pin</mat-icon>
+                                <mat-icon class="pin-icon cursor-pointer pin-icon-inactive" [class.pin-icon-active]="answer.pin" (click)="pinUnpinAnswer(answer.id, answer.pin)">push_pin</mat-icon>
                             </div>
                             <div class="d-flex">
                                 <p class="upvote-icon-inactive">{{ answer.upvotes }}</p>

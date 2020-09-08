@@ -143,6 +143,14 @@ button.active:focus {
     color: #7fc0ba;
 }
 
+.pin-icon-inactive {
+    color: #ffda99;
+}
+
+.pin-icon-active {
+    color: #FF6D00;
+}
+
 
 /* Message color globally */
 
