@@ -1,6 +1,6 @@
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { webAppName, currentInstituteSlug, currentSubjectSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, currentClassSlug, previewActionContent } from '../../constants';
+import { webAppName, currentInstituteSlug, currentSubjectSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, currentClassSlug, previewActionContent, is_teacher, is_student } from '../../constants';
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -81,12 +81,38 @@ export class PreviewCourseWorkspaceComponent implements OnInit {
           this.router.navigate([this.baseUrl + '/join-groups']);
         } else if (link === 'ANNOUNCEMENTS') {
           this.router.navigate([this.baseUrl + '/announcements']);
+        } else if (link === 'EXIT_COURSE') {
+          if (sessionStorage.getItem(is_student)) {
+            const workspaceBaseUrl = this.getInstituteWorkspaceType();
+            this.router.navigate([workspaceBaseUrl + this.currentInstituteSlug + '/student-courses']);
+          } else if (sessionStorage.getItem(is_teacher)) {
+            this.router.navigate(['subject-workspace/' + this.currentInstituteSlug + '/create-course']);
+          }
         }
+    }
+  }
+
+  getInstituteWorkspaceType() {
+    const currentInstituteType_ = sessionStorage.getItem(currentInstituteType);
+    if (currentInstituteType_ === INSTITUTE_TYPE_REVERSE['School']) {
+      return 'school-workspace/';
+    } else if (currentInstituteType_ === INSTITUTE_TYPE_REVERSE['Coaching']) {
+      return 'coaching-workspace/';
+    } else if (currentInstituteType_ === INSTITUTE_TYPE_REVERSE['College']) {
+      return 'college-workspace/';
     }
   }
 
   closePreviewClicked() {
     this.inAppDataTransferService.closePreviewCourseContent();
+  }
+
+  userIsTeacher() {
+    if (sessionStorage.getItem(is_teacher) === 'true') {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   ngOnDestroy(): void {

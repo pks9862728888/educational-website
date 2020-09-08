@@ -21,6 +21,11 @@
                                  'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'JOIN_GROUPS'" (click)="navigate('JOIN_GROUPS')">Join Groups</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                  'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'ANNOUNCEMENTS'" (click)="navigate('ANNOUNCEMENTS')">Announcements</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                 'sidenav-content-more-padding': !mq.matches}" (click)="navigate('EXIT_COURSE')">
+                    <span *ngIf="!userIsTeacher()">Exit Course</span>
+                    <span *ngIf="userIsTeacher()">Exit Preview</span>
+                </div>
             </mat-nav-list>
         </mat-sidenav>
 

@@ -1,3 +1,4 @@
+import { StudentInstituteCoursesComponent } from './../shared/student-institute-courses/student-institute-courses.component';
 import { PermissionsComponent } from './../shared/permissions/permissions.component';
 import { NgModule } from '@angular/core';
 import { InstituteRoutingGuard } from './../guard/institute.guard';
@@ -24,7 +25,8 @@ const routes: Routes = [
       { path: ':name/license/purchase', component: PurchaseLicenseComponent, canActivate: [PurchaseLicenseGuard]},
       { path: ':name/license/review', component: LicenseReviewComponent, canActivate: [PurchaseLicenseGuard]},
       { path: ':name/license/checkout', component: LicenseCheckoutComponent, canActivate: [PurchaseLicenseGuard] },
-      { path: ':name/students', component: InstituteStudentsComponent}
+      { path: ':name/students', component: InstituteStudentsComponent},
+      { path: ':name/student-courses', component: StudentInstituteCoursesComponent}
     ],
   }
 ];

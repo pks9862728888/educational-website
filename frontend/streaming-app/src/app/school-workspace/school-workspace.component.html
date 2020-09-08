@@ -10,13 +10,15 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PROFILE'" (click)="performAction('profile')">School Profile</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PERMISSIONS'" (click)="performAction('PERMISSIONS')" *ngIf="purchasedLicenseExists">School Permissions</div>
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PERMISSIONS'" (click)="performAction('PERMISSIONS')" *ngIf="purchasedLicenseExists && userIsTeacher()">School Permissions</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'STUDENTS'" (click)="performAction('STUDENTS')" *ngIf="purchasedLicenseExists">School Students</div>
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'STUDENTS'" (click)="performAction('STUDENTS')" *ngIf="purchasedLicenseExists && userIsTeacher()">School Students</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CLASSES'" (click)="performAction('CLASSES')" *ngIf="purchasedLicenseExists">School Classes</div>
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CLASSES'" (click)="performAction('CLASSES')" *ngIf="purchasedLicenseExists && userIsTeacher()">School Classes</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')" *ngIf="userIsAdmin()">License</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'STUDENT-COURSES'" (click)="performAction('STUDENT-COURSES')" *ngIf="userIsStudent()">My Courses</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" (click)="performAction('EXIT')">Exit</div>
             </mat-nav-list>
@@ -36,10 +38,11 @@
                         <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
                         <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'PROFILE'">Profile</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'PERMISSIONS'" *ngIf="purchasedLicenseExists">Permissions</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'STUDENTS'" *ngIf="purchasedLicenseExists">Invite</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CLASSES'" *ngIf="purchasedLicenseExists">Classes</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'" *ngIf="userIsAdmin()">License</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'PERMISSIONS'" *ngIf="purchasedLicenseExists && userIsTeacher()">Permissions</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'STUDENTS'" *ngIf="purchasedLicenseExists && userIsTeacher()">Invite</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CLASSES'" *ngIf="purchasedLicenseExists && userIsTeacher()">Classes</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'" *ngIf="userIsAdmin() && userIsTeacher()">License</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'STUDENT-COURSES'" *ngIf="userIsStudent()">Courses</li>
                     </ol>
                 </nav>
 
