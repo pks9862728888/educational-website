@@ -4977,7 +4977,7 @@ class InstituteSubjectCourseContentEditQuestionView(APIView):
             return Response({'error': _('Question may have been deleted.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not question.user.pk != self.request.user.pk:
+        if question.user.pk != self.request.user.pk:
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
