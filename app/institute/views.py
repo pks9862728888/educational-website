@@ -4887,7 +4887,7 @@ class InstituteSubjectCourseContentEditAnswerView(APIView):
             return Response({'error': _('Answer may have been deleted.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not ans.user.pk != self.request.user.pk:
+        if ans.user.pk != self.request.user.pk:
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -5254,7 +5254,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
             res['current_time'] = str(timezone.now())
             res['description'] = q.description
             res['anonymous'] = q.anonymous
-            response['edited'] = q.edited
+            res['edited'] = q.edited
 
             if q.anonymous:
                 if q.user and q.user.pk == self.request.user.pk:
