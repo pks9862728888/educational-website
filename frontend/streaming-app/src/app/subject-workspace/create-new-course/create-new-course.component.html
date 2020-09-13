@@ -1,0 +1,230 @@
+<mat-card class="text-color">
+    <div class="d-flex justify-content-between">
+        <div>
+            <h2 class="header-text">Create Course:</h2>
+        </div>
+        <mat-icon *ngIf="selectedLecture" (click)="closeLecture()" class="cancel-icon cursor-pointer">close</mat-icon>
+    </div>
+    <hr class="top-separator m-t-03 m-b-1" />
+    <div [hidden]="selectedLecture">
+        <div *ngIf="errorText" class="m-b-1">
+            <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+        </div>
+        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="'Loading Course Details...'"></app-ui-loading>
+        <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load course details.'" (retryEvent)="getMinCourseDetails()"></app-ui-reload>
+        <section *ngIf="!showLoadingIndicator && !showReload && !errorText">
+            <div class="m-b-1" *ngFor="let view of viewOrder; let i=index">
+                <mat-accordion>
+                    <mat-expansion-panel class="text-color" [expanded]="openedPanelStep === i" (opened)="setOpenedPanelStep(i)">
+                        <mat-expansion-panel-header [collapsedHeight]="'55px'" [expandedHeight]="'55px'">
+                            <mat-panel-title>
+                                <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                    <h3 *ngIf="!mq.matches">Meet Your Instructor (0)</h3>
+                                    <p *ngIf="mq.matches">Meet Your Instructor (0)</p>
+                                </div>
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <hr class="top-separator m-b-1" />
+                        <div *ngIf="view === 'MI' || view === 'CO'">
+                            <div class="background-material m-b-1 cursor-pointer d-flex align-center">
+                                <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
+                                    <mat-icon class="content-icon">
+                                        <span>link</span>
+                                    </mat-icon>
+                                </div>
+                                <div>
+                                    <h3 *ngIf="!mq.matches">Sample code</h3>
+                                    <p *ngIf="mq.matches">Sample code</p>
+                                    <p class="duration-text">
+                                        <span>Link</span>
+                                        <span> | 24th Jan, 2020 </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div *ngIf="hasSubjectPerm">
+                                <div class="edit-controls" *ngIf="!mq.matches">
+                                    <mat-icon class="m-r-05 edit-icon" (click)="editClicked()">edit</mat-icon>
+                                    <mat-icon class="delete-icon" (click)="deleteClicked()">delete</mat-icon>
+                                </div>
+                                <div class="edit-controls" *ngIf="mq.matches">
+                                    <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
+                                </div>
+                                <div class="m-t-1 m-b-1" *ngIf="false">
+                                    <app-ui-error-text [errorText]="editContentError" (closeErrorTextEvent)="closeEditContentError()"></app-ui-error-text>
+                                </div>
+                                <div class="m-t-1 edit-form-background" *ngIf="false">
+                                    <div class="m-b-05">
+                                        <h3 *ngIf="!mq.matches" class="edit-text">Edit Form:</h3>
+                                        <p *ngIf="mq.matches" class="edit-text">Edit Form:</p>
+                                    </div>
+                                    <app-ui-edit-study-material [showTargetDate]="true" [filledFormText]="" [showCancelButton]="true" [formEvent]="editContentFormEvent.asObservable()" (formData)="updateContent($event)" (closeEvent)="closeEditForm($event)"></app-ui-edit-study-material>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button mat-stroked-button class="stroked-button m-r-05">
+                                  <mat-icon class="m-r-05 edit-icon">edit</mat-icon>
+                                  Module
+                                </button>
+                                <button mat-stroked-button class="stroked-button">
+                                  <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                                  Content
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngIf="view !== 'MI' && view !== 'CO'">
+                            <div class="background-material m-b-1 cursor-pointer p-all-1" (click)="openLecture()">
+                                <h3 *ngIf="!mq.matches">1. Sample code</h3>
+                                <p *ngIf="mq.matches">1. Sample code</p>
+                                <p class="duration-text m-l-1">
+                                    <span>24th Jan, 2020 </span>
+                                </p>
+                            </div>
+                            <div *ngIf="hasSubjectPerm">
+                                <div class="edit-controls" *ngIf="!mq.matches">
+                                    <mat-icon class="m-r-05 edit-icon" (click)="editClicked()">edit</mat-icon>
+                                    <mat-icon class="delete-icon" (click)="deleteClicked()">delete</mat-icon>
+                                </div>
+                                <div class="edit-controls" *ngIf="mq.matches">
+                                    <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button mat-stroked-button class="stroked-button m-r-05">
+                                      <mat-icon class="m-r-05 edit-icon">edit</mat-icon>
+                                      Module
+                                    </button>
+                                    <button *ngIf="!mq.matches" mat-stroked-button class="stroked-button m-r-05">
+                                      <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                                      Test
+                                    </button>
+                                    <button *ngIf="!mq.matches" mat-stroked-button class="stroked-button">
+                                      <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                                      Lecture
+                                    </button>
+                                    <button *ngIf="mq.matches" mat-stroked-button class="stroked-button">
+                                      <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                                      Content
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+            <div class="d-flex justify-content-end">
+                <button mat-stroked-button class="stroked-button m-r-05">
+                  <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                  Test
+                </button>
+                <button mat-stroked-button class="stroked-button">
+                  <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                  Module
+                </button>
+            </div>
+        </section>
+    </div>
+    <div [hidden]="!selectedLecture">
+        <div class="lecture-heading">
+            <h3>HUMAN PSYCHOLOGY</h3>
+            <h3>Lecture 2:</h3>
+            <h3>The Organ System of Human</h3>
+        </div>
+        <hr class="top-separator m-t-03 m-b-15" />
+        <section class="m-b-1">
+            <div class="topic-heading-background m-b-15">
+                <h3>
+                    <span class="topic-heading">Lecture Objectives:</span>
+                    <span *ngIf="true"> None</span>
+                </h3>
+                <mat-icon class="cursor-pointer help-icon" matTooltip="Add Lecture Objectives to keep the students informed about what they will learn in this lecture." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+            </div>
+            <div class="m-b-1" *ngIf="false" [class.m-l-1.m-r-1]="mq.matches" [class.m-l-15.m-r-15]="true">
+                <ul>
+                    <li>To know the outcome of khela hobe.</li>
+                    <li>This is very wierd troll anyone can have.</li>
+                </ul>
+            </div>
+            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                <p>Add Objective</p>
+            </div>
+        </section>
+        <section class="m-b-15">
+            <div class="topic-heading-background m-b-15">
+                <h3>
+                    <span class="topic-heading">Lecture Content:</span>
+                    <span *ngIf="true"> None</span>
+                </h3>
+                <mat-icon class="cursor-pointer help-icon" matTooltip="Schedule live classes, or provide study materials to the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+            </div>
+            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                <p>Add Content</p>
+            </div>
+        </section>
+        <section class="m-b-15">
+            <div class="topic-heading-background m-b-15">
+                <h3>
+                    <span class="topic-heading">Use Cases:</span>
+                    <span *ngIf="true"> None</span>
+                </h3>
+                <mat-icon class="cursor-pointer help-icon" matTooltip="Mention where the knowledge of this lecture can be applied." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+            </div>
+            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                <p>Add Use Cases</p>
+            </div>
+        </section>
+        <section class="m-b-15">
+            <div class="topic-heading-background m-b-15">
+                <h3>
+                    <span class="topic-heading">Get Inspired:</span>
+                    <span *ngIf="true"> None</span>
+                </h3>
+                <mat-icon class="cursor-pointer help-icon" matTooltip="Add Links to YouTube videos, or other websites to inspire the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+            </div>
+            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                <p>Add External Links</p>
+            </div>
+        </section>
+        <section class="m-b-15">
+            <div class="topic-heading-background m-b-15">
+                <h3>
+                    <span class="topic-heading">Additional Reading:</span>
+                    <span *ngIf="true"> None</span>
+                </h3>
+                <mat-icon class="cursor-pointer help-icon" matTooltip="Add Additional Links of resources which students can read to expand their knowledge base." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+            </div>
+            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                <p>Add Additonal Reading Links</p>
+            </div>
+        </section>
+        <section class="m-b-15">
+            <div class="topic-heading-background m-b-15">
+                <h3>
+                    <span class="topic-heading">Assignments:</span>
+                    <span *ngIf="true"> None</span>
+                </h3>
+                <mat-icon class="cursor-pointer help-icon" matTooltip="Add Assignments which will help the students to test their learning." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+            </div>
+            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                <p>Add Assignment</p>
+            </div>
+        </section>
+        <section class="m-b-15">
+            <div class="topic-heading-background m-b-15">
+                <h3>
+                    <span class="topic-heading">Tests:</span>
+                    <span *ngIf="true"> None</span>
+                </h3>
+                <mat-icon class="cursor-pointer help-icon" matTooltip="Add mcq based graded / ungraded tests so that students can evaluate how much they understood the topic of the lecture." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+            </div>
+            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                <p>Add Test</p>
+            </div>
+        </section>
+    </div>
+</mat-card>

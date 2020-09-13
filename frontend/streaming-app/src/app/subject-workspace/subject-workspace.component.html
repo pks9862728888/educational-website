@@ -14,6 +14,8 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                             'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'STUDENTS'" (click)="navigate('STUDENTS')">Subject Students</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                            'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CREATE-NEW-COURSE'" (click)="navigate('CREATE-NEW-COURSE')">Create Course</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                             'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CREATE-COURSE'" (click)="navigate('CREATE-COURSE')">Create Course</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                             'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PREVIEW-COURSE'" (click)="navigate('PREVIEW-COURSE')">Preview Course</div>
