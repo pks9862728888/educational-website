@@ -519,3 +519,33 @@ class GetImageStudyMaterialSerializer(serializers.ModelSerializer):
         model = models.SubjectImageStudyMaterial
         fields = ('id', 'image_study_material', 'file')
         read_only_fields = ('image_study_material', 'file')
+
+
+class SubjectIntroductoryFileMaterialSerializer(serializers.ModelSerializer):
+    """Serializer for creating introductory study material"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = models.SubjectIntroductoryContent
+        fields = ('id', 'view', 'name', 'file', 'can_download', 'content_type')
+        read_only_fields = ('id',)
+
+
+class SubjectLectureImageSerializer(serializers.ModelSerializer):
+    """Serializer for creating image study material"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = models.SubjectLectureImageMaterial
+        fields = ('id', 'lecture_material', 'file', 'can_download')
+        read_only_fields = ('id',)
+
+
+class SubjectLecturePdfSerializer(serializers.ModelSerializer):
+    """Serializer for creating image study material"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = models.SubjectLecturePdfMaterial
+        fields = ('id', 'lecture_material', 'file', 'can_download')
+        read_only_fields = ('id',)

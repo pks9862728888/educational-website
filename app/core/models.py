@@ -231,6 +231,96 @@ class PaymentGateway:
     ]
 
 
+class SubjectLectureLinkViewType:
+    ADDITIONAL_READING_LINK = 'A'
+    USE_CASES_LINK = 'U'
+
+    LECTURE_LINK_IN_LECTURE_LINKS = [
+        (ADDITIONAL_READING_LINK, _(u'ADDITIONAL_READING_LINK')),
+        (USE_CASES_LINK, _(u'USE_CASES_LINK'))
+    ]
+
+
+class SubjectLectureMaterialsContentType:
+    IMAGE = 'I'
+    PDF = 'P'
+    EXTERNAL_LINK = 'E'
+    YOUTUBE_LINK = 'Y'
+    LIVE_CLASS = 'L'
+
+    CONTENT_TYPE_IN_CONTENT_TYPES = [
+        (IMAGE, _(u'IMAGE')),
+        (PDF, _(u'PDF')),
+        (EXTERNAL_LINK, _(u'EXTERNAL_LINK')),
+        (YOUTUBE_LINK, _(u'YOUTUBE_LINK')),
+        (LIVE_CLASS, _(u'LIVE_CLASS')),
+    ]
+
+
+class SubjectIntroductionContentType:
+    IMAGE = 'I'
+    PDF = 'P'
+    LINK = 'L'
+
+    CONTENT_TYPE_IN_CONTENT_TYPES = [
+        (IMAGE, _(u'IMAGE')),
+        (PDF, _(u'PDF')),
+        (LINK, _(u'LINK'))
+    ]
+
+
+class SubjectLectureLinkMaterialType:
+    YOUTUBE_LINK = 'Y'
+    EXTERNAL_LINK = 'E'
+
+    LINK_TYPE_IN_LINK_TYPES = [
+        (YOUTUBE_LINK, _(u'YOUTUBE_LINK')),
+        (EXTERNAL_LINK, _(u'EXTERNAL_LINK'))
+    ]
+
+
+class SubjectLectureUseCaseOrObjectives:
+    USE_CASE = 'U'
+    OBJECTIVES = 'O'
+
+    VIEW_TYPE_IN_VIEW_TYPES = [
+        (USE_CASE, _(u'USE_CASE')),
+        (OBJECTIVES, _(u'OBJECTIVES'))
+    ]
+
+
+class SubjectLectureLinkViewType:
+    ADDITIONAL_READING_LINK = 'A'
+    USE_CASES_LINK = 'U'
+    LECTURE_MATERIAL_LINK = 'L'
+
+    VIEW_TYPE_IN_SUBJECT_LECTURE_VIEW_TYPE = [
+        (ADDITIONAL_READING_LINK, _(u'ADDITIONAL_READING_LINK')),
+        (USE_CASES_LINK, _(u'USE_CASES_LINK')),
+        (LECTURE_MATERIAL_LINK, _(u'LECTURE_MATERIAL_LINK')),
+    ]
+
+
+class SubjectAssignmentType:
+    MANDATORY = 'A'
+    OPTIONAL = 'U'
+
+    ASSIGNMENT_TYPE_IN_SUBJECT_ASSIGNMENT_TYPES = [
+        (MANDATORY, _(u'MANDATORY')),
+        (OPTIONAL, _(u'OPTIONAL'))
+    ]
+
+
+class GradedType:
+    GRADED = 'G'
+    UNGRADED = 'U'
+
+    GRADED_TYPE_IN_GRADED_TYPES = [
+        (GRADED, _(u'GRADED')),
+        (UNGRADED, _(u'UNGRADED'))
+    ]
+
+
 class StudyMaterialContentType:
     VIDEO = 'V'
     IMAGE = 'I'
@@ -275,10 +365,8 @@ def user_profile_picture_upload_file_path(instance, filename):
     """Generates file path for uploading images in user profile"""
     extension = filename.split('.')[-1]
     file_name = f'{uuid.uuid4()}.{extension}'
-    date = datetime.date.today()
     path = 'pictures/uploads/user/profile'
-    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
-    full_path = os.path.join(ini_path, file_name)
+    full_path = os.path.join(path, file_name)
 
     return full_path
 
@@ -287,10 +375,8 @@ def institute_logo_upload_file_path(instance, filename):
     """Generates file path for uploading institute logo"""
     extension = filename.split('.')[-1]
     file_name = f'{uuid.uuid4()}.{extension}'
-    date = datetime.date.today()
     path = 'pictures/uploads/institute/logo'
-    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
-    full_path = os.path.join(ini_path, file_name)
+    full_path = os.path.join(path, file_name)
 
     return full_path
 
@@ -299,10 +385,8 @@ def institute_banner_upload_file_path(instance, filename):
     """Generates file path for uploading institute banner"""
     extension = filename.split('.')[-1]
     file_name = f'{uuid.uuid4()}.{extension}'
-    date = datetime.date.today()
     path = 'pictures/uploads/institute/banner'
-    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
-    full_path = os.path.join(ini_path, file_name)
+    full_path = os.path.join(path, file_name)
 
     return full_path
 
@@ -311,10 +395,8 @@ def subject_img_study_material_upload_file_path(instance, filename):
     """Generates file path for uploading institute image study material"""
     extension = filename.split('.')[-1]
     file_name = f'{uuid.uuid4()}.{extension}'
-    date = datetime.date.today()
     path = 'institute/uploads/content/image'
-    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
-    full_path = os.path.join(ini_path, file_name)
+    full_path = os.path.join(path, file_name)
     return full_path
 
 
@@ -322,10 +404,17 @@ def subject_video_study_material_upload_file_path(instance, filename):
     """Generates file path for uploading institute video study material"""
     extension = filename.split('.')[-1]
     file_name = f'{uuid.uuid4()}.{extension}'
-    date = datetime.date.today()
     path = 'institute/uploads/content/video'
-    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
-    full_path = os.path.join(ini_path, file_name)
+    full_path = os.path.join(path, file_name)
+    return full_path
+
+
+def subject_introductory_content_upload_file_path(instance, filename):
+    """Generates file path for uploading institute introductory content"""
+    extension = filename.split('.')[-1]
+    file_name = f'{uuid.uuid4()}.{extension}'
+    path = 'institute/uploads/content/introduction'
+    full_path = os.path.join(path, file_name)
     return full_path
 
 
@@ -333,10 +422,8 @@ def subject_pdf_study_material_upload_file_path(instance, filename):
     """Generates file path for uploading institute pdf study material"""
     extension = filename.split('.')[-1]
     file_name = f'{uuid.uuid4()}.{extension}'
-    date = datetime.date.today()
     path = 'institute/uploads/content/pdf'
-    ini_path = f'{path}/{date.year}/{date.month}/{date.day}/'
-    full_path = os.path.join(ini_path, file_name)
+    full_path = os.path.join(path, file_name)
     return full_path
 
 
@@ -1404,6 +1491,246 @@ class SubjectViewWeek(models.Model):
 
     def __str__(self):
         return str(self.value)
+
+
+class SubjectIntroductoryContent(models.Model):
+    """Model for storing subject meet your instructor and course overview"""
+    view = models.ForeignKey(
+        SubjectViewNames, on_delete=models.CASCADE, related_name="introductory_content_view")
+    name = models.CharField(
+        _('Content name'), max_length=30, blank=False, null=False)
+    file = models.FileField(
+        _('File'),
+        upload_to=subject_introductory_content_upload_file_path,
+        null=True,
+        blank=True,
+        max_length=1024,
+        unique=True)
+    can_download = models.BooleanField(_('Can Download'), blank=True, default=False)
+    link = models.URLField(
+        _('Link'), max_length=2083, blank=True, null=True)
+    content_type = models.CharField(
+        _('Content Type'),
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=SubjectIntroductionContentType.CONTENT_TYPE_IN_CONTENT_TYPES)
+    created_on = models.DateTimeField(
+        _('Created on'), default=timezone.now, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.can_download:
+            self.can_download = False
+        super(SubjectIntroductoryContent, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class SubjectLecture(models.Model):
+    """Model for storing subject lecture names"""
+    view = models.ForeignKey(
+        SubjectViewNames, on_delete=models.CASCADE, related_name="lecture_view")
+    name = models.CharField(
+        _('Lecture name'), max_length=30, blank=False, null=False)
+    target_date = models.DateField(
+        _('Target Date'), max_length=10, blank=True, null=False)
+    created_on = models.DateTimeField(
+        _('Created on'), default=timezone.now, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.name = self.name.strip()
+        if not self.target_date:
+            self.target_date = ''
+        if self.target_date and self.target_date < timezone.now():
+            raise ValueError(_('Target date can not be in the past.'))
+        super(SubjectLecture, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class SubjectAdditionalReadingUseCaseLink(models.Model):
+    """Model for storing additional reading and use case link"""
+    lecture = models.ForeignKey(SubjectLecture, on_delete=models.CASCADE, related_name="lecture_links")
+    name = models.CharField(_('Name of Link'), max_length=100, blank=False, null=False)
+    link = models.URLField(_('Link'), max_length=2083, blank=False, null=False)
+    type = models.CharField(
+        _('Link View Type'),
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=SubjectLectureLinkViewType.VIEW_TYPE_IN_SUBJECT_LECTURE_VIEW_TYPE)
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip()
+        if not self.name:
+            raise ValueError(_('Name is required and can not be blank.'))
+        if not self.link:
+            raise ValueError(_('Link is required.'))
+        super(SubjectAdditionalReadingUseCaseLink, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class SubjectLectureMaterials(models.Model):
+    """Model for storing lecture materials"""
+    lecture = models.ForeignKey(
+        SubjectLecture, on_delete=models.CASCADE, related_name="lecture_material")
+    content_type = models.CharField(
+        _('Content Type'),
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=SubjectLectureMaterialsContentType.CONTENT_TYPE_IN_CONTENT_TYPES)
+    name = models.CharField(
+        _('Name of study material'), max_length=100, blank=False, null=False)
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip()
+        if not self.name:
+            raise ValueError(_('Name of material is required and can not be blank.'))
+        super(SubjectLectureMaterials, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class SubjectLectureImageMaterial(models.Model):
+    """Model for storing image study material of subject lecture"""
+    lecture_material = models.ForeignKey(
+        SubjectLectureMaterials, on_delete=models.CASCADE, related_name="image_lecture_material")
+    file = models.FileField(
+        _('Image File'),
+        upload_to=subject_img_study_material_upload_file_path,
+        null=False,
+        blank=False,
+        max_length=1024,
+        unique=True)
+    can_download = models.BooleanField(_('Can Download'), blank=True, default=True)
+
+    def __str__(self):
+        return str(self.lecture_material)
+
+
+@receiver(post_delete, sender=SubjectLectureImageMaterial)
+def auto_delete_image_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            try:
+                os.remove(instance.file.path)
+            except Exception as e:
+                print('Error: ' + e)
+
+
+class SubjectLecturePdfMaterial(models.Model):
+    """Model for storing pdf study material of subject lecture"""
+    lecture_material = models.ForeignKey(
+        SubjectLectureMaterials, on_delete=models.CASCADE, related_name="pdf_lecture_material")
+    file = models.FileField(
+        _('Pdf File'),
+        upload_to=subject_pdf_study_material_upload_file_path,
+        null=False,
+        blank=False,
+        max_length=1024,
+        unique=True)
+    can_download = models.BooleanField(_('Can Download'), blank=True, default=True)
+
+    def __str__(self):
+        return str(self.lecture_material)
+
+
+@receiver(post_delete, sender=SubjectLecturePdfMaterial)
+def auto_delete_pdf_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            try:
+                os.remove(instance.file.path)
+            except Exception as e:
+                print('Error: ' + e)
+
+
+class SubjectLectureLinkMaterial(models.Model):
+    """Model for storing link study material of subject lecture"""
+    lecture_material = models.ForeignKey(
+        SubjectLectureMaterials, on_delete=models.CASCADE, related_name="link_lecture_material")
+    link = models.URLField(
+        _('Link'), max_length=2083, blank=False, null=False)
+    link_type = models.CharField(
+        _('Link Type'),
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=SubjectLectureLinkMaterialType.LINK_TYPE_IN_LINK_TYPES)
+
+    def __str__(self):
+        return str(self.lecture_material)
+
+
+class SubjectLectureLiveClass(models.Model):
+    """Model for storing live class schedule of subject lecture"""
+    lecture_material = models.ForeignKey(
+        SubjectLectureMaterials, on_delete=models.CASCADE, related_name="live_class_lecture_material")
+    live_on = models.DateTimeField(
+        _('Live schedule'), blank=False, null=False)
+    link = models.URLField(
+        _('Live Link'), max_length=2048, blank=False, null=False)
+
+    def __str__(self):
+        return str(self.lecture_material)
+
+
+class SubjectLectureUseCaseObjectives(models.Model):
+    """Models for storing use cases and objectives of subject lecture."""
+    lecture = models.ForeignKey(
+        SubjectLecture, on_delete=models.CASCADE, related_name="lecture_use_cases")
+    text = models.CharField(
+        _('Text'), max_length=500, blank=False, null=False)
+    type = models.CharField(
+        _('Text Type'),
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=SubjectLectureUseCaseOrObjectives.VIEW_TYPE_IN_VIEW_TYPES)
+
+    def save(self, *args, **kwargs):
+        if self.text:
+            self.text = self.text.strip()
+        if not self.text:
+            raise ValueError(_('Text can not be blank.'))
+        super(SubjectLectureUseCaseObjectives, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.lecture)
+
+
+class SubjectLectureAssignment(models.Model):
+    """Models for storing assignment question of subject lecture."""
+    lecture_material = models.ForeignKey(
+        SubjectLectureMaterials, on_delete=models.CASCADE, related_name="lecture_assignment")
+    question = models.CharField(
+        _('Lecture Question'), max_length=500, blank=False, null=False)
+    description = models.CharField(
+        _('Lecture Description'), max_length=1000, blank=False, null=False)
+    due_date = models.DateField(
+        _('Due Date'), max_length=10, blank=True, default='')
+    assignment_type = models.CharField(
+        _('Assignment Type'),
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=SubjectAssignmentType.ASSIGNMENT_TYPE_IN_SUBJECT_ASSIGNMENT_TYPES)
+    graded_type = models.CharField(
+        _('Graded Type'),
+        max_length=1,
+        null=False,
+        blank=False,
+        choices=GradedType.GRADED_TYPE_IN_GRADED_TYPES)
+    total_mark = models.DecimalField(
+        _('Total Mark'), default=0.0, max_digits=6, decimal_places=2, blank=True)
 
 
 class InstituteSubjectCourseContent(models.Model):

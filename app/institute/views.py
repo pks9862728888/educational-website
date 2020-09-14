@@ -94,6 +94,28 @@ def monitor(ffmpeg, duration, time_, time_left, process):
     print('*' * per + str(per) + '% completed')
 
 
+def get_file_lecture_material_data(data, data_notation, base_url, size=None):
+    """
+    Creates and returns image content data dict,
+    size is in GB
+    """
+    if data_notation == 'SER':
+        return {
+            'id': data['id'],
+            'file': str(data['file']),
+            'can_download': data['can_download']
+        }
+    elif data_notation == 'OBJ':
+        if data:
+            return {
+                'id': data.pk,
+                'file': base_url + str(data.file),
+                'can_download': data.can_download
+            }
+        else:
+            return {}
+
+
 def get_study_material_content_details(data, data_notation):
     """
     Creates and returns study material data.
@@ -216,6 +238,40 @@ def get_pdf_study_material_data(data, data_notation, base_url, size=None):
 
     else:
         return {}
+
+
+def validate_image_file(file):
+    """Checking whether the file is an image file"""
+    try:
+        if not file:
+            return Response({'error': _('File is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        Image.open(file).verify()
+    except Exception:
+        return Response({'error': _(
+            'Upload a valid image. The file you uploaded was either not an image or a corrupted image.')},
+                        status=status.HTTP_400_BAD_REQUEST)
+    return None
+
+
+def validate_pdf_file(file, raw_file):
+    """Checking whether the file is pdf file"""
+    try:
+        if not file:
+            return Response({'error': _('File is required.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        elif not filetype.is_archive(file):
+            return Response({'error': _('Not a valid pdf file.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        else:
+            kind = os.path.splitext(raw_file)[1]
+            if not kind.endswith('.pdf'):
+                return Response({'error': _('Not a valid pdf file.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+    except Exception:
+        return Response({'error': _('An internal error occurred')},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return None
 
 
 class IsTeacher(permissions.BasePermission):
@@ -3011,6 +3067,898 @@ class ListSectionInchargesView(APIView):
             response.append(invite_details)
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSubjectAddLectureView(APIView):
+    """View for adding subject lecture by subject in-charge"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=request.data.get('view_key')
+        ).only('key').first()
+
+        if not view:
+            return Response({'error': _('Module not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            lecture = models.SubjectLecture.objects.create(
+                view=view,
+                name=request.data.get('name'),
+                target_date=request.data.get('target_date')
+            )
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        response = {
+            'id': lecture.pk,
+            'name': lecture.name
+        }
+
+        if lecture.target_date:
+            response['target_date'] = str(lecture.target_date)
+        else:
+            response['target_date'] = ''
+
+        return Response(response, status=status.HTTP_201_CREATED)
+
+
+class InstituteSubjectEditLectureView(APIView):
+    """View for editing subject lecture by subject in-charge"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lecture = models.SubjectLecture.objects.filter(
+            pk=kwargs.get('lecture_id')
+        ).first()
+
+        try:
+            lecture.name = request.data.get('name')
+            lecture.target_date = request.data.get('target_date')
+            lecture.save()
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        response = {
+            'id': lecture.pk,
+            'name': lecture.name
+        }
+        if lecture.target_date:
+            response['target_date'] = str(lecture.target_date)
+        else:
+            response['target_date'] = ''
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSubjectDeleteLectureView(APIView):
+    """View for deleting subject lecture by subject in-charge"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lecture = models.SubjectLecture.objects.filter(
+            pk=kwargs.get('lecture_id')
+        ).first()
+
+        if not lecture:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        size = 0.0
+
+        lecture_materials = models.SubjectLectureMaterials.objects.filter(
+            lecture=lecture
+        ).filter(
+            Q(content_type=models.SubjectLectureMaterialsContentType.PDF) | Q(
+                content_type=models.SubjectLectureMaterialsContentType.IMAGE)
+        ).only('content_type')
+
+        for lm in lecture_materials:
+            if lm.content_type == models.SubjectLectureMaterialsContentType.PDF:
+                size += models.SubjectLecturePdfMaterial.objects.filter(
+                    lecture_material__pk=lm.pk
+                ).only('file').first().file.size
+            elif lm.content_type == models.SubjectLectureMaterialContentType.IMAGE:
+                size += models.SubjectLectureImageMaterial.objects.filter(
+                    lecture_material__pk=lm.pk
+                ).only('file').first().file.size
+
+        try:
+            lecture.delete()
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if size:
+            size = size / 1000000000  # Converting in to GB
+            models.InstituteSubjectStatistics.objects.filter(
+                statistics_subject=subject
+            ).update(storage=F('storage') - Decimal(size))
+            models.InstituteStatistics.objects.filter(
+                institute__pk=subject.subject_class.class_institute.pk
+            ).update(storage=F('storage') - Decimal(size))
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class InstituteSubjectAddIntroductoryContentView(APIView):
+    """Adds MI and CO introductory contents"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+    parser_classes = (JSONParser, MultiPartParser)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=request.data.get('view_key')
+        ).only('key').first()
+
+        if not view:
+            return Response({'error': _('Module not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            pk=subject.subject_class.class_institute.pk
+        ).only('institute_slug').first()
+        license_ = get_unexpired_license(institute)
+
+        if not license_:
+            return Response({'error': _('License not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            response = dict()
+            if request.data.get('content_type') == models.SubjectIntroductionContentType.IMAGE:
+                res = validate_image_file(request.data.get('file'))
+
+                if res:
+                    return Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+            elif request.data.get('content_type') == models.SubjectIntroductionContentType.PDF:
+                res = validate_pdf_file(request.data.get('file'), str(request.FILES['file']))
+
+                if res:
+                    return Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+            elif request.data.get('content_type') == models.SubjectIntroductionContentType.LINK:
+
+                if not request.data.get('link'):
+                    return Response({'error': _('Link is required.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                obj = models.SubjectIntroductoryContent.objects.create(
+                    view=view,
+                    name=request.data.get('name'),
+                    link=request.data.get('link'),
+                    content_type=request.data.get('content_type')
+                )
+                response.update({
+                    'id': obj.pk,
+                    'name': obj.name,
+                    'content_type': obj.content_type,
+                    'link': obj.link
+                })
+
+            if request.data.get('content_type') != models.SubjectIntroductionContentType.LINK:
+                institute_stats = models.InstituteStatistics.objects.filter(
+                    institute=institute
+                ).only('storage').first()
+
+                if float(license_.selected_license.storage) <= float(institute_stats.storage) + \
+                        request.data.get('file').size / 1000000000:
+                    return Response({'error': _('Institute storage exceeded. Please contact us to upgrade storage.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                ser = serializer.SubjectIntroductoryFileMaterialSerializer(
+                    data={
+                        'file': request.data.get('file'),
+                        'can_download': request.data.get('can_download'),
+                        'name': request.data.get('name'),
+                        'view': view.pk,
+                        'content_type': request.data.get('content_type')
+                    }, context={"request": request})
+
+                if ser.is_valid():
+                    ser.save()
+
+                    models.InstituteSubjectStatistics.objects.filter(
+                        statistics_subject=subject
+                    ).update(storage=F('storage') + Decimal(request.data.get('file').size / 1000000000))
+                    institute_stats.storage = Decimal(
+                        float(institute_stats.storage) + request.data.get('file').size / 1000000000)
+                    institute_stats.save()
+
+                    response.update(get_file_lecture_material_data(
+                        ser.data,
+                        'SER',
+                        ''
+                    ))
+                    response['name'] = ser.data['name']
+
+            return Response(response, status=status.HTTP_201_CREATED)
+
+        except Exception:
+            return Response({'error': _('Internal server error. Please report us.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectEditIntroductoryContentView(APIView):
+    """Edits MI and CO introductory contents"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            response = dict()
+            obj = models.SubjectIntroductoryContent.objects.filter(
+                pk=kwargs.get('content_id')
+            ).first()
+            obj.name = request.data.get('name')
+            obj.can_download = request.data.get('can_download')
+
+            if obj.content_type == models.SubjectIntroductionContentType.LINK:
+                if not request.data.get('link'):
+                    return Response({'error': _('Link is required.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                obj.link = request.data.get('link')
+                response.update({
+                    'link': obj.link
+                })
+            else:
+                response.update({
+                    'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + str(obj.file),
+                    'can_download': obj.can_download
+                })
+
+            obj.save()
+            response['content_type'] = obj.content_type
+            return Response(response, status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response({'error': _('Internal server error. Please report us.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectDeleteIntroductoryContentView(APIView):
+    """Deletes MI and CO introductory contents"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            size = 0.0
+            obj = models.SubjectIntroductoryContent.objects.filter(
+                pk=kwargs.get('content_id')
+            ).first()
+
+            if not obj:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            if obj.content_type != models.SubjectIntroductionContentType.LINK:
+                size = obj.size
+
+            obj.delete()
+            if size:
+                size = size / 1000000000  # Converting in to GB
+                models.InstituteSubjectStatistics.objects.filter(
+                    statistics_subject=subject
+                ).update(storage=F('storage') - Decimal(size))
+                models.InstituteStatistics.objects.filter(
+                    institute__pk=subject.subject_class.class_institute.pk
+                ).update(storage=F('storage') - Decimal(size))
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        except Exception:
+            return Response({'error': _('Internal server error. Please report us.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectAddLectureMaterials(APIView):
+    """Adds material to lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+    parser_classes = (JSONParser, MultiPartParser)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lecture = models.SubjectLecture.objects.filter(
+            pk=request.data.get('lecture_id')
+        ).only('name').first()
+
+        if not lecture:
+            return Response({'error': _('Lecture not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            pk=subject.subject_class.class_institute.pk
+        ).only('institute_slug').first()
+        license_ = get_unexpired_license(institute)
+
+        if not license_:
+            return Response({'error': _('License not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute_stats = None
+        if request.data.get('content_type') == models.SubjectLectureMaterialsContentType.IMAGE or\
+                request.data.get('content_type') == models.SubjectLectureMaterialsContentType.PDF:
+            institute_stats = models.InstituteStatistics.objects.filter(
+                institute=institute
+            ).only('storage').first()
+
+            if float(license_.selected_license.storage) <= float(institute_stats.storage) + \
+                    request.data.get('file').size / 1000000000:
+                return Response({'error': _('Institute storage exceeded. Please contact us to upgrade storage.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        response = dict()
+
+        try:
+            subject_lecture_material = models.SubjectLectureMaterials.objects.create(
+                lecture=lecture,
+                name=request.data.get('name'),
+                content_type=request.data.get('content_type'))
+
+            if request.data.get('content_type') == models.SubjectLectureMaterialsContentType.IMAGE:
+                validation_error = validate_image_file(request.data.get('file'))
+
+                if validation_error:
+                    subject_lecture_material.delete()
+                    return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
+
+                ser = serializer.SubjectLectureImageSerializer(
+                    lecture_material=subject_lecture_material.pk,
+                    file=request.data.get('file'),
+                    can_download=request.data.get('can_download'))
+
+                if ser.is_valid():
+                    ser.save()
+
+                    institute_stats.storage = Decimal(float(institute_stats.storage) +
+                                                      request.data.get('file').size / 1000000000)
+                    models.InstituteSubjectStatistics.objects.filter(
+                        statistics_subject=subject
+                    ).update(storage=F('storage') + Decimal(request.data.get('file').size / 1000000000))
+
+                    response['data'] = get_file_lecture_material_data(ser.data, 'SER', '')
+
+            elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.PDF:
+                validation_error = validate_pdf_file(request.data.get('file'), str(request.FILES['file']))
+
+                if validation_error:
+                    subject_lecture_material.delete()
+                    return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
+
+                ser = serializer.SubjectLecturePdfSerializer(
+                    lecture_material=subject_lecture_material.pk,
+                    file=request.data.get('file'),
+                    can_download=request.data.get('can_download'))
+
+                if ser.is_valid():
+                    ser.save()
+
+                    institute_stats.storage = Decimal(float(institute_stats.storage) +
+                                                      request.data.get('file').size / 1000000000)
+                    models.InstituteSubjectStatistics.objects.filter(
+                        statistics_subject=subject
+                    ).update(storage=F('storage') + Decimal(request.data.get('file').size / 1000000000))
+
+                    response['data'] = get_file_lecture_material_data(ser.data, 'SER', '')
+
+            elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.EXTERNAL_LINK or \
+                    request.data.get('content_type') == models.SubjectLectureMaterialsContentType.YOUTUBE_LINK:
+                link = models.SubjectLectureLinkMaterial.objects.create(
+                    lecture_material=subject_lecture_material,
+                    link=request.data.get('link'),
+                    link_type=request.data.get('content_type')
+                )
+                response['data'] = {
+                    'id': link.pk,
+                    'link': link.link,
+                    'link_type': link.link_type
+                }
+            elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.LIVE_CLASS:
+                pass
+
+            response['id'] = subject_lecture_material.pk
+            response['name'] = subject_lecture_material.name
+            response['content_type'] = subject_lecture_material.content_type
+
+            return Response(response, status=status.HTTP_201_CREATED)
+        except Exception:
+            try:
+                subject_lecture_material.delete()
+            except Exception:
+                pass
+            return Response({'error': _('Internal server error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectEditLectureMaterial(APIView):
+    """Edit material of lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lecture_material = models.SubjectLectureMaterials.objects.filter(
+            pk=kwargs.get('lecture_material_id')
+        ).exclude('lecture').first()
+
+        if not lecture_material:
+            return Response({'error': _('Lecture material not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lecture_material.name = request.data.get('name')
+        try:
+            lecture_material.save()
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        response = dict()
+
+        try:
+            if request.data.get('content_type') == models.SubjectLectureMaterialsContentType.IMAGE:
+                query_data = models.SubjectLectureImageMaterial.objects.filter(
+                    lecture_material=lecture_material
+                ).first()
+                if request.data.get('can_download'):
+                    query_data.can_download = request.data.get('can_download')
+                    query_data.save()
+
+                    response['data'] = get_file_lecture_material_data(
+                        query_data, 'OBJ', request.build_absolute_uri('/').strip('/') + MEDIA_URL)
+
+            elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.PDF:
+                query_data = models.SubjectLecturePdfMaterial.objects.filter(
+                    lecture_material=lecture_material
+                ).first()
+
+                if request.data.get('can_download'):
+                    query_data.can_download = request.data.get('can_download')
+                    query_data.save()
+
+                    response['data'] = get_file_lecture_material_data(
+                        query_data, 'OBJ', request.build_absolute_uri('/').strip('/') + MEDIA_URL)
+
+            elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.EXTERNAL_LINK or \
+                    request.data.get('content_type') == models.SubjectLectureMaterialsContentType.YOUTUBE_LINK:
+                query_data = models.SubjectLectureLinkMaterial.objects.filter(
+                    lecture_material=lecture_material
+                ).first()
+                query_data.link = request.data.get('link')
+                query_data.save()
+
+                response['data'] = {
+                    'id': query_data.pk,
+                    'link': query_data.link,
+                    'link_type': query_data.link_type
+                }
+            elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.LIVE_CLASS:
+                pass
+
+            response['id'] = lecture_material.pk
+            response['name'] = lecture_material.name
+            response['content_type'] = lecture_material.content_type
+
+            return Response(response, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'error': _('Internal server error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectDeleteLectureMaterial(APIView):
+    """Deletes material of lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        size = 0.0
+        lecture_material = models.SubjectLectureMaterials.objects.filter(
+            pk=kwargs.get('lecture_material_id')
+        ).exclude('lecture').first()
+
+        if not lecture_material:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        try:
+            if lecture_material.content_type == models.SubjectLectureMaterialsContentType.IMAGE:
+                size = models.SubjectLectureImageMaterial.objects.filter(
+                    lecture_material=lecture_material
+                ).only('file').first().file.size
+            elif lecture_material.content_type == models.SubjectLectureMaterialsContentType.PDF:
+                size = models.SubjectLecturePdfMaterial.objects.filter(
+                    lecture_material=lecture_material
+                ).only('file').first().file.size
+
+            lecture_material.delete()
+
+            if size:
+                size = size / 1000000000  # Converting in to GB
+                models.InstituteSubjectStatistics.objects.filter(
+                    statistics_subject=subject
+                ).update(storage=F('storage') - Decimal(size))
+                models.InstituteStatistics.objects.filter(
+                    institute__pk=subject.subject_class.class_institute.pk
+                ).update(storage=F('storage') - Decimal(size))
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response({'error': _('Internal server error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteAddLectureUseCaseOrAdditionalReading(APIView):
+    """Adds additional reading or use case links to lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lecture = models.SubjectLecture.objects.filter(
+            pk=request.data.get('lecture_id')
+        ).only('name').first()
+
+        if not lecture:
+            return Response({'error': _('Lecture not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            link = models.SubjectAdditionalReadingUseCaseLink.objects.create(
+                lecture=lecture,
+                name=request.data.get('name'),
+                link=request.data.get('link'),
+                type=request.data.get('type'))
+            return Response({
+                'id': link.id,
+                'name': link.name,
+                'type': link.type
+            }, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteEditLectureUseCaseOrAdditionalReading(APIView):
+    """Adds additional reading or use case links to lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        content = models.SubjectAdditionalReadingUseCaseLink.objects.filter(
+            pk=kwargs.get('content_id')
+        ).only('name', 'link').first()
+
+        if not content:
+            return Response({'error': _('Content not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            content.name = request.data.get('name')
+            content.link = request.data.get('link')
+            content.save()
+
+            return Response({
+                'id': content.id,
+                'name': content.name,
+                'type': content.type
+            }, status=status.HTTP_200_OK)
+
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteDeleteLectureUseCaseOrAdditionalReading(APIView):
+    """Deletes additional reading or use case links of lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        models.SubjectAdditionalReadingUseCaseLink.objects.filter(
+            pk=kwargs.get('content_id')
+        ).delete()
+
+        return Response(status.HTTP_204_NO_CONTENT)
+
+
+class InstituteAddLectureObjectiveOrUseCaseText(APIView):
+    """Adds lecture objectives or use case text to lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lecture = models.SubjectLecture.objects.filter(
+            pk=request.data.get('lecture_id')
+        ).only('name').first()
+
+        if not lecture:
+            return Response({'error': _('Lecture not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            content = models.SubjectLectureUseCaseObjectives.objects.create(
+                lecture=lecture,
+                text=request.data.get('text'),
+                type=request.data.get('type'))
+
+            return Response({
+                'id': content.id,
+                'text': content.text,
+                'type': content.type
+            }, status=status.HTTP_201_CREATED)
+
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteEditLectureObjectiveOrUseCaseText(APIView):
+    """Edits lecture objectives or use case text to lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        content = models.SubjectLectureUseCaseObjectives.objects.filter(
+            pk=kwargs.get('content_id')
+        ).exclude('lecture').first()
+
+        if not content:
+            return Response({'error': _('Content not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            content.text = request.data.get('text')
+            content.save()
+
+            return Response({
+                'id': content.id,
+                'text': content.text,
+                'type': content.type
+            }, status=status.HTTP_200_OK)
+
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteDeleteLectureObjectiveOrUseCaseText(APIView):
+    """Deletes lecture objectives or use case text of lectures"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        models.SubjectLectureUseCaseObjectives.objects.filter(
+            pk=kwargs.get('content_id')
+        ).delete()
+
+        return Response(status.HTTP_204_NO_CONTENT)
 
 
 class InstituteSubjectAddCourseContentView(APIView):
