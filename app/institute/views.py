@@ -4866,55 +4866,43 @@ class InstituteSubjectDeleteModuleView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Finding the statistics of the content to be deleted
-        content = models.InstituteSubjectCourseContent.objects.filter(
-            course_content_subject=subject,
+        lectures = models.SubjectLecture.objects.filter(
             view=view
         )
         total_size = 0
 
-        for c in content:
-            if c.content_type == models.StudyMaterialContentType.IMAGE:
-                total_size += float(
-                    models.SubjectImageStudyMaterial.objects.filter(
-                        image_study_material__pk=c.pk
-                    ).first().file.size
-                )
-            elif c.content_type == models.StudyMaterialContentType.PDF:
-                query_data = models.SubjectPdfStudyMaterial.objects.filter(
-                    pdf_study_material__pk=c.pk
-                ).first()
-                total_size += float(query_data.file.size)
-
-                if query_data.duration:
-                    pdf_duration += query_data.duration
-
-            elif c.content_type == models.StudyMaterialContentType.VIDEO:
-                query_data = models.SubjectVideoStudyMaterial.objects.filter(
-                        video_study_material__pk=c.pk
-                    ).first()
-                total_size += float(query_data.file.size)
-
-                if query_data.duration:
-                    video_duration += query_data.duration
+        for lecture in lectures:
+            study_materials = models.SubjectLectureMaterials.objects.filter(
+                lecture__pk=lecture.pk
+            ).filter(
+                Q(content_type=models.SubjectLectureMaterialsContentType.IMAGE) | Q(
+                    content_type=models.SubjectLectureMaterialsContentType.PDF))
+            for material in study_materials:
+                if material.content_type == models.StudyMaterialContentType.IMAGE:
+                    total_size += float(
+                        models.SubjectLectureImageMaterial.objects.filter(
+                            lecture_material__pk=material.pk
+                        ).first().file.size
+                    )
+                elif material.content_type == models.StudyMaterialContentType.PDF:
+                    total_size += float(
+                        models.SubjectLecturePdfMaterial.objects.filter(
+                            lecture_material__pk=material.pk
+                        ).first().file.size
+                    )
 
         try:
             view.delete()
 
             # Updating statistics
-            subject_stat = models.InstituteSubjectStatistics.objects.filter(
-                statistics_subject=subject
-            ).first()
-            institute_stat = models.InstituteStatistics.objects.filter(
-                institute=institute
-            ).first()
-            subject_stat.storage = Decimal(max(0.0, float(subject_stat.storage) - total_size))
-            subject_stat.uploaded_video_duration = max(0, subject_stat.uploaded_video_duration - video_duration)
-            subject_stat.uploaded_pdf_duration = max(0, subject_stat.uploaded_pdf_duration - pdf_duration)
-            subject_stat.save()
-            institute_stat.storage = Decimal(max(0.0, float(institute_stat.storage) - total_size))
-            institute_stat.uploaded_video_duration = max(0, institute_stat.uploaded_video_duration - video_duration)
-            institute_stat.uploaded_pdf_duration = max(0, institute_stat.uploaded_pdf_duration - pdf_duration)
-            institute_stat.save()
+            if total_size:
+                total_size = Decimal(total_size / 1000000000)  # Converting into GB
+                models.InstituteSubjectStatistics.objects.filter(
+                    statistics_subject=subject
+                ).update(storage=F('storage') - total_size)
+                models.InstituteStatistics.objects.filter(
+                    institute=institute
+                ).update(storage=F('storage') - total_size)
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception:
