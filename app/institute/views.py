@@ -3133,18 +3133,22 @@ class InstituteSubjectMinStatisticsView(APIView):
             pk=subject.subject_class.class_institute.pk
         ).only('institute_slug').first()
 
-        if not models.InstituteSubjectPermission.objects.filter(
+        has_subject_perm = False
+        if models.InstituteSubjectPermission.objects.filter(
             to=subject,
             invitee=self.request.user
         ).exists():
+            has_subject_perm = True
+        else:
             if not models.InstitutePermission.objects.filter(
                 institute=institute,
                 role=models.InstituteRole.ADMIN,
                 invitee=self.request.user,
                 active=True
             ).exists():
-                return Response({'error': 'Permission denied.'},
+                return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
+
         order = get_unexpired_license(institute)
 
         if not order:
@@ -3188,6 +3192,7 @@ class InstituteSubjectMinStatisticsView(APIView):
         response['view_details'] = view_details
         response['test_views'] = test_views
         response['test_details'] = test_details
+        response['has_subject_perm'] = has_subject_perm
 
         return Response(response, status=status.HTTP_200_OK)
 
@@ -4827,7 +4832,7 @@ class InstituteSubjectDeleteModuleView(APIView):
     def delete(self, request, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
+        ).only('subject_slug').first()
 
         if not subject:
             return Response({'error': _('Subject not found.')},
@@ -4842,7 +4847,7 @@ class InstituteSubjectDeleteModuleView(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug').lower()
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
@@ -4865,9 +4870,7 @@ class InstituteSubjectDeleteModuleView(APIView):
             course_content_subject=subject,
             view=view
         )
-        total_size = 0  # In GB
-        video_duration = 0  # In seconds
-        pdf_duration = 0  # In seconds
+        total_size = 0
 
         for c in content:
             if c.content_type == models.StudyMaterialContentType.IMAGE:
