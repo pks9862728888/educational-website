@@ -3069,6 +3069,326 @@ class ListSectionInchargesView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class InstituteSubjectAddView(APIView):
+    """View for adding subject module or test"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            view = models.SubjectViewNames.objects.create(
+                view_subject=subject,
+                name=request.data.get('name'),
+                type=request.data.get('type')
+            )
+            return Response({
+                'name': view.name,
+                'view': view.key,
+                'count': 0
+            }, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError as e:
+            if 'unique_key_for_subject_constraint' in str(e):
+                return Response({'error': _('Please try again. If same error persists then report us.')},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                return Response({'error': _('Unknown error occurred.')},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
+            return Response({'error': 'Unable to create module.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteSubjectMinStatisticsView(APIView):
+    """View for getting subject course content min statistics"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            pk=subject.subject_class.class_institute.pk
+        ).only('institute_slug').first()
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                role=models.InstituteRole.ADMIN,
+                invitee=self.request.user,
+                active=True
+            ).exists():
+                return Response({'error': 'Permission denied.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        order = get_unexpired_license(institute)
+
+        if not order:
+            return Response({'error': _('License expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        response = dict()
+        views = models.SubjectViewNames.objects.filter(
+            view_subject=subject
+        ).order_by('order')
+        view_order = list()
+        test_views = list()
+        view_details = dict()
+        test_details = dict()
+
+        for view in views:
+            view_order.append(view.key)
+
+            if view.type == models.SubjectViewType.TEST_VIEW:
+                test_views.append(view.key)
+                test_details[view.key] = {
+                    'name': view.name
+                }
+            else:
+                if view.key == 'MI' or view.key == 'CO':
+                    view_details[view.key] = {
+                        'name': view.name,
+                        'count': models.SubjectIntroductoryContent.objects.filter(
+                            view__pk=view.pk
+                        ).count()
+                    }
+                else:
+                    view_details[view.key] = {
+                        'name': view.name,
+                        'count': models.SubjectLecture.objects.filter(
+                            view__pk=view.pk
+                        ).count()
+                    }
+
+        response['view_order'] = view_order
+        response['view_details'] = view_details
+        response['test_views'] = test_views
+        response['test_details'] = test_details
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSubjectSpecificViewCourseContentView(APIView):
+    """View for getting course content of a specific subject view"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            pk=subject.subject_class.class_institute.pk
+        ).only('institute_slug').first()
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    role=models.InstituteRole.ADMIN,
+                    invitee=self.request.user,
+                    active=True,
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        view = models.SubjectViewNames.objects.filter(
+            view_subject=subject,
+            key=kwargs.get('view_key')
+        ).only('key').first()
+
+        if not view:
+            return Response({'error': _('Module not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        response = list()
+        if view.key == 'MI' or view.key == 'CO':
+            contents = models.SubjectIntroductoryContent.objects.filter(
+                view__pk=view.pk)
+
+            for content in contents:
+                res = dict()
+                res['id'] = content.pk
+                res['name'] = content.name
+                res['content_type'] = content.content_type
+
+                if content.content_type == models.SubjectIntroductionContentType.LINK:
+                    res['link'] = content.link
+                else:
+                    res['file'] = self.request.build_absolute_uri('/').strip('/') + MEDIA_ROOT + str(content.file)
+
+                response.append(res)
+        else:
+            lectures = models.SubjectLecture.objects.filter(view__pk=view.pk)
+
+            for lecture in lectures:
+                res = dict()
+                res['id'] = lecture.pk
+                res['name'] = lecture.name
+
+                if lecture.target_date:
+                    res['target_date'] = lecture.target_date
+
+                response.append(res)
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSubjectLectureContents(APIView):
+    """View for getting subject lecture course contents"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug').lower()
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            pk=subject.subject_class.class_institute.pk
+        ).only('institute_slug').first()
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    role=models.InstituteRole.ADMIN,
+                    invitee=self.request.user,
+                    active=True,
+            ).exists():
+                return Response({'error': _('Permission denied.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        lecture = models.SubjectLecture.objects.filter(
+            id=kwargs.get('lecture_id')
+        ).exclude('created_on').first()
+
+        response = dict()
+        response['id'] = lecture.pk
+        response['name'] = lecture.name
+        response['view_name'] = lecture.view.name
+        response['objectives'] = list()
+        response['use_case_text'] = list()
+        response['use_case_link'] = list()
+        response['additional_reading_link'] = list()
+        response['materials'] = list()
+        response['assignments'] = list()
+        response['tests'] = list()
+
+        for objective in models.SubjectLectureUseCaseObjectives.objects.filter(
+            lecture__pk=lecture.pk,
+            type=models.SubjectLectureUseCaseOrObjectives.OBJECTIVES
+        ):
+            response['objectives'].append({
+                'id': objective.pk,
+                'text': objective.text
+            })
+
+        for objective in models.SubjectLectureUseCaseObjectives.objects.filter(
+            lecture__pk=lecture.pk,
+            type=models.SubjectLectureUseCaseOrObjectives.USE_CASE
+        ):
+            response['use_case_text'].append({
+                'id': objective.pk,
+                'text': objective.text
+            })
+
+        for use_case_link in models.SubjectAdditionalReadingUseCaseLink.objects.filter(
+            lecture__pk=lecture.pk,
+            type=models.SubjectAdditionalReadingOrUseCaseLinkType.USE_CASES_LINK
+        ):
+            response['use_case_link'].append({
+                'id': use_case_link.pk,
+                'name': use_case_link.name,
+                'link': use_case_link.link
+            })
+
+        for additional_reading_link in models.SubjectAdditionalReadingUseCaseLink.objects.filter(
+            lecture__pk=lecture.pk,
+            type=models.SubjectAdditionalReadingOrUseCaseLinkType.ADDITIONAL_READING_LINK
+        ):
+            response['additional_reading_link'].append({
+                'id': additional_reading_link.pk,
+                'name': additional_reading_link.name,
+                'link': additional_reading_link.link
+            })
+
+        for lecture_materials in models.SubjectLectureMaterials.objects.filter(
+            lecture__pk=lecture.pk
+        ):
+            res = dict()
+            res['id'] = lecture_materials.pk
+            res['name'] = lecture_materials.name
+            res['content_type'] = lecture_materials.content_type
+
+            if lecture_materials.content_type == models.SubjectLectureMaterialsContentType.YOUTUBE_LINK or\
+                lecture_materials.content_type == models.SubjectLectureMaterialsContentType.EXTERNAL_LINK:
+                res['data'] = {
+                    'link': models.SubjectLectureLinkMaterial.objects.filter(
+                                lecture_material__pk=lecture_materials.pk
+                            ).first().link
+                }
+            elif lecture_materials.content_type == models.SubjectLectureMaterialsContentType.IMAGE:
+                query_data = models.SubjectLectureImageMaterial.objects.filter(
+                    lecture_material__pk=lecture_materials.pk
+                ).first()
+                res['data'] = {
+                    'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + str(query_data.file),
+                    'can_download': query_data.can_download
+                }
+            elif lecture_materials.content_type == models.SubjectLectureMaterialsContentType.PDF:
+                query_data = models.SubjectLecturePdfMaterial.objects.filter(
+                    lecture_material__pk=lecture_materials.pk
+                ).first()
+                res['data'] = {
+                    'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + str(query_data.file),
+                    'can_download': query_data.can_download
+                }
+            elif lecture_materials.content_type == models.SubjectLectureMaterialsContentType.LIVE_CLASS:
+                pass
+
+            response['materials'].append(res)
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
 class InstituteSubjectAddLectureView(APIView):
     """View for adding subject lecture by subject in-charge"""
     authentication_classes = (TokenAuthentication,)
@@ -3557,13 +3877,10 @@ class InstituteSubjectAddLectureMaterials(APIView):
                     request.data.get('content_type') == models.SubjectLectureMaterialsContentType.YOUTUBE_LINK:
                 link = models.SubjectLectureLinkMaterial.objects.create(
                     lecture_material=subject_lecture_material,
-                    link=request.data.get('link'),
-                    link_type=request.data.get('content_type')
+                    link=request.data.get('link')
                 )
                 response['data'] = {
-                    'id': link.pk,
-                    'link': link.link,
-                    'link_type': link.link_type
+                    'link': link.link
                 }
             elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.LIVE_CLASS:
                 pass
@@ -3574,10 +3891,10 @@ class InstituteSubjectAddLectureMaterials(APIView):
 
             return Response(response, status=status.HTTP_201_CREATED)
         except Exception:
-            try:
-                subject_lecture_material.delete()
-            except Exception:
-                pass
+            models.SubjectLectureMaterials.objects.filter(
+                lecture=lecture,
+                name=request.data.get('name'),
+                content_type=request.data.get('content_type')).first().delete()
             return Response({'error': _('Internal server error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -4269,197 +4586,11 @@ class InstituteSubjectAddCourseContentView(APIView):
                         models.InstituteSubjectCourseContent.objects.filter(
                             pk=course_content_serializer.data['id']).first().delete()
                         return Response(pdf_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            print(e)
+        except Exception:
             models.InstituteSubjectCourseContent.objects.filter(
                 pk=course_content_serializer.data['id']).first().delete()
             return Response({'error': _('Error occurred.')},
                             status=status.HTTP_400_BAD_REQUEST)
-
-
-class InstituteSubjectMinStatisticsView(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def get(self, *args, **kwargs):
-        """Get institute statistics"""
-        subject = models.InstituteSubject.objects.filter(
-            subject_slug=kwargs.get('subject_slug')
-        ).first()
-
-        if not subject:
-            return Response({'error': _('Subject not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
-        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
-
-        if not models.InstituteSubjectPermission.objects.filter(
-            to=subject,
-            invitee=self.request.user
-        ).exists():
-            if not models.InstitutePermission.objects.filter(
-                institute=institute,
-                role=models.InstituteRole.ADMIN,
-                invitee=self.request.user,
-                active=True,
-            ).exists():
-                return Response({'error': 'Permission denied.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        order = get_unexpired_license(institute)
-
-        if not order:
-            return Response({'error': _('License expired or not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        response = dict()
-        views = models.SubjectViewNames.objects.filter(
-            view_subject=subject
-        ).order_by('order')
-        view_order = list()
-        view_details = dict()
-
-        for view in views:
-            view_order.append(view.key)
-            subject_view_model = models.SubjectViewNames.objects.filter(
-                view_subject=subject,
-                key=view.key
-            ).first()
-            view_details[view.key] = {
-                'name': view.name,
-                'count': models.InstituteSubjectCourseContent.objects.filter(
-                    course_content_subject=subject,
-                    view=subject_view_model
-                ).count()
-            }
-            if view.key != 'MI' and view.key != 'CO':
-                weeks = models.SubjectViewWeek.objects.filter(
-                    week_view=view
-                ).order_by('value')
-                week_value_list = list()
-                for week in weeks:
-                    view_details[view.key][week.value] = models.InstituteSubjectCourseContent.objects.filter(
-                        course_content_subject=subject,
-                        view=subject_view_model,
-                        week=week
-                    ).count()
-                    week_value_list.append(week.value)
-                view_details[view.key]['weeks'] = week_value_list
-
-        response['view_order'] = view_order
-        response['view_details'] = view_details
-
-        return Response(response, status=status.HTTP_200_OK)
-
-
-class InstituteSubjectSpecificViewCourseContentView(APIView):
-    """View for getting course content of a specific subject view"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def _get_data(self, content_type, data_id):
-        if content_type == models.StudyMaterialContentType.EXTERNAL_LINK:
-            query_data = models.SubjectExternalLinkStudyMaterial.objects.filter(
-                external_link_study_material__pk=data_id
-            ).first()
-            return get_external_link_study_material_data(
-                query_data,
-                'OBJ'
-            )
-        elif content_type == models.StudyMaterialContentType.IMAGE:
-            query_data = models.SubjectImageStudyMaterial.objects.filter(
-                image_study_material__pk=data_id
-            ).first()
-            return get_image_study_material_data(
-                query_data,
-                'OBJ',
-                self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
-            )
-        elif content_type == models.StudyMaterialContentType.VIDEO:
-            query_data = models.SubjectVideoStudyMaterial.objects.filter(
-                video_study_material__pk=data_id
-            ).first()
-            return get_video_study_material_data(
-                query_data,
-                'OBJ',
-                self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
-            )
-        elif content_type == models.StudyMaterialContentType.PDF:
-            query_data = models.SubjectPdfStudyMaterial.objects.filter(
-                pdf_study_material__pk=data_id
-            ).first()
-            return get_pdf_study_material_data(
-                query_data,
-                'OBJ',
-                self.request.build_absolute_uri('/').strip("/") + MEDIA_URL
-            )
-
-    def get(self, *args, **kwargs):
-        subject = models.InstituteSubject.objects.filter(
-            subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
-
-        if not subject:
-            return Response({'error': 'Subject not found.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        class_ = models.InstituteClass.objects.filter(pk=subject.subject_class.pk).first()
-        institute = models.Institute.objects.filter(pk=class_.class_institute.pk).first()
-
-        if not models.InstituteSubjectPermission.objects.filter(
-                to=subject,
-                invitee=self.request.user
-        ).exists():
-            if not models.InstitutePermission.objects.filter(
-                    institute=institute,
-                    role=models.InstituteRole.ADMIN,
-                    invitee=self.request.user,
-                    active=True,
-            ).exists():
-                return Response({'error': _('Permission denied.')},
-                                status=status.HTTP_400_BAD_REQUEST)
-
-        view = models.SubjectViewNames.objects.filter(
-            view_subject=subject,
-            key=kwargs.get('view_key')
-        ).first()
-
-        if not view:
-            return Response({'error': _('Module not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        data = models.InstituteSubjectCourseContent.objects.filter(
-            course_content_subject=subject,
-            view=view).order_by('order')
-        response = None
-
-        if view.key != 'MI' and view.key != 'CO':
-            response = dict()
-            view_weeks = models.SubjectViewWeek.objects.filter(
-                week_view=view)
-            for week in view_weeks:
-                week_data = data.filter(week__value=week.value)
-                week_data_response = list()
-                for d in week_data:
-                    res = get_study_material_content_details(d, 'OBJ')
-                    res['week'] = week.value
-                    res['data'] = self._get_data(
-                        d.content_type,
-                        d.pk
-                    )
-                    week_data_response.append(res)
-                response[week.value] = week_data_response
-        else:
-            response = list()
-            for d in data:
-                res = get_study_material_content_details(d, 'OBJ')
-                res['data'] = self._get_data(
-                    d.content_type,
-                    d.pk
-                )
-                response.append(res)
-
-        return Response(response, status=status.HTTP_200_OK)
 
 
 class InstituteDeleteSubjectCourseContentView(APIView):
@@ -4785,46 +4916,6 @@ class InstituteSubjectDeleteModuleView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception:
             return Response({'error': _('Internal server error.')},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class InstituteSubjectAddModuleView(APIView):
-    """View for adding subject module"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def post(self, request, *args, **kwargs):
-        subject = models.InstituteSubject.objects.filter(
-            subject_slug=kwargs.get('subject_slug').lower()
-        ).first()
-
-        if not subject:
-            return Response({'error': _('Subject not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not models.InstituteSubjectPermission.objects.filter(
-            to=subject,
-            invitee=self.request.user
-        ).exists():
-            return Response({'error': _('Permission denied.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            view = models.SubjectViewNames.objects.create(
-                view_subject=subject,
-                name=request.data.get('name')
-            )
-            return Response({
-                'name': view.name,
-                'view': view.key,
-                'count': 0,
-                1: 0,
-                'weeks': [1, ]
-            }, status=status.HTTP_201_CREATED)
-        except ValueError as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
-            return Response({'error': 'Unable to create module.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

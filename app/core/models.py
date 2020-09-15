@@ -231,13 +231,13 @@ class PaymentGateway:
     ]
 
 
-class SubjectLectureLinkViewType:
-    ADDITIONAL_READING_LINK = 'A'
-    USE_CASES_LINK = 'U'
+class SubjectViewType:
+    MODULE_VIEW = 'M'
+    TEST_VIEW = 'T'
 
-    LECTURE_LINK_IN_LECTURE_LINKS = [
-        (ADDITIONAL_READING_LINK, _(u'ADDITIONAL_READING_LINK')),
-        (USE_CASES_LINK, _(u'USE_CASES_LINK'))
+    VIEW_TYPE_IN_VIEW_TYPES = [
+        (MODULE_VIEW, _(u'MODULE_VIEW')),
+        (TEST_VIEW, _(u'TEST_VIEW'))
     ]
 
 
@@ -269,16 +269,6 @@ class SubjectIntroductionContentType:
     ]
 
 
-class SubjectLectureLinkMaterialType:
-    YOUTUBE_LINK = 'Y'
-    EXTERNAL_LINK = 'E'
-
-    LINK_TYPE_IN_LINK_TYPES = [
-        (YOUTUBE_LINK, _(u'YOUTUBE_LINK')),
-        (EXTERNAL_LINK, _(u'EXTERNAL_LINK'))
-    ]
-
-
 class SubjectLectureUseCaseOrObjectives:
     USE_CASE = 'U'
     OBJECTIVES = 'O'
@@ -289,15 +279,13 @@ class SubjectLectureUseCaseOrObjectives:
     ]
 
 
-class SubjectLectureLinkViewType:
+class SubjectAdditionalReadingOrUseCaseLinkType:
     ADDITIONAL_READING_LINK = 'A'
     USE_CASES_LINK = 'U'
-    LECTURE_MATERIAL_LINK = 'L'
 
-    VIEW_TYPE_IN_SUBJECT_LECTURE_VIEW_TYPE = [
+    LINK_VIEW_TYPE_IN_LINK_VIEW_TYPES = [
         (ADDITIONAL_READING_LINK, _(u'ADDITIONAL_READING_LINK')),
-        (USE_CASES_LINK, _(u'USE_CASES_LINK')),
-        (LECTURE_MATERIAL_LINK, _(u'LECTURE_MATERIAL_LINK')),
+        (USE_CASES_LINK, _(u'USE_CASES_LINK'))
     ]
 
 
@@ -1452,6 +1440,12 @@ class SubjectViewNames(models.Model):
     key = models.CharField(_('Key'), max_length=6, blank=False)
     name = models.CharField(_('Name'), max_length=25, blank=False)
     order = models.PositiveIntegerField(_('Order'), blank=True, null=True)
+    type = models.CharField(
+        _('View Type'),
+        max_length=1,
+        choices=SubjectViewType.VIEW_TYPE_IN_VIEW_TYPES,
+        default=SubjectViewType.MODULE_VIEW,
+        blank=True)
 
     def save(self, *args, **kwargs):
         if not self.key:
@@ -1460,7 +1454,7 @@ class SubjectViewNames(models.Model):
         if self.name:
             self.name = self.name.strip()
         if not self.name:
-            raise ValueError('Name is required and can not be blank.')
+            raise ValueError(_('Name is required and can not be blank.'))
         self.key = self.key.upper()
         super(SubjectViewNames, self).save(*args, **kwargs)
 
@@ -1468,7 +1462,9 @@ class SubjectViewNames(models.Model):
         return self.key
 
     class Meta:
-        unique_together = ('view_subject', 'key')
+        constraints = [
+            models.UniqueConstraint(fields=['view_subject', 'key'], name='unique_key_for_subject_constraint')
+        ]
 
 
 @receiver(post_save, sender=SubjectViewNames)
@@ -1560,7 +1556,7 @@ class SubjectAdditionalReadingUseCaseLink(models.Model):
         max_length=1,
         null=False,
         blank=False,
-        choices=SubjectLectureLinkViewType.VIEW_TYPE_IN_SUBJECT_LECTURE_VIEW_TYPE)
+        choices=SubjectAdditionalReadingOrUseCaseLinkType.LINK_VIEW_TYPE_IN_LINK_VIEW_TYPES)
 
     def save(self, *args, **kwargs):
         if self.name:
@@ -1659,12 +1655,6 @@ class SubjectLectureLinkMaterial(models.Model):
         SubjectLectureMaterials, on_delete=models.CASCADE, related_name="link_lecture_material")
     link = models.URLField(
         _('Link'), max_length=2083, blank=False, null=False)
-    link_type = models.CharField(
-        _('Link Type'),
-        max_length=1,
-        null=False,
-        blank=False,
-        choices=SubjectLectureLinkMaterialType.LINK_TYPE_IN_LINK_TYPES)
 
     def __str__(self):
         return str(self.lecture_material)
