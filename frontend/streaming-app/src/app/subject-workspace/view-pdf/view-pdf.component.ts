@@ -67,7 +67,7 @@ export class ViewPdfComponent implements OnInit {
     this.instituteApiService.editSubjectCourseContent(
       eventData,
       sessionStorage.getItem(currentSubjectSlug),
-      this.content.id
+      this.content.id.toString()
       ).subscribe(
         (result: StudyMaterialDetails) => {
           this.formControlEvent.next('RESET');
@@ -109,7 +109,10 @@ export class ViewPdfComponent implements OnInit {
   }
 
   delete() {
-    this.instituteApiService.deleteClassCourseContent(this.content.id.toString()).subscribe(
+    this.instituteApiService.deleteSubjectIntroductoryContent(
+      sessionStorage.getItem(currentSubjectSlug),
+      this.content.id.toString()
+      ).subscribe(
       () => {
         this.closeViewEvent.emit('DELETED');
       },

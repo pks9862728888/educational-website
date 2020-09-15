@@ -1,4 +1,4 @@
-import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from 'src/constants';
+import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE } from 'src/constants';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { baseUrl } from '../../urls';
 import { CookieService } from 'ngx-cookie-service';
@@ -149,20 +149,32 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${viewKey}/delete-subject-view`;
   }
 
-  addSubjectCourseContentUrl(subjectSlug: string){
-    return `${this.instituteBaseUrl}${subjectSlug}/add-subject-course-content`;
+  addSubjectIntroductoryCourseContentUrl(subjectSlug: string){
+    return `${this.instituteBaseUrl}${subjectSlug}/add-subject-introductory-content`;
   }
 
-  editSubjectCourseContentUrl(subjectSlug: string, pk: number) {
-    return `${this.instituteBaseUrl}${subjectSlug}/${pk}/edit-subject-course-content`;
+  editSubjectCourseContentUrl(subjectSlug: string, pk: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${pk}/edit-subject-introductory-content`;
   }
 
   getCourseContentOfSpecificViewUrl(subjectSlug: string, viewKey: string) {
     return `${this.instituteBaseUrl}${subjectSlug}/${viewKey}/list-subject-specific-view-course-contents`;
   }
 
-  getDeleteCourseContentUrl(pk: string) {
-    return `${this.instituteBaseUrl}${pk}/delete-subject-course-content`;
+  getDeleteSubjectIntroductoryContentUrl(subjectSlug: string, pk: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${pk}/delete-subject-introductory-content`;
+  }
+
+  getAddSubjectLectureUrl(subjectSlug: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/add-subject-lecture`;
+  }
+
+  getDeleteSubjectLectureUrl(subjectSlug: string, lectureId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${lectureId}/delete-subject-lecture`;
+  }
+
+  getEditSubjectLectureUrl(subjectSlug: string, lectureId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${lectureId}/edit-subject-lecture`;
   }
 
   getClassStudentsListUrl(
@@ -600,11 +612,12 @@ export class InstituteApiService {
 
   createSubjectModule(
     subjectSlug: string,
-    name: string
+    name: string,
+    type: string
   ) {
     return this.httpClient.post(
       this.getCreateSubjectModuleUrl(subjectSlug),
-      {'name': name},
+      {'name': name, 'type': type},
       { headers: this.getAuthHeader() }
     );
   }
@@ -636,40 +649,27 @@ export class InstituteApiService {
     );
   }
 
-  addSubjectExternalLinkCourseContent(subjectSlug: string, data: any) {
+  addSubjectExternalLinkIntroductoryCourseContent(subjectSlug: string, data: any) {
     return this.httpClient.post(
-      this.addSubjectCourseContentUrl(subjectSlug),
+      this.addSubjectIntroductoryCourseContentUrl(subjectSlug),
       data,
       { headers: this.getAuthHeader() }
     );
   }
 
-  uploadStudyMaterial(subjectSlug: string, data: any) {
+  uploadIntroductoryCourseContentMaterial(subjectSlug: string, data: any) {
     const formData = new FormData();
-    formData.append('title', data.title);
+    formData.append('name', data.name);
     formData.append('view_key', data.view_key);
-    formData.append('size', data.size);
     formData.append('file', data.file);
     formData.append('content_type', data.content_type);
 
-    if (data.week) {
-      formData.append('week', data.week);
-    }
-
-    if (data.description) {
-      formData.append('description', data.description);
-    }
-
-    if (data.content_type !== STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
+    if (data.content_type !== SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
       formData.append('can_download', data.can_download);
     }
 
-    if (data.target_date) {
-      formData.append('target_date', data.target_date);
-    }
-
     return this.httpClient.post(
-      this.addSubjectCourseContentUrl(subjectSlug),
+      this.addSubjectIntroductoryCourseContentUrl(subjectSlug),
       formData,
       {
         headers: this.getAuthTokenHeader(),
@@ -679,7 +679,7 @@ export class InstituteApiService {
     );
   }
 
-  editSubjectCourseContent(data: any, subjectSlug:string, pk: number) {
+  editSubjectCourseContent(data: any, subjectSlug:string, pk: string) {
     return this.httpClient.patch(
       this.editSubjectCourseContentUrl(subjectSlug, pk),
       data,
@@ -694,9 +694,35 @@ export class InstituteApiService {
     );
   }
 
-  deleteClassCourseContent(pk: string) {
+  deleteSubjectIntroductoryContent(
+    subjectSlug: string,
+    pk: string
+    ) {
     return this.httpClient.delete(
-      this.getDeleteCourseContentUrl(pk),
+      this.getDeleteSubjectIntroductoryContentUrl(subjectSlug, pk),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addSubjectLecture(subjectSlug: string, data: any) {
+    return this.httpClient.post(
+      this.getAddSubjectLectureUrl(subjectSlug),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteSubjectLecture(subjectSlug: string, lectureId: string) {
+    return this.httpClient.delete(
+      this.getDeleteSubjectLectureUrl(subjectSlug, lectureId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editSubjectLecture(subjectSlug: string, lectureId: string, data) {
+    return this.httpClient.patch(
+      this.getEditSubjectLectureUrl(subjectSlug, lectureId),
+      data,
       { headers: this.getAuthHeader() }
     );
   }

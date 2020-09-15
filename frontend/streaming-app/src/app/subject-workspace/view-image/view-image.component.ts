@@ -62,7 +62,7 @@ export class ViewImageComponent implements OnInit {
     this.instituteApiService.editSubjectCourseContent(
       eventData,
       sessionStorage.getItem(currentSubjectSlug),
-      this.content.id
+      this.content.id.toString()
       ).subscribe(
         (result: StudyMaterialDetails) => {
           this.formControlEvent.next('RESET');
@@ -104,7 +104,8 @@ export class ViewImageComponent implements OnInit {
   }
 
   delete() {
-    this.instituteApiService.deleteClassCourseContent(
+    this.instituteApiService.deleteSubjectIntroductoryContent(
+      sessionStorage.getItem(currentSubjectSlug),
       this.content.id.toString()
       ).subscribe(
         () => {

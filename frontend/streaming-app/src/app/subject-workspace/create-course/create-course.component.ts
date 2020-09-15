@@ -1,6 +1,6 @@
 import { Subscription, Subject } from 'rxjs';
 import { UiService } from 'src/app/services/ui.service';
-import { currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug, hasSubjectPerm } from './../../../constants';
+import { currentSubjectSlug, SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE, actionContent, activeCreateCourseView, currentInstituteSlug, hasSubjectPerm } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -177,7 +177,8 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
     this.addModuleFormEvent.next('disable');
     this.instituteApiService.createSubjectModule(
       this.currentSubjectSlug,
-      name
+      name,
+      'M'
     ).subscribe(
       (result: CreateSubjectModuleResponse) => {
         this.addModuleIndicator = false;
@@ -561,7 +562,10 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   deleteStudyMaterial(content: StudyMaterialDetails, view: string) {
     this.contentError = null;
-    this.instituteApiService.deleteClassCourseContent(content.id.toString()).subscribe(
+    this.instituteApiService.deleteSubjectIntroductoryContent(
+      this.currentSubjectSlug,
+      content.id.toString()
+      ).subscribe(
       () => {
         this.hideCloseContentLoadingErrorButton = false;
         if (content.week) {
@@ -643,17 +647,17 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   contentClicked(content: StudyMaterialDetails) {
-    if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
+    if (content.content_type === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
       window.open('//' + content.data.url, '_blank');
-    } else if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['IMAGE']) {
+    } else if (content.content_type === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['IMAGE']) {
       this.showView = 'VIEW_IMAGE';
       sessionStorage.setItem(activeCreateCourseView, 'VIEW_IMAGE');
       sessionStorage.setItem(actionContent, JSON.stringify(content));
-    } else if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['VIDEO']) {
+    } else if (content.content_type === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['VIDEO']) {
       this.showView = 'VIEW_VIDEO';
       sessionStorage.setItem(activeCreateCourseView, 'VIEW_VIDEO');
       sessionStorage.setItem(actionContent, JSON.stringify(content));
-    } else if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['PDF']) {
+    } else if (content.content_type === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['PDF']) {
       this.showView = 'VIEW_PDF';
       sessionStorage.setItem(activeCreateCourseView, 'VIEW_PDF');
       sessionStorage.setItem(actionContent, JSON.stringify(content));
@@ -737,7 +741,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   isContentTypeImage(key: string) {
-    if (key === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['IMAGE']) {
+    if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['IMAGE']) {
       return true;
     } else {
       return false;
@@ -745,7 +749,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   isContentTypePdf(key: string) {
-    if (key === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['PDF']) {
+    if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['PDF']) {
       return true;
     } else {
       return false;
@@ -753,7 +757,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   isContentTypeVideo(key: string) {
-    if (key === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['VIDEO']) {
+    if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['VIDEO']) {
       return true;
     } else {
       return false;
@@ -761,7 +765,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
   }
 
   isContentTypeLink(key: string) {
-    if (key === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
+    if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
       return true;
     } else {
       return false;

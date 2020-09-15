@@ -74,7 +74,7 @@ export class ViewVideoComponent implements OnInit, OnDestroy {
     this.instituteApiService.editSubjectCourseContent(
       eventData,
       sessionStorage.getItem(currentSubjectSlug),
-      this.content.id
+      this.content.id.toString()
       ).subscribe(
         (result: StudyMaterialDetails) => {
           this.formControlEvent.next('RESET');
@@ -115,7 +115,10 @@ export class ViewVideoComponent implements OnInit, OnDestroy {
   }
 
   delete() {
-    this.instituteApiService.deleteClassCourseContent(this.content.id.toString()).subscribe(
+    this.instituteApiService.deleteSubjectIntroductoryContent(
+      sessionStorage.getItem(currentSubjectSlug),
+      this.content.id.toString()
+      ).subscribe(
       () => {
         this.closeViewEvent.emit('DELETED');
       },

@@ -4,7 +4,7 @@ import { Component, OnInit, EventEmitter, Output, Input, OnDestroy } from '@angu
 import { formatDate } from '../../format-datepicker';
 import { Subscription, Observable } from 'rxjs';
 import { getFileSize } from '../utilityFunctions';
-import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from 'src/constants';
+import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE } from 'src/constants';
 
 
 @Component({
@@ -38,7 +38,7 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
-      title: [null, [Validators.required, Validators.maxLength(30)]],
+      name: [null, [Validators.required, Validators.maxLength(30)]],
       file: [null, [Validators.required]],
       target_date: [null],
       description: [null],
@@ -86,15 +86,14 @@ export class UiUploadVideoComponent implements OnInit, OnDestroy {
       });
     } else {
       let data = {};
-      data['title'] = this.uploadForm.value.title;
+      data['name'] = this.uploadForm.value.name;
       data['file'] = file;
       data['description'] = this.uploadForm.value.description;
       data['can_download'] = this.uploadForm.value.can_download;
       if (this.uploadForm.value.target_date) {
         data['target_date'] = formatDate(this.uploadForm.value.target_date);
       }
-      data['size'] = file.size / 1000000000;
-      data['content_type'] = STUDY_MATERIAL_CONTENT_TYPE_REVERSE['VIDEO'];
+      data['content_type'] = SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['VIDEO'];
       this.formData.emit(data);
     }
   }

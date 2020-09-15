@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { formatDate } from '../../format-datepicker';
 import { Observable, Subscription } from 'rxjs';
 import { getFileSize } from '../utilityFunctions';
-import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from 'src/constants';
+import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE } from 'src/constants';
 
 @Component({
   selector: 'app-ui-upload-pdf',
@@ -36,10 +36,9 @@ export class UiUploadPdfComponent implements OnInit {
 
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
-      title: [null, [Validators.required, Validators.maxLength(30)]],
+      name: [null, [Validators.required, Validators.maxLength(30)]],
       file: [null, [Validators.required]],
       target_date: [null],
-      description: [null],
       can_download: [true],
     });
     this.formEventSubscription = this.formEvent.subscribe(
@@ -79,15 +78,13 @@ export class UiUploadPdfComponent implements OnInit {
       });
     } else {
       let data = {};
-      data['title'] = this.uploadForm.value.title;
+      data['name'] = this.uploadForm.value.name;
       data['file'] = file;
-      data['description'] = this.uploadForm.value.description;
       data['can_download'] = this.uploadForm.value.can_download;
       if (this.uploadForm.value.target_date) {
         data['target_date'] = formatDate(this.uploadForm.value.target_date);
       }
-      data['size'] = file.size / 1000000000;
-      data['content_type'] = STUDY_MATERIAL_CONTENT_TYPE_REVERSE['PDF'];
+      data['content_type'] = SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['PDF'];
       this.formData.emit(data);
     }
   }

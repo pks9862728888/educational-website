@@ -265,18 +265,16 @@ export const SUBJECT_TYPE_REVERSE = {
   OPTIONAL: 'O'
 }
 
-export const STUDY_MATERIAL_CONTENT_TYPE = {
-  V: 'VIDEO',
+export const SUBJECT_INTRODUCTION_CONTENT_TYPE = {
   I: 'IMAGE',
   P: 'PDF',
-  L: 'EXTERNAL_LINK'
+  L: 'LINK'
 };
 
-export const STUDY_MATERIAL_CONTENT_TYPE_REVERSE = {
-  VIDEO: 'V',
+export const SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE = {
   IMAGE: 'I',
   PDF: 'P',
-  EXTERNAL_LINK: 'L'
+  LINK: 'L'
 };
 
 
@@ -289,3 +287,9 @@ export const STUDY_MATERIAL_VIEW_REVERSE = {
   MEET_YOUR_INSTRUCTOR: 'MI',
   COURSE_OVERVIEW: 'CO'
 };
+
+// ********************************************
+export const STUDY_MATERIAL_VIEW_TYPES = {
+  MODULE_VIEW: 'M',
+  TEST_VIEW: 'T'
+}

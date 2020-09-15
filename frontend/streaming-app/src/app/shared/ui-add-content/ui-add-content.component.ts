@@ -1,8 +1,8 @@
 import { currentSubjectSlug } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
-import { Observable, Subscription, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { StudyMaterialDetails } from '../../models/subject.model';
 import { HttpEventType } from '@angular/common/http';
 
@@ -18,16 +18,13 @@ export class UiAddContentComponent implements OnInit {
   contentSuccessText: string;
   uploadError: string;
   selectedSidenav = 'ADD_EXTERNAL_LINK';
-  allowTargetDateSetting = true;
+  allowTargetDateSetting = false;
 
   @Input() view: string;
-  @Input() week: number;
-  @Input() darkBackground: boolean;
 
   uploadingEvent = new Subject<String>();
   uploadProgressEvent = new Subject<{loaded: number, total: number}>();
-  @Output() normalContentAddedResultEvent = new EventEmitter<StudyMaterialDetails>();
-  @Output() mediaContentAddedResultEvent = new EventEmitter<any>();
+  @Output() contentAdded = new EventEmitter<any>();
 
   constructor(
     private media: MediaMatcher,
@@ -42,23 +39,17 @@ export class UiAddContentComponent implements OnInit {
 
   uploadExternalLink(data: any) {
     data['view_key'] = this.view;
-
-    if (this.week) {
-      data['week'] = this.week;
-    }
-
     this.uploadingEvent.next('DISABLE');
     this.uploadError = null;
     this.contentSuccessText = null;
-    this.instituteApiService.addSubjectExternalLinkCourseContent(
+    this.instituteApiService.addSubjectExternalLinkIntroductoryCourseContent(
       this.currentSubjectSlug,
       data
       ).subscribe(
-        (result: StudyMaterialDetails) => {
-          console.log(result);
+        result => {
           this.uploadingEvent.next('RESET');
           this.contentSuccessText = 'Uploaded Successfully.';
-          this.normalContentAddedResultEvent.emit(result);
+          this.contentAdded.emit(result);
         },
         errors => {
           this.uploadingEvent.next('ENABLE');
@@ -78,10 +69,6 @@ export class UiAddContentComponent implements OnInit {
   uploadMediaFile(data: any) {
     data['view_key'] = this.view;
 
-    if (this.week) {
-      data['week'] = this.week;
-    }
-
     this.uploadError = null;
     this.contentSuccessText = null;
     this.uploadingEvent.next('DISABLE');
@@ -89,8 +76,7 @@ export class UiAddContentComponent implements OnInit {
       'total': data.size,
       'loaded': 0,
     });
-    console.log(data);
-    this.instituteApiService.uploadStudyMaterial(
+    this.instituteApiService.uploadIntroductoryCourseContentMaterial(
       this.currentSubjectSlug,
       data
       ).subscribe(
@@ -103,7 +89,7 @@ export class UiAddContentComponent implements OnInit {
         } else if (result.type === HttpEventType.Response) {
           this.uploadingEvent.next('RESET');
           this.contentSuccessText = 'Upload successful.';
-          this.mediaContentAddedResultEvent.emit(result);
+          this.contentAdded.emit(result);
         }
       },
       errors => {

@@ -14,110 +14,244 @@
         <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load course details.'" (retryEvent)="getMinCourseDetails()"></app-ui-reload>
         <section *ngIf="!showLoadingIndicator && !showReload && !errorText">
             <div class="m-b-1" *ngFor="let view of viewOrder; let i=index">
-                <mat-accordion>
-                    <mat-expansion-panel class="text-color" [expanded]="openedPanelStep === i" (opened)="setOpenedPanelStep(i)">
-                        <mat-expansion-panel-header [collapsedHeight]="'55px'" [expandedHeight]="'55px'">
-                            <mat-panel-title>
-                                <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
-                                    <h3 *ngIf="!mq.matches">Meet Your Instructor (0)</h3>
-                                    <p *ngIf="mq.matches">Meet Your Instructor (0)</p>
-                                </div>
-                            </mat-panel-title>
-                        </mat-expansion-panel-header>
-                        <hr class="top-separator m-b-1" />
-                        <div *ngIf="view === 'MI' || view === 'CO'">
-                            <div class="background-material m-b-1 cursor-pointer d-flex align-center">
-                                <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
-                                    <mat-icon class="content-icon">
-                                        <span>link</span>
-                                    </mat-icon>
-                                </div>
-                                <div>
-                                    <h3 *ngIf="!mq.matches">Sample code</h3>
-                                    <p *ngIf="mq.matches">Sample code</p>
-                                    <p class="duration-text">
-                                        <span>Link</span>
-                                        <span> | 24th Jan, 2020 </span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div *ngIf="hasSubjectPerm">
-                                <div class="edit-controls" *ngIf="!mq.matches">
-                                    <mat-icon class="m-r-05 edit-icon" (click)="editClicked()">edit</mat-icon>
-                                    <mat-icon class="delete-icon" (click)="deleteClicked()">delete</mat-icon>
-                                </div>
-                                <div class="edit-controls" *ngIf="mq.matches">
-                                    <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
-                                </div>
-                                <div class="m-t-1 m-b-1" *ngIf="false">
-                                    <app-ui-error-text [errorText]="editContentError" (closeErrorTextEvent)="closeEditContentError()"></app-ui-error-text>
-                                </div>
-                                <div class="m-t-1 edit-form-background" *ngIf="false">
-                                    <div class="m-b-05">
-                                        <h3 *ngIf="!mq.matches" class="edit-text">Edit Form:</h3>
-                                        <p *ngIf="mq.matches" class="edit-text">Edit Form:</p>
+                <div *ngIf="testViews.includes(view)">
+                    Design for test
+                </div>
+                <div *ngIf="!testViews.includes(view)">
+                    <mat-accordion>
+                        <mat-expansion-panel class="text-color" [expanded]="openedPanelStep === i" (opened)="setOpenedPanelStep(i)">
+                            <mat-expansion-panel-header [collapsedHeight]="'55px'" [expandedHeight]="'55px'">
+                                <mat-panel-title>
+                                    <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                                        <h3 *ngIf="!mq.matches">{{ viewDetails[view].name }} ({{ viewDetails[view].count }})</h3>
+                                        <p *ngIf="mq.matches">{{ viewDetails[view].name }} ({{ viewDetails[view].count }})</p>
                                     </div>
-                                    <app-ui-edit-study-material [showTargetDate]="true" [filledFormText]="" [showCancelButton]="true" [formEvent]="editContentFormEvent.asObservable()" (formData)="updateContent($event)" (closeEvent)="closeEditForm($event)"></app-ui-edit-study-material>
+                                </mat-panel-title>
+                            </mat-expansion-panel-header>
+                            <hr class="top-separator m-b-1" />
+                            <app-ui-loading *ngIf="loadingViewContentIndicator" [actionText]="'Loading Contents...'"></app-ui-loading>
+                            <div class="m-b-1">
+                                <app-ui-error-text *ngIf="loadingContentError" [errorText]="loadingContentError" [hideCloseButton]="true"></app-ui-error-text>
+                            </div>
+                            <app-ui-reload *ngIf="reloadContent" [errorText]="'Unable to load contents.'" (retryEvent)="getViewContents()"></app-ui-reload>
+                            <div *ngIf="!(loadingViewContentIndicator || loadingContentError || reloadContent ) && (view === 'MI' || view === 'CO')">
+                                <h3 *ngIf="!mq.matches && introductionViewData[view].length === 0">No content found.</h3>
+                                <p *ngIf="mq.matches && introductionViewData[view].length === 0">No content found.</p>
+                                <div *ngFor="let content of introductionViewData[view]">
+                                    <div class="background-material m-b-1 cursor-pointer d-flex align-center">
+                                        <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
+                                            <mat-icon class="content-icon">
+                                                <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
+                                                <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
+                                                <span *ngIf="isContentTypeLink(content.content_type)">link</span>
+                                            </mat-icon>
+                                        </div>
+                                        <div>
+                                            <h3 *ngIf="!mq.matches">{{ content.name }}</h3>
+                                            <p *ngIf="mq.matches">{{ content.name }}</p>
+                                        </div>
+                                        <div *ngIf="hasSubjectPerm">
+                                            <div class="edit-controls" *ngIf="!mq.matches">
+                                                <mat-icon class="m-r-05 edit-icon" (click)="editClicked(content)">edit</mat-icon>
+                                                <mat-icon class="delete-icon" (click)="deleteClicked(content)">delete</mat-icon>
+                                            </div>
+                                            <div class="edit-controls" *ngIf="mq.matches">
+                                                <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="m-t-1 m-t-1 edit-form-background" *ngIf="content['edit'] && hasSubjectPerm">
+                                        <div class="m-b-05">
+                                            <h3 *ngIf="!mq.matches" class="edit-text">Edit Form:</h3>
+                                            <p *ngIf="mq.matches" class="edit-text">Edit Form:</p>
+                                        </div>
+                                        <app-ui-edit-study-material [showTargetDate]="false" [filledFormText]="content" [showCancelButton]="true" [formEvent]="editContentFormEvent.asObservable()" (formData)="updateContent($event)" (closeEvent)="closeEditForm($event)"></app-ui-edit-study-material>
+                                    </div>
+                                </div>
+                                <div *ngIf="hasSubjectPerm">
+                                    <div class="m-b-1 m-t-1" *ngIf="showEditModuleForm">
+                                        <app-ui-mb-create-form [patchFormNameData]="viewDetails[view].name" [maxLength]="25" [createIndicator]="editModuleIndicator" [inputPlaceholder]="'Module Name'" [buttonText]="'Submit'" [progressSpinnerText]="'Updating Module...'" [formEvent]="editModuleFormEvent.asObservable()"
+                                            (createEvent)="editModule($event)"></app-ui-mb-create-form>
+                                    </div>
+                                    <div *ngIf="!showContentLoadingIndicator && !contentReload && addContentDialog">
+                                        <app-ui-add-content [view]="viewOrder[openedPanelStep]" (contentAdded)="introductoryContentAdded($event)"></app-ui-add-content>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-end m-t-1" *ngIf="hasSubjectPerm">
+                                    <button mat-stroked-button class="stroked-button m-r-05" (click)="toggleEditModule()">
+                                      <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">
+                                        <span *ngIf="!showEditModuleForm">edit</span>
+                                        <span *ngIf="showEditModuleForm">close</span>
+                                      </mat-icon>
+                                      <span class="l-h-24 p-r-04" *ngIf="!mq.matches">
+                                        <span *ngIf="!showEditModuleForm">Edit Module</span>
+                                        <span *ngIf="showEditModuleForm">Close Edit Module</span>
+                                      </span>
+                                    </button>
+                                    <button mat-stroked-button class="stroked-button" (click)="toggleAddContentDialog()">
+                                      <mat-icon class="m-r-05 add-icon">
+                                        <span *ngIf="!addContentDialog">add</span>
+                                        <span *ngIf="addContentDialog">cancel</span>
+                                      </mat-icon>
+                                      <span *ngIf="!addContentDialog" class="l-h-24 p-r-04">
+                                        <span *ngIf="!mq.matches">Add</span> Content
+                                      </span>
+                                      <span *ngIf="addContentDialog" class="l-h-24 p-r-04">
+                                        Hide Add Content
+                                      </span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="d-flex justify-content-end">
-                                <button mat-stroked-button class="stroked-button m-r-05">
-                                  <mat-icon class="m-r-05 edit-icon">edit</mat-icon>
-                                  Module
-                                </button>
-                                <button mat-stroked-button class="stroked-button">
-                                  <mat-icon class="m-r-05 add-icon">add</mat-icon>
-                                  Content
-                                </button>
-                            </div>
-                        </div>
-                        <div *ngIf="view !== 'MI' && view !== 'CO'">
-                            <div class="background-material m-b-1 cursor-pointer p-all-1" (click)="openLecture()">
-                                <h3 *ngIf="!mq.matches">1. Sample code</h3>
-                                <p *ngIf="mq.matches">1. Sample code</p>
-                                <p class="duration-text m-l-1">
-                                    <span>24th Jan, 2020 </span>
-                                </p>
-                            </div>
-                            <div *ngIf="hasSubjectPerm">
-                                <div class="edit-controls" *ngIf="!mq.matches">
-                                    <mat-icon class="m-r-05 edit-icon" (click)="editClicked()">edit</mat-icon>
-                                    <mat-icon class="delete-icon" (click)="deleteClicked()">delete</mat-icon>
+                            <div *ngIf="!(loadingViewContentIndicator || loadingContentError || reloadContent) && (view !== 'MI' && view !== 'CO')">
+                                <h3 *ngIf="!mq.matches && lectureViewData[view].length === 0">No content found.</h3>
+                                <p *ngIf="mq.matches && lectureViewData[view].length === 0">No content found.</p>
+                                <div *ngFor="let content of lectureViewData[view]; let j=index">
+                                    <div class="background-material m-b-1 cursor-pointer p-all-1" (click)="openLecture()">
+                                        <h3 *ngIf="!mq.matches">{{ j + 1 }}. {{ content.name }}</h3>
+                                        <p *ngIf="mq.matches">{{ j + 1 }}. {{ content.name }}</p>
+                                        <p class="duration-text m-l-1">
+                                            <span *ngIf="content.target_date">{{ content.target_date | date }}</span>
+                                        </p>
+                                        <div *ngIf="!content.target_date" class="occupy-20px"></div>
+                                    </div>
+                                    <div class="edit-lecture-controls" *ngIf="!mq.matches">
+                                        <mat-icon class="m-r-05 edit-icon" *ngIf="!content['delete']" (click)="editLectureClicked(content)">edit</mat-icon>
+                                        <mat-progress-spinner mode="indeterminate" class="m-b-02" *ngIf="content['delete']" [diameter]="20"></mat-progress-spinner>
+                                        <mat-icon class="delete-icon" *ngIf="!content['delete']" (click)="confirmDeleteLecture(content)">delete</mat-icon>
+                                    </div>
+                                    <div class="edit-lecture-controls" *ngIf="mq.matches">
+                                        <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
+                                    </div>
+                                    <div class="m-b-1" *ngIf="content['edit']">
+                                        <div class="form-header d-flex justify-content-between align-center">
+                                            <h3>Edit Lecture Form:</h3>
+                                            <mat-icon *ngIf="!showAddLectureIndicator" class="cancel-icon" (click)="closeEditLecture(content)">close</mat-icon>
+                                        </div>
+                                        <div class="form-body p-all-1">
+                                            <form [formGroup]="editLectureForm">
+                                                <div class="row m-t-1">
+                                                    <div class="col-12 m-b-1">
+                                                        <input type="text" formControlName="name" maxlength="30" class="form-control" placeholder="Title of Lecture" aria-label="Title of Lecture">
+                                                    </div>
+                                                    <div class="col-12 m-b-1">
+                                                        <input class="form-control" formControlName="target_date" (click)="datepicker.open()" [matDatepicker]="datepicker" [min]="minDate" placeholder="Set Target Date (optional)">
+                                                        <div class="datepicker-icon">
+                                                            <mat-icon (click)="datepicker.open()" class="pick-date-icon">today</mat-icon>
+                                                            <mat-datepicker touchUi #datepicker></mat-datepicker>
+                                                        </div>
+                                                        <small class="text-color">Date format: YYYY-MM-DD</small>
+                                                    </div>
+                                                    <div class="col-12 m-b-1">
+                                                        <div *ngIf="!showEditLectureIndicator">
+                                                            <button mat-flat-button [disabled]="editLectureForm.invalid" class="green-button m-r-05" (click)="editLecture(content)">Submit</button>
+                                                        </div>
+                                                        <div class="d-flex align-center">
+                                                            <mat-progress-spinner class="m-r-05" *ngIf="showEditLectureIndicator" mode="indeterminate" diameter="30"></mat-progress-spinner>
+                                                            <h3 *ngIf="!mq.matches && showEditLectureIndicator">Updating...</h3>
+                                                            <p *ngIf="mq.matches && showEditLectureIndicator">Updating...</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="edit-controls" *ngIf="mq.matches">
-                                    <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
-                                </div>
-                                <div class="d-flex justify-content-end">
-                                    <button mat-stroked-button class="stroked-button m-r-05">
-                                      <mat-icon class="m-r-05 edit-icon">edit</mat-icon>
-                                      Module
-                                    </button>
-                                    <button *ngIf="!mq.matches" mat-stroked-button class="stroked-button m-r-05">
-                                      <mat-icon class="m-r-05 add-icon">add</mat-icon>
-                                      Test
-                                    </button>
-                                    <button *ngIf="!mq.matches" mat-stroked-button class="stroked-button">
-                                      <mat-icon class="m-r-05 add-icon">add</mat-icon>
-                                      Lecture
-                                    </button>
-                                    <button *ngIf="mq.matches" mat-stroked-button class="stroked-button">
-                                      <mat-icon class="m-r-05 add-icon">add</mat-icon>
-                                      Content
-                                    </button>
+                                <div *ngIf="hasSubjectPerm" class="m-t-1">
+                                    <div class="m-b-1" *ngIf="showAddLectureForm">
+                                        <div class="form-header d-flex justify-content-between align-center">
+                                            <h3>Add Lecture Form:</h3>
+                                            <mat-icon *ngIf="!showAddLectureIndicator" class="cancel-icon" (click)="closeAddLecture()">close</mat-icon>
+                                        </div>
+                                        <div class="form-body p-all-1">
+                                            <form [formGroup]="addLectureForm">
+                                                <div class="row m-t-1">
+                                                    <div class="col-12 m-b-1">
+                                                        <input type="text" formControlName="name" maxlength="30" class="form-control" placeholder="Title of Lecture" aria-label="Title of Lecture">
+                                                    </div>
+                                                    <div class="col-12 m-b-1">
+                                                        <input class="form-control" formControlName="target_date" (click)="datepicker.open()" [matDatepicker]="datepicker" [min]="minDate" placeholder="Set Target Date (optional)">
+                                                        <div class="datepicker-icon">
+                                                            <mat-icon (click)="datepicker.open()" class="pick-date-icon">today</mat-icon>
+                                                            <mat-datepicker touchUi #datepicker></mat-datepicker>
+                                                        </div>
+                                                        <small class="text-color">Date format: YYYY-MM-DD</small>
+                                                    </div>
+                                                    <div class="col-12 m-b-1">
+                                                        <div *ngIf="!showAddLectureIndicator">
+                                                            <button mat-flat-button [disabled]="addLectureForm.invalid" class="green-button m-r-05" (click)="addLecture()">Submit</button>
+                                                        </div>
+                                                        <div class="d-flex align-center">
+                                                            <mat-progress-spinner class="m-r-05" *ngIf="showAddLectureIndicator" mode="indeterminate" diameter="30"></mat-progress-spinner>
+                                                            <h3 *ngIf="!mq.matches && showAddLectureIndicator">Submitting...</h3>
+                                                            <p *ngIf="mq.matches && showAddLectureIndicator">Submitting...</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="m-b-1 m-t-1" *ngIf="showEditModuleForm">
+                                        <app-ui-mb-create-form [patchFormNameData]="viewDetails[view].name" [maxLength]="25" [createIndicator]="editModuleIndicator" [inputPlaceholder]="'Module Name'" [buttonText]="'Submit'" [progressSpinnerText]="'Updating Module...'" [formEvent]="editModuleFormEvent.asObservable()"
+                                            (createEvent)="editModule($event)"></app-ui-mb-create-form>
+                                    </div>
+                                    <div class="d-flex justify-content-end" *ngIf="mq.matches">
+                                        <mat-icon class="edit-icon">more_vert</mat-icon>
+                                    </div>
+                                    <div class="d-flex justify-content-end" *ngIf="!mq.matches">
+                                        <button [disabled]="showDeleteModuleSpinner" mat-stroked-button class="stroked-button m-r-05" (click)="toggleEditModule()">
+                                          <mat-icon class="edit-icon" [class.m-r-05]="!mq.matches">
+                                            <span *ngIf="!showEditModuleForm">edit</span>
+                                            <span *ngIf="showEditModuleForm">close</span>
+                                          </mat-icon>
+                                          <span class="l-h-24 p-r-04" *ngIf="!mq.matches">
+                                            <span *ngIf="!showEditModuleForm">Edit Module</span>
+                                            <span *ngIf="showEditModuleForm">Close Edit Module</span>
+                                          </span>
+                                        </button>
+                                        <button mat-stroked-button [disabled]="showDeleteModuleSpinner" class="stroked-button m-r-05" (click)="confirmDeleteModule()">
+                                          <mat-icon *ngIf="!showDeleteModuleSpinner" class="delete-icon" [class.m-r-05]="!mq.matches">delete</mat-icon>
+                                          <mat-spinner *ngIf="showDeleteModuleSpinner" class="d-inline-block m-r-05" mode="indeterminate" [diameter]="20"></mat-spinner>
+                                          <span class="l-h-24 p-r-04" *ngIf="!mq.matches">
+                                            Delete Module
+                                          </span>
+                                        </button>
+                                        <button [disabled]="showDeleteModuleSpinner" *ngIf="!mq.matches" mat-stroked-button class="stroked-button m-r-05">
+                                          <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                                          <span class="p-r-04">Test</span>
+                                        </button>
+                                        <button [disabled]="showDeleteModuleSpinner" *ngIf="!mq.matches" mat-stroked-button class="stroked-button" (click)="addLectureClicked()">
+                                          <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                                          <span class="p-r-04">Lecture</span>
+                                        </button>
+                                        <button [disabled]="showDeleteModuleSpinner" *ngIf="mq.matches" mat-stroked-button class="stroked-button">
+                                          <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                                          <span class="p-r-04">Content</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </mat-expansion-panel>
-                </mat-accordion>
+                        </mat-expansion-panel>
+                    </mat-accordion>
+                </div>
             </div>
-            <div class="d-flex justify-content-end">
+            <div class="m-b-1" *ngIf="addModuleError">
+                <app-ui-error-text [errorText]="addModuleError" (closeErrorTextEvent)="hideAddModuleError()"></app-ui-error-text>
+            </div>
+            <div *ngIf="showAddModuleForm" class="m-b-1">
+                <app-ui-mb-create-form [inputPlaceholder]="'Name of Module'" [buttonText]="'Submit'" [maxLength]="25" [progressSpinnerText]="'Creating module...'" [createIndicator]="addModuleIndicator" [formEvent]="addModuleFormEvent.asObservable()" (createEvent)="addModule($event)"></app-ui-mb-create-form>
+            </div>
+            <div class="d-flex justify-content-end" *ngIf="hasSubjectPerm">
                 <button mat-stroked-button class="stroked-button m-r-05">
                   <mat-icon class="m-r-05 add-icon">add</mat-icon>
-                  Test
+                  <span class="m-r-04">Test</span>
                 </button>
-                <button mat-stroked-button class="stroked-button">
-                  <mat-icon class="m-r-05 add-icon">add</mat-icon>
-                  Module
+                <button mat-stroked-button class="stroked-button" (click)="toggleAddModule()">
+                  <mat-icon class="m-r-05" [class.add-icon]="!showAddModuleForm" [class.edit-icon]="showAddModuleForm">
+                    <span *ngIf="!showAddModuleForm">add</span>
+                    <span *ngIf="showAddModuleForm">cancel</span>
+                  </mat-icon>
+                  <span *ngIf="!showAddModuleForm" class="l-h-24 p-r-04"><span *ngIf="!mq.matches">Add</span> Module</span>
+                  <span *ngIf="showAddModuleForm" class="l-h-24 p-r-04">Hide Add Module</span>
                 </button>
             </div>
         </section>

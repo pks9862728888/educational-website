@@ -1,4 +1,4 @@
-import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from './../../../constants';
+import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE } from './../../../constants';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Subscription, Observable } from 'rxjs';
@@ -16,10 +16,10 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
 
   @Input() showCancelButton: boolean;
   @Input() showTargetDate: boolean;
-  @Input() filledFormText: StudyMaterialDetails;
+  @Input() filledFormText: any;
   @Input() formEvent: Observable<string>;
   @Output() formData = new EventEmitter();
-  @Output() closeEvent = new EventEmitter<StudyMaterialDetails>();
+  @Output() closeEvent = new EventEmitter<any>();
   formEventSubscription: Subscription;
   editForm: FormGroup;
   showIndicator: boolean;
@@ -34,25 +34,18 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.editForm = this.formBuilder.group({
-      title: [this.filledFormText.title, [Validators.required]],
-      description: [this.filledFormText.description],
+      name: [this.filledFormText.name, [Validators.required]],
       target_date: [this.filledFormText.target_date],
-      data: this.formBuilder.group({
-        can_download: [],
-        url: [],
-      })
+      can_download: [],
+      link: []
     });
     if (this.notExternalLinkView()) {
       this.editForm.patchValue({
-        data: {
-          can_download: this.filledFormText.data.can_download
-        }
+        can_download: this.filledFormText.can_download
       })
     } else {
       this.editForm.patchValue({
-        data: {
-          url: this.filledFormText.data.url
-        }
+          link: this.filledFormText.link
       })
     }
     this.formEventSubscription = this.formEvent.subscribe(
@@ -74,21 +67,26 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
 
   submit() {
     const data = this.editForm.value;
+    if (!data['can_download']) {
+      data['can_download'] = false;
+    }
     data['content_type'] = this.filledFormText.content_type
     if (data.target_date) {
       data['target_date'] = formatDate(data['target_date'])
+    } else {
+      delete data['target_date']
     }
     if (this.notExternalLinkView()) {
-      delete data['data']['url'];
+      delete data['link'];
     } else {
-      delete data['data']['can_download'];
+      delete data['can_download'];
     }
     data['id'] = this.filledFormText.id;
     this.formData.emit(data);
   }
 
   notExternalLinkView() {
-    if (this.filledFormText.content_type !== STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
+    if (this.filledFormText.content_type !== SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
       return true;
     } else {
       return false;

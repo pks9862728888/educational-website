@@ -97,7 +97,7 @@
                                 </div>
                                 <div *ngIf="hasSubjectPerm">
                                     <div *ngIf="!showContentLoadingIndicator && !contentError && !contentReload && addContentDialog">
-                                        <app-ui-add-content [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
+                                        <app-ui-add-content [view]="activeView" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
                                     </div>
                                     <hr class="top-separator" *ngIf="!hasContent(view) || addContentDialog" />
                                     <div class="d-flex justify-content-end">
@@ -157,7 +157,6 @@
                                                         </div>
                                                     </div>
                                                     <div class="edit-controls" *ngIf="!mq.matches && hasSubjectPerm">
-                                                        <mat-icon class="m-r-05 reorder-icon" (click)="reorderClicked()">swap_vert</mat-icon>
                                                         <mat-icon class="m-r-05 edit-icon" (click)="editClicked(content)">edit</mat-icon>
                                                         <mat-icon class="m-r-07 delete-icon" (click)="deleteClicked(content)">delete</mat-icon>
                                                     </div>
@@ -178,7 +177,7 @@
                                             </div>
                                             <div *ngIf="hasSubjectPerm">
                                                 <div *ngIf="!showContentLoadingIndicator && !contentError && !contentReload && addContentDialog">
-                                                    <app-ui-add-content [darkBackground]="true" [view]="activeView" [week]="openedWeekStep" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
+                                                    <app-ui-add-content [view]="activeView" (normalContentAddedResultEvent)="normalContentAdded($event)" (mediaContentAddedResultEvent)="mediaContentAdded($event)"></app-ui-add-content>
                                                 </div>
                                                 <hr class="top-separator" *ngIf="!hasContent(view) || addContentDialog" />
                                                 <div class="m-b-1" *ngIf="deleteWeekError">
@@ -234,12 +233,12 @@
                                         </div>
                                         <div class="m-r-05">
                                             <button mat-stroked-button [disabled]="showDeleteModuleSpinner || showAddWeekSpinner || showDeleteWeekSpinner" class="add-button" (click)="confirmDeleteModule()">
-                                          <mat-icon *ngIf="!showDeleteModuleSpinner" class="delete-icon" [class.m-r-03]="!mq.matches">delete</mat-icon>
-                                          <mat-spinner *ngIf="showDeleteModuleSpinner" class="d-inline-block m-r-03" mode="indeterminate" [diameter]="20"></mat-spinner>
-                                          <span class="l-h-24 p-r-04" *ngIf="!mq.matches">
-                                            Delete Module
-                                          </span>
-                                        </button>
+                                              <mat-icon *ngIf="!showDeleteModuleSpinner" class="delete-icon" [class.m-r-03]="!mq.matches">delete</mat-icon>
+                                              <mat-spinner *ngIf="showDeleteModuleSpinner" class="d-inline-block m-r-03" mode="indeterminate" [diameter]="20"></mat-spinner>
+                                              <span class="l-h-24 p-r-04" *ngIf="!mq.matches">
+                                                Delete Module
+                                              </span>
+                                            </button>
                                         </div>
                                         <div>
                                             <button mat-stroked-button [disabled]="showAddWeekSpinner || showDeleteModuleSpinner" class="add-button" (click)="addWeek()">
@@ -264,13 +263,13 @@
                 </div>
                 <div class="m-b-1 d-flex justify-content-end">
                     <button mat-stroked-button class="add-button" (click)="toggleAddModule()">
-                  <mat-icon class="m-r-03 add-icon">
-                    <span *ngIf="!showAddModuleForm">add</span>
-                    <span *ngIf="showAddModuleForm">cancel</span>
-                  </mat-icon>
-                  <span *ngIf="!showAddModuleForm" class="l-h-24 p-r-04"><span *ngIf="!mq.matches">Add</span> Module</span>
-                  <span *ngIf="showAddModuleForm" class="l-h-24 p-r-04">Hide Add Module</span>
-                </button>
+                      <mat-icon class="m-r-03 add-icon">
+                        <span *ngIf="!showAddModuleForm">add</span>
+                        <span *ngIf="showAddModuleForm">cancel</span>
+                      </mat-icon>
+                      <span *ngIf="!showAddModuleForm" class="l-h-24 p-r-04"><span *ngIf="!mq.matches">Add</span> Module</span>
+                      <span *ngIf="showAddModuleForm" class="l-h-24 p-r-04">Hide Add Module</span>
+                    </button>
                 </div>
             </div>
         </section>

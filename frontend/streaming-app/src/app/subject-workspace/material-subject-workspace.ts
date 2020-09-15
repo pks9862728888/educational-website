@@ -1,3 +1,4 @@
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -19,7 +20,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatCardModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDatepickerModule
   ],
   exports: [
     MatButtonModule,
@@ -30,7 +32,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatCardModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDatepickerModule
   ]
 })
 export class MaterialSubjectWorkspaceModule {}

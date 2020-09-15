@@ -1,11 +1,11 @@
 import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from './../../services/in-app-data-transfer.service';
 import { Router } from '@angular/router';
-import { currentInstituteSlug, currentSubjectSlug, STUDY_MATERIAL_CONTENT_TYPE_REVERSE, previewActionContent, selectedPreviewContentType } from './../../../constants';
+import { currentInstituteSlug, currentSubjectSlug, SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE, previewActionContent, selectedPreviewContentType } from './../../../constants';
 import { InstituteApiService } from './../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { isContentTypeImage, isContentTypeVideo, isContentTypePdf, isContentTypeExternalLink } from '../../shared/utilityFunctions'
+import { isContentTypeImage, isContentTypeVideo, isContentTypePdf, isContentTypeLink } from '../../shared/utilityFunctions'
 import { SubjectPreviewCourseMinDetails, StudyMaterialPreviewDetails } from '../../models/subject.model';
 
 
@@ -24,7 +24,7 @@ export class PreviewCourseComponent implements OnInit, OnDestroy {
   isContentTypeImage = isContentTypeImage;
   isContentTypeVideo = isContentTypeVideo;
   isContentTypePdf = isContentTypePdf;
-  isContentTypeLink = isContentTypeExternalLink;
+  isContentTypeLink = isContentTypeLink;
 
   loadingIndicator: boolean;
   reloadIndicator: boolean;
@@ -164,7 +164,7 @@ export class PreviewCourseComponent implements OnInit, OnDestroy {
   }
 
   contentClicked(content: StudyMaterialPreviewDetails) {
-    if (content.content_type === STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK']) {
+    if (content.content_type === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
       window.open('//' + content.data.url, '_blank');
     } else {
       sessionStorage.setItem(previewActionContent, JSON.stringify(content));

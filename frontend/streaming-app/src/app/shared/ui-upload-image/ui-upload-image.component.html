@@ -5,7 +5,7 @@
 <form [formGroup]="uploadForm">
     <div class="row">
         <div class="col-12 m-b-1">
-            <input type="text" formControlName="title" maxlength="30" class="form-control" placeholder="Title" aria-label="File name">
+            <input type="text" formControlName="name" maxlength="30" class="form-control" placeholder="Title" aria-label="File name">
         </div>
         <div class="col-12 m-b-1" *ngIf="showTargetDate">
             <input class="form-control" formControlName="target_date" (click)="datepicker.open()" [matDatepicker]="datepicker" placeholder="Set Target Date (optional)">
@@ -13,9 +13,6 @@
                 <mat-icon (click)="datepicker.open()" class="pick-date-icon">today</mat-icon>
                 <mat-datepicker touchUi #datepicker></mat-datepicker>
             </div>
-        </div>
-        <div class="col-12 m-b-1">
-            <textarea type="text" formControlName="description" rows="5" maxlength="500" class="form-control" placeholder="Description (optional)" aria-label="Description"></textarea>
         </div>
         <div class="col-12 m-b-1">
             <input type="file" mat-flat-button formControlName="file" class="file" id="image-file">

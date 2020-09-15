@@ -1,7 +1,7 @@
 <form [formGroup]="editForm">
     <div class="row">
         <div class="col-12 m-b-1">
-            <input type="text" formControlName="title" maxlength="30" class="form-control" placeholder="Title" aria-label="Title">
+            <input type="text" formControlName="name" maxlength="30" class="form-control" placeholder="Title" aria-label="Title">
         </div>
         <div class="col-12 m-b-1" *ngIf="showTargetDate">
             <input class="form-control" formControlName="target_date" (click)="datepicker.open()" [matDatepicker]="datepicker" placeholder="Set Target Date (optional)">
@@ -11,13 +11,10 @@
             </div>
             <small class="text-color">Date format: YYYY-MM-DD</small>
         </div>
-        <div class="col-12 m-b-1">
-            <textarea type="text" formControlName="description" rows="5" maxlength="500" class="form-control" placeholder="Description (optional)" aria-label="Description"></textarea>
+        <div class="col-12 m-b-1" *ngIf="!notExternalLinkView()">
+            <input type="text" formControlName="link" maxlength="256" class="form-control" placeholder="Paste Url" aria-label="Url">
         </div>
-        <div class="col-12 m-b-1" formGroupName="data" *ngIf="!notExternalLinkView()">
-            <input type="text" formControlName="url" maxlength="256" class="form-control" placeholder="Paste Url" aria-label="Url">
-        </div>
-        <div class="col-12 m-b-1" formGroupName="data" *ngIf="notExternalLinkView()">
+        <div class="col-12 m-b-1" *ngIf="notExternalLinkView()">
             <mat-slide-toggle formControlName="can_download">Can Download Content</mat-slide-toggle>
         </div>
         <div class="col-12 indicator m-b-1">

@@ -2,7 +2,7 @@ import { Observable, Subscription } from 'rxjs';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, EventEmitter, Output, Input, OnDestroy } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
-import { STUDY_MATERIAL_CONTENT_TYPE_REVERSE } from '../../../constants';
+import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE } from '../../../constants';
 import { formatDate } from '../../format-datepicker';
 
 @Component({
@@ -30,8 +30,8 @@ export class UiAddExternalLinkComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.uploadForm = this.formBuilder.group({
-      title: [null, [Validators.required, Validators.maxLength(20)]],
-      url: [null, [Validators.required, Validators.maxLength(100)]],
+      name: [null, [Validators.required, Validators.maxLength(20)]],
+      link: [null, [Validators.required, Validators.maxLength(100)]],
       target_date: [null]
     });
     this.formEventSubscription = this.formEvent.subscribe(
@@ -53,19 +53,19 @@ export class UiAddExternalLinkComponent implements OnInit, OnDestroy {
 
   upload() {
     this.uploadForm.patchValue({
-      title: this.uploadForm.value.title.trim(),
-      url: this.uploadForm.value.url.trim()
+      name: this.uploadForm.value.name.trim(),
+      link: this.uploadForm.value.link.trim()
     })
-    if (!this.uploadForm.value.title) {
+    if (!this.uploadForm.value.name) {
       this.formFieldError.emit('Title can not be blank.');
-    } else if (!this.uploadForm.value.url) {
-      this.formFieldError.emit('url can not be blank.');
+    } else if (!this.uploadForm.value.link) {
+      this.formFieldError.emit('Url can not be blank.');
     } else {
       let data = this.uploadForm.value;
       if (data['target_date']) {
         data['target_date'] = formatDate(data['target_date']);
       }
-      data['content_type'] = STUDY_MATERIAL_CONTENT_TYPE_REVERSE['EXTERNAL_LINK'];
+      data['content_type'] = SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK'];
       this.formData.emit(data);
     }
   }

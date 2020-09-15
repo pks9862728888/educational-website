@@ -78,8 +78,22 @@ export interface StudyMaterialDetails {
 export interface CreateSubjectModuleResponse {
   name: string;
   view: string;
-  number?: number;
-  weeks: Array<number>;
+  count: number;
+}
+
+export interface CreateSubjectCourseMinDetailsResponse {
+  has_subject_perm: boolean;
+  view_order: Array<string>;
+  view_details: {
+    string: Array<{
+      name: string;
+      count: number;
+    }>;
+  };
+  test_views: Array<string>;
+  test_details: Array<{
+    name: string;
+  }>;
 }
 
 

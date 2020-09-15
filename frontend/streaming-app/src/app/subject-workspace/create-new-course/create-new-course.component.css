@@ -70,6 +70,12 @@ hr {
 
 .stroked-button {
     border: 1px solid #6c757d;
+    padding-bottom: 0.1rem;
+}
+
+.stroked-button:disabled {
+    color: #bdbdbd;
+    opacity: 0.5;
 }
 
 .background-material {
@@ -101,12 +107,17 @@ hr {
     font-size: 10px;
 }
 
-.edit-controls {
+.edit-controls,
+.edit-lecture-controls {
     display: flex;
     align-items: center;
     right: 1.7rem;
-    transform: translateY(-235%);
+    transform: translateY(-50%);
     position: absolute;
+}
+
+.edit-lecture-controls {
+    transform: translateY(-240%);
 }
 
 .lecture-heading {
@@ -140,6 +151,10 @@ hr {
     width: 16px;
 }
 
+.occupy-20px {
+    height: 20px;
+}
+
 li {
     margin-left: 0.1rem;
 }
@@ -148,8 +163,59 @@ li:not(:last-child) {
     margin-bottom: 0.5rem;
 }
 
+.form-header {
+    background-color: #111d24;
+    padding: 1rem;
+}
+
+.form-body {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.form-control {
+    width: 100%;
+    background-color: inherit;
+    color: rgba(255, 255, 255, 0.60);
+    border-color: rgba(255, 255, 255, 0.38);
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: none;
+    outline: none;
+}
+
+.green-button:disabled,
+.green-button:disabled:hover {
+    color: #fff;
+    background-color: #094d49;
+    opacity: 0.6;
+}
+
+.datepicker-icon {
+    transform: translateY(-1.95rem);
+    right: 5px;
+    position: absolute;
+}
+
+.pick-date-icon {
+    color: #6c7576;
+}
+
+.l-h-24 {
+    line-height: 24px;
+}
+
 .p-all-1 {
     padding: 0.4rem 1rem;
+}
+
+.p-r-04 {
+    padding-right: 0.4rem;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
 }
 
 .m-t-03 {
@@ -166,6 +232,10 @@ li:not(:last-child) {
 
 .m-r-1 {
     margin-right: 1rem;
+}
+
+.m-b-02 {
+    margin-bottom: 0.2rem;
 }
 
 .m-b-1 {
