@@ -3303,7 +3303,7 @@ class InstituteSubjectLectureContents(APIView):
 
         lecture = models.SubjectLecture.objects.filter(
             id=kwargs.get('lecture_id')
-        ).exclude('created_on').first()
+        ).first()
 
         response = dict()
         response['id'] = lecture.pk
@@ -4191,7 +4191,7 @@ class InstituteAddLectureObjectiveOrUseCaseText(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         lecture = models.SubjectLecture.objects.filter(
-            pk=request.data.get('lecture_id')
+            pk=kwargs.get('lecture_id')
         ).only('name').first()
 
         if not lecture:
@@ -4206,8 +4206,7 @@ class InstituteAddLectureObjectiveOrUseCaseText(APIView):
 
             return Response({
                 'id': content.id,
-                'text': content.text,
-                'type': content.type
+                'text': content.text
             }, status=status.HTTP_201_CREATED)
 
         except ValueError as e:
@@ -4238,7 +4237,7 @@ class InstituteEditLectureObjectiveOrUseCaseText(APIView):
 
         content = models.SubjectLectureUseCaseObjectives.objects.filter(
             pk=kwargs.get('content_id')
-        ).exclude('lecture').first()
+        ).first()
 
         if not content:
             return Response({'error': _('Content not found.')},
@@ -4250,8 +4249,7 @@ class InstituteEditLectureObjectiveOrUseCaseText(APIView):
 
             return Response({
                 'id': content.id,
-                'text': content.text,
-                'type': content.type
+                'text': content.text
             }, status=status.HTTP_200_OK)
 
         except ValueError as e:
