@@ -3597,6 +3597,8 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
 
         try:
             response = dict()
+            response['view'] = view.key
+            response['content_type'] = request.data.get('content_type')
             if request.data.get('content_type') == models.SubjectIntroductionContentType.IMAGE:
                 res = validate_image_file(request.data.get('file'))
 
@@ -3717,6 +3719,8 @@ class InstituteSubjectEditIntroductoryContentView(APIView):
 
             obj.save()
             response['content_type'] = obj.content_type
+            response['id'] = obj.id
+            response['name'] = obj.name
             return Response(response, status=status.HTTP_201_CREATED)
         except Exception:
             return Response({'error': _('Internal server error. Please report us.')},
@@ -3754,7 +3758,7 @@ class InstituteSubjectDeleteIntroductoryContentView(APIView):
                 return Response(status=status.HTTP_204_NO_CONTENT)
 
             if obj.content_type != models.SubjectIntroductionContentType.LINK:
-                size = obj.size
+                size = obj.file.size
 
             obj.delete()
             if size:

@@ -1500,8 +1500,7 @@ class SubjectIntroductoryContent(models.Model):
         upload_to=subject_introductory_content_upload_file_path,
         null=True,
         blank=True,
-        max_length=1024,
-        unique=True)
+        max_length=1024)
     can_download = models.BooleanField(_('Can Download'), blank=True, default=False)
     link = models.URLField(
         _('Link'), max_length=2083, blank=True, null=True)
@@ -1530,16 +1529,12 @@ class SubjectLecture(models.Model):
     name = models.CharField(
         _('Lecture name'), max_length=30, blank=False, null=False)
     target_date = models.DateField(
-        _('Target Date'), max_length=10, blank=True, null=False)
+        _('Target Date'), max_length=10, blank=True, null=True)
     created_on = models.DateTimeField(
         _('Created on'), default=timezone.now, blank=True)
 
     def save(self, *args, **kwargs):
         self.name = self.name.strip()
-        if not self.target_date:
-            self.target_date = ''
-        if self.target_date and self.target_date < timezone.now():
-            raise ValueError(_('Target date can not be in the past.'))
         super(SubjectLecture, self).save(*args, **kwargs)
 
     def __str__(self):
