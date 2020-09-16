@@ -1,11 +1,11 @@
 import { formatDate } from 'src/app/format-datepicker';
-import { currentSubjectSlug, STUDY_MATERIAL_VIEW_TYPES, currentInstituteSlug } from './../../../constants';
+import { currentSubjectSlug, STUDY_MATERIAL_VIEW_TYPES, currentInstituteSlug, LECTURE_TEXT_TYPES } from './../../../constants';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
-import { CreateSubjectCourseMinDetailsResponse, CreateSubjectModuleResponse } from 'src/app/models/subject.model';
+import { CreateSubjectCourseMinDetailsResponse, CreateSubjectModuleResponse, InstituteSubjectLectureContentData } from 'src/app/models/subject.model';
 import { isContentTypeImage, isContentTypeLink, isContentTypePdf } from 'src/app/shared/utilityFunctions';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
@@ -77,6 +77,23 @@ export class CreateNewCourseComponent implements OnInit {
   lectureViewData = {};
   testDetails = {};
 
+  // For lecture
+  loadingLectureContentIndicator: boolean;
+  reloadLectureContent: boolean;
+  loadLectureError: string;
+
+  addEditObjectiveForm: FormGroup;
+  showaddEditObjectiveForm = false;
+  showAddObjectiveIndicator: boolean;
+  showEditObjectiveForm: boolean;
+
+  addEditUseCaseForm: FormGroup;
+  showaddEditUseCaseForm = false;
+  showAddUseCaseIndicator: boolean;
+  showEditUseCaseForm: boolean;
+
+  lectureContentData: InstituteSubjectLectureContentData;
+
   constructor(
     private media: MediaMatcher,
     private uiService: UiService,
@@ -97,6 +114,12 @@ export class CreateNewCourseComponent implements OnInit {
     this.editLectureForm = this.formBuilder.group({
       name: ['', [Validators.required, Validators.maxLength(30)]],
       target_date: ['']
+    });
+    this.addEditObjectiveForm = this.formBuilder.group({
+      text: ['', [Validators.required, Validators.maxLength(500)]]
+    });
+    this.addEditUseCaseForm = this.formBuilder.group({
+      text: ['', [Validators.required, Validators.maxLength(500)]]
     });
   }
 
@@ -336,14 +359,6 @@ export class CreateNewCourseComponent implements OnInit {
 
   showActionsClicked() {
 
-  }
-
-  openLecture() {
-    this.selectedLecture = 'sdfs';
-  }
-
-  closeLecture() {
-    this.selectedLecture = null;
   }
 
   setOpenedPanelStep(step: number) {
@@ -725,4 +740,394 @@ export class CreateNewCourseComponent implements OnInit {
     this.showAddLectureForm = false;
   }
 
+  // For lecture view
+  openLecture(content, lecture_no) {
+    content['lecture_no'] = lecture_no;
+    this.selectedLecture = content;
+    this.loadLectureContent();
+  }
+
+  closeLecture() {
+    this.selectedLecture = null;
+    this.addEditObjectiveForm.reset();
+    this.showaddEditObjectiveForm = false;
+  }
+
+  loadLectureContent() {
+    this.loadingLectureContentIndicator = true;
+    this.reloadLectureContent = false;
+    this.loadingContentError = null;
+    this.instituteApiService.loadSubjectLectureContents(
+      this.currentSubjectSlug,
+      this.selectedLecture.id.toString()
+    ).subscribe(
+      (result: InstituteSubjectLectureContentData) => {
+        this.loadingLectureContentIndicator = false;
+        this.lectureContentData = result;
+        console.log(this.lectureContentData);
+      },
+      errors => {
+        this.loadingLectureContentIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.loadingContentError = errors.error.error;
+          } else {
+            this.reloadLectureContent = true;
+          }
+        } else {
+          this.reloadLectureContent = true;
+        }
+      }
+    );
+  }
+
+  toggleAddCourseObjectiveForm() {
+    this.addEditObjectiveForm.reset();
+    this.addEditObjectiveForm.enable();
+    this.showAddObjectiveIndicator = false;
+    this.showaddEditObjectiveForm = !this.showaddEditObjectiveForm;
+    this.closeEditObjectiveForm();
+  }
+
+  addLectureObjective() {
+    this.addEditObjectiveForm.patchValue({
+      text: this.addEditObjectiveForm.value.text.trim()
+    });
+    if (!this.addEditObjectiveForm.invalid) {
+      let data = this.addEditObjectiveForm.value;
+      data['type'] = LECTURE_TEXT_TYPES['OBJECTIVES'];
+      this.addEditObjectiveForm.disable();
+      this.showAddObjectiveIndicator = true;
+      this.instituteApiService.addLectureObjectiveOrUseCase(
+        this.currentSubjectSlug,
+        this.selectedLecture.id.toString(),
+        data
+      ).subscribe(
+        (result: {id: number; text: string;}) => {
+          this.lectureContentData.objectives.push(result);
+          this.uiService.showSnackBar(
+            'Objective added!',
+            2000
+          );
+          this.toggleAddCourseObjectiveForm();
+        },
+        errors => {
+          this.showAddObjectiveIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Error occurred! Unable to add objectives now.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to add objectives now.',
+              3000
+            );
+          }
+        }
+      );
+    }
+  }
+
+  deleteObjective(content) {
+    const index = +this.findIdInArray(this.lectureContentData.objectives, content.id);
+    this.lectureContentData.objectives[index]['delete'] = true;
+    this.instituteApiService.deleteObjectiveOrUseCase(
+      this.currentSubjectSlug,
+      content.id.toString()
+    ).subscribe(
+      () => {
+        this.lectureContentData.objectives.splice(index, 1);
+        this.uiService.showSnackBar(
+          'Objective deleted!',
+          2000
+        );
+      },
+      errors => {
+        this.lectureContentData.objectives[index]['delete'] = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              3000
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to delete objectives now.',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error occurred! Unable to delete objectives now.',
+            3000
+          );
+        }
+      }
+    )
+  }
+
+  showEditObjectiveFormClicked(objective) {
+    this.addEditObjectiveForm.reset();
+    this.addEditObjectiveForm.enable();
+    this.showAddObjectiveIndicator = false;
+    this.showaddEditObjectiveForm = false;
+    this.addEditObjectiveForm.patchValue({
+      text: objective.text
+    });
+    this.showEditObjectiveForm = true;
+    for (let idx in this.lectureContentData.objectives) {
+      if (this.lectureContentData.objectives[idx].id === objective.id) {
+        this.lectureContentData.objectives[idx]['edit'] = true;
+      } else {
+        this.lectureContentData.objectives[idx]['edit'] = false;
+      }
+    }
+  }
+
+  closeEditObjectiveForm() {
+    this.showEditObjectiveForm = false;
+    for (let idx in this.lectureContentData.objectives) {
+      if (this.lectureContentData.objectives[idx]['edit']) {
+        this.lectureContentData.objectives[idx]['edit'] = false;
+      }
+    }
+  }
+
+  editLectureObjective() {
+    this.addEditObjectiveForm.patchValue({
+      text: this.addEditObjectiveForm.value.text.trim()
+    });
+    if (!this.addEditObjectiveForm.invalid) {
+      this.showAddObjectiveIndicator = true;
+      this.addEditObjectiveForm.disable();
+      let objective_id = -1;
+      let index = -1;
+      for (let idx in this.lectureContentData.objectives) {
+        if (this.lectureContentData.objectives[idx]['edit']) {
+          index = +idx;
+          objective_id = this.lectureContentData.objectives[idx].id;
+        }
+      }
+      let data = this.addEditObjectiveForm.value;
+      this.instituteApiService.editObjectiveOrUseCase(
+        this.currentSubjectSlug,
+        objective_id.toString(),
+        data
+      ).subscribe(
+        (result: {id: number; text: string;}) => {
+          this.lectureContentData.objectives.splice(index, 1, result);
+          this.uiService.showSnackBar(
+            'Objective updated',
+            2000
+          );
+          this.showEditObjectiveForm = false;
+        },
+        errors => {
+          this.addEditObjectiveForm.enable();
+          this.showAddObjectiveIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Error occurred! Unable to edit objectives now.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to edit objectives now.',
+              3000
+            );
+          }
+        }
+      );
+    }
+  }
+
+  toggleAddCourseUseCaseForm() {
+    this.addEditUseCaseForm.reset();
+    this.addEditUseCaseForm.enable();
+    this.showAddUseCaseIndicator = false;
+    this.showaddEditUseCaseForm = !this.showaddEditUseCaseForm;
+    this.closeEditUseCaseForm();
+  }
+
+  addLectureUseCase() {
+    this.addEditUseCaseForm.patchValue({
+      text: this.addEditUseCaseForm.value.text.trim()
+    });
+    if (!this.addEditUseCaseForm.invalid) {
+      let data = this.addEditUseCaseForm.value;
+      data['type'] = LECTURE_TEXT_TYPES['USE_CASE'];
+      this.addEditUseCaseForm.disable();
+      this.showAddUseCaseIndicator = true;
+      this.instituteApiService.addLectureObjectiveOrUseCase(
+        this.currentSubjectSlug,
+        this.selectedLecture.id.toString(),
+        data
+      ).subscribe(
+        (result: {id: number; text: string;}) => {
+          this.lectureContentData.use_case_text.push(result);
+          this.uiService.showSnackBar(
+            'Use Case added!',
+            2000
+          );
+          this.toggleAddCourseUseCaseForm();
+        },
+        errors => {
+          this.showAddUseCaseIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Error occurred! Unable to add use case now.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to add use case now.',
+              3000
+            );
+          }
+        }
+      );
+    }
+  }
+
+  deleteUseCase(content) {
+    const index = +this.findIdInArray(this.lectureContentData.use_case_text, content.id);
+    this.lectureContentData.use_case_text[index]['delete'] = true;
+    this.instituteApiService.deleteObjectiveOrUseCase(
+      this.currentSubjectSlug,
+      content.id.toString()
+    ).subscribe(
+      () => {
+        this.lectureContentData.use_case_text.splice(index, 1);
+        this.uiService.showSnackBar(
+          'Use case deleted!',
+          2000
+        );
+      },
+      errors => {
+        this.lectureContentData.use_case_text[index]['delete'] = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              3000
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to delete use case now.',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error occurred! Unable to delete use case now.',
+            3000
+          );
+        }
+      }
+    )
+  }
+
+  showEditUseCaseFormClicked(use_case) {
+    this.addEditUseCaseForm.reset();
+    this.addEditUseCaseForm.enable();
+    this.showAddUseCaseIndicator = false;
+    this.showaddEditUseCaseForm = false;
+    this.addEditUseCaseForm.patchValue({
+      text: use_case.text
+    });
+    this.showEditUseCaseForm = true;
+    for (let idx in this.lectureContentData.use_case_text) {
+      if (this.lectureContentData.use_case_text[idx].id === use_case.id) {
+        this.lectureContentData.use_case_text[idx]['edit'] = true;
+      } else {
+        this.lectureContentData.use_case_text[idx]['edit'] = false;
+      }
+    }
+  }
+
+  closeEditUseCaseForm() {
+    this.showEditUseCaseForm = false;
+    for (let idx in this.lectureContentData.use_case_text) {
+      if (this.lectureContentData.use_case_text[idx]['edit']) {
+        this.lectureContentData.use_case_text[idx]['edit'] = false;
+      }
+    }
+  }
+
+  editLectureUseCase() {
+    this.addEditUseCaseForm.patchValue({
+      text: this.addEditUseCaseForm.value.text.trim()
+    });
+    if (!this.addEditUseCaseForm.invalid) {
+      this.showAddUseCaseIndicator = true;
+      this.addEditUseCaseForm.disable();
+      let use_case_id = -1;
+      let index = -1;
+      for (let idx in this.lectureContentData.use_case_text) {
+        if (this.lectureContentData.use_case_text[idx]['edit']) {
+          index = +idx;
+          use_case_id = this.lectureContentData.use_case_text[idx].id;
+        }
+      }
+      let data = this.addEditUseCaseForm.value;
+      this.instituteApiService.editObjectiveOrUseCase(
+        this.currentSubjectSlug,
+        use_case_id.toString(),
+        data
+      ).subscribe(
+        (result: {id: number; text: string;}) => {
+          this.lectureContentData.use_case_text.splice(index, 1, result);
+          this.uiService.showSnackBar(
+            'Use case updated.',
+            2000
+          );
+          this.showEditUseCaseForm = false;
+        },
+        errors => {
+          this.addEditUseCaseForm.enable();
+          this.showAddUseCaseIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Error occurred! Unable to edit use case now.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to edit use case now.',
+              3000
+            );
+          }
+        }
+      );
+    }
+  }
 }

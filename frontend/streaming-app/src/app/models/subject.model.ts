@@ -97,6 +97,29 @@ export interface CreateSubjectCourseMinDetailsResponse {
 }
 
 
+export interface InstituteSubjectLectureContentData {
+  id: number;
+  name: string;
+  view_name: string;
+  objectives: Array<{id: number; text: string;}>;
+  use_case_text: Array<{id: number; text: string;}>;
+  use_case_link: Array<{id: number; text: string; link: string;}>;
+  additional_reading_link: Array<{id: number; text: string; link: string;}>;
+  materials: Array<{
+    id: number;
+    name: string;
+    content_type: string;
+    data: {
+      link?: string;
+      file?: string;
+      can_download?: boolean;
+    }
+  }>;
+  assignments: [];
+  tests: [];
+}
+
+
 export interface InstructorDetails {
   id: number;
   name?: string;

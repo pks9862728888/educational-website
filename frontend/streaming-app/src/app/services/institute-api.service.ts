@@ -177,6 +177,22 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${lectureId}/edit-subject-lecture`;
   }
 
+  getLoadSubjectLectureContentsUrl(subjectSlug: string, lectureId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${lectureId}/list-subject-lecture-contents`;
+  }
+
+  getAddLectureObjectiveOrUseCaseUrl(subjectSlug: string, lectureId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${lectureId}/add-lecture-objective-or-use-case-text`;
+  }
+
+  getDeleteObjectiveOrUseCaseUrl(subjectSlug: string, id: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${id}/delete-lecture-objective-or-use-case-text`;
+  }
+
+  getEditLectureObjectiveOrUseCaseUrl(subjectSlug: string, objectiveId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${objectiveId}/edit-lecture-objective-or-use-case-text`;
+  }
+
   getClassStudentsListUrl(
     instituteSlug: string,
     classSlug: string,
@@ -722,6 +738,36 @@ export class InstituteApiService {
   editSubjectLecture(subjectSlug: string, lectureId: string, data) {
     return this.httpClient.patch(
       this.getEditSubjectLectureUrl(subjectSlug, lectureId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  loadSubjectLectureContents(subjectSlug: string, lectureId: string) {
+    return this.httpClient.get(
+      this.getLoadSubjectLectureContentsUrl(subjectSlug, lectureId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addLectureObjectiveOrUseCase(subjectSlug: string, lectureId: string, data) {
+    return this.httpClient.post(
+      this.getAddLectureObjectiveOrUseCaseUrl(subjectSlug, lectureId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteObjectiveOrUseCase(subjectSlug: string, id: string) {
+    return this.httpClient.delete(
+      this.getDeleteObjectiveOrUseCaseUrl(subjectSlug, id),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editObjectiveOrUseCase(subjectSlug: string, objectiveId: string, data) {
+    return this.httpClient.patch(
+      this.getEditLectureObjectiveOrUseCaseUrl(subjectSlug, objectiveId),
       data,
       { headers: this.getAuthHeader() }
     );

@@ -293,3 +293,8 @@ export const STUDY_MATERIAL_VIEW_TYPES = {
   MODULE_VIEW: 'M',
   TEST_VIEW: 'T'
 }
+
+export const LECTURE_TEXT_TYPES = {
+  USE_CASE: 'U',
+  OBJECTIVES: 'O'
+}

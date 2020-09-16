@@ -106,7 +106,7 @@
                                 <h3 *ngIf="!mq.matches && lectureViewData[view].length === 0">No content found.</h3>
                                 <p *ngIf="mq.matches && lectureViewData[view].length === 0">No content found.</p>
                                 <div *ngFor="let content of lectureViewData[view]; let j=index">
-                                    <div class="background-material m-b-1 cursor-pointer p-all-1" (click)="openLecture()">
+                                    <div class="background-material m-b-1 cursor-pointer p-all-1" (click)="openLecture(content, j)">
                                         <h3 *ngIf="!mq.matches">{{ j + 1 }}. {{ content.name }}</h3>
                                         <p *ngIf="mq.matches">{{ j + 1 }}. {{ content.name }}</p>
                                         <p class="duration-text m-l-1">
@@ -243,7 +243,7 @@
             <div class="d-flex justify-content-end" *ngIf="hasSubjectPerm">
                 <button mat-stroked-button class="stroked-button m-r-05">
                   <mat-icon class="m-r-05 add-icon">add</mat-icon>
-                  <span class="m-r-04">Test</span>
+                  <span class="p-r-04">Test</span>
                 </button>
                 <button mat-stroked-button class="stroked-button" (click)="toggleAddModule()">
                   <mat-icon class="m-r-05" [class.add-icon]="!showAddModuleForm" [class.edit-icon]="showAddModuleForm">
@@ -256,109 +256,204 @@
             </div>
         </section>
     </div>
-    <div [hidden]="!selectedLecture">
+    <div *ngIf="selectedLecture">
         <div class="lecture-heading">
-            <h3>HUMAN PSYCHOLOGY</h3>
-            <h3>Lecture 2:</h3>
-            <h3>The Organ System of Human</h3>
+            <h3>{{ viewDetails[viewOrder[openedPanelStep]].name | uppercase }}</h3>
+            <h3>Lecture {{ selectedLecture['lecture_no'] + 1 }}:</h3>
+            <h3>{{ selectedLecture.name }}</h3>
         </div>
         <hr class="top-separator m-t-03 m-b-15" />
-        <section class="m-b-1">
-            <div class="topic-heading-background m-b-15">
-                <h3>
-                    <span class="topic-heading">Lecture Objectives:</span>
-                    <span *ngIf="true"> None</span>
-                </h3>
-                <mat-icon class="cursor-pointer help-icon" matTooltip="Add Lecture Objectives to keep the students informed about what they will learn in this lecture." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
-            </div>
-            <div class="m-b-1" *ngIf="false" [class.m-l-1.m-r-1]="mq.matches" [class.m-l-15.m-r-15]="true">
-                <ul>
-                    <li>To know the outcome of khela hobe.</li>
-                    <li>This is very wierd troll anyone can have.</li>
-                </ul>
-            </div>
-            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                <p>Add Objective</p>
-            </div>
-        </section>
-        <section class="m-b-15">
-            <div class="topic-heading-background m-b-15">
-                <h3>
-                    <span class="topic-heading">Lecture Content:</span>
-                    <span *ngIf="true"> None</span>
-                </h3>
-                <mat-icon class="cursor-pointer help-icon" matTooltip="Schedule live classes, or provide study materials to the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
-            </div>
-            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                <p>Add Content</p>
-            </div>
-        </section>
-        <section class="m-b-15">
-            <div class="topic-heading-background m-b-15">
-                <h3>
-                    <span class="topic-heading">Use Cases:</span>
-                    <span *ngIf="true"> None</span>
-                </h3>
-                <mat-icon class="cursor-pointer help-icon" matTooltip="Mention where the knowledge of this lecture can be applied." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
-            </div>
-            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                <p>Add Use Cases</p>
-            </div>
-        </section>
-        <section class="m-b-15">
-            <div class="topic-heading-background m-b-15">
-                <h3>
-                    <span class="topic-heading">Get Inspired:</span>
-                    <span *ngIf="true"> None</span>
-                </h3>
-                <mat-icon class="cursor-pointer help-icon" matTooltip="Add Links to YouTube videos, or other websites to inspire the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
-            </div>
-            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                <p>Add External Links</p>
-            </div>
-        </section>
-        <section class="m-b-15">
-            <div class="topic-heading-background m-b-15">
-                <h3>
-                    <span class="topic-heading">Additional Reading:</span>
-                    <span *ngIf="true"> None</span>
-                </h3>
-                <mat-icon class="cursor-pointer help-icon" matTooltip="Add Additional Links of resources which students can read to expand their knowledge base." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
-            </div>
-            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                <p>Add Additonal Reading Links</p>
-            </div>
-        </section>
-        <section class="m-b-15">
-            <div class="topic-heading-background m-b-15">
-                <h3>
-                    <span class="topic-heading">Assignments:</span>
-                    <span *ngIf="true"> None</span>
-                </h3>
-                <mat-icon class="cursor-pointer help-icon" matTooltip="Add Assignments which will help the students to test their learning." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
-            </div>
-            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                <p>Add Assignment</p>
-            </div>
-        </section>
-        <section class="m-b-15">
-            <div class="topic-heading-background m-b-15">
-                <h3>
-                    <span class="topic-heading">Tests:</span>
-                    <span *ngIf="true"> None</span>
-                </h3>
-                <mat-icon class="cursor-pointer help-icon" matTooltip="Add mcq based graded / ungraded tests so that students can evaluate how much they understood the topic of the lecture." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
-            </div>
-            <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                <p>Add Test</p>
-            </div>
-        </section>
+        <app-ui-loading *ngIf="loadingLectureContentIndicator" [actionText]="'Loading lecture contents...'"></app-ui-loading>
+        <app-ui-reload *ngIf="reloadLectureContent" [errorText]="'Unable to load lecture contents.'" (retryEvent)="loadLectureContent()"></app-ui-reload>
+        <div class="m-b-1">
+            <app-ui-error-text *ngIf="loadLectureError" [errorText]="loadLectureError" [hideCloseButton]="true"></app-ui-error-text>
+        </div>
+        <div *ngIf="!loadingLectureContentIndicator && !reloadLectureContent && !loadLectureError">
+            <section class="m-b-1">
+                <div class="topic-heading-background m-b-15">
+                    <h3>
+                        <span class="topic-heading">Lecture Objectives:</span>
+                        <span *ngIf="lectureContentData.objectives.length === 0"> None</span>
+                    </h3>
+                    <mat-icon class="cursor-pointer help-icon" matTooltip="Add Lecture Objectives to keep the students informed about what they will learn in this lecture." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+                </div>
+                <div class="m-b-1 m-l-15 m-r-15" *ngIf="lectureContentData.objectives.length !== 0" [class.m-l-1.m-r-1]="mq.matches">
+                    <ul>
+                        <li *ngFor="let objective of lectureContentData.objectives">
+                            <div class="d-flex justify-content-between">
+                                {{ objective.text }}
+                                <div *ngIf="!mq.matches">
+                                    <mat-icon *ngIf="!objective['delete'] && objective['edit']" class="cancel-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="closeEditObjectiveForm()">close</mat-icon>
+                                    <mat-icon *ngIf="!objective['delete'] && !objective['edit']" class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showEditObjectiveFormClicked(objective)">edit</mat-icon>
+                                    <mat-icon *ngIf="!objective['delete']" class="delete-icon small-text-icon cursor-pointer" (click)="deleteObjective(objective)">delete</mat-icon>
+                                    <mat-progress-spinner *ngIf="objective['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
+                                </div>
+                                <div *ngIf="mq.matches">
+                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05">more_vert</mat-icon>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div *ngIf="showEditObjectiveForm" class="m-b-15">
+                    <form [formGroup]="addEditObjectiveForm">
+                        <div class="d-flex justify-content-between">
+                            <input type="text" class="form-control one-line-input" formControlName="text" placeholder="Add Objective">
+                            <div class="input-group-append">
+                                <button mat-flat-button [disabled]="addEditObjectiveForm.invalid" class="add-button green-button" (click)="editLectureObjective()">
+                                  <span *ngIf="!showAddObjectiveIndicator">Add</span>
+                                  <mat-progress-spinner *ngIf="showAddObjectiveIndicator" class="m-l-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div *ngIf="showaddEditObjectiveForm" class="m-b-15">
+                    <form [formGroup]="addEditObjectiveForm">
+                        <div class="d-flex justify-content-between">
+                            <input type="text" class="form-control one-line-input" formControlName="text" placeholder="Add Objective">
+                            <div class="input-group-append">
+                                <button mat-flat-button [disabled]="addEditObjectiveForm.invalid" class="add-button green-button" (click)="addLectureObjective()">
+                                  <span *ngIf="!showAddObjectiveIndicator">Add</span>
+                                  <mat-progress-spinner *ngIf="showAddObjectiveIndicator" class="m-l-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches" (click)="toggleAddCourseObjectiveForm()">
+                    <mat-icon class="m-r-05">
+                        <span *ngIf="!showaddEditObjectiveForm" class="add-icon">add_circle_outline</span>
+                        <span *ngIf="showaddEditObjectiveForm" class="cancel-icon">highlight_off</span>
+                    </mat-icon>
+                    <p><span *ngIf="showaddEditObjectiveForm">Close </span>Add Objective</p>
+                </div>
+            </section>
+            <section class="m-b-15">
+                <div class="topic-heading-background m-b-15">
+                    <h3>
+                        <span class="topic-heading">Lecture Content:</span>
+                        <span *ngIf="lectureContentData.materials.length === 0"> None</span>
+                    </h3>
+                    <mat-icon class="cursor-pointer help-icon" matTooltip="Schedule live classes, or provide study materials to the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                    <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                    <p>Add Content</p>
+                </div>
+            </section>
+            <section class="m-b-15">
+                <div class="topic-heading-background m-b-15">
+                    <h3>
+                        <span class="topic-heading">Use Cases:</span>
+                        <span *ngIf="lectureContentData.use_case_text.length === 0"> None</span>
+                    </h3>
+                    <mat-icon class="cursor-pointer help-icon" matTooltip="Mention where the knowledge of this lecture can be applied." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+                </div>
+                <div class="m-b-1 m-l-15 m-r-15" *ngIf="lectureContentData.use_case_text.length !== 0" [class.m-l-1.m-r-1]="mq.matches">
+                    <ul>
+                        <li *ngFor="let use_case_text of lectureContentData.use_case_text">
+                            <div class="d-flex justify-content-between">
+                                {{ use_case_text.text }}
+                                <div *ngIf="!mq.matches">
+                                    <mat-icon *ngIf="!use_case_text['delete'] && use_case_text['edit']" class="cancel-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="closeEditUseCaseForm()">close</mat-icon>
+                                    <mat-icon *ngIf="!use_case_text['delete'] && !use_case_text['edit']" class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showEditUseCaseFormClicked(use_case_text)">edit</mat-icon>
+                                    <mat-icon *ngIf="!use_case_text['delete']" class="delete-icon small-text-icon cursor-pointer" (click)="deleteUseCase(use_case_text)">delete</mat-icon>
+                                    <mat-progress-spinner *ngIf="use_case_text['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
+                                </div>
+                                <div *ngIf="mq.matches">
+                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05">more_vert</mat-icon>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div *ngIf="showEditUseCaseForm" class="m-b-15">
+                    <form [formGroup]="addEditUseCaseForm">
+                        <div class="d-flex justify-content-between">
+                            <input type="text" class="form-control one-line-input" formControlName="text" placeholder="Add Use Case">
+                            <div class="input-group-append">
+                                <button mat-flat-button [disabled]="addEditUseCaseForm.invalid" class="add-button green-button" (click)="editLectureUseCase()">
+                                <span *ngIf="!showAddUseCaseIndicator">Add</span>
+                                <mat-progress-spinner *ngIf="showAddUseCaseIndicator" class="m-l-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                              </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div *ngIf="showaddEditUseCaseForm" class="m-b-15">
+                    <form [formGroup]="addEditUseCaseForm">
+                        <div class="d-flex justify-content-between">
+                            <input type="text" class="form-control one-line-input" formControlName="text" placeholder="Add Use Case">
+                            <div class="input-group-append">
+                                <button mat-flat-button [disabled]="addEditUseCaseForm.invalid" class="add-button green-button" (click)="addLectureUseCase()">
+                                <span *ngIf="!showAddUseCaseIndicator">Add</span>
+                                <mat-progress-spinner *ngIf="showAddUseCaseIndicator" class="m-l-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                              </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches" (click)="toggleAddCourseUseCaseForm()">
+                    <mat-icon class="m-r-05">
+                        <span *ngIf="!showaddEditUseCaseForm" class="add-icon">add_circle_outline</span>
+                        <span *ngIf="showaddEditUseCaseForm" class="cancel-icon">highlight_off</span>
+                    </mat-icon>
+                    <p><span *ngIf="showaddEditUseCaseForm">Close </span>Add Use Case</p>
+                </div>
+            </section>
+            <section class="m-b-15">
+                <div class="topic-heading-background m-b-15">
+                    <h3>
+                        <span class="topic-heading">Get Inspired:</span>
+                        <span *ngIf="lectureContentData.use_case_link.length === 0"> None</span>
+                    </h3>
+                    <mat-icon class="cursor-pointer help-icon" matTooltip="Add Links to YouTube videos, or other websites to inspire the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                    <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                    <p>Add External Links</p>
+                </div>
+            </section>
+            <section class="m-b-15">
+                <div class="topic-heading-background m-b-15">
+                    <h3>
+                        <span class="topic-heading">Additional Reading:</span>
+                        <span *ngIf="lectureContentData.additional_reading_link.length === 0"> None</span>
+                    </h3>
+                    <mat-icon class="cursor-pointer help-icon" matTooltip="Add Additional Links of resources which students can read to expand their knowledge base." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                    <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                    <p>Add Additonal Reading Links</p>
+                </div>
+            </section>
+            <section class="m-b-15">
+                <div class="topic-heading-background m-b-15">
+                    <h3>
+                        <span class="topic-heading">Assignments:</span>
+                        <span *ngIf="lectureContentData.assignments.length === 0"> None</span>
+                    </h3>
+                    <mat-icon class="cursor-pointer help-icon" matTooltip="Add Assignments which will help the students to test their learning." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                    <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                    <p>Add Assignment</p>
+                </div>
+            </section>
+            <section class="m-b-15">
+                <div class="topic-heading-background m-b-15">
+                    <h3>
+                        <span class="topic-heading">Tests:</span>
+                        <span *ngIf="lectureContentData.tests.length === 0"> None</span>
+                    </h3>
+                    <mat-icon class="cursor-pointer help-icon" matTooltip="Add mcq based graded / ungraded tests so that students can evaluate how much they understood the topic of the lecture." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
+                    <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                    <p>Add Test</p>
+                </div>
+            </section>
+        </div>
     </div>
 </mat-card>
