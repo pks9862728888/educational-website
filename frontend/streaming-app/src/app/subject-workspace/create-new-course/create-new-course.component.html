@@ -278,7 +278,7 @@
                     <mat-icon class="cursor-pointer help-icon" matTooltip="Add Lecture Objectives to keep the students informed about what they will learn in this lecture." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
                 </div>
                 <div class="m-b-1 m-l-15 m-r-15" *ngIf="lectureContentData.objectives.length !== 0" [class.m-l-1.m-r-1]="mq.matches">
-                    <ul>
+                    <ul class="content">
                         <li *ngFor="let objective of lectureContentData.objectives">
                             <div class="d-flex justify-content-between">
                                 {{ objective.text }}
@@ -301,7 +301,7 @@
                             <input type="text" class="form-control one-line-input" formControlName="text" placeholder="Add Objective">
                             <div class="input-group-append">
                                 <button mat-flat-button [disabled]="addEditObjectiveForm.invalid" class="add-button green-button" (click)="editLectureObjective()">
-                                  <span *ngIf="!showAddObjectiveIndicator">Add</span>
+                                  <span *ngIf="!showAddObjectiveIndicator">Submit</span>
                                   <mat-progress-spinner *ngIf="showAddObjectiveIndicator" class="m-l-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
                                 </button>
                             </div>
@@ -337,9 +337,106 @@
                     </h3>
                     <mat-icon class="cursor-pointer help-icon" matTooltip="Schedule live classes, or provide study materials to the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
                 </div>
-                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                    <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                    <p>Add Content</p>
+                <div *ngFor="let content of lectureContentData.materials; let id=index">
+                    <div class="background-material m-b-1 cursor-pointer d-flex align-center">
+                        <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
+                            <mat-icon class="content-icon">
+                                <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
+                                <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
+                                <span *ngIf="isContentTypeExternalLink(content.content_type)">link</span>
+                                <span *ngIf="isContentTypeYouTubeLink(content.content_type)">ondemand_video</span>
+                            </mat-icon>
+                        </div>
+                        <div>
+                            <h3 *ngIf="!mq.matches">{{ content.name }}</h3>
+                            <p *ngIf="mq.matches">{{ content.name }}</p>
+                        </div>
+                        <div *ngIf="hasSubjectPerm">
+                            <div class="edit-controls" *ngIf="!mq.matches">
+                                <mat-icon *ngIf="!content['delete'] && content['edit']" class="cancel-icon cursor-pointer m-r-05 m-l-05" (click)="closeEditLectureContentForm()">close</mat-icon>
+                                <mat-icon *ngIf="!content['delete'] && !content['edit']" class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showEditLectureContentFormClicked(content)">edit</mat-icon>
+                                <mat-icon *ngIf="!content['delete']" class="delete-icon small-text-icon cursor-pointer" (click)="deleteLectureContent(content)">delete</mat-icon>
+                                <mat-progress-spinner *ngIf="content['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
+                            </div>
+                            <div class="edit-controls" *ngIf="mq.matches">
+                                <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="showEditLectureContentForm" class="m-b-15">
+                    <form [formGroup]="editLectureContentForm">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="name" placeholder="Add Title to Display">
+                        <input type="text" *ngIf="isEditContentLink()" class="form-control width-100 m-b-1" formControlName="link" placeholder="Paste Link">
+                        <div *ngIf="!isEditContentLink() && isEditContentFile()" class="m-b-1">
+                            <mat-slide-toggle formControlName="can_download">Can Download</mat-slide-toggle>
+                        </div>
+                        <button mat-flat-button [disabled]="editLectureContentForm.invalid" class="green-button" (click)="editLectureContent()">
+                          <span *ngIf="!showEditLectureIndicator">Submit</span>
+                          <mat-progress-spinner *ngIf="showEditLectureIndicator" class="m-l-04 m-t-04 m-b-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                        </button>
+                    </form>
+                </div>
+                <div *ngIf="showaddEditLectureContentForm" class="m-b-15">
+                    <div class="row upload-container">
+                        <div class="col-12 m-b-1">
+                            <hr class="top-separator">
+                        </div>
+                        <div class="col-3" *ngIf="!mq.matches">
+                            <ul class="nav upload-sidenav">
+                                <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'YOUTUBE_LINK'" (click)="setActiveSidenav('YOUTUBE_LINK')">Add YouTube Video Link</li>
+                                <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'EXTERNAL_LINK'" (click)="setActiveSidenav('EXTERNAL_LINK')">Add External Link</li>
+                                <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'VIDEO'" (click)="setActiveSidenav('VIDEO')" [hidden]="true">Upload Video</li>
+                                <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'IMAGE'" (click)="setActiveSidenav('IMAGE')">Upload Image</li>
+                                <li class="nav-item" [class.nav-item-active]="selectedSidenav === 'PDF'" (click)="setActiveSidenav('PDF')">Upload Pdf</li>
+                            </ul>
+                        </div>
+                        <div *ngIf="mq.matches" class="col-12">
+                            <div class="upload-nav-mb">
+                                <div [class.active-icon-color]="selectedSidenav === 'YOUTUBE_LINK'" (click)="setActiveSidenav('YOUTUBE_LINK')">
+                                    <mat-icon>ondemand_video</mat-icon>
+                                </div>
+                                <div [class.active-icon-color]="selectedSidenav === 'EXTERNAL_LINK'" (click)="setActiveSidenav('EXTERNAL_LINK')">
+                                    <mat-icon>link</mat-icon>
+                                </div>
+                                <div [hidden]="true" [class.active-icon-color]="selectedSidenav === 'VIDEO'" (click)="setActiveSidenav('VIDEO')">
+                                    <mat-icon>movie</mat-icon>
+                                </div>
+                                <div [class.active-icon-color]="selectedSidenav === 'IMAGE'" (click)="setActiveSidenav('IMAGE')">
+                                    <mat-icon>insert_photo</mat-icon>
+                                </div>
+                                <div [class.active-icon-color]="selectedSidenav === 'PDF'" (click)="setActiveSidenav('PDF')">
+                                    <mat-icon>picture_as_pdf</mat-icon>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-9">
+                            <div class="upload-form-container">
+                                <div *ngIf="selectedSidenav === 'VIDEO'" [hidden]="true">
+                                    <app-ui-upload-video [showTargetDate]="true" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFileLectureMaterial($event)" (fileError)="uploadFormError($event)"></app-ui-upload-video>
+                                </div>
+                                <div *ngIf="selectedSidenav === 'IMAGE'">
+                                    <app-ui-upload-image [showTargetDate]="false" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFileLectureMaterial($event)" (fileError)="uploadFormError($event)"></app-ui-upload-image>
+                                </div>
+                                <div *ngIf="selectedSidenav === 'PDF'">
+                                    <app-ui-upload-pdf [showTargetDate]="false" [formEvent]="uploadingEvent.asObservable()" [uploadProgressEvent]="uploadProgressEvent.asObservable()" (formData)="uploadMediaFileLectureMaterial($event)" (fileError)="uploadFormError($event)"></app-ui-upload-pdf>
+                                </div>
+                                <div *ngIf="selectedSidenav === 'YOUTUBE_LINK'">
+                                    <app-ui-add-youtube-link [showTargetDate]="false" [formEvent]="uploadingEvent.asObservable()" (formData)="uploadExternalLinkLectureMaterial($event)" (formFieldError)="uploadFormError($event)"></app-ui-add-youtube-link>
+                                </div>
+                                <div *ngIf="selectedSidenav === 'EXTERNAL_LINK'">
+                                    <app-ui-add-external-link [showTargetDate]="false" [formEvent]="uploadingEvent.asObservable()" (formData)="uploadExternalLinkLectureMaterial($event)" (formFieldError)="uploadFormError($event)"></app-ui-add-external-link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches" (click)="toggleAddCourseLectureContentForm()">
+                    <mat-icon class="m-r-05">
+                        <span *ngIf="!showaddEditLectureContentForm" class="add-icon">add_circle_outline</span>
+                        <span *ngIf="showaddEditLectureContentForm" class="cancel-icon">highlight_off</span>
+                    </mat-icon>
+                    <p><span *ngIf="showaddEditLectureContentForm">Close </span>Add Lecture Content</p>
                 </div>
             </section>
             <section class="m-b-15">
@@ -351,7 +448,7 @@
                     <mat-icon class="cursor-pointer help-icon" matTooltip="Mention where the knowledge of this lecture can be applied." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
                 </div>
                 <div class="m-b-1 m-l-15 m-r-15" *ngIf="lectureContentData.use_case_text.length !== 0" [class.m-l-1.m-r-1]="mq.matches">
-                    <ul>
+                    <ul class="content">
                         <li *ngFor="let use_case_text of lectureContentData.use_case_text">
                             <div class="d-flex justify-content-between">
                                 {{ use_case_text.text }}
@@ -374,7 +471,7 @@
                             <input type="text" class="form-control one-line-input" formControlName="text" placeholder="Add Use Case">
                             <div class="input-group-append">
                                 <button mat-flat-button [disabled]="addEditUseCaseForm.invalid" class="add-button green-button" (click)="editLectureUseCase()">
-                                <span *ngIf="!showAddUseCaseIndicator">Add</span>
+                                <span *ngIf="!showAddUseCaseIndicator">Submit</span>
                                 <mat-progress-spinner *ngIf="showAddUseCaseIndicator" class="m-l-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
                               </button>
                             </div>
@@ -410,9 +507,50 @@
                     </h3>
                     <mat-icon class="cursor-pointer help-icon" matTooltip="Add Links to YouTube videos, or other websites to inspire the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
                 </div>
-                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                    <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                    <p>Add External Links</p>
+                <div class="m-b-1 m-l-15 m-r-15" *ngIf="lectureContentData.use_case_link.length !== 0" [class.m-l-1.m-r-1]="mq.matches">
+                    <ul class="content">
+                        <li *ngFor="let get_inspired_link of lectureContentData.use_case_link">
+                            <div class="d-flex justify-content-between">
+                                <a (click)="openLinkInNewTab(get_inspired_link.link)" class="cursor-pointer link-decoration">{{ get_inspired_link.name }}</a>
+                                <div *ngIf="!mq.matches">
+                                    <mat-icon *ngIf="!get_inspired_link['delete'] && get_inspired_link['edit']" class="cancel-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="closeEditGetInspiredForm()">close</mat-icon>
+                                    <mat-icon *ngIf="!get_inspired_link['delete'] && !get_inspired_link['edit']" class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showEditGetInspiredFormClicked(get_inspired_link)">edit</mat-icon>
+                                    <mat-icon *ngIf="!get_inspired_link['delete']" class="delete-icon small-text-icon cursor-pointer" (click)="deleteGetInspiredLink(get_inspired_link)">delete</mat-icon>
+                                    <mat-progress-spinner *ngIf="get_inspired_link['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
+                                </div>
+                                <div *ngIf="mq.matches">
+                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05">more_vert</mat-icon>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div *ngIf="showEditGetInspiredForm" class="m-b-15">
+                    <form [formGroup]="addEditGetInspiredForm">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="name" placeholder="Add Title to Display">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="link" placeholder="Paste Link">
+                        <button mat-flat-button [disabled]="addEditGetInspiredForm.invalid" class="green-button" (click)="editLectureGetInspired()">
+                        <span *ngIf="!showAddGetInspiredIndicator">Submit</span>
+                        <mat-progress-spinner *ngIf="showAddGetInspiredIndicator" class="m-l-04 m-t-04 m-b-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                      </button>
+                    </form>
+                </div>
+                <div *ngIf="showaddEditGetInspiredForm" class="m-b-15">
+                    <form [formGroup]="addEditGetInspiredForm">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="name" placeholder="Add Title to Display">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="link" placeholder="Paste Link">
+                        <button mat-flat-button [disabled]="addEditGetInspiredForm.invalid" class="green-button" (click)="addLectureGetInspiredLink()">
+                        <span *ngIf="!showAddGetInspiredIndicator">Add</span>
+                        <mat-progress-spinner *ngIf="showAddGetInspiredIndicator" class="m-l-04 m-t-04 m-b-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                      </button>
+                    </form>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches" (click)="toggleAddCourseGetInspiredForm()">
+                    <mat-icon class="m-r-05">
+                        <span *ngIf="!showaddEditGetInspiredForm" class="add-icon">add_circle_outline</span>
+                        <span *ngIf="showaddEditGetInspiredForm" class="cancel-icon">highlight_off</span>
+                    </mat-icon>
+                    <p><span *ngIf="showaddEditGetInspiredForm">Close </span>Add Get Inspired Links</p>
                 </div>
             </section>
             <section class="m-b-15">
@@ -423,9 +561,50 @@
                     </h3>
                     <mat-icon class="cursor-pointer help-icon" matTooltip="Add Additional Links of resources which students can read to expand their knowledge base." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
                 </div>
-                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches">
-                    <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
-                    <p>Add Additonal Reading Links</p>
+                <div class="m-b-1 m-l-15 m-r-15" *ngIf="lectureContentData.additional_reading_link.length !== 0" [class.m-l-1.m-r-1]="mq.matches">
+                    <ul class="content">
+                        <li *ngFor="let additional_reading_link of lectureContentData.additional_reading_link">
+                            <div class="d-flex justify-content-between">
+                                <a (click)="openLinkInNewTab(additional_reading_link.link)" class="cursor-pointer link-decoration">{{ additional_reading_link.name }}</a>
+                                <div *ngIf="!mq.matches">
+                                    <mat-icon *ngIf="!additional_reading_link['delete'] && additional_reading_link['edit']" class="cancel-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="closeEditAdditionalReadingForm()">close</mat-icon>
+                                    <mat-icon *ngIf="!additional_reading_link['delete'] && !additional_reading_link['edit']" class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showEditAdditionalReadingFormClicked(additional_reading_link)">edit</mat-icon>
+                                    <mat-icon *ngIf="!additional_reading_link['delete']" class="delete-icon small-text-icon cursor-pointer" (click)="deleteAdditionalReadingLink(additional_reading_link)">delete</mat-icon>
+                                    <mat-progress-spinner *ngIf="additional_reading_link['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
+                                </div>
+                                <div *ngIf="mq.matches">
+                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05">more_vert</mat-icon>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div *ngIf="showEditAdditionalReadingForm" class="m-b-15">
+                    <form [formGroup]="addEditAdditionalReadingForm">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="name" placeholder="Add Title to Display">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="link" placeholder="Add Link">
+                        <button mat-flat-button [disabled]="addEditAdditionalReadingForm.invalid" class="green-button" (click)="editLectureAdditionalReading()">
+                          <span *ngIf="!showAddAdditionalReadingIndicator">Submit</span>
+                          <mat-progress-spinner *ngIf="showAddAdditionalReadingIndicator" class="m-l-04 m-t-04 m-b-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                        </button>
+                    </form>
+                </div>
+                <div *ngIf="showaddEditAdditionalReadingForm" class="m-b-15">
+                    <form [formGroup]="addEditAdditionalReadingForm">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="name" placeholder="Add Title to Display">
+                        <input type="text" class="form-control width-100 m-b-1" formControlName="link" placeholder="Add Link">
+                        <button mat-flat-button [disabled]="addEditAdditionalReadingForm.invalid" class="green-button" (click)="addLectureAdditionalReadingLink()">
+                          <span *ngIf="!showAddAdditionalReadingIndicator">Add</span>
+                          <mat-progress-spinner *ngIf="showAddAdditionalReadingIndicator" class="m-l-04 m-t-04 m-b-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                        </button>
+                    </form>
+                </div>
+                <div class="d-flex align-center add-new cursor-pointer" [class.justify-content-center]="!mq.matches" (click)="toggleAddCourseAdditionalReadingForm()">
+                    <mat-icon class="m-r-05">
+                        <span *ngIf="!showaddEditAdditionalReadingForm" class="add-icon">add_circle_outline</span>
+                        <span *ngIf="showaddEditAdditionalReadingForm" class="cancel-icon">highlight_off</span>
+                    </mat-icon>
+                    <p><span *ngIf="showaddEditAdditionalReadingForm">Close </span>Add Additional Reading Link</p>
                 </div>
             </section>
             <section class="m-b-15">

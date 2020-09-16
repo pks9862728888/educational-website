@@ -298,3 +298,16 @@ export const LECTURE_TEXT_TYPES = {
   USE_CASE: 'U',
   OBJECTIVES: 'O'
 }
+
+export const LECTURE_LINK_TYPES = {
+  ADDITIONAL_READING_LINK: 'A',
+  USE_CASES_LINK: 'U'
+}
+
+export const LECTURE_STUDY_MATERIAL_TYPES = {
+  PDF: 'P',
+  IMAGE: 'I',
+  EXTERNAL_LINK: 'E',
+  YOUTUBE_LINK: 'Y',
+  LIVE_CLASS: 'L'
+}

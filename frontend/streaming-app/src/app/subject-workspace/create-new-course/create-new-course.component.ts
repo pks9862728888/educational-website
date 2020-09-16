@@ -1,13 +1,15 @@
 import { formatDate } from 'src/app/format-datepicker';
-import { currentSubjectSlug, STUDY_MATERIAL_VIEW_TYPES, currentInstituteSlug, LECTURE_TEXT_TYPES } from './../../../constants';
+import { currentSubjectSlug, STUDY_MATERIAL_VIEW_TYPES, currentInstituteSlug, LECTURE_TEXT_TYPES, LECTURE_LINK_TYPES, LECTURE_STUDY_MATERIAL_TYPES } from './../../../constants';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
-import { CreateSubjectCourseMinDetailsResponse, CreateSubjectModuleResponse, InstituteSubjectLectureContentData } from 'src/app/models/subject.model';
-import { isContentTypeImage, isContentTypeLink, isContentTypePdf } from 'src/app/shared/utilityFunctions';
+import { CreateSubjectCourseMinDetailsResponse, CreateSubjectModuleResponse, InstituteSubjectLectureContentData, InstituteSubjectLectureMaterial } from 'src/app/models/subject.model';
+import { isContentTypeExternalLink, isContentTypeImage, isContentTypeLink, isContentTypePdf, isContentTypeYouTubeLink } from 'src/app/shared/utilityFunctions';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Url } from 'url';
+import { HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-create-new-course',
@@ -67,6 +69,8 @@ export class CreateNewCourseComponent implements OnInit {
   isContentTypeImage = isContentTypeImage;
   isContentTypePdf = isContentTypePdf;
   isContentTypeLink = isContentTypeLink;
+  isContentTypeYouTubeLink = isContentTypeYouTubeLink;
+  isContentTypeExternalLink = isContentTypeExternalLink;
   minDate = new Date();
 
   hasSubjectPerm: boolean;
@@ -91,6 +95,24 @@ export class CreateNewCourseComponent implements OnInit {
   showaddEditUseCaseForm = false;
   showAddUseCaseIndicator: boolean;
   showEditUseCaseForm: boolean;
+
+  addEditAdditionalReadingForm: FormGroup;
+  showaddEditAdditionalReadingForm = false;
+  showAddAdditionalReadingIndicator: boolean;
+  showEditAdditionalReadingForm: boolean;
+
+  addEditGetInspiredForm: FormGroup;
+  showaddEditGetInspiredForm = false;
+  showAddGetInspiredIndicator: boolean;
+  showEditGetInspiredForm: boolean;
+
+  showaddEditLectureContentForm = false;
+  showAddLectureContentIndicator: boolean;
+  showEditLectureContentForm: boolean;
+  selectedSidenav: string;
+  uploadingEvent = new Subject<String>();
+  uploadProgressEvent = new Subject<{loaded: number, total: number}>();
+  editLectureContentForm: FormGroup;
 
   lectureContentData: InstituteSubjectLectureContentData;
 
@@ -120,6 +142,19 @@ export class CreateNewCourseComponent implements OnInit {
     });
     this.addEditUseCaseForm = this.formBuilder.group({
       text: ['', [Validators.required, Validators.maxLength(500)]]
+    });
+    this.addEditAdditionalReadingForm = this.formBuilder.group({
+      name: ['', [Validators.required, Validators.maxLength(100)]],
+      link: ['', [Validators.required, Validators.maxLength(2083)]]
+    });
+    this.addEditGetInspiredForm = this.formBuilder.group({
+      name: ['', [Validators.required, Validators.maxLength(100)]],
+      link: ['', [Validators.required, Validators.maxLength(2083)]]
+    });
+    this.editLectureContentForm = this.formBuilder.group({
+      name: ['', [Validators.required, Validators.maxLength(100)]],
+      link: ['', [Validators.maxLength(1024)]],
+      can_download: [false]
     });
   }
 
@@ -844,6 +879,13 @@ export class CreateNewCourseComponent implements OnInit {
       content.id.toString()
     ).subscribe(
       () => {
+        for (let index in this.lectureContentData.objectives) {
+          if (this.lectureContentData.objectives[index]['edit']) {
+            if (this.lectureContentData.objectives[index].id === content.id) {
+              this.showEditObjectiveForm = false;
+            }
+          }
+        }
         this.lectureContentData.objectives.splice(index, 1);
         this.uiService.showSnackBar(
           'Objective deleted!',
@@ -1019,6 +1061,13 @@ export class CreateNewCourseComponent implements OnInit {
       content.id.toString()
     ).subscribe(
       () => {
+        for (let index in this.lectureContentData.use_case_text) {
+          if (this.lectureContentData.use_case_text[index]['edit']) {
+            if (this.lectureContentData.use_case_text[index].id === content.id) {
+              this.showEditUseCaseForm = false;
+            }
+          }
+        }
         this.lectureContentData.use_case_text.splice(index, 1);
         this.uiService.showSnackBar(
           'Use case deleted!',
@@ -1129,5 +1178,692 @@ export class CreateNewCourseComponent implements OnInit {
         }
       );
     }
+  }
+
+  toggleAddCourseAdditionalReadingForm() {
+    this.addEditAdditionalReadingForm.reset();
+    this.addEditAdditionalReadingForm.enable();
+    this.showAddAdditionalReadingIndicator = false;
+    this.showaddEditAdditionalReadingForm = !this.showaddEditAdditionalReadingForm;
+    this.closeEditAdditionalReadingForm();
+  }
+
+  addLectureAdditionalReadingLink() {
+    this.addEditAdditionalReadingForm.patchValue({
+      name: this.addEditAdditionalReadingForm.value.name.trim(),
+      link: this.addEditAdditionalReadingForm.value.link.trim()
+    });
+    if (!this.addEditAdditionalReadingForm.invalid) {
+      let data = this.addEditAdditionalReadingForm.value;
+      data['type'] = LECTURE_LINK_TYPES['ADDITIONAL_READING_LINK'];
+      this.addEditAdditionalReadingForm.disable();
+      this.showAddAdditionalReadingIndicator = true;
+      this.instituteApiService.addLectureAdditionalReadingOrUseCaseLink(
+        this.currentSubjectSlug,
+        this.selectedLecture.id.toString(),
+        data
+      ).subscribe(
+        (result: {id: number; name: string; link: string;}) => {
+          this.lectureContentData.additional_reading_link.push(result);
+          this.uiService.showSnackBar(
+            'Additional reading link added!',
+            2000
+          );
+          this.toggleAddCourseAdditionalReadingForm();
+        },
+        errors => {
+          this.showAddAdditionalReadingIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Error occurred! Unable to add additional reading link now.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to add additional reading link now.',
+              3000
+            );
+          }
+        }
+      );
+    }
+  }
+
+  deleteAdditionalReadingLink(content) {
+    const index = +this.findIdInArray(this.lectureContentData.additional_reading_link, content.id);
+    this.lectureContentData.additional_reading_link[index]['delete'] = true;
+    this.instituteApiService.deleteAdditionalReadingOrUseCaseLink(
+      this.currentSubjectSlug,
+      content.id.toString()
+    ).subscribe(
+      () => {
+        for (let index in this.lectureContentData.additional_reading_link) {
+          if (this.lectureContentData.additional_reading_link[index]['edit']) {
+            if (this.lectureContentData.additional_reading_link[index].id === content.id) {
+              this.showEditAdditionalReadingForm = false;
+            }
+          }
+        }
+        this.lectureContentData.additional_reading_link.splice(index, 1);
+        this.uiService.showSnackBar(
+          'Additional reading link deleted!',
+          2000
+        );
+      },
+      errors => {
+        this.lectureContentData.additional_reading_link[index]['delete'] = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              3000
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to delete additional reading link now.',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error occurred! Unable to delete additional reading link now.',
+            3000
+          );
+        }
+      }
+    )
+  }
+
+  showEditAdditionalReadingFormClicked(additional_reading) {
+    this.addEditAdditionalReadingForm.reset();
+    this.addEditAdditionalReadingForm.enable();
+    this.showAddAdditionalReadingIndicator = false;
+    this.showaddEditAdditionalReadingForm = false;
+    this.addEditAdditionalReadingForm.patchValue({
+      name: additional_reading.name,
+      link: additional_reading.link
+    });
+    this.showEditAdditionalReadingForm = true;
+    for (let idx in this.lectureContentData.additional_reading_link) {
+      if (this.lectureContentData.additional_reading_link[idx].id === additional_reading.id) {
+        this.lectureContentData.additional_reading_link[idx]['edit'] = true;
+      } else {
+        this.lectureContentData.additional_reading_link[idx]['edit'] = false;
+      }
+    }
+  }
+
+  closeEditAdditionalReadingForm() {
+    this.showEditAdditionalReadingForm = false;
+    for (let idx in this.lectureContentData.additional_reading_link) {
+      if (this.lectureContentData.additional_reading_link[idx]['edit']) {
+        this.lectureContentData.additional_reading_link[idx]['edit'] = false;
+      }
+    }
+  }
+
+  editLectureAdditionalReading() {
+    this.addEditAdditionalReadingForm.patchValue({
+      name: this.addEditAdditionalReadingForm.value.name.trim(),
+      link: this.addEditAdditionalReadingForm.value.link.trim()
+    });
+    if (!this.addEditAdditionalReadingForm.invalid) {
+      this.showAddAdditionalReadingIndicator = true;
+      this.addEditAdditionalReadingForm.disable();
+      let additional_reading_id = -1;
+      let index = -1;
+      for (let idx in this.lectureContentData.additional_reading_link) {
+        if (this.lectureContentData.additional_reading_link[idx]['edit']) {
+          index = +idx;
+          additional_reading_id = this.lectureContentData.additional_reading_link[idx].id;
+        }
+      }
+      let data = this.addEditAdditionalReadingForm.value;
+      this.instituteApiService.editAdditionalReadingOrUseCaseLink(
+        this.currentSubjectSlug,
+        additional_reading_id.toString(),
+        data
+      ).subscribe(
+        (result: {id: number; name: string; link: string;}) => {
+          this.lectureContentData.additional_reading_link.splice(index, 1, result);
+          this.uiService.showSnackBar(
+            'Additional reading link updated',
+            2000
+          );
+          this.showEditAdditionalReadingForm = false;
+        },
+        errors => {
+          this.addEditAdditionalReadingForm.enable();
+          this.showAddAdditionalReadingIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Error occurred! Unable to edit additional reading link now.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to edit additional reading link now.',
+              3000
+            );
+          }
+        }
+      );
+    }
+  }
+
+  toggleAddCourseGetInspiredForm() {
+    this.addEditGetInspiredForm.reset();
+    this.addEditGetInspiredForm.enable();
+    this.showAddGetInspiredIndicator = false;
+    this.showaddEditGetInspiredForm = !this.showaddEditGetInspiredForm;
+    this.closeEditGetInspiredForm();
+  }
+
+  addLectureGetInspiredLink() {
+    this.addEditGetInspiredForm.patchValue({
+      name: this.addEditGetInspiredForm.value.name.trim(),
+      link: this.addEditGetInspiredForm.value.link.trim()
+    });
+    if (!this.addEditGetInspiredForm.invalid) {
+      let data = this.addEditGetInspiredForm.value;
+      data['type'] = LECTURE_LINK_TYPES['USE_CASES_LINK'];
+      this.addEditGetInspiredForm.disable();
+      this.showAddGetInspiredIndicator = true;
+      this.instituteApiService.addLectureAdditionalReadingOrUseCaseLink(
+        this.currentSubjectSlug,
+        this.selectedLecture.id.toString(),
+        data
+      ).subscribe(
+        (result: {id: number; name: string; link: string;}) => {
+          this.lectureContentData.use_case_link.push(result);
+          this.uiService.showSnackBar(
+            'Get Inspired link added!',
+            2000
+          );
+          this.toggleAddCourseGetInspiredForm();
+        },
+        errors => {
+          this.showAddGetInspiredIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Error occurred! Unable to add get inspired link now.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to add get inspired link now.',
+              3000
+            );
+          }
+        }
+      );
+    }
+  }
+
+  deleteGetInspiredLink(content) {
+    const index = +this.findIdInArray(this.lectureContentData.use_case_link, content.id);
+    this.lectureContentData.use_case_link[index]['delete'] = true;
+    this.instituteApiService.deleteAdditionalReadingOrUseCaseLink(
+      this.currentSubjectSlug,
+      content.id.toString()
+    ).subscribe(
+      () => {
+        for (let index in this.lectureContentData.use_case_link) {
+          if (this.lectureContentData.use_case_link[index]['edit']) {
+            if (this.lectureContentData.use_case_link[index].id === content.id) {
+              this.showEditGetInspiredForm = false;
+            }
+          }
+        }
+        this.lectureContentData.use_case_link.splice(index, 1);
+        this.uiService.showSnackBar(
+          'Get inspired link deleted!',
+          2000
+        );
+      },
+      errors => {
+        this.lectureContentData.use_case_link[index]['delete'] = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              3000
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to delete get inspired link now.',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error occurred! Unable to delete get inspired link now.',
+            3000
+          );
+        }
+      }
+    )
+  }
+
+  showEditGetInspiredFormClicked(use_case_link) {
+    this.addEditGetInspiredForm.reset();
+    this.addEditGetInspiredForm.enable();
+    this.showAddGetInspiredIndicator = false;
+    this.showaddEditGetInspiredForm = false;
+    this.addEditGetInspiredForm.patchValue({
+      name: use_case_link.name,
+      link: use_case_link.link
+    });
+    this.showEditGetInspiredForm = true;
+    for (let idx in this.lectureContentData.use_case_link) {
+      if (this.lectureContentData.use_case_link[idx].id === use_case_link.id) {
+        this.lectureContentData.use_case_link[idx]['edit'] = true;
+      } else {
+        this.lectureContentData.use_case_link[idx]['edit'] = false;
+      }
+    }
+  }
+
+  closeEditGetInspiredForm() {
+    this.showEditGetInspiredForm = false;
+    for (let idx in this.lectureContentData.use_case_link) {
+      if (this.lectureContentData.use_case_link[idx]['edit']) {
+        this.lectureContentData.use_case_link[idx]['edit'] = false;
+      }
+    }
+  }
+
+  editLectureGetInspired() {
+    this.addEditAdditionalReadingForm.patchValue({
+      name: this.addEditGetInspiredForm.value.name.trim(),
+      link: this.addEditGetInspiredForm.value.link.trim()
+    });
+    if (!this.addEditGetInspiredForm.invalid) {
+      this.showAddGetInspiredIndicator = true;
+      this.addEditGetInspiredForm.disable();
+      let get_inspired_id = -1;
+      let index = -1;
+      for (let idx in this.lectureContentData.use_case_link) {
+        if (this.lectureContentData.use_case_link[idx]['edit']) {
+          index = +idx;
+          get_inspired_id = this.lectureContentData.use_case_link[idx].id;
+        }
+      }
+      let data = this.addEditGetInspiredForm.value;
+      this.instituteApiService.editAdditionalReadingOrUseCaseLink(
+        this.currentSubjectSlug,
+        get_inspired_id.toString(),
+        data
+      ).subscribe(
+        (result: {id: number; name: string; link: string;}) => {
+          this.lectureContentData.use_case_link.splice(index, 1, result);
+          this.uiService.showSnackBar(
+            'Get inspired link updated.',
+            2000
+          );
+          this.showEditGetInspiredForm = false;
+        },
+        errors => {
+          this.addEditGetInspiredForm.enable();
+          this.showAddGetInspiredIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Error occurred! Unable to edit get inspired link now.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to edit get inspired link now.',
+              3000
+            );
+          }
+        }
+      );
+    }
+  }
+
+  toggleAddCourseLectureContentForm() {
+    this.showAddLectureContentIndicator = false;
+    this.showaddEditLectureContentForm = !this.showaddEditLectureContentForm;
+    this.closeEditLectureContentForm();
+    this.selectedSidenav = 'YOUTUBE_LINK';
+  }
+
+  closeEditLectureContentForm() {
+    this.showEditLectureContentForm = false;
+    for (let idx in this.lectureContentData.materials) {
+      if (this.lectureContentData.materials[idx]['edit']) {
+        this.lectureContentData.materials[idx]['edit'] = false;
+      }
+    }
+  }
+
+  setActiveSidenav(option: string) {
+    this.selectedSidenav = option;
+  }
+
+  uploadFormError(data: string) {
+    this.uiService.showSnackBar(
+      data,
+      3000
+    );
+  }
+
+  uploadExternalLinkLectureMaterial(data: any) {
+    if (this.selectedSidenav === 'YOUTUBE_LINK') {
+      data['content_type'] = LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK'];
+    } else if (this.selectedSidenav === 'EXTERNAL_LINK') {
+      data['content_type'] = LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'];
+    }
+    this.uploadingEvent.next('DISABLE');
+    this.instituteApiService.addExternalLinkCourseContent(
+      this.currentSubjectSlug,
+      this.selectedLecture.id.toString(),
+      data
+      ).subscribe(
+        (result: InstituteSubjectLectureMaterial) => {
+          this.uploadingEvent.next('RESET');
+          this.uiService.showSnackBar(
+            'Link Added Successfully',
+            2000
+          );
+          this.lectureContentData.materials.push(result);
+          this.toggleAddCourseLectureContentForm();
+        },
+        errors => {
+          this.uploadingEvent.next('ENABLE');
+          if(errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              this.uiService.showSnackBar(
+                'Unable to upload. Please try again.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Unable to upload. Please try again.',
+              3000
+            );
+          }
+        }
+      )
+  }
+
+  uploadMediaFileLectureMaterial(data: any) {
+    if (this.selectedSidenav === 'PDF') {
+      data['content_type'] = LECTURE_STUDY_MATERIAL_TYPES['PDF']
+    } else if (this.selectedSidenav === 'IMAGE') {
+      data['content_type'] = LECTURE_STUDY_MATERIAL_TYPES['IMAGE']
+    }
+    this.uploadingEvent.next('DISABLE');
+    this.uploadProgressEvent.next({
+      'total': data.size,
+      'loaded': 0,
+    });
+    this.instituteApiService.uploadMediaCourseContentMaterial(
+      this.currentSubjectSlug,
+      this.selectedLecture.id.toString(),
+      data
+      ).subscribe(
+      (result: any) => {
+        if (result.type === HttpEventType.UploadProgress) {
+          this.uploadProgressEvent.next({
+            'total': result.total,
+            'loaded': result.loaded,
+          });
+        } else if (result.type === HttpEventType.Response) {
+          this.uploadingEvent.next('RESET');
+          this.uiService.showSnackBar(
+            'Upload successful.',
+            2000
+          );
+          this.lectureContentData.materials.push(result.body);
+          console.log(this.lectureContentData.materials);
+          this.toggleAddCourseLectureContentForm();
+        }
+      },
+      errors => {
+        this.uploadingEvent.next('ENABLE');
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              3000
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error. Unable to upload at the moment.',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error. Unable to upload at the moment.',
+            3000
+          );
+        }
+      }
+    )
+  }
+
+  deleteLectureContent(content) {
+    const index = +this.findIdInArray(this.lectureContentData.materials, content.id);
+    this.lectureContentData.materials[index]['delete'] = true;
+    this.instituteApiService.deleteLectureContent(
+      this.currentSubjectSlug,
+      content.id.toString()
+    ).subscribe(
+      () => {
+        for (let index in this.lectureContentData.materials) {
+          if (this.lectureContentData.materials[index]['edit']) {
+            if (this.lectureContentData.materials[index].id === content.id) {
+              this.showaddEditLectureContentForm = false;
+            }
+          }
+        }
+        this.lectureContentData.materials.splice(index, 1);
+        this.uiService.showSnackBar(
+          'Lecture content deleted!',
+          2000
+        );
+      },
+      errors => {
+        this.lectureContentData.materials[index]['delete'] = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              3000
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error occurred! Unable to delete lecture content now.',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error occurred! Unable to delete lecture content now.',
+            3000
+          );
+        }
+      }
+    )
+  }
+
+  showEditLectureContentFormClicked(content) {
+    this.showAddLectureContentIndicator = false;
+    this.showaddEditLectureContentForm = false;
+    this.showAddGetInspiredIndicator = false;
+    this.showaddEditLectureContentForm = false;
+    if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'] ||
+        content.content_type === LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+          this.editLectureContentForm.patchValue({
+            link: content.data.link,
+            name: content.name
+          });
+    } else if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES['PDF'] ||
+               content.content_type === LECTURE_STUDY_MATERIAL_TYPES['IMAGE']) {
+          this.editLectureContentForm.patchValue({
+            name: content.name,
+            can_download: content.data.can_download
+          });
+    }
+    this.showEditLectureContentForm = true;
+    for (let idx in this.lectureContentData.materials) {
+      if (this.lectureContentData.materials[idx].id === content.id) {
+        this.lectureContentData.materials[idx]['edit'] = true;
+      } else {
+        this.lectureContentData.materials[idx]['edit'] = false;
+      }
+    }
+  }
+
+  editLectureContent() {
+    let data = this.editLectureContentForm.value;
+    let index = -1;
+    let contentId = -1;
+    let content_type = '';
+    for (let idx in this.lectureContentData.materials) {
+      if (this.lectureContentData.materials[idx]['edit']) {
+        index = +idx;
+        contentId = this.lectureContentData.materials[idx].id;
+        content_type = this.lectureContentData.materials[idx].content_type;
+        if (this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'] ||
+            this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+            delete data['can_download'];
+            this.editLectureContentForm.patchValue({
+              name: this.editLectureContentForm.value.name.trim(),
+              link: this.editLectureContentForm.value.link.trim()
+            });
+            if (!this.editLectureContentForm.value.link) {
+              return;
+            }
+        } else if (this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES['PDF'] ||
+                   this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES['IMAGE']) {
+            this.editLectureContentForm.patchValue({
+              name: this.editLectureContentForm.value.name.trim()
+            });
+            delete data['link'];
+            if (!data['can_download']) {
+              data['can_download'] = false;
+            }
+        }
+      }
+    }
+    if (!this.editLectureContentForm.invalid) {
+      data['content_type'] = content_type;
+      console.log(data);
+      this.showEditLectureIndicator = true;
+      this.editLectureContentForm.disable();
+      this.instituteApiService.editSubjectLectureContent(
+        this.currentSubjectSlug,
+        contentId.toString(),
+        data
+      ).subscribe(
+        (result: any) => {
+          this.showEditLectureIndicator = false;
+          this.editLectureContentForm.reset();
+          this.editLectureContentForm.enable();
+          this.lectureContentData.materials.splice(index, 1, result);
+          this.showEditLectureContentForm = false;
+          this.uiService.showSnackBar(
+            'Lecture content updated successfully.',
+            3000
+          );
+        },
+        errors => {
+          this.showEditLectureIndicator = false;
+          this.editLectureContentForm.enable();
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(
+                errors.error.error,
+                3000
+              );
+            } else {
+              if (errors.error.error){
+                this.uiService.showSnackBar(
+                  'Unable to edit lecture content.',
+                  3000
+                );
+              }
+            }
+          } else {
+            if (errors.error.error){
+              this.uiService.showSnackBar(
+                'Unable to edit lecture content.',
+                3000
+              );
+            }
+          }
+        }
+      );
+    }
+  }
+
+  isEditContentLink() {
+    for (let content of this.lectureContentData.materials) {
+      if (content['edit']) {
+        if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'] ||
+            content.content_type === LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+              return true;
+            } else {
+              return false;
+            }
+      }
+    }
+    return false;
+  }
+
+  isEditContentFile() {
+    for (let content of this.lectureContentData.materials) {
+      if (content['edit']) {
+        if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES['IMAGE'] ||
+            content.content_type === LECTURE_STUDY_MATERIAL_TYPES['PDF']) {
+              return true;
+            } else {
+              return false;
+            }
+      }
+    }
+    return false;
+  }
+
+  openLinkInNewTab(link: Url) {
+    window.open('//' + link, '_blank');
   }
 }

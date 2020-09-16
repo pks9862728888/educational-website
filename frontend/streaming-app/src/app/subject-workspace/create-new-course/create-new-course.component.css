@@ -155,11 +155,11 @@ hr {
     height: 20px;
 }
 
-li {
+.content li {
     margin-left: 0.1rem;
 }
 
-li:not(:last-child) {
+.content li:not(:last-child) {
     margin-bottom: 1rem;
 }
 
@@ -218,6 +218,89 @@ li:not(:last-child) {
     width: 18px;
 }
 
+.link-decoration {
+    color: #00a2ff;
+}
+
+.link-decoration:hover {
+    color: #00a2ff;
+    text-decoration: underline;
+}
+
+
+/* Upload Files styling */
+
+.upload-container {
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.upload-sidenav {
+    display: flex;
+    flex-direction: column;
+    margin-right: 0.5rem;
+    z-index: 5;
+    box-shadow: 1px 1px 1px #1f1f1f;
+    border-radius: 5px;
+}
+
+.nav-item {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+.nav-item:hover {
+    background-color: #436b6d;
+    color: #fff;
+}
+
+.nav-item-active {
+    background-color: #508183;
+    color: #fff;
+    cursor: auto;
+}
+
+.upload-sidenav li:first-child:hover,
+.upload-sidenav li:first-child.nav-item-active {
+    border-radius: 5px 5px 0 0;
+}
+
+.upload-sidenav li:last-child:hover,
+.upload-sidenav li:last-child.nav-item-active {
+    border-radius: 0 0 5px 5px;
+}
+
+.upload-form-container {
+    margin-right: 0;
+    z-index: 5;
+    box-shadow: 1px 1px 1px #1f1f1f;
+    border-radius: 5px;
+    height: 100%;
+    padding: 0.5rem;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.upload-form-container,
+.upload-nav-mb,
+.upload-sidenav {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.60);
+}
+
+.upload-nav-mb {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.active-icon-color {
+    color: #f2aa4cff;
+}
+
 .l-h-24 {
     line-height: 24px;
 }
@@ -228,6 +311,10 @@ li:not(:last-child) {
 
 .p-r-04 {
     padding-right: 0.4rem;
+}
+
+.m-t-04 {
+    margin-top: 0.4rem;
 }
 
 .m-t-1 {
@@ -252,6 +339,10 @@ li:not(:last-child) {
 
 .m-b-02 {
     margin-bottom: 0.2rem;
+}
+
+.m-b-04 {
+    margin-bottom: 0.4rem;
 }
 
 .m-b-1 {

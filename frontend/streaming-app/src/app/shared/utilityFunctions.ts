@@ -1,4 +1,4 @@
-import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE, LANGUAGE, COUNTRY, GENDER } from '../../constants';
+import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE, LANGUAGE, COUNTRY, GENDER, LECTURE_STUDY_MATERIAL_TYPES } from '../../constants';
 
 export function getFileSize(fileSize: number) {
     if (fileSize >= 1000000000) {
@@ -30,6 +30,22 @@ export function isContentTypeVideo(key: string) {
 
 export function isContentTypeLink(key: string) {
   if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
+    return true;
+  } else {
+    return false
+  }
+}
+
+export function isContentTypeYouTubeLink(key: string) {
+  if (key === LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+    return true;
+  } else {
+    return false
+  }
+}
+
+export function isContentTypeExternalLink(key: string) {
+  if (key === LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK']) {
     return true;
   } else {
     return false

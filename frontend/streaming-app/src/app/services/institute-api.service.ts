@@ -1,4 +1,4 @@
-import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE } from 'src/constants';
+import { LECTURE_STUDY_MATERIAL_TYPES, SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE } from 'src/constants';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { baseUrl } from '../../urls';
 import { CookieService } from 'ngx-cookie-service';
@@ -191,6 +191,30 @@ export class InstituteApiService {
 
   getEditLectureObjectiveOrUseCaseUrl(subjectSlug: string, objectiveId: string) {
     return `${this.instituteBaseUrl}${subjectSlug}/${objectiveId}/edit-lecture-objective-or-use-case-text`;
+  }
+
+  getAddLectureAdditionalReadingOrUseCaseLinkUrl(subjectSlug: string, lectureId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${lectureId}/add-lecture-use-case-or-additional-reading-link`;
+  }
+
+  getDeleteAdditionalReadingOrUseCaseLinkUrl(subjectSlug: string, linkId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${linkId}/delete-lecture-use-case-or-additional-reading-link`;
+  }
+
+  getEditLectureAdditionalReadingOrUseCaseLinkUrl(subjectSlug: string, linkId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${linkId}/edit-lecture-use-case-or-additional-reading-link`;
+  }
+
+  addLectureMaterialUrl(subjectSlug: string, lectureId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${lectureId}/add-lecture-materials`;
+  }
+
+  getDeleteLectureContentUrl(subjectSlug: string, contentId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${contentId}/delete-lecture-material`;
+  }
+
+  getEditLectureContentUrl(subjectSlug: string, contentId: string) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${contentId}/edit-lecture-material`;
   }
 
   getClassStudentsListUrl(
@@ -768,6 +792,74 @@ export class InstituteApiService {
   editObjectiveOrUseCase(subjectSlug: string, objectiveId: string, data) {
     return this.httpClient.patch(
       this.getEditLectureObjectiveOrUseCaseUrl(subjectSlug, objectiveId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addLectureAdditionalReadingOrUseCaseLink(subjectSlug: string, lectureId: string, data) {
+    return this.httpClient.post(
+      this.getAddLectureAdditionalReadingOrUseCaseLinkUrl(subjectSlug, lectureId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteAdditionalReadingOrUseCaseLink(subjectSlug: string, linkId: string) {
+    return this.httpClient.delete(
+      this.getDeleteAdditionalReadingOrUseCaseLinkUrl(subjectSlug, linkId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editAdditionalReadingOrUseCaseLink(subjectSlug: string, linkId: string, data) {
+    return this.httpClient.patch(
+      this.getEditLectureAdditionalReadingOrUseCaseLinkUrl(subjectSlug, linkId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addExternalLinkCourseContent(subjectSlug: string, lectureId: string, data: any) {
+    return this.httpClient.post(
+      this.addLectureMaterialUrl(subjectSlug, lectureId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteLectureContent(subjectSlug: string, contentId: string) {
+    return this.httpClient.delete(
+      this.getDeleteLectureContentUrl(subjectSlug, contentId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  uploadMediaCourseContentMaterial(subjectSlug: string, lectureId: string, data: any) {
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('file', data.file);
+    formData.append('content_type', data.content_type);
+
+    if (data.content_type !== LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'] &&
+        data.content_type !== LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+      formData.append('can_download', data.can_download);
+    }
+
+    return this.httpClient.post(
+      this.addLectureMaterialUrl(subjectSlug, lectureId),
+      formData,
+      {
+        headers: this.getAuthTokenHeader(),
+        reportProgress: true,
+        observe: 'events'
+      }
+    );
+  }
+
+  editSubjectLectureContent(subjectSlug: string, contentId: string, data) {
+    return this.httpClient.patch(
+      this.getEditLectureContentUrl(subjectSlug, contentId),
       data,
       { headers: this.getAuthHeader() }
     );

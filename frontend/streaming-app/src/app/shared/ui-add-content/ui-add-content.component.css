@@ -40,9 +40,7 @@
 }
 
 .upload-sidenav li:first-child:hover,
-.upload-sidenav-dark li:first-child:hover,
-.upload-sidenav li:first-child.nav-item-active,
-.upload-sidenav-dark li:first-child.nav-item-active {
+.upload-sidenav li:first-child.nav-item-active {
     border-radius: 5px 5px 0 0;
 }
 
@@ -51,8 +49,7 @@
     border-radius: 0 0 5px 5px;
 }
 
-.upload-form-container,
-.upload-form-container-darkbg {
+.upload-form-container {
     margin-right: 0;
     z-index: 5;
     box-shadow: 1px 1px 1px #1f1f1f;
@@ -63,11 +60,6 @@
     color: rgba(255, 255, 255, 0.95);
 }
 
-.upload-form-container-darkbg,
-.upload-nav-mb-dark {
-    background-color: rgba(255, 255, 255, 0.06);
-}
-
 .upload-form-container,
 .upload-nav-mb,
 .upload-sidenav {
@@ -75,8 +67,7 @@
     color: rgba(255, 255, 255, 0.60);
 }
 
-.upload-nav-mb,
-.upload-nav-mb-dark {
+.upload-nav-mb {
     display: flex;
     justify-content: space-between;
     padding: 0.5rem;

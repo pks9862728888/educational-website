@@ -1,0 +1,27 @@
+<div class="m-b-07">
+    <h3 *ngIf="!mq.matches">Add YouTube Video Link:</h3>
+    <p *ngIf="mq.matches">Add YouTube Video Link:</p>
+</div>
+<form [formGroup]="uploadForm">
+    <div class="row">
+        <div class="col-12 m-b-1">
+            <input type="text" formControlName="name" maxlength="20" class="form-control" placeholder="Title" aria-label="Link name">
+        </div>
+        <div class="col-12 m-b-1" *ngIf="showTargetDate">
+            <input class="form-control" formControlName="target_date" (click)="datepicker.open()" [matDatepicker]="datepicker" placeholder="Set Target Date (optional)">
+            <div class="datepicker-icon">
+                <mat-icon (click)="datepicker.open()" class="pick-date-icon">today</mat-icon>
+                <mat-datepicker touchUi #datepicker></mat-datepicker>
+            </div>
+        </div>
+        <div class="col-12 m-b-1">
+            <input type="text" formControlName="link" maxlength="100" class="form-control" placeholder="Paste Url" aria-label="Paste Url">
+        </div>
+        <div class="col-12 indicator m-b-07">
+            <button mat-flat-button *ngIf="!showIndicator" [disabled]="uploadForm.invalid" class="green-button m-r-05" type="submit" (click)="upload()">Upload</button>
+            <mat-progress-spinner class="m-r-05" *ngIf="showIndicator" mode="indeterminate" diameter="30"></mat-progress-spinner>
+            <h3 *ngIf="!mq.matches && showIndicator">Uploading...</h3>
+            <p *ngIf="mq.matches && showIndicator">Uploading...</p>
+        </div>
+    </div>
+</form>
