@@ -120,7 +120,7 @@
                                         <mat-icon class="delete-icon" *ngIf="!content['delete']" (click)="confirmDeleteLecture(content)">delete</mat-icon>
                                     </div>
                                     <div class="edit-lecture-controls" *ngIf="mq.matches">
-                                        <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
+                                        <mat-icon class="edit-icon" (click)="lectureActionButtonClicked(content)">more_vert</mat-icon>
                                     </div>
                                     <div class="m-b-1" *ngIf="content['edit']">
                                         <div class="form-header d-flex justify-content-between align-center">
@@ -195,7 +195,7 @@
                                             (createEvent)="editModule($event)"></app-ui-mb-create-form>
                                     </div>
                                     <div class="d-flex justify-content-end" *ngIf="mq.matches">
-                                        <mat-icon class="edit-icon">more_vert</mat-icon>
+                                        <mat-icon class="edit-icon cursor-pointer" (click)="moduleActionClicked()">more_vert</mat-icon>
                                     </div>
                                     <div class="d-flex justify-content-end" *ngIf="!mq.matches">
                                         <button [disabled]="showDeleteModuleSpinner" mat-stroked-button class="stroked-button m-r-05" (click)="toggleEditModule()">
@@ -222,10 +222,6 @@
                                         <button [disabled]="showDeleteModuleSpinner" *ngIf="!mq.matches" mat-stroked-button class="stroked-button" (click)="addLectureClicked()">
                                           <mat-icon class="m-r-05 add-icon">add</mat-icon>
                                           <span class="p-r-04">Lecture</span>
-                                        </button>
-                                        <button [disabled]="showDeleteModuleSpinner" *ngIf="mq.matches" mat-stroked-button class="stroked-button">
-                                          <mat-icon class="m-r-05 add-icon">add</mat-icon>
-                                          <span class="p-r-04">Content</span>
                                         </button>
                                     </div>
                                 </div>
@@ -359,7 +355,7 @@
                                 <mat-progress-spinner *ngIf="content['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
                             </div>
                             <div class="edit-controls" *ngIf="mq.matches">
-                                <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
+                                <mat-icon class="edit-icon">more_vert</mat-icon>
                             </div>
                         </div>
                     </div>

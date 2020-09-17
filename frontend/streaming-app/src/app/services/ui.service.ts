@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { UiActionControlsComponent } from '../shared/ui-action-controls/ui-action-controls.component';
 import { SnackbarComponent } from '../shared/snackbar/snackbar.component';
 import { ConfirmStudentsDetailsComponent } from '../shared/student-institutes/confirm-students-details/confirm-students-details.component';
+import { UiEditDeleteAddAddControlsComponent } from '../shared/ui-edit-delete-add-add-controls/ui-edit-delete-add-add-controls.component';
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +16,11 @@ export class UiService {
   private dialogData = new Subject<any>();
   dialogData$ = this.dialogData.asObservable();
 
-  private actionControlDialogData = new Subject<string>();
-  actionControlDialogData$ = this.actionControlDialogData.asObservable();
+  private editDeleteDialogData = new Subject<string>();
+  editDeleteDialogData$ = this.editDeleteDialogData.asObservable();
+
+  private openEditDeleteAddAddDialogData = new Subject<string>();
+  openEditDeleteAddAddDialogData$ = this.openEditDeleteAddAddDialogData.asObservable();
 
   private studentDetailsDialogData = new Subject<boolean>();
   studentDetailsDialogData$ = this.studentDetailsDialogData.asObservable();
@@ -43,13 +47,41 @@ export class UiService {
     });
   }
 
-  openReorderEditDeleteDialog() {
-    const dialogRef = this.dialog.open(UiActionControlsComponent);
+  openEditDeleteDialog(firstButtonText: string, secondButtonText: string) {
+    const dialogRef = this.dialog.open(UiActionControlsComponent, {
+      data: {
+        firstButtonText: firstButtonText,
+        secondButtonText: secondButtonText
+      }
+    });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.actionControlDialogData.next(result);
+        this.editDeleteDialogData.next(result);
       } else {
-        this.actionControlDialogData.next();
+        this.editDeleteDialogData.next();
+      }
+    });
+  }
+
+  openEditDeleteAddAddDialog(
+    firstButtonText: string,
+    secondButtonText: string,
+    thirdButtonText: string,
+    fourthButtonText: string
+    ) {
+    const dialogRef = this.dialog.open(UiEditDeleteAddAddControlsComponent, {
+      data: {
+        firstButtonText: firstButtonText,
+        secondButtonText: secondButtonText,
+        thirdButtonText: thirdButtonText,
+        fourthButtonText: fourthButtonText
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.openEditDeleteAddAddDialogData.next(result);
+      } else {
+        this.openEditDeleteAddAddDialogData.next();
       }
     });
   }

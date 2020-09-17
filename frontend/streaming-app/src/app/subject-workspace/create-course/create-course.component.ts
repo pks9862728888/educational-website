@@ -599,7 +599,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
 
   showActionsClicked(content: StudyMaterialDetails) {  // For mobile view
     this.actionContent = content;
-    this.actionControlDialogDataSubscription = this.uiService.actionControlDialogData$.subscribe(
+    this.actionControlDialogDataSubscription = this.uiService.editDeleteDialogData$.subscribe(
       data => {
         if (data == 'EDIT') {
           this.editClicked(content);
@@ -611,7 +611,7 @@ export class CreateCourseComponent implements OnInit, OnDestroy {
         this.destroyActionControlDialogDataSubscription();
       }
     )
-    this.uiService.openReorderEditDeleteDialog();
+    this.uiService.openEditDeleteDialog('Edit', 'Delete');
   }
 
   destroyActionControlDialogDataSubscription() {

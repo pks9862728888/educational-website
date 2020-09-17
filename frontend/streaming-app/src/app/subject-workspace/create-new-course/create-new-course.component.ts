@@ -115,6 +115,8 @@ export class CreateNewCourseComponent implements OnInit {
   editLectureContentForm: FormGroup;
 
   lectureContentData: InstituteSubjectLectureContentData;
+  lectureActionDataSubscription: Subscription;
+  editDeleteAddAddDialogDataSubscription: Subscription;
 
   constructor(
     private media: MediaMatcher,
@@ -392,10 +394,6 @@ export class CreateNewCourseComponent implements OnInit {
     );
   }
 
-  showActionsClicked() {
-
-  }
-
   setOpenedPanelStep(step: number) {
     this.showEditModuleForm = false;
     this.showDeleteModuleSpinner = false;
@@ -406,6 +404,7 @@ export class CreateNewCourseComponent implements OnInit {
     this.showEditLectureIndicator = false;
     this.addLectureForm.reset();
     this.editLectureForm.reset();
+    this.showAddLectureForm = false;
     if (this.openedPanelStep === step) {
       this.openedPanelStep = null;
     } else {
@@ -698,6 +697,28 @@ export class CreateNewCourseComponent implements OnInit {
       } else {
         this.lectureViewData[view][index]['edit'] = true;
       }
+    }
+  }
+
+  lectureActionButtonClicked(lecture) {  // For mobile view
+    this.lectureActionDataSubscription = this.uiService.editDeleteDialogData$.subscribe(
+      data => {
+        if (data == '1') {
+          if (lecture.edit) {
+            this.closeEditLecture(lecture);
+          } else {
+            this.editLectureClicked(lecture);
+          }
+        } else if (data == '2') {
+          this.confirmDeleteLecture(lecture);
+        }
+        this.lectureActionDataSubscription.unsubscribe();
+      }
+    )
+    if (lecture.edit) {
+      this.uiService.openEditDeleteDialog('Cancel Edit', 'Delete');
+    } else {
+      this.uiService.openEditDeleteDialog('Edit', 'Delete');
     }
   }
 
@@ -1549,6 +1570,35 @@ export class CreateNewCourseComponent implements OnInit {
       );
     }
   }
+
+  moduleActionClicked() {
+    this.editDeleteAddAddDialogDataSubscription = this.uiService.openEditDeleteAddAddDialogData$.subscribe(
+      (data: any) => {
+        if (data === 1) {
+          this.toggleEditModule();
+        } else if (data === 2) {
+          this.confirmDeleteModule();
+        } else if (data === 3) {
+
+        } else if (data === 4) {
+          this.addLectureClicked();
+        }
+        this.editDeleteAddAddDialogDataSubscription.unsubscribe();
+      }
+    );
+    let firstButtonText = '';
+    let secondButtonText = 'Delete Module';
+    let thirdButtonText = 'Add Test';
+    let fourthButtonText = 'Add Lecture';
+    if (this.showEditModuleForm) {
+      firstButtonText = 'Close Edit Module';
+    } else {
+      firstButtonText = 'Edit Module';
+    }
+    this.uiService.openEditDeleteAddAddDialog(firstButtonText, secondButtonText, thirdButtonText, fourthButtonText);
+  }
+
+  showActionsClicked() {}
 
   toggleAddCourseLectureContentForm() {
     this.showAddLectureContentIndicator = false;

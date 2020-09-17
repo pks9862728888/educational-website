@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { EditDeleteDialogData } from '../../models/dialog.model';
 
 @Component({
   selector: 'app-ui-action-controls',
@@ -7,11 +9,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UiActionControlsComponent implements OnInit {
 
-  reorder = 'REORDER';
-  edit = 'EDIT';
-  delete = 'DELETE';
-
-  constructor() { }
+  constructor(@Inject(MAT_DIALOG_DATA) public data: EditDeleteDialogData) { }
 
   ngOnInit(): void {
   }
