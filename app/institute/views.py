@@ -3800,7 +3800,7 @@ class InstituteSubjectAddLectureMaterials(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         lecture = models.SubjectLecture.objects.filter(
-            pk=request.data.get('lecture_id')
+            pk=kwargs.get('lecture_id')
         ).only('name').first()
 
         if not lecture:
@@ -3844,9 +3844,11 @@ class InstituteSubjectAddLectureMaterials(APIView):
                     return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
 
                 ser = serializer.SubjectLectureImageSerializer(
-                    lecture_material=subject_lecture_material.pk,
-                    file=request.data.get('file'),
-                    can_download=request.data.get('can_download'))
+                    data={
+                        "lecture_material": subject_lecture_material.pk,
+                        "file": request.data.get('file'),
+                        "can_download": request.data.get('can_download')
+                    })
 
                 if ser.is_valid():
                     ser.save()
@@ -3866,10 +3868,11 @@ class InstituteSubjectAddLectureMaterials(APIView):
                     subject_lecture_material.delete()
                     return Response(validation_error, status=status.HTTP_400_BAD_REQUEST)
 
-                ser = serializer.SubjectLecturePdfSerializer(
-                    lecture_material=subject_lecture_material.pk,
-                    file=request.data.get('file'),
-                    can_download=request.data.get('can_download'))
+                ser = serializer.SubjectLecturePdfSerializer(data={
+                        "lecture_material": subject_lecture_material.pk,
+                        "file": request.data.get('file'),
+                        "can_download": request.data.get('can_download')
+                    })
 
                 if ser.is_valid():
                     ser.save()
@@ -3903,7 +3906,7 @@ class InstituteSubjectAddLectureMaterials(APIView):
             models.SubjectLectureMaterials.objects.filter(
                 lecture=lecture,
                 name=request.data.get('name'),
-                content_type=request.data.get('content_type')).first().delete()
+                content_type=request.data.get('content_type')).delete()
             return Response({'error': _('Internal server error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -3931,7 +3934,7 @@ class InstituteSubjectEditLectureMaterial(APIView):
 
         lecture_material = models.SubjectLectureMaterials.objects.filter(
             pk=kwargs.get('lecture_material_id')
-        ).exclude('lecture').first()
+        ).first()
 
         if not lecture_material:
             return Response({'error': _('Lecture material not found.')},
@@ -3950,24 +3953,21 @@ class InstituteSubjectEditLectureMaterial(APIView):
                 query_data = models.SubjectLectureImageMaterial.objects.filter(
                     lecture_material=lecture_material
                 ).first()
-                if request.data.get('can_download'):
-                    query_data.can_download = request.data.get('can_download')
-                    query_data.save()
+                query_data.can_download = request.data.get('can_download')
+                query_data.save()
 
-                    response['data'] = get_file_lecture_material_data(
-                        query_data, 'OBJ', request.build_absolute_uri('/').strip('/') + MEDIA_URL)
+                response['data'] = get_file_lecture_material_data(
+                    query_data, 'OBJ', self.request.build_absolute_uri('/').strip('/') + MEDIA_URL)
 
             elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.PDF:
                 query_data = models.SubjectLecturePdfMaterial.objects.filter(
                     lecture_material=lecture_material
                 ).first()
+                query_data.can_download = request.data.get('can_download')
+                query_data.save()
 
-                if request.data.get('can_download'):
-                    query_data.can_download = request.data.get('can_download')
-                    query_data.save()
-
-                    response['data'] = get_file_lecture_material_data(
-                        query_data, 'OBJ', request.build_absolute_uri('/').strip('/') + MEDIA_URL)
+                response['data'] = get_file_lecture_material_data(
+                    query_data, 'OBJ', self.request.build_absolute_uri('/').strip('/') + MEDIA_URL)
 
             elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.EXTERNAL_LINK or \
                     request.data.get('content_type') == models.SubjectLectureMaterialsContentType.YOUTUBE_LINK:
@@ -3979,8 +3979,7 @@ class InstituteSubjectEditLectureMaterial(APIView):
 
                 response['data'] = {
                     'id': query_data.pk,
-                    'link': query_data.link,
-                    'link_type': query_data.link_type
+                    'link': query_data.link
                 }
             elif request.data.get('content_type') == models.SubjectLectureMaterialsContentType.LIVE_CLASS:
                 pass
@@ -3990,7 +3989,7 @@ class InstituteSubjectEditLectureMaterial(APIView):
             response['content_type'] = lecture_material.content_type
 
             return Response(response, status=status.HTTP_200_OK)
-        except Exception:
+        except Exception as e:
             return Response({'error': _('Internal server error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -4019,7 +4018,7 @@ class InstituteSubjectDeleteLectureMaterial(APIView):
         size = 0.0
         lecture_material = models.SubjectLectureMaterials.objects.filter(
             pk=kwargs.get('lecture_material_id')
-        ).exclude('lecture').first()
+        ).first()
 
         if not lecture_material:
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -4073,7 +4072,7 @@ class InstituteAddLectureUseCaseOrAdditionalReading(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         lecture = models.SubjectLecture.objects.filter(
-            pk=request.data.get('lecture_id')
+            pk=kwargs.get('lecture_id')
         ).only('name').first()
 
         if not lecture:
@@ -4089,7 +4088,7 @@ class InstituteAddLectureUseCaseOrAdditionalReading(APIView):
             return Response({
                 'id': link.id,
                 'name': link.name,
-                'type': link.type
+                'link': link.link
             }, status=status.HTTP_201_CREATED)
         except ValueError as e:
             return Response({'error': str(e)},
@@ -4101,7 +4100,7 @@ class InstituteEditLectureUseCaseOrAdditionalReading(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
-    def post(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')
         ).only('subject_slug').first()
@@ -4133,7 +4132,7 @@ class InstituteEditLectureUseCaseOrAdditionalReading(APIView):
             return Response({
                 'id': content.id,
                 'name': content.name,
-                'type': content.type
+                'link': content.link
             }, status=status.HTTP_200_OK)
 
         except ValueError as e:

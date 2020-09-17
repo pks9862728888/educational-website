@@ -531,9 +531,21 @@ class SubjectIntroductoryFileMaterialSerializer(serializers.ModelSerializer):
         read_only_fields = ('id',)
 
 
+class LectureMaterialSerializer(serializers.ModelSerializer):
+    """Serializer for lecture material"""
+
+    class Meta:
+        model = models.SubjectLectureMaterials
+        fields = ('id', 'lecture', 'content_type', 'name')
+        read_only_fields = ('id',)
+
+
 class SubjectLectureImageSerializer(serializers.ModelSerializer):
     """Serializer for creating image study material"""
     file = serializers.FileField(allow_null=False, use_url=True)
+    lecture_material = serializers.PrimaryKeyRelatedField(
+        queryset=models.SubjectLectureMaterials.objects.all()
+    )
 
     class Meta:
         model = models.SubjectLectureImageMaterial
