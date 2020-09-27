@@ -1,14 +1,16 @@
-h1,
 h2,
 h3,
-p,
 hr {
     margin: 0;
     padding: 0;
 }
 
-.header {
-    transform: translateY(0.5rem);
+.header-bg {
+    background-color: rgba(255, 255, 255, 0.08);
+    padding: 0.5rem;
+    border-radius: 3px;
+    z-index: 2;
+    box-shadow: 1px 1px 1px #1f1f1f;
 }
 
 :host .mat-card {
@@ -23,10 +25,6 @@ hr {
 .image {
     max-width: 100%;
     max-height: 500px;
-}
-
-.top-separator {
-    margin-bottom: 0.7rem;
 }
 
 .download-mb,
@@ -49,7 +47,7 @@ hr {
 }
 
 .download-color {
-    background-color: rgb(0, 0, 0);
+    background-color: #000;
     color: #fff;
     border-radius: 5px;
     padding: 0.3rem 0.5rem 0.3rem 1rem;
@@ -63,30 +61,10 @@ hr {
     pointer-events: none;
 }
 
-.description {
-    padding: 0.5rem;
-    background-color: #303030;
-    border-radius: 5px;
-    z-index: 2;
-    box-shadow: 0px 1px 2px #222222;
-}
-
-.m-r-05 {
-    margin-right: 0.5rem;
-}
-
-.m-b-05 {
-    margin-bottom: 0.5rem;
+.m-l-05 {
+    margin-left: 0.5rem;
 }
 
 .m-b-1 {
     margin-bottom: 1rem;
-}
-
-.m-t-1 {
-    margin-top: 1rem;
-}
-
-.l-h-24 {
-    line-height: 24px;
 }

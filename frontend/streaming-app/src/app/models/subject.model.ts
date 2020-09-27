@@ -11,7 +11,7 @@ export interface InstituteSubjectDetails {
   type: string;
   created_on: string;
   has_subject_perm: boolean;
-  subject_incharges: SubjectInchargeDetails[]
+  subject_incharges: SubjectInchargeDetails[];
 }
 
 export interface SubjectPermittedUserDetails {
@@ -32,7 +32,7 @@ export interface ViewDetails {
     count: number;
     number?: number;
     weeks?: Array<number>;
-  }
+  };
 }
 
 
@@ -105,7 +105,9 @@ export interface InstituteSubjectLectureMaterial {
     link?: string;
     file?: string;
     can_download?: boolean;
-  }
+  };
+  edit?: boolean;
+  delete?: boolean;
 }
 
 
@@ -113,13 +115,15 @@ export interface InstituteSubjectLectureContentData {
   id: number;
   name: string;
   view_name: string;
-  objectives: Array<{id: number; text: string;}>;
-  use_case_text: Array<{id: number; text: string;}>;
-  use_case_link: Array<{id: number; name: string; link: string;}>;
-  additional_reading_link: Array<{id: number; name: string; link: string;}>;
+  objectives: Array<{id: number; text: string; edit?: boolean; delete?: boolean; }>;
+  use_case_text: Array<{id: number; text: string; edit?: boolean; delete?: boolean; }>;
+  use_case_link: Array<{id: number; name: string; link: string; edit?: boolean; delete?: boolean; }>;
+  additional_reading_link: Array<{id: number; name: string; link: string; edit?: boolean; delete?: boolean; }>;
   materials: Array<InstituteSubjectLectureMaterial>;
   assignments: [];
   tests: [];
+  edit?: boolean;
+  delete?: boolean;
 }
 
 
@@ -135,7 +139,8 @@ export interface SubjectPreviewCourseMinDetails {
   instructors: Array<InstructorDetails>;
   view_order: Array<string>;
   view_details: ViewDetails;
-};
+}
+
 
 export interface StudyMaterialPreviewDetails {
   id: number;

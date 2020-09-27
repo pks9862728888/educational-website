@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
+import { frontendBaseUrl } from 'src/urls';
 
 // Format of response from backend server
 interface ServerResponse {
@@ -49,7 +50,7 @@ export class LoginComponent implements OnInit {
         let expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 1);
         this.cookieService.set(authTokenName,
-          result.token, expiryDate, '/', '192.168.43.25', false, 'Strict');
+          result.token, expiryDate, '/', frontendBaseUrl, false, 'Strict');
         sessionStorage.setItem('user_id', result.id);
         if (result.is_teacher) {
           this.userType = 'TEACHER';
@@ -81,6 +82,7 @@ export class LoginComponent implements OnInit {
     if (this.userType === 'STUDENT') {
       this.router.navigate(['/student-workspace']);
     } else if (this.userType === 'TEACHER') {
+      console.log("here");
       this.router.navigate(['/teacher-workspace']);
     } else if (this.userType === 'STAFF') {
       this.router.navigate(['/staff-workspace']);

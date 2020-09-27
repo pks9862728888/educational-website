@@ -1,14 +1,16 @@
-h1,
 h2,
 h3,
-p,
 hr {
     margin: 0;
     padding: 0;
 }
 
-.header {
-    transform: translateY(0.5rem);
+.header-bg {
+    background-color: rgba(255, 255, 255, 0.08);
+    padding: 0.5rem;
+    border-radius: 3px;
+    z-index: 2;
+    box-shadow: 1px 1px 1px #1f1f1f;
 }
 
 :host .mat-card {
@@ -20,58 +22,10 @@ hr {
     background-color: #000;
 }
 
-.align-center {
-    align-items: center;
-}
-
-.top-separator {
-    margin-bottom: 0.7rem;
-}
-
-.description,
-.heading {
-    padding: 0.5rem;
-    border-radius: 5px;
-    z-index: 2;
-    box-shadow: 0px 1px 2px #222222;
-}
-
-.description {
-    background-color: #303030;
-}
-
-.heading {
-    background-color: #1f1f1f;
-}
-
 .m-l-05 {
     margin-left: 0.5rem;
 }
 
-.m-r-05 {
-    margin-right: 0.5rem;
-}
-
-.m-r-1 {
-    margin-right: 1rem;
-}
-
-.m-b-05 {
-    margin-bottom: 0.5rem;
-}
-
 .m-b-1 {
     margin-bottom: 1rem;
-}
-
-.m-t-02 {
-    margin-top: 0.2rem;
-}
-
-.m-t-1 {
-    margin-top: 1rem;
-}
-
-.l-h-24 {
-    line-height: 24px;
 }

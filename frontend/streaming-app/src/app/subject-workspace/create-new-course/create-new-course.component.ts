@@ -1,15 +1,30 @@
 import { formatDate } from 'src/app/format-datepicker';
-import { currentSubjectSlug, STUDY_MATERIAL_VIEW_TYPES, currentInstituteSlug, LECTURE_TEXT_TYPES, LECTURE_LINK_TYPES, LECTURE_STUDY_MATERIAL_TYPES } from './../../../constants';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
-import { CreateSubjectCourseMinDetailsResponse, CreateSubjectModuleResponse, InstituteSubjectLectureContentData, InstituteSubjectLectureMaterial } from 'src/app/models/subject.model';
-import { isContentTypeExternalLink, isContentTypeImage, isContentTypeLink, isContentTypePdf, isContentTypeYouTubeLink } from 'src/app/shared/utilityFunctions';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Url } from 'url';
 import { HttpEventType } from '@angular/common/http';
+import { CreateSubjectCourseMinDetailsResponse,
+         CreateSubjectModuleResponse,
+         InstituteSubjectLectureContentData,
+         InstituteSubjectLectureMaterial } from 'src/app/models/subject.model';
+import { isContentTypeExternalLink,
+         isContentTypeImage,
+         isContentTypeLink,
+         isContentTypePdf,
+         isContentTypeYouTubeLink } from 'src/app/shared/utilityFunctions';
+import { currentSubjectSlug,
+          STUDY_MATERIAL_VIEW_TYPES,
+          currentInstituteSlug,
+          LECTURE_TEXT_TYPES,
+          LECTURE_LINK_TYPES,
+          LECTURE_STUDY_MATERIAL_TYPES, LECTURE_INTRODUCTORY_CONTENT_TYPES, courseContent } from './../../../constants';
+import { MatDialog } from '@angular/material/dialog';
+import { UiActionControlsComponent } from 'src/app/shared/ui-action-controls/ui-action-controls.component';
+
 
 @Component({
   selector: 'app-create-new-course',
@@ -23,6 +38,7 @@ export class CreateNewCourseComponent implements OnInit {
   showLoadingIndicator: boolean;
   showReload: boolean;
   selectedLecture: any;
+  viewContent: string;
 
   currentSubjectSlug: string;
   currentInstituteSlug: string;
@@ -110,7 +126,7 @@ export class CreateNewCourseComponent implements OnInit {
   showAddLectureContentIndicator: boolean;
   showEditLectureContentForm: boolean;
   selectedSidenav: string;
-  uploadingEvent = new Subject<String>();
+  uploadingEvent = new Subject<string>();
   uploadProgressEvent = new Subject<{loaded: number, total: number}>();
   editLectureContentForm: FormGroup;
 
@@ -122,7 +138,8 @@ export class CreateNewCourseComponent implements OnInit {
     private media: MediaMatcher,
     private uiService: UiService,
     private instituteApiService: InstituteApiService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    public dialog: MatDialog
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
@@ -173,7 +190,7 @@ export class CreateNewCourseComponent implements OnInit {
         this.testViews = result.test_views;
         this.testDetails = result.test_details;
 
-        for (let view of this.viewOrder) {
+        for (const view of this.viewOrder) {
           if (!this.testViews.includes(view)) {
             if (view === 'MI' || view === 'CO') {
               this.introductionViewData[view] = [];
@@ -247,30 +264,30 @@ export class CreateNewCourseComponent implements OnInit {
     );
   }
 
-  editClicked(content) {
+  editIntroductoryContentClicked(content) {
     const view = this.viewOrder[this.openedPanelStep];
     if (this.editContentIndex !== null && this.editContentIndex !== undefined) {
       if (view === 'MI' || view === 'CO') {
-        this.introductionViewData[view][this.editContentIndex]['edit'] = false;
+        this.introductionViewData[view][this.editContentIndex].edit = false;
       } else {
-        this.lectureViewData[view][this.editContentIndex]['edit'] = false;
+        this.lectureViewData[view][this.editContentIndex].edit = false;
       }
     }
     if (view === 'MI' || view === 'CO') {
       this.editContentIndex = +this.findIdInArray(this.introductionViewData[view], content.id);
-      this.introductionViewData[view][this.editContentIndex]['edit'] = true;
+      this.introductionViewData[view][this.editContentIndex].edit = true;
     } else {
       this.editContentIndex = +this.findIdInArray(this.lectureViewData[view], content.id);
-      this.lectureViewData[view][this.editContentIndex]['edit'] = true;
+      this.lectureViewData[view][this.editContentIndex].edit = true;
     }
   }
 
   closeEditForm(content) {
     const view = this.viewOrder[this.openedPanelStep];
     if (view === 'MI' || view === 'CO') {
-      this.introductionViewData[view][this.editContentIndex]['edit'] = false;
+      this.introductionViewData[view][this.editContentIndex].edit = false;
     } else {
-      this.lectureViewData[view][this.editContentIndex]['edit'] = false;
+      this.lectureViewData[view][this.editContentIndex].edit = false;
     }
     this.editContentIndex = null;
   }
@@ -283,9 +300,9 @@ export class CreateNewCourseComponent implements OnInit {
     this.instituteApiService.editSubjectCourseContent(
       eventData,
       this.currentSubjectSlug,
-      eventData['id'].toString()
+      eventData.id.toString()
       ).subscribe(
-        result => {
+        (result: InstituteSubjectLectureMaterial) => {
           console.log(result);
           this.editContentFormEvent.next('RESET');
           this.uiService.showSnackBar(
@@ -295,13 +312,13 @@ export class CreateNewCourseComponent implements OnInit {
           this.closeEditForm(eventData);
           if (view === 'MI' || view === 'CO') {
             this.introductionViewData[view].splice(
-              this.findIdInArray(this.introductionViewData[view], result['id']),
+              this.findIdInArray(this.introductionViewData[view], result.id),
               1,
               result
             );
           } else {
             this.lectureViewData[view].splice(
-              this.findIdInArray(this.lectureViewData[view], result['id']),
+              this.findIdInArray(this.lectureViewData[view], result.id),
               1,
               result
             );
@@ -328,10 +345,10 @@ export class CreateNewCourseComponent implements OnInit {
             );
           }
         }
-      )
+      );
   }
 
-  deleteClicked(content) {
+  deleteIntroductoryContentClicked(content) {
     const view = this.viewOrder[this.openedPanelStep];
     this.deleteDialogDataSubscription = this.uiService.dialogData$.subscribe(
       result => {
@@ -342,15 +359,15 @@ export class CreateNewCourseComponent implements OnInit {
       }
     );
     this.uiService.openDialog(
-      'Are you sure you want to delete \"' + content.title + "\"?",
+      'Are you sure you want to delete \"' + content.title + '\"?',
       'No',
       'Yes'
     );
   }
 
   findIdInArray(array: Array<any>, id: number) {
-    for(let idx in array) {
-      if (array[idx]['id'] === id) {
+    for (const idx in array) {
+      if (array[idx].id === id) {
         return idx;
       }
     }
@@ -365,7 +382,7 @@ export class CreateNewCourseComponent implements OnInit {
       () => {
         const index = this.findIdInArray(this.introductionViewData[view], content.id);
         this.introductionViewData[view].splice(index, 1);
-        this.viewDetails[view]['count'] -= 1;
+        this.viewDetails[view].count -= 1;
         this.uiService.showSnackBar(
           'Content deleted successfully!',
           2000
@@ -467,11 +484,11 @@ export class CreateNewCourseComponent implements OnInit {
 
   introductoryContentAdded(result: any) {
     if (result.body) {
-      this.introductionViewData[result['body']['view']].push(result['body']);
-      this.viewDetails[result['body']['view']].count += 1;
+      this.introductionViewData[result.body.view].push(result.body);
+      this.viewDetails[result.body.view].count += 1;
     } else {
-      this.introductionViewData[result['view']].push(result);
-      this.viewDetails[result['view']].count += 1;
+      this.introductionViewData[result.view].push(result);
+      this.viewDetails[result.view].count += 1;
     }
     console.log(result);
     console.log(this.introductionViewData);
@@ -490,7 +507,7 @@ export class CreateNewCourseComponent implements OnInit {
         this.addModuleIndicator = false;
         this.addModuleFormEvent.next('reset');
         const view = result.view;
-        delete result['view'];
+        delete result.view;
         this.viewDetails[view] = result;
         this.viewOrder.push(view);
         this.lectureViewData[view] = [];
@@ -570,7 +587,7 @@ export class CreateNewCourseComponent implements OnInit {
           this.editDeleteModuleError = 'Unable to delete module. Unknown error occured.';
         }
       }
-    )
+    );
   }
 
   addLectureClicked() {
@@ -582,11 +599,11 @@ export class CreateNewCourseComponent implements OnInit {
       name: this.addLectureForm.value.name.trim()
     });
     if (!this.addLectureForm.invalid) {
-      let data = this.addLectureForm.value;
+      const data = this.addLectureForm.value;
       const view = this.viewOrder[this.openedPanelStep];
-      data['view_key'] = view;
+      data.view_key = view;
       if (data.target_date) {
-        data['target_date'] = formatDate(data.target_date);
+        data.target_date = formatDate(data.target_date);
       }
       this.showAddLectureIndicator = true;
       this.instituteApiService.addSubjectLecture(
@@ -624,7 +641,7 @@ export class CreateNewCourseComponent implements OnInit {
             );
           }
         }
-      )
+      );
     }
   }
 
@@ -647,7 +664,7 @@ export class CreateNewCourseComponent implements OnInit {
 
   deleteLecture(lecture, view: string) {
     const index = this.findIdInArray(this.lectureViewData[view], lecture.id);
-    this.lectureViewData[view][index]['delete'] = true;
+    this.lectureViewData[view][index].delete = true;
     this.instituteApiService.deleteSubjectLecture(
       this.currentSubjectSlug,
       lecture.id.toString()
@@ -661,7 +678,7 @@ export class CreateNewCourseComponent implements OnInit {
         this.viewDetails[view].count -= 1;
       },
       errors => {
-        this.lectureViewData[view][index]['delete'] = false;
+        this.lectureViewData[view][index].delete = false;
         if (errors.error) {
           if (errors.error.error) {
             this.uiService.showSnackBar(
@@ -681,7 +698,7 @@ export class CreateNewCourseComponent implements OnInit {
           );
         }
       }
-    )
+    );
   }
 
   editLectureClicked(content) {
@@ -691,11 +708,11 @@ export class CreateNewCourseComponent implements OnInit {
       target_date: content.target_date
     });
 
-    for (let index in this.lectureViewData[view]) {
+    for (const index in this.lectureViewData[view]) {
       if (this.lectureViewData[view][index].id !== content.id) {
-        this.lectureViewData[view][index]['edit'] = false;
+        this.lectureViewData[view][index].edit = false;
       } else {
-        this.lectureViewData[view][index]['edit'] = true;
+        this.lectureViewData[view][index].edit = true;
       }
     }
   }
@@ -703,18 +720,18 @@ export class CreateNewCourseComponent implements OnInit {
   lectureActionButtonClicked(lecture) {  // For mobile view
     this.lectureActionDataSubscription = this.uiService.editDeleteDialogData$.subscribe(
       data => {
-        if (data == '1') {
+        if (data === 1) {
           if (lecture.edit) {
             this.closeEditLecture(lecture);
           } else {
             this.editLectureClicked(lecture);
           }
-        } else if (data == '2') {
+        } else if (data === 2) {
           this.confirmDeleteLecture(lecture);
         }
         this.lectureActionDataSubscription.unsubscribe();
       }
-    )
+    );
     if (lecture.edit) {
       this.uiService.openEditDeleteDialog('Cancel Edit', 'Delete');
     } else {
@@ -728,7 +745,7 @@ export class CreateNewCourseComponent implements OnInit {
     });
     if (!this.editLectureForm.invalid) {
       const view = this.viewOrder[this.openedPanelStep];
-      let data = this.editLectureForm.value;
+      const data = this.editLectureForm.value;
       if (data.target_date) {
         data.target_date = formatDate(data.target_date);
       }
@@ -768,14 +785,14 @@ export class CreateNewCourseComponent implements OnInit {
             );
           }
         }
-      )
+      );
     }
   }
 
   closeEditLecture(content) {
     const view = this.viewOrder[this.openedPanelStep];
     const index = this.findIdInArray(this.lectureViewData[view], content.id);
-    this.lectureViewData[view][index]['edit'] = false;
+    this.lectureViewData[view][index].edit = false;
     this.editLectureForm.reset();
   }
 
@@ -797,8 +814,8 @@ export class CreateNewCourseComponent implements OnInit {
   }
 
   // For lecture view
-  openLecture(content, lecture_no) {
-    content['lecture_no'] = lecture_no;
+  openLecture(content, lectureNo) {
+    content.lecture_no = lectureNo;
     this.selectedLecture = content;
     this.loadLectureContent();
   }
@@ -807,6 +824,7 @@ export class CreateNewCourseComponent implements OnInit {
     this.selectedLecture = null;
     this.addEditObjectiveForm.reset();
     this.showaddEditObjectiveForm = false;
+    this.closeViewContent(null);
   }
 
   loadLectureContent() {
@@ -850,8 +868,8 @@ export class CreateNewCourseComponent implements OnInit {
       text: this.addEditObjectiveForm.value.text.trim()
     });
     if (!this.addEditObjectiveForm.invalid) {
-      let data = this.addEditObjectiveForm.value;
-      data['type'] = LECTURE_TEXT_TYPES['OBJECTIVES'];
+      const data = this.addEditObjectiveForm.value;
+      data.type = LECTURE_TEXT_TYPES.OBJECTIVES;
       this.addEditObjectiveForm.disable();
       this.showAddObjectiveIndicator = true;
       this.instituteApiService.addLectureObjectiveOrUseCase(
@@ -859,7 +877,7 @@ export class CreateNewCourseComponent implements OnInit {
         this.selectedLecture.id.toString(),
         data
       ).subscribe(
-        (result: {id: number; text: string;}) => {
+        (result: {id: number; text: string; }) => {
           this.lectureContentData.objectives.push(result);
           this.uiService.showSnackBar(
             'Objective added!',
@@ -894,15 +912,15 @@ export class CreateNewCourseComponent implements OnInit {
 
   deleteObjective(content) {
     const index = +this.findIdInArray(this.lectureContentData.objectives, content.id);
-    this.lectureContentData.objectives[index]['delete'] = true;
+    this.lectureContentData.objectives[index].delete = true;
     this.instituteApiService.deleteObjectiveOrUseCase(
       this.currentSubjectSlug,
       content.id.toString()
     ).subscribe(
       () => {
-        for (let index in this.lectureContentData.objectives) {
-          if (this.lectureContentData.objectives[index]['edit']) {
-            if (this.lectureContentData.objectives[index].id === content.id) {
+        for (const idx in this.lectureContentData.objectives) {
+          if (this.lectureContentData.objectives[idx].edit) {
+            if (this.lectureContentData.objectives[idx].id === content.id) {
               this.showEditObjectiveForm = false;
             }
           }
@@ -914,7 +932,7 @@ export class CreateNewCourseComponent implements OnInit {
         );
       },
       errors => {
-        this.lectureContentData.objectives[index]['delete'] = false;
+        this.lectureContentData.objectives[index].delete = false;
         if (errors.error) {
           if (errors.error.error) {
             this.uiService.showSnackBar(
@@ -934,7 +952,7 @@ export class CreateNewCourseComponent implements OnInit {
           );
         }
       }
-    )
+    );
   }
 
   showEditObjectiveFormClicked(objective) {
@@ -946,20 +964,37 @@ export class CreateNewCourseComponent implements OnInit {
       text: objective.text
     });
     this.showEditObjectiveForm = true;
-    for (let idx in this.lectureContentData.objectives) {
+    for (const idx in this.lectureContentData.objectives) {
       if (this.lectureContentData.objectives[idx].id === objective.id) {
-        this.lectureContentData.objectives[idx]['edit'] = true;
+        this.lectureContentData.objectives[idx].edit = true;
       } else {
-        this.lectureContentData.objectives[idx]['edit'] = false;
+        this.lectureContentData.objectives[idx].edit = false;
       }
     }
   }
 
+  showLectureObjectiveControls(objective) {
+    const dialogRef = this.dialog.open(UiActionControlsComponent, {
+      data: {
+        firstButtonText: 'Edit', secondButtonText: 'Delete'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result === 1) {
+          this.showEditObjectiveFormClicked(objective);
+        } else {
+          this.deleteObjective(objective);
+        }
+      }
+    });
+  }
+
   closeEditObjectiveForm() {
     this.showEditObjectiveForm = false;
-    for (let idx in this.lectureContentData.objectives) {
-      if (this.lectureContentData.objectives[idx]['edit']) {
-        this.lectureContentData.objectives[idx]['edit'] = false;
+    for (const idx in this.lectureContentData.objectives) {
+      if (this.lectureContentData.objectives[idx].edit) {
+        this.lectureContentData.objectives[idx].edit = false;
       }
     }
   }
@@ -971,21 +1006,21 @@ export class CreateNewCourseComponent implements OnInit {
     if (!this.addEditObjectiveForm.invalid) {
       this.showAddObjectiveIndicator = true;
       this.addEditObjectiveForm.disable();
-      let objective_id = -1;
+      let objectiveId = -1;
       let index = -1;
-      for (let idx in this.lectureContentData.objectives) {
-        if (this.lectureContentData.objectives[idx]['edit']) {
+      for (const idx in this.lectureContentData.objectives) {
+        if (this.lectureContentData.objectives[idx].edit) {
           index = +idx;
-          objective_id = this.lectureContentData.objectives[idx].id;
+          objectiveId = this.lectureContentData.objectives[idx].id;
         }
       }
-      let data = this.addEditObjectiveForm.value;
+      const data = this.addEditObjectiveForm.value;
       this.instituteApiService.editObjectiveOrUseCase(
         this.currentSubjectSlug,
-        objective_id.toString(),
+        objectiveId.toString(),
         data
       ).subscribe(
-        (result: {id: number; text: string;}) => {
+        (result: {id: number; text: string; }) => {
           this.lectureContentData.objectives.splice(index, 1, result);
           this.uiService.showSnackBar(
             'Objective updated',
@@ -1032,8 +1067,8 @@ export class CreateNewCourseComponent implements OnInit {
       text: this.addEditUseCaseForm.value.text.trim()
     });
     if (!this.addEditUseCaseForm.invalid) {
-      let data = this.addEditUseCaseForm.value;
-      data['type'] = LECTURE_TEXT_TYPES['USE_CASE'];
+      const data = this.addEditUseCaseForm.value;
+      data.type = LECTURE_TEXT_TYPES.USE_CASE;
       this.addEditUseCaseForm.disable();
       this.showAddUseCaseIndicator = true;
       this.instituteApiService.addLectureObjectiveOrUseCase(
@@ -1041,7 +1076,7 @@ export class CreateNewCourseComponent implements OnInit {
         this.selectedLecture.id.toString(),
         data
       ).subscribe(
-        (result: {id: number; text: string;}) => {
+        (result: {id: number; text: string; }) => {
           this.lectureContentData.use_case_text.push(result);
           this.uiService.showSnackBar(
             'Use Case added!',
@@ -1076,15 +1111,15 @@ export class CreateNewCourseComponent implements OnInit {
 
   deleteUseCase(content) {
     const index = +this.findIdInArray(this.lectureContentData.use_case_text, content.id);
-    this.lectureContentData.use_case_text[index]['delete'] = true;
+    this.lectureContentData.use_case_text[index].delete = true;
     this.instituteApiService.deleteObjectiveOrUseCase(
       this.currentSubjectSlug,
       content.id.toString()
     ).subscribe(
       () => {
-        for (let index in this.lectureContentData.use_case_text) {
-          if (this.lectureContentData.use_case_text[index]['edit']) {
-            if (this.lectureContentData.use_case_text[index].id === content.id) {
+        for (const idx in this.lectureContentData.use_case_text) {
+          if (this.lectureContentData.use_case_text[idx].edit) {
+            if (this.lectureContentData.use_case_text[idx].id === content.id) {
               this.showEditUseCaseForm = false;
             }
           }
@@ -1096,7 +1131,7 @@ export class CreateNewCourseComponent implements OnInit {
         );
       },
       errors => {
-        this.lectureContentData.use_case_text[index]['delete'] = false;
+        this.lectureContentData.use_case_text[index].delete = false;
         if (errors.error) {
           if (errors.error.error) {
             this.uiService.showSnackBar(
@@ -1116,32 +1151,49 @@ export class CreateNewCourseComponent implements OnInit {
           );
         }
       }
-    )
+    );
   }
 
-  showEditUseCaseFormClicked(use_case) {
+  showEditUseCaseFormClicked(useCase) {
     this.addEditUseCaseForm.reset();
     this.addEditUseCaseForm.enable();
     this.showAddUseCaseIndicator = false;
     this.showaddEditUseCaseForm = false;
     this.addEditUseCaseForm.patchValue({
-      text: use_case.text
+      text: useCase.text
     });
     this.showEditUseCaseForm = true;
-    for (let idx in this.lectureContentData.use_case_text) {
-      if (this.lectureContentData.use_case_text[idx].id === use_case.id) {
-        this.lectureContentData.use_case_text[idx]['edit'] = true;
+    for (const idx in this.lectureContentData.use_case_text) {
+      if (this.lectureContentData.use_case_text[idx].id === useCase.id) {
+        this.lectureContentData.use_case_text[idx].edit = true;
       } else {
-        this.lectureContentData.use_case_text[idx]['edit'] = false;
+        this.lectureContentData.use_case_text[idx].edit = false;
       }
     }
   }
 
+  showUseCaseControls(useCase) {
+    const dialogRef = this.dialog.open(UiActionControlsComponent, {
+      data: {
+        firstButtonText: 'Edit', secondButtonText: 'Delete'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result === 1) {
+          this.showEditUseCaseFormClicked(useCase);
+        } else {
+          this.deleteUseCase(useCase);
+        }
+      }
+    });
+  }
+
   closeEditUseCaseForm() {
     this.showEditUseCaseForm = false;
-    for (let idx in this.lectureContentData.use_case_text) {
-      if (this.lectureContentData.use_case_text[idx]['edit']) {
-        this.lectureContentData.use_case_text[idx]['edit'] = false;
+    for (const idx in this.lectureContentData.use_case_text) {
+      if (this.lectureContentData.use_case_text[idx].edit) {
+        this.lectureContentData.use_case_text[idx].edit = false;
       }
     }
   }
@@ -1153,21 +1205,21 @@ export class CreateNewCourseComponent implements OnInit {
     if (!this.addEditUseCaseForm.invalid) {
       this.showAddUseCaseIndicator = true;
       this.addEditUseCaseForm.disable();
-      let use_case_id = -1;
+      let useCaseId = -1;
       let index = -1;
-      for (let idx in this.lectureContentData.use_case_text) {
-        if (this.lectureContentData.use_case_text[idx]['edit']) {
+      for (const idx in this.lectureContentData.use_case_text) {
+        if (this.lectureContentData.use_case_text[idx].edit) {
           index = +idx;
-          use_case_id = this.lectureContentData.use_case_text[idx].id;
+          useCaseId = this.lectureContentData.use_case_text[idx].id;
         }
       }
-      let data = this.addEditUseCaseForm.value;
+      const data = this.addEditUseCaseForm.value;
       this.instituteApiService.editObjectiveOrUseCase(
         this.currentSubjectSlug,
-        use_case_id.toString(),
+        useCaseId.toString(),
         data
       ).subscribe(
-        (result: {id: number; text: string;}) => {
+        (result: {id: number; text: string; }) => {
           this.lectureContentData.use_case_text.splice(index, 1, result);
           this.uiService.showSnackBar(
             'Use case updated.',
@@ -1215,8 +1267,8 @@ export class CreateNewCourseComponent implements OnInit {
       link: this.addEditAdditionalReadingForm.value.link.trim()
     });
     if (!this.addEditAdditionalReadingForm.invalid) {
-      let data = this.addEditAdditionalReadingForm.value;
-      data['type'] = LECTURE_LINK_TYPES['ADDITIONAL_READING_LINK'];
+      const data = this.addEditAdditionalReadingForm.value;
+      data.type = LECTURE_LINK_TYPES.ADDITIONAL_READING_LINK;
       this.addEditAdditionalReadingForm.disable();
       this.showAddAdditionalReadingIndicator = true;
       this.instituteApiService.addLectureAdditionalReadingOrUseCaseLink(
@@ -1224,7 +1276,7 @@ export class CreateNewCourseComponent implements OnInit {
         this.selectedLecture.id.toString(),
         data
       ).subscribe(
-        (result: {id: number; name: string; link: string;}) => {
+        (result: {id: number; name: string; link: string; }) => {
           this.lectureContentData.additional_reading_link.push(result);
           this.uiService.showSnackBar(
             'Additional reading link added!',
@@ -1259,15 +1311,15 @@ export class CreateNewCourseComponent implements OnInit {
 
   deleteAdditionalReadingLink(content) {
     const index = +this.findIdInArray(this.lectureContentData.additional_reading_link, content.id);
-    this.lectureContentData.additional_reading_link[index]['delete'] = true;
+    this.lectureContentData.additional_reading_link[index].delete = true;
     this.instituteApiService.deleteAdditionalReadingOrUseCaseLink(
       this.currentSubjectSlug,
       content.id.toString()
     ).subscribe(
       () => {
-        for (let index in this.lectureContentData.additional_reading_link) {
-          if (this.lectureContentData.additional_reading_link[index]['edit']) {
-            if (this.lectureContentData.additional_reading_link[index].id === content.id) {
+        for (const idx in this.lectureContentData.additional_reading_link) {
+          if (this.lectureContentData.additional_reading_link[idx].edit) {
+            if (this.lectureContentData.additional_reading_link[idx].id === content.id) {
               this.showEditAdditionalReadingForm = false;
             }
           }
@@ -1279,7 +1331,7 @@ export class CreateNewCourseComponent implements OnInit {
         );
       },
       errors => {
-        this.lectureContentData.additional_reading_link[index]['delete'] = false;
+        this.lectureContentData.additional_reading_link[index].delete = false;
         if (errors.error) {
           if (errors.error.error) {
             this.uiService.showSnackBar(
@@ -1299,33 +1351,50 @@ export class CreateNewCourseComponent implements OnInit {
           );
         }
       }
-    )
+    );
   }
 
-  showEditAdditionalReadingFormClicked(additional_reading) {
+  showAdditionalReadingControls(additionalReadingLink) {
+    const dialogRef = this.dialog.open(UiActionControlsComponent, {
+      data: {
+        firstButtonText: 'Edit', secondButtonText: 'Delete'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result === 1) {
+          this.showEditAdditionalReadingFormClicked(additionalReadingLink);
+        } else {
+          this.deleteAdditionalReadingLink(additionalReadingLink);
+        }
+      }
+    });
+  }
+
+  showEditAdditionalReadingFormClicked(additionalReading) {
     this.addEditAdditionalReadingForm.reset();
     this.addEditAdditionalReadingForm.enable();
     this.showAddAdditionalReadingIndicator = false;
     this.showaddEditAdditionalReadingForm = false;
     this.addEditAdditionalReadingForm.patchValue({
-      name: additional_reading.name,
-      link: additional_reading.link
+      name: additionalReading.name,
+      link: additionalReading.link
     });
     this.showEditAdditionalReadingForm = true;
-    for (let idx in this.lectureContentData.additional_reading_link) {
-      if (this.lectureContentData.additional_reading_link[idx].id === additional_reading.id) {
-        this.lectureContentData.additional_reading_link[idx]['edit'] = true;
+    for (const idx in this.lectureContentData.additional_reading_link) {
+      if (this.lectureContentData.additional_reading_link[idx].id === additionalReading.id) {
+        this.lectureContentData.additional_reading_link[idx].edit = true;
       } else {
-        this.lectureContentData.additional_reading_link[idx]['edit'] = false;
+        this.lectureContentData.additional_reading_link[idx].edit = false;
       }
     }
   }
 
   closeEditAdditionalReadingForm() {
     this.showEditAdditionalReadingForm = false;
-    for (let idx in this.lectureContentData.additional_reading_link) {
-      if (this.lectureContentData.additional_reading_link[idx]['edit']) {
-        this.lectureContentData.additional_reading_link[idx]['edit'] = false;
+    for (const idx in this.lectureContentData.additional_reading_link) {
+      if (this.lectureContentData.additional_reading_link[idx].edit) {
+        this.lectureContentData.additional_reading_link[idx].edit = false;
       }
     }
   }
@@ -1338,21 +1407,21 @@ export class CreateNewCourseComponent implements OnInit {
     if (!this.addEditAdditionalReadingForm.invalid) {
       this.showAddAdditionalReadingIndicator = true;
       this.addEditAdditionalReadingForm.disable();
-      let additional_reading_id = -1;
+      let additionalReadingId = -1;
       let index = -1;
-      for (let idx in this.lectureContentData.additional_reading_link) {
-        if (this.lectureContentData.additional_reading_link[idx]['edit']) {
+      for (const idx in this.lectureContentData.additional_reading_link) {
+        if (this.lectureContentData.additional_reading_link[idx].edit) {
           index = +idx;
-          additional_reading_id = this.lectureContentData.additional_reading_link[idx].id;
+          additionalReadingId = this.lectureContentData.additional_reading_link[idx].id;
         }
       }
-      let data = this.addEditAdditionalReadingForm.value;
+      const data = this.addEditAdditionalReadingForm.value;
       this.instituteApiService.editAdditionalReadingOrUseCaseLink(
         this.currentSubjectSlug,
-        additional_reading_id.toString(),
+        additionalReadingId.toString(),
         data
       ).subscribe(
-        (result: {id: number; name: string; link: string;}) => {
+        (result: {id: number; name: string; link: string; }) => {
           this.lectureContentData.additional_reading_link.splice(index, 1, result);
           this.uiService.showSnackBar(
             'Additional reading link updated',
@@ -1400,8 +1469,8 @@ export class CreateNewCourseComponent implements OnInit {
       link: this.addEditGetInspiredForm.value.link.trim()
     });
     if (!this.addEditGetInspiredForm.invalid) {
-      let data = this.addEditGetInspiredForm.value;
-      data['type'] = LECTURE_LINK_TYPES['USE_CASES_LINK'];
+      const data = this.addEditGetInspiredForm.value;
+      data.type = LECTURE_LINK_TYPES.USE_CASES_LINK;
       this.addEditGetInspiredForm.disable();
       this.showAddGetInspiredIndicator = true;
       this.instituteApiService.addLectureAdditionalReadingOrUseCaseLink(
@@ -1409,7 +1478,7 @@ export class CreateNewCourseComponent implements OnInit {
         this.selectedLecture.id.toString(),
         data
       ).subscribe(
-        (result: {id: number; name: string; link: string;}) => {
+        (result: {id: number; name: string; link: string; }) => {
           this.lectureContentData.use_case_link.push(result);
           this.uiService.showSnackBar(
             'Get Inspired link added!',
@@ -1444,15 +1513,15 @@ export class CreateNewCourseComponent implements OnInit {
 
   deleteGetInspiredLink(content) {
     const index = +this.findIdInArray(this.lectureContentData.use_case_link, content.id);
-    this.lectureContentData.use_case_link[index]['delete'] = true;
+    this.lectureContentData.use_case_link[index].delete = true;
     this.instituteApiService.deleteAdditionalReadingOrUseCaseLink(
       this.currentSubjectSlug,
       content.id.toString()
     ).subscribe(
       () => {
-        for (let index in this.lectureContentData.use_case_link) {
-          if (this.lectureContentData.use_case_link[index]['edit']) {
-            if (this.lectureContentData.use_case_link[index].id === content.id) {
+        for (const idx in this.lectureContentData.use_case_link) {
+          if (this.lectureContentData.use_case_link[idx].edit) {
+            if (this.lectureContentData.use_case_link[idx].id === content.id) {
               this.showEditGetInspiredForm = false;
             }
           }
@@ -1464,7 +1533,7 @@ export class CreateNewCourseComponent implements OnInit {
         );
       },
       errors => {
-        this.lectureContentData.use_case_link[index]['delete'] = false;
+        this.lectureContentData.use_case_link[index].delete = false;
         if (errors.error) {
           if (errors.error.error) {
             this.uiService.showSnackBar(
@@ -1484,33 +1553,50 @@ export class CreateNewCourseComponent implements OnInit {
           );
         }
       }
-    )
+    );
   }
 
-  showEditGetInspiredFormClicked(use_case_link) {
+  showGetInspiredControls(getInspiredLink) {
+    const dialogRef = this.dialog.open(UiActionControlsComponent, {
+      data: {
+        firstButtonText: 'Edit', secondButtonText: 'Delete'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result === 1) {
+          this.showEditGetInspiredFormClicked(getInspiredLink);
+        } else {
+          this.deleteGetInspiredLink(getInspiredLink);
+        }
+      }
+    });
+  }
+
+  showEditGetInspiredFormClicked(useCaseLink) {
     this.addEditGetInspiredForm.reset();
     this.addEditGetInspiredForm.enable();
     this.showAddGetInspiredIndicator = false;
     this.showaddEditGetInspiredForm = false;
     this.addEditGetInspiredForm.patchValue({
-      name: use_case_link.name,
-      link: use_case_link.link
+      name: useCaseLink.name,
+      link: useCaseLink.link
     });
     this.showEditGetInspiredForm = true;
-    for (let idx in this.lectureContentData.use_case_link) {
-      if (this.lectureContentData.use_case_link[idx].id === use_case_link.id) {
-        this.lectureContentData.use_case_link[idx]['edit'] = true;
+    for (const idx in this.lectureContentData.use_case_link) {
+      if (this.lectureContentData.use_case_link[idx].id === useCaseLink.id) {
+        this.lectureContentData.use_case_link[idx].edit = true;
       } else {
-        this.lectureContentData.use_case_link[idx]['edit'] = false;
+        this.lectureContentData.use_case_link[idx].edit = false;
       }
     }
   }
 
   closeEditGetInspiredForm() {
     this.showEditGetInspiredForm = false;
-    for (let idx in this.lectureContentData.use_case_link) {
-      if (this.lectureContentData.use_case_link[idx]['edit']) {
-        this.lectureContentData.use_case_link[idx]['edit'] = false;
+    for (const idx in this.lectureContentData.use_case_link) {
+      if (this.lectureContentData.use_case_link[idx].edit) {
+        this.lectureContentData.use_case_link[idx].edit = false;
       }
     }
   }
@@ -1523,21 +1609,21 @@ export class CreateNewCourseComponent implements OnInit {
     if (!this.addEditGetInspiredForm.invalid) {
       this.showAddGetInspiredIndicator = true;
       this.addEditGetInspiredForm.disable();
-      let get_inspired_id = -1;
+      let getInspiredId = -1;
       let index = -1;
-      for (let idx in this.lectureContentData.use_case_link) {
-        if (this.lectureContentData.use_case_link[idx]['edit']) {
+      for (const idx in this.lectureContentData.use_case_link) {
+        if (this.lectureContentData.use_case_link[idx].edit) {
           index = +idx;
-          get_inspired_id = this.lectureContentData.use_case_link[idx].id;
+          getInspiredId = this.lectureContentData.use_case_link[idx].id;
         }
       }
-      let data = this.addEditGetInspiredForm.value;
+      const data = this.addEditGetInspiredForm.value;
       this.instituteApiService.editAdditionalReadingOrUseCaseLink(
         this.currentSubjectSlug,
-        get_inspired_id.toString(),
+        getInspiredId.toString(),
         data
       ).subscribe(
-        (result: {id: number; name: string; link: string;}) => {
+        (result: {id: number; name: string; link: string; }) => {
           this.lectureContentData.use_case_link.splice(index, 1, result);
           this.uiService.showSnackBar(
             'Get inspired link updated.',
@@ -1587,9 +1673,9 @@ export class CreateNewCourseComponent implements OnInit {
       }
     );
     let firstButtonText = '';
-    let secondButtonText = 'Delete Module';
-    let thirdButtonText = 'Add Test';
-    let fourthButtonText = 'Add Lecture';
+    const secondButtonText = 'Delete Module';
+    const thirdButtonText = 'Add Test';
+    const fourthButtonText = 'Add Lecture';
     if (this.showEditModuleForm) {
       firstButtonText = 'Close Edit Module';
     } else {
@@ -1598,7 +1684,22 @@ export class CreateNewCourseComponent implements OnInit {
     this.uiService.openEditDeleteAddAddDialog(firstButtonText, secondButtonText, thirdButtonText, fourthButtonText);
   }
 
-  showActionsClicked() {}
+  showActionsClicked(content) {
+    const dialogRef = this.dialog.open(UiActionControlsComponent, {
+      data: {
+        firstButtonText: 'Edit', secondButtonText: 'Delete'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result === 1) {
+          this.editIntroductoryContentClicked(content);
+        } else {
+          this.deleteIntroductoryContentClicked(content);
+        }
+      }
+    });
+  }
 
   toggleAddCourseLectureContentForm() {
     this.showAddLectureContentIndicator = false;
@@ -1609,9 +1710,9 @@ export class CreateNewCourseComponent implements OnInit {
 
   closeEditLectureContentForm() {
     this.showEditLectureContentForm = false;
-    for (let idx in this.lectureContentData.materials) {
-      if (this.lectureContentData.materials[idx]['edit']) {
-        this.lectureContentData.materials[idx]['edit'] = false;
+    for (const idx in this.lectureContentData.materials) {
+      if (this.lectureContentData.materials[idx].edit) {
+        this.lectureContentData.materials[idx].edit = false;
       }
     }
   }
@@ -1629,9 +1730,9 @@ export class CreateNewCourseComponent implements OnInit {
 
   uploadExternalLinkLectureMaterial(data: any) {
     if (this.selectedSidenav === 'YOUTUBE_LINK') {
-      data['content_type'] = LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK'];
+      data.content_type = LECTURE_STUDY_MATERIAL_TYPES.YOUTUBE_LINK;
     } else if (this.selectedSidenav === 'EXTERNAL_LINK') {
-      data['content_type'] = LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'];
+      data.content_type = LECTURE_STUDY_MATERIAL_TYPES.EXTERNAL_LINK;
     }
     this.uploadingEvent.next('DISABLE');
     this.instituteApiService.addExternalLinkCourseContent(
@@ -1650,7 +1751,7 @@ export class CreateNewCourseComponent implements OnInit {
         },
         errors => {
           this.uploadingEvent.next('ENABLE');
-          if(errors.error) {
+          if (errors.error) {
             if (errors.error.error) {
               this.uiService.showSnackBar(
                 errors.error.error,
@@ -1669,19 +1770,19 @@ export class CreateNewCourseComponent implements OnInit {
             );
           }
         }
-      )
+      );
   }
 
   uploadMediaFileLectureMaterial(data: any) {
     if (this.selectedSidenav === 'PDF') {
-      data['content_type'] = LECTURE_STUDY_MATERIAL_TYPES['PDF']
+      data.content_type = LECTURE_STUDY_MATERIAL_TYPES.PDF;
     } else if (this.selectedSidenav === 'IMAGE') {
-      data['content_type'] = LECTURE_STUDY_MATERIAL_TYPES['IMAGE']
+      data.content_type = LECTURE_STUDY_MATERIAL_TYPES.IMAGE;
     }
     this.uploadingEvent.next('DISABLE');
     this.uploadProgressEvent.next({
-      'total': data.size,
-      'loaded': 0,
+      total: data.size,
+      loaded: 0,
     });
     this.instituteApiService.uploadMediaCourseContentMaterial(
       this.currentSubjectSlug,
@@ -1691,8 +1792,8 @@ export class CreateNewCourseComponent implements OnInit {
       (result: any) => {
         if (result.type === HttpEventType.UploadProgress) {
           this.uploadProgressEvent.next({
-            'total': result.total,
-            'loaded': result.loaded,
+            total: result.total,
+            loaded: result.loaded,
           });
         } else if (result.type === HttpEventType.Response) {
           this.uploadingEvent.next('RESET');
@@ -1726,20 +1827,20 @@ export class CreateNewCourseComponent implements OnInit {
           );
         }
       }
-    )
+    );
   }
 
   deleteLectureContent(content) {
     const index = +this.findIdInArray(this.lectureContentData.materials, content.id);
-    this.lectureContentData.materials[index]['delete'] = true;
+    this.lectureContentData.materials[index].delete = true;
     this.instituteApiService.deleteLectureContent(
       this.currentSubjectSlug,
       content.id.toString()
     ).subscribe(
       () => {
-        for (let index in this.lectureContentData.materials) {
-          if (this.lectureContentData.materials[index]['edit']) {
-            if (this.lectureContentData.materials[index].id === content.id) {
+        for (const idx in this.lectureContentData.materials) {
+          if (this.lectureContentData.materials[idx].edit) {
+            if (this.lectureContentData.materials[idx].id === content.id) {
               this.showaddEditLectureContentForm = false;
             }
           }
@@ -1751,7 +1852,7 @@ export class CreateNewCourseComponent implements OnInit {
         );
       },
       errors => {
-        this.lectureContentData.materials[index]['delete'] = false;
+        this.lectureContentData.materials[index].delete = false;
         if (errors.error) {
           if (errors.error.error) {
             this.uiService.showSnackBar(
@@ -1771,7 +1872,24 @@ export class CreateNewCourseComponent implements OnInit {
           );
         }
       }
-    )
+    );
+  }
+
+  showLectureContentControls(content) {
+    const dialogRef = this.dialog.open(UiActionControlsComponent, {
+      data: {
+        firstButtonText: 'Edit', secondButtonText: 'Delete'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result === 1) {
+          this.showEditLectureContentFormClicked(content);
+        } else {
+          this.deleteLectureContent(content);
+        }
+      }
+    });
   }
 
   showEditLectureContentFormClicked(content) {
@@ -1779,42 +1897,42 @@ export class CreateNewCourseComponent implements OnInit {
     this.showaddEditLectureContentForm = false;
     this.showAddGetInspiredIndicator = false;
     this.showaddEditLectureContentForm = false;
-    if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'] ||
-        content.content_type === LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+    if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES.EXTERNAL_LINK ||
+        content.content_type === LECTURE_STUDY_MATERIAL_TYPES.YOUTUBE_LINK) {
           this.editLectureContentForm.patchValue({
             link: content.data.link,
             name: content.name
           });
-    } else if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES['PDF'] ||
-               content.content_type === LECTURE_STUDY_MATERIAL_TYPES['IMAGE']) {
+    } else if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES.PDF ||
+               content.content_type === LECTURE_STUDY_MATERIAL_TYPES.IMAGE) {
           this.editLectureContentForm.patchValue({
             name: content.name,
             can_download: content.data.can_download
           });
     }
-    this.showEditLectureContentForm = true;
-    for (let idx in this.lectureContentData.materials) {
+    for (const idx in this.lectureContentData.materials) {
       if (this.lectureContentData.materials[idx].id === content.id) {
-        this.lectureContentData.materials[idx]['edit'] = true;
+        this.lectureContentData.materials[idx].edit = true;
       } else {
-        this.lectureContentData.materials[idx]['edit'] = false;
+        this.lectureContentData.materials[idx].edit = false;
       }
     }
+    this.showEditLectureContentForm = true;
   }
 
   editLectureContent() {
-    let data = this.editLectureContentForm.value;
+    const data = this.editLectureContentForm.value;
     let index = -1;
     let contentId = -1;
-    let content_type = '';
-    for (let idx in this.lectureContentData.materials) {
-      if (this.lectureContentData.materials[idx]['edit']) {
+    let contentType = '';
+    for (const idx in this.lectureContentData.materials) {
+      if (this.lectureContentData.materials[idx].edit) {
         index = +idx;
         contentId = this.lectureContentData.materials[idx].id;
-        content_type = this.lectureContentData.materials[idx].content_type;
-        if (this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'] ||
-            this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
-            delete data['can_download'];
+        contentType = this.lectureContentData.materials[idx].content_type;
+        if (this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES.EXTERNAL_LINK ||
+            this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES.YOUTUBE_LINK) {
+            delete data.can_download;
             this.editLectureContentForm.patchValue({
               name: this.editLectureContentForm.value.name.trim(),
               link: this.editLectureContentForm.value.link.trim()
@@ -1822,21 +1940,20 @@ export class CreateNewCourseComponent implements OnInit {
             if (!this.editLectureContentForm.value.link) {
               return;
             }
-        } else if (this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES['PDF'] ||
-                   this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES['IMAGE']) {
+        } else if (this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES.PDF ||
+                   this.lectureContentData.materials[idx].content_type === LECTURE_STUDY_MATERIAL_TYPES.IMAGE) {
             this.editLectureContentForm.patchValue({
               name: this.editLectureContentForm.value.name.trim()
             });
-            delete data['link'];
-            if (!data['can_download']) {
-              data['can_download'] = false;
+            delete data.link;
+            if (!data.can_download) {
+              data.can_download = false;
             }
         }
       }
     }
     if (!this.editLectureContentForm.invalid) {
-      data['content_type'] = content_type;
-      console.log(data);
+      data.content_type = contentType;
       this.showEditLectureIndicator = true;
       this.editLectureContentForm.disable();
       this.instituteApiService.editSubjectLectureContent(
@@ -1886,10 +2003,10 @@ export class CreateNewCourseComponent implements OnInit {
   }
 
   isEditContentLink() {
-    for (let content of this.lectureContentData.materials) {
-      if (content['edit']) {
-        if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'] ||
-            content.content_type === LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+    for (const content of this.lectureContentData.materials) {
+      if (content.edit) {
+        if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES.EXTERNAL_LINK ||
+            content.content_type === LECTURE_STUDY_MATERIAL_TYPES.YOUTUBE_LINK) {
               return true;
             } else {
               return false;
@@ -1900,10 +2017,10 @@ export class CreateNewCourseComponent implements OnInit {
   }
 
   isEditContentFile() {
-    for (let content of this.lectureContentData.materials) {
-      if (content['edit']) {
-        if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES['IMAGE'] ||
-            content.content_type === LECTURE_STUDY_MATERIAL_TYPES['PDF']) {
+    for (const content of this.lectureContentData.materials) {
+      if (content.edit) {
+        if (content.content_type === LECTURE_STUDY_MATERIAL_TYPES.IMAGE ||
+            content.content_type === LECTURE_STUDY_MATERIAL_TYPES.PDF) {
               return true;
             } else {
               return false;
@@ -1911,6 +2028,38 @@ export class CreateNewCourseComponent implements OnInit {
       }
     }
     return false;
+  }
+
+  viewContentClicked(content, introductoryContent: boolean) {
+    if (introductoryContent) {
+      if (content.content_type === LECTURE_INTRODUCTORY_CONTENT_TYPES.LINK) {
+        this.openLinkInNewTab(content.data.link);
+      } else if (content.content_type === LECTURE_INTRODUCTORY_CONTENT_TYPES.IMAGE) {
+        sessionStorage.setItem(courseContent, JSON.stringify(content));
+        this.viewContent = 'VIEW_IMAGE';
+      } else if (content.content_type === LECTURE_INTRODUCTORY_CONTENT_TYPES.PDF) {
+        sessionStorage.setItem(courseContent, JSON.stringify(content));
+        this.viewContent = 'VIEW_PDF';
+      }
+    } else {
+      if (isContentTypeExternalLink(content.content_type)) {
+        this.openLinkInNewTab(content.data.link);
+      } else {
+        sessionStorage.setItem(courseContent, JSON.stringify(content));
+        if (isContentTypeYouTubeLink(content.content_type)) {
+          this.viewContent = 'VIEW_YOUTUBE_LINK';
+        } else if (isContentTypeImage(content.content_type)) {
+          this.viewContent = 'VIEW_IMAGE';
+        } else if (isContentTypePdf(content.content_type)) {
+          this.viewContent = 'VIEW_PDF';
+        }
+      }
+    }
+  }
+
+  closeViewContent(event) {
+    this.viewContent = null;
+    sessionStorage.removeItem(courseContent);
   }
 
   openLinkInNewTab(link: Url) {

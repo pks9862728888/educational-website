@@ -5,7 +5,7 @@ import { currentInstituteSlug, currentSubjectSlug, SUBJECT_INTRODUCTION_CONTENT_
 import { InstituteApiService } from './../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { isContentTypeImage, isContentTypeVideo, isContentTypePdf, isContentTypeLink } from '../../shared/utilityFunctions'
+import { isContentTypeImage, isContentTypePdf, isContentTypeLink } from '../../shared/utilityFunctions'
 import { SubjectPreviewCourseMinDetails, StudyMaterialPreviewDetails } from '../../models/subject.model';
 
 
@@ -22,7 +22,6 @@ export class PreviewCourseComponent implements OnInit, OnDestroy {
   openedPanelStep: number;
   openedWeekStep: number;
   isContentTypeImage = isContentTypeImage;
-  isContentTypeVideo = isContentTypeVideo;
   isContentTypePdf = isContentTypePdf;
   isContentTypeLink = isContentTypeLink;
 

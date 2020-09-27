@@ -6,7 +6,7 @@
         <mat-icon *ngIf="selectedLecture" (click)="closeLecture()" class="cancel-icon cursor-pointer">close</mat-icon>
     </div>
     <hr class="top-separator m-t-03 m-b-1" />
-    <div [hidden]="selectedLecture">
+    <div [hidden]="selectedLecture || viewContent">
         <div *ngIf="errorText" class="m-b-1">
             <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
         </div>
@@ -38,7 +38,7 @@
                                 <h3 *ngIf="!mq.matches && introductionViewData[view].length === 0">No content found.</h3>
                                 <p *ngIf="mq.matches && introductionViewData[view].length === 0">No content found.</p>
                                 <div *ngFor="let content of introductionViewData[view]">
-                                    <div class="background-material m-b-1 cursor-pointer d-flex align-center">
+                                    <div class="background-material m-b-1 cursor-pointer d-flex align-center" (click)="viewContentClicked(content, true)">
                                         <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
                                             <mat-icon class="content-icon">
                                                 <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
@@ -50,14 +50,14 @@
                                             <h3 *ngIf="!mq.matches">{{ content.name }}</h3>
                                             <p *ngIf="mq.matches">{{ content.name }}</p>
                                         </div>
-                                        <div *ngIf="hasSubjectPerm">
-                                            <div class="edit-controls" *ngIf="!mq.matches">
-                                                <mat-icon class="m-r-05 edit-icon" (click)="editClicked(content)">edit</mat-icon>
-                                                <mat-icon class="delete-icon" (click)="deleteClicked(content)">delete</mat-icon>
-                                            </div>
-                                            <div class="edit-controls" *ngIf="mq.matches">
-                                                <mat-icon class="edit-icon" (click)="showActionsClicked()">more_vert</mat-icon>
-                                            </div>
+                                    </div>
+                                    <div *ngIf="hasSubjectPerm">
+                                        <div class="edit-controls" *ngIf="!mq.matches">
+                                            <mat-icon class="m-r-05 edit-icon" *ngIf="!content.edit" (click)="editIntroductoryContentClicked(content)">edit</mat-icon>
+                                            <mat-icon class="delete-icon" (click)="deleteIntroductoryContentClicked(content)">delete</mat-icon>
+                                        </div>
+                                        <div class="edit-controls" *ngIf="mq.matches">
+                                            <mat-icon class="edit-icon" (click)="showActionsClicked(content)">more_vert</mat-icon>
                                         </div>
                                     </div>
                                     <div class="m-t-1 m-t-1 edit-form-background" *ngIf="content['edit'] && hasSubjectPerm">
@@ -114,12 +114,12 @@
                                         </p>
                                         <div *ngIf="!content.target_date" class="occupy-20px"></div>
                                     </div>
-                                    <div class="edit-lecture-controls" *ngIf="!mq.matches">
-                                        <mat-icon class="m-r-05 edit-icon" *ngIf="!content['delete']" (click)="editLectureClicked(content)">edit</mat-icon>
+                                    <div class="edit-controls" *ngIf="!mq.matches">
+                                        <mat-icon class="m-r-05 edit-icon" *ngIf="!content['delete'] && !content.edit" (click)="editLectureClicked(content)">edit</mat-icon>
                                         <mat-progress-spinner mode="indeterminate" class="m-b-02" *ngIf="content['delete']" [diameter]="20"></mat-progress-spinner>
                                         <mat-icon class="delete-icon" *ngIf="!content['delete']" (click)="confirmDeleteLecture(content)">delete</mat-icon>
                                     </div>
-                                    <div class="edit-lecture-controls" *ngIf="mq.matches">
+                                    <div class="edit-controls" *ngIf="mq.matches">
                                         <mat-icon class="edit-icon" (click)="lectureActionButtonClicked(content)">more_vert</mat-icon>
                                     </div>
                                     <div class="m-b-1" *ngIf="content['edit']">
@@ -252,7 +252,7 @@
             </div>
         </section>
     </div>
-    <div *ngIf="selectedLecture">
+    <div *ngIf="selectedLecture && !viewContent">
         <div class="lecture-heading">
             <h3>{{ viewDetails[viewOrder[openedPanelStep]].name | uppercase }}</h3>
             <h3>Lecture {{ selectedLecture['lecture_no'] + 1 }}:</h3>
@@ -285,7 +285,7 @@
                                     <mat-progress-spinner *ngIf="objective['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
                                 </div>
                                 <div *ngIf="mq.matches">
-                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05">more_vert</mat-icon>
+                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showLectureObjectiveControls(objective)">more_vert</mat-icon>
                                 </div>
                             </div>
                         </li>
@@ -334,7 +334,7 @@
                     <mat-icon class="cursor-pointer help-icon" matTooltip="Schedule live classes, or provide study materials to the students." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
                 </div>
                 <div *ngFor="let content of lectureContentData.materials; let id=index">
-                    <div class="background-material m-b-1 cursor-pointer d-flex align-center">
+                    <div class="background-material m-b-1 cursor-pointer d-flex align-center" (click)="viewContentClicked(content, false)">
                         <div class="content-icon-container" [ngClass]="{'m-r-07': !mq.matches}">
                             <mat-icon class="content-icon">
                                 <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
@@ -347,31 +347,32 @@
                             <h3 *ngIf="!mq.matches">{{ content.name }}</h3>
                             <p *ngIf="mq.matches">{{ content.name }}</p>
                         </div>
-                        <div *ngIf="hasSubjectPerm">
-                            <div class="edit-controls" *ngIf="!mq.matches">
-                                <mat-icon *ngIf="!content['delete'] && content['edit']" class="cancel-icon cursor-pointer m-r-05 m-l-05" (click)="closeEditLectureContentForm()">close</mat-icon>
-                                <mat-icon *ngIf="!content['delete'] && !content['edit']" class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showEditLectureContentFormClicked(content)">edit</mat-icon>
-                                <mat-icon *ngIf="!content['delete']" class="delete-icon small-text-icon cursor-pointer" (click)="deleteLectureContent(content)">delete</mat-icon>
-                                <mat-progress-spinner *ngIf="content['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
-                            </div>
-                            <div class="edit-controls" *ngIf="mq.matches">
-                                <mat-icon class="edit-icon">more_vert</mat-icon>
-                            </div>
+                    </div>
+                    <div *ngIf="hasSubjectPerm">
+                        <div class="edit-lecture-controls" *ngIf="!mq.matches">
+                            <mat-icon *ngIf="!content['delete'] && content['edit']" class="cancel-icon small-close-icon cursor-pointer m-r-05 m-l-05" (click)="closeEditLectureContentForm()">close</mat-icon>
+                            <mat-icon *ngIf="!content['delete'] && !content['edit']" class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showEditLectureContentFormClicked(content)">edit</mat-icon>
+                            <mat-icon *ngIf="!content['delete']" class="delete-icon small-text-icon cursor-pointer" (click)="deleteLectureContent(content)">delete</mat-icon>
+                            <mat-progress-spinner *ngIf="content['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
+                        </div>
+                        <div class="edit-controls" *ngIf="mq.matches">
+                            <mat-icon class="edit-icon" (click)="showLectureContentControls(content)">more_vert</mat-icon>
                         </div>
                     </div>
-                </div>
-                <div *ngIf="showEditLectureContentForm" class="m-b-15">
-                    <form [formGroup]="editLectureContentForm">
-                        <input type="text" class="form-control width-100 m-b-1" formControlName="name" placeholder="Add Title to Display">
-                        <input type="text" *ngIf="isEditContentLink()" class="form-control width-100 m-b-1" formControlName="link" placeholder="Paste Link">
-                        <div *ngIf="!isEditContentLink() && isEditContentFile()" class="m-b-1">
-                            <mat-slide-toggle formControlName="can_download">Can Download</mat-slide-toggle>
-                        </div>
-                        <button mat-flat-button [disabled]="editLectureContentForm.invalid" class="green-button" (click)="editLectureContent()">
-                          <span *ngIf="!showEditLectureIndicator">Submit</span>
-                          <mat-progress-spinner *ngIf="showEditLectureIndicator" class="m-l-04 m-t-04 m-b-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
-                        </button>
-                    </form>
+                    <div *ngIf="showEditLectureContentForm && content['edit']" class="m-b-15">
+                        <h3 class="m-b-04">Edit Content Form:</h3>
+                        <form [formGroup]="editLectureContentForm">
+                            <input type="text" class="form-control width-100 m-b-1" formControlName="name" placeholder="Add Title to Display">
+                            <input type="text" *ngIf="isEditContentLink()" class="form-control width-100 m-b-1" formControlName="link" placeholder="Paste Link">
+                            <div *ngIf="!isEditContentLink() && isEditContentFile()" class="m-b-1">
+                                <mat-slide-toggle formControlName="can_download">Can Download</mat-slide-toggle>
+                            </div>
+                            <button mat-flat-button [disabled]="editLectureContentForm.invalid" class="green-button" (click)="editLectureContent()">
+                              <span *ngIf="!showEditLectureIndicator">Submit</span>
+                              <mat-progress-spinner *ngIf="showEditLectureIndicator" class="m-l-04 m-t-04 m-b-04" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 <div *ngIf="showaddEditLectureContentForm" class="m-b-15">
                     <div class="row upload-container">
@@ -455,7 +456,7 @@
                                     <mat-progress-spinner *ngIf="use_case_text['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
                                 </div>
                                 <div *ngIf="mq.matches">
-                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05">more_vert</mat-icon>
+                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showUseCaseControls(use_case_text)">more_vert</mat-icon>
                                 </div>
                             </div>
                         </li>
@@ -515,7 +516,7 @@
                                     <mat-progress-spinner *ngIf="get_inspired_link['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
                                 </div>
                                 <div *ngIf="mq.matches">
-                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05">more_vert</mat-icon>
+                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showGetInspiredControls(get_inspired_link)">more_vert</mat-icon>
                                 </div>
                             </div>
                         </li>
@@ -569,7 +570,7 @@
                                     <mat-progress-spinner *ngIf="additional_reading_link['delete']" [diameter]="18" mode="indeterminate"></mat-progress-spinner>
                                 </div>
                                 <div *ngIf="mq.matches">
-                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05">more_vert</mat-icon>
+                                    <mat-icon class="edit-icon small-text-icon cursor-pointer m-r-05 m-l-05" (click)="showAdditionalReadingControls(additional_reading_link)">more_vert</mat-icon>
                                 </div>
                             </div>
                         </li>
@@ -630,5 +631,11 @@
                 </div>
             </section>
         </div>
+    </div>
+    <div *ngIf="viewContent === 'VIEW_IMAGE'">
+        <app-view-image (closeViewEvent)="closeViewContent($event)"></app-view-image>
+    </div>
+    <div *ngIf="viewContent === 'VIEW_PDF'">
+        <app-view-pdf (closeViewEvent)="closeViewContent($event)"></app-view-pdf>
     </div>
 </mat-card>

@@ -75,7 +75,6 @@
                                     <div class="d-flex align-center">
                                         <mat-icon class="m-r-05 content-type-icon">
                                             <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
-                                            <span *ngIf="isContentTypeVideo(content.content_type)">play_circle_outline</span>
                                             <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
                                             <span *ngIf="isContentTypeLink(content.content_type)">link</span>
                                         </mat-icon>
@@ -109,7 +108,6 @@
                                                 <div class="d-flex align-center">
                                                     <mat-icon class="m-r-05 content-type-icon">
                                                         <span *ngIf="isContentTypeImage(content.content_type)">insert_photo</span>
-                                                        <span *ngIf="isContentTypeVideo(content.content_type)">play_circle_outline</span>
                                                         <span *ngIf="isContentTypePdf(content.content_type)">picture_as_pdf</span>
                                                         <span *ngIf="isContentTypeLink(content.content_type)">link</span>
                                                     </mat-icon>
@@ -136,7 +134,7 @@
 
 <div *ngIf="contentOpened">
     <app-preview-image hidden *ngIf="isContentTypeImage(selectedContent.content_type)"></app-preview-image>
-    <app-preview-video hidden *ngIf="isContentTypeVideo(selectedContent.content_type)"></app-preview-video>
+    <!-- <app-preview-video hidden *ngIf="isContentTypeVideo(selectedContent.content_type)"></app-preview-video> -->
     <app-preview-pdf hidden *ngIf="isContentTypePdf(selectedContent.content_type)"></app-preview-pdf>
     <div class="heading">
         <div class="d-flex justify-content-between align-center cursor-pointer expansion-panel-header-color" (click)="toggleShowDetails()">

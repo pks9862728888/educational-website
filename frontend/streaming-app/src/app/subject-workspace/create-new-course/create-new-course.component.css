@@ -112,12 +112,15 @@ hr {
     display: flex;
     align-items: center;
     right: 1.7rem;
-    transform: translateY(-50%);
     position: absolute;
 }
 
+.edit-controls {
+    transform: translateY(-235%);
+}
+
 .edit-lecture-controls {
-    transform: translateY(-240%);
+    transform: translateY(-290%);
 }
 
 .lecture-heading {
@@ -187,9 +190,9 @@ hr {
 
 .green-button:disabled,
 .green-button:disabled:hover {
-    color: #fff;
+    color: #bdbdbd;
     background-color: #094d49;
-    opacity: 0.8;
+    opacity: 0.6;
 }
 
 .datepicker-icon {
@@ -216,6 +219,12 @@ hr {
     font-size: 18px;
     height: 18px;
     width: 18px;
+}
+
+.small-close-icon {
+    font-size: 19px;
+    height: 19px;
+    width: 19px;
 }
 
 .link-decoration {

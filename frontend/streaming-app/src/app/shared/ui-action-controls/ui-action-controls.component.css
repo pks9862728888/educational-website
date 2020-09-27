@@ -6,5 +6,8 @@
 .edit-icon,
 .delete-icon {
     background-color: rgb(240, 240, 240);
-    margin-right: 0.2rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
 }

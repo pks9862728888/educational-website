@@ -34,6 +34,9 @@ export const selectedLicenseId = 'selectedLicenseId';
 export const purchasedLicenseExists = 'purchasedLicenseExists';
 export const paymentComplete = 'paymentComplete';
 
+// For Course
+export const courseContent = 'courseContent';
+
 export const COUNTRY = {
     IN: 'India',
     US: 'USA'
@@ -258,12 +261,12 @@ export const PAYMENT_PORTAL_REVERSE = {
 export const SUBJECT_TYPE = {
   M: 'MANDATORY',
   O: 'OPTIONAL'
-}
+};
 
 export const SUBJECT_TYPE_REVERSE = {
   MANDATORY: 'M',
   OPTIONAL: 'O'
-}
+};
 
 export const SUBJECT_INTRODUCTION_CONTENT_TYPE = {
   I: 'IMAGE',
@@ -292,17 +295,23 @@ export const STUDY_MATERIAL_VIEW_REVERSE = {
 export const STUDY_MATERIAL_VIEW_TYPES = {
   MODULE_VIEW: 'M',
   TEST_VIEW: 'T'
-}
+};
 
 export const LECTURE_TEXT_TYPES = {
   USE_CASE: 'U',
   OBJECTIVES: 'O'
-}
+};
 
 export const LECTURE_LINK_TYPES = {
   ADDITIONAL_READING_LINK: 'A',
   USE_CASES_LINK: 'U'
-}
+};
+
+export const LECTURE_INTRODUCTORY_CONTENT_TYPES = {
+  LINK: 'L',
+  PDF: 'P',
+  IMAGE: 'I'
+};
 
 export const LECTURE_STUDY_MATERIAL_TYPES = {
   PDF: 'P',
@@ -310,4 +319,4 @@ export const LECTURE_STUDY_MATERIAL_TYPES = {
   EXTERNAL_LINK: 'E',
   YOUTUBE_LINK: 'Y',
   LIVE_CLASS: 'L'
-}
+};

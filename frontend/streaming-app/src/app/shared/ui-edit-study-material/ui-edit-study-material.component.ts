@@ -41,12 +41,12 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
     });
     if (this.notExternalLinkView()) {
       this.editForm.patchValue({
-        can_download: this.filledFormText.can_download
-      })
+        can_download: this.filledFormText.data.can_download
+      });
     } else {
       this.editForm.patchValue({
-          link: this.filledFormText.link
-      })
+          link: this.filledFormText.data.link
+      });
     }
     this.formEventSubscription = this.formEvent.subscribe(
       (data: string) => {
@@ -67,26 +67,26 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
 
   submit() {
     const data = this.editForm.value;
-    if (!data['can_download']) {
-      data['can_download'] = false;
+    if (!data.can_download) {
+      data.can_download = false;
     }
-    data['content_type'] = this.filledFormText.content_type
+    data.content_type = this.filledFormText.content_type;
     if (data.target_date) {
-      data['target_date'] = formatDate(data['target_date'])
+      data.target_date = formatDate(data.target_date);
     } else {
-      delete data['target_date']
+      delete data.target_date;
     }
     if (this.notExternalLinkView()) {
-      delete data['link'];
+      delete data.link;
     } else {
-      delete data['can_download'];
+      delete data.can_download;
     }
-    data['id'] = this.filledFormText.id;
+    data.id = this.filledFormText.id;
     this.formData.emit(data);
   }
 
   notExternalLinkView() {
-    if (this.filledFormText.content_type !== SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
+    if (this.filledFormText.content_type !== SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE.LINK) {
       return true;
     } else {
       return false;
@@ -102,5 +102,4 @@ export class UiEditStudyMaterialComponent implements OnInit, OnDestroy {
       this.formEventSubscription.unsubscribe();
     }
   }
-
 }

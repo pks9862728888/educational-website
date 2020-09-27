@@ -46,9 +46,11 @@ export class StudentWorkspaceGuard implements CanLoad {
 @Injectable()
 export class TeacherWorkspaceGuard implements CanLoad {
 
-  constructor( private cookieService: CookieService,
-               private authService: AuthService,
-               private router: Router ) {}
+  constructor(
+    private cookieService: CookieService,
+    private authService: AuthService,
+    private router: Router
+    ) {}
 
   canLoad(route: Route) {
       if (this.cookieService.get(authTokenName)) {

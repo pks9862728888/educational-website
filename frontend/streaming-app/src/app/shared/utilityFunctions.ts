@@ -13,50 +13,42 @@ export function getFileSize(fileSize: number) {
   }
 
 export function isContentTypeImage(key: string) {
-  if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['IMAGE']) {
+  if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE.IMAGE) {
     return true;
   } else {
-    return false
-  }
-}
-
-export function isContentTypeVideo(key: string) {
-  if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['VIDEO']) {
-    return true;
-  } else {
-    return false
+    return false;
   }
 }
 
 export function isContentTypeLink(key: string) {
-  if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
+  if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE.LINK) {
     return true;
   } else {
-    return false
+    return false;
   }
 }
 
 export function isContentTypeYouTubeLink(key: string) {
-  if (key === LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+  if (key === LECTURE_STUDY_MATERIAL_TYPES.YOUTUBE_LINK) {
     return true;
   } else {
-    return false
+    return false;
   }
 }
 
 export function isContentTypeExternalLink(key: string) {
-  if (key === LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK']) {
+  if (key === LECTURE_STUDY_MATERIAL_TYPES.EXTERNAL_LINK) {
     return true;
   } else {
-    return false
+    return false;
   }
 }
 
 export function isContentTypePdf(key: string) {
-  if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['PDF']) {
+  if (key === SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE.PDF) {
     return true;
   } else {
-    return false
+    return false;
   }
 }
 

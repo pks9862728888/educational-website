@@ -16,7 +16,7 @@ export class UiService {
   private dialogData = new Subject<any>();
   dialogData$ = this.dialogData.asObservable();
 
-  private editDeleteDialogData = new Subject<string>();
+  private editDeleteDialogData = new Subject<any>();
   editDeleteDialogData$ = this.editDeleteDialogData.asObservable();
 
   private openEditDeleteAddAddDialogData = new Subject<string>();
@@ -26,16 +26,14 @@ export class UiService {
   studentDetailsDialogData$ = this.studentDetailsDialogData.asObservable();
 
   constructor(
-    private _snackBar: MatSnackBar,
+    private snackBar: MatSnackBar,
     public dialog: MatDialog
     ) { }
 
   openDialog(title: string, falseStringDisplay: string, trueStringDisplay: string) {
     const dialogRef = this.dialog.open(UiDialogComponent, {
       data: {
-        title: title,
-        trueStringDisplay: trueStringDisplay,
-        falseStringDisplay: falseStringDisplay
+        title, trueStringDisplay, falseStringDisplay
       }
     });
     dialogRef.afterClosed().subscribe(result => {
@@ -50,8 +48,7 @@ export class UiService {
   openEditDeleteDialog(firstButtonText: string, secondButtonText: string) {
     const dialogRef = this.dialog.open(UiActionControlsComponent, {
       data: {
-        firstButtonText: firstButtonText,
-        secondButtonText: secondButtonText
+        firstButtonText, secondButtonText
       }
     });
     dialogRef.afterClosed().subscribe(result => {
@@ -71,10 +68,7 @@ export class UiService {
     ) {
     const dialogRef = this.dialog.open(UiEditDeleteAddAddControlsComponent, {
       data: {
-        firstButtonText: firstButtonText,
-        secondButtonText: secondButtonText,
-        thirdButtonText: thirdButtonText,
-        fourthButtonText: fourthButtonText
+        firstButtonText, secondButtonText, thirdButtonText, fourthButtonText
       }
     });
     dialogRef.afterClosed().subscribe(result => {
@@ -89,7 +83,7 @@ export class UiService {
   openStudentDetailsConfirmDialog(instituteSlug: string) {
     // Dialog to confirm student's details while joining institute
     const dialogRef = this.dialog.open(ConfirmStudentsDetailsComponent, {
-      data: {'instituteSlug': instituteSlug}
+      data: {instituteSlug}
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
@@ -101,9 +95,9 @@ export class UiService {
   }
 
   showSnackBar(message: string, duration: number) {
-    this._snackBar.openFromComponent(SnackbarComponent, {
+    this.snackBar.openFromComponent(SnackbarComponent, {
       data: message,
-      duration: duration
+      duration
     });
   }
 }
