@@ -13,7 +13,6 @@ import { ViewPdfComponent } from './view-pdf/view-pdf.component';
 import { ViewImageComponent } from './view-image/view-image.component';
 
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
-import { CreateNewCourseComponent } from './create-new-course/create-new-course.component';
 
 
 @NgModule({
@@ -22,7 +21,6 @@ import { CreateNewCourseComponent } from './create-new-course/create-new-course.
     ViewVideoComponent,
     ViewPdfComponent,
     ViewImageComponent,
-    CreateNewCourseComponent,
   ],
   imports: [
     CommonModule,

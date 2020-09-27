@@ -1,9 +1,18 @@
-import { currentSubjectSlug, currentInstituteSlug, currentInstituteRole, currentInstituteType, paymentComplete, purchasedLicenseExists, currentClassSlug, hasClassPerm, hasSubjectPerm, INSTITUTE_TYPE_REVERSE, webAppName } from './../../constants';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router, NavigationEnd } from '@angular/router';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { MediaMatcher } from '@angular/cdk/layout';
+import { currentSubjectSlug,
+  currentInstituteSlug,
+  currentInstituteType,
+  paymentComplete,
+  purchasedLicenseExists,
+  currentClassSlug,
+  hasClassPerm,
+  hasSubjectPerm,
+  INSTITUTE_TYPE_REVERSE,
+  webAppName } from './../../constants';
 
 @Component({
   selector: 'app-subject-workspace',
@@ -34,7 +43,7 @@ export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
     this.activeLink = 'OVERVIEW';
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
-        if(val.url.includes('overview')) {
+        if (val.url.includes('overview')) {
           this.activeLink = 'OVERVIEW';
         } else if (val.url.includes('permissions')) {
           this.activeLink = 'PERMISSIONS';
@@ -68,11 +77,11 @@ export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   navigateToAppropriateInstituteWorkspace(path: string) {
-    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['School']) {
+    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.School) {
       this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + path]);
-    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['Coaching']) {
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.Coaching) {
       this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + path]);
-    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['College']) {
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.College) {
       this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + path]);
     }
   }

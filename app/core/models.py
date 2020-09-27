@@ -309,20 +309,6 @@ class GradedType:
     ]
 
 
-class StudyMaterialContentType:
-    VIDEO = 'V'
-    IMAGE = 'I'
-    PDF = 'P'
-    EXTERNAL_LINK = 'L'
-
-    CONTENT_TYPE_IN_CONTENT_TYPES = [
-        (VIDEO, _(u'VIDEO')),
-        (IMAGE, _(u'IMAGE')),
-        (PDF, _(u'PDF')),
-        (EXTERNAL_LINK, _(u'EXTERNAL_LINK')),
-    ]
-
-
 class StudyMaterialView:
     MEET_YOUR_INSTRUCTOR = 'MI'
     COURSE_OVERVIEW = 'CO'
@@ -330,22 +316,6 @@ class StudyMaterialView:
     STUDY_MATERIAL_VIEW_TYPES = [
         (MEET_YOUR_INSTRUCTOR, _(u'MEET_YOUR_INSTRUCTOR')),
         (COURSE_OVERVIEW, _(u'COURSE_OVERVIEW'))
-    ]
-
-
-class Weeks:
-    NONE = 'NO'
-    WEEK_1 = 'W1'
-    WEEK_2 = 'W2'
-    WEEK_3 = 'W3'
-    WEEK_4 = 'W4'
-
-    WEEK_IN_WEEK_TYPES = [
-        (NONE, _(u'NONE')),
-        (WEEK_1, _(u'WEEK_1')),
-        (WEEK_2, _(u'WEEK_2')),
-        (WEEK_3, _(u'WEEK_3')),
-        (WEEK_4, _(u'WEEK_4')),
     ]
 
 
@@ -384,15 +354,6 @@ def subject_img_study_material_upload_file_path(instance, filename):
     extension = filename.split('.')[-1]
     file_name = f'{uuid.uuid4()}.{extension}'
     path = 'institute/uploads/content/image'
-    full_path = os.path.join(path, file_name)
-    return full_path
-
-
-def subject_video_study_material_upload_file_path(instance, filename):
-    """Generates file path for uploading institute video study material"""
-    extension = filename.split('.')[-1]
-    file_name = f'{uuid.uuid4()}.{extension}'
-    path = 'institute/uploads/content/video'
     full_path = os.path.join(path, file_name)
     return full_path
 
@@ -1472,21 +1433,6 @@ def set_order_automatically(sender, instance, created, *args, **kwargs):
     if created:
         instance.order = instance.pk
         instance.save()
-        SubjectViewWeek.objects.create(
-            week_view=instance,
-            value=1
-        )
-
-
-class SubjectViewWeek(models.Model):
-    """Model for storing week details"""
-    week_view = models.ForeignKey(
-        SubjectViewNames, on_delete=models.CASCADE, related_name='week_view')
-    value = models.PositiveIntegerField(
-        _('Value'), blank=False, null=False)
-
-    def __str__(self):
-        return str(self.value)
 
 
 class SubjectIntroductoryContent(models.Model):
@@ -1718,193 +1664,10 @@ class SubjectLectureAssignment(models.Model):
         _('Total Mark'), default=0.0, max_digits=6, decimal_places=2, blank=True)
 
 
-class InstituteSubjectCourseContent(models.Model):
-    """Model for storing subject content"""
-    course_content_subject = models.ForeignKey(
-        to='InstituteSubject', related_name='course_content_subject',
-        on_delete=models.CASCADE)
-    order = models.IntegerField(_('Order'), blank=True, null=True)
-    title = models.CharField(
-        _('Title'), max_length=30, blank=False, null=False)
-    content_type = models.CharField(
-        _('Content Type'),
-        max_length=1,
-        null=False,
-        blank=False,
-        choices=StudyMaterialContentType.CONTENT_TYPE_IN_CONTENT_TYPES)
-    view = models.ForeignKey(
-        SubjectViewNames, on_delete=models.CASCADE, related_name='view')
-    target_date = models.DateField(
-        _('Target Date'), max_length=10, blank=True, null=True)
-    uploaded_on = models.DateTimeField(
-        _('Uploaded on'), default=timezone.now, editable=False)
-    description = models.TextField(_('Description'), default='', blank=True)
-    week = models.ForeignKey(
-        SubjectViewWeek, on_delete=models.CASCADE, related_name="week",
-        blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        if not self.title:
-            raise ValueError({'error': _('Subject is required.')})
-        if not self.content_type:
-            raise ValueError({'error': _('Content type is required.')})
-        if not self.view:
-            raise ValueError({'error': _('View is required.')})
-        if self.description:
-            self.description = self.description.strip()
-        self.title = self.title.strip()
-        super(InstituteSubjectCourseContent, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return str(self.title)
-
-
-@receiver(post_save, sender=InstituteSubjectCourseContent)
-def add_order_sequence(sender, instance, created, *args, **kwargs):
-    if created and not instance.order:
-        instance.order = instance.pk
-        instance.save()
-
-
-class SubjectExternalLinkStudyMaterial(models.Model):
-    """Model for storing link for institute subject study material"""
-    external_link_study_material = models.OneToOneField(
-        to='InstituteSubjectCourseContent', related_name='external_link_study_material',
-        on_delete=models.CASCADE)
-    url = models.CharField(_('Url'), max_length=256, blank=False, null=False)
-
-    def save(self, *args, **kwargs):
-        if not self.url:
-            raise ValueError({'error': _('Url is required.')})
-        self.url = self.url.strip()
-        super(SubjectExternalLinkStudyMaterial, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return str(self.external_link_study_material)
-
-
-class SubjectImageStudyMaterial(models.Model):
-    """Model for storing image study material"""
-    image_study_material = models.OneToOneField(
-        to='InstituteSubjectCourseContent', related_name='image_study_material',
-        on_delete=models.CASCADE)
-    file = models.FileField(
-        _('File'),
-        upload_to=subject_img_study_material_upload_file_path,
-        null=False,
-        blank=False,
-        max_length=1024,
-        unique=True)
-    can_download = models.BooleanField(
-        _('Can Download'), blank=True, default=True)
-
-    def save(self, *args, **kwargs):
-        if not self.file:
-            raise ValueError({'error': _('File is required.')})
-        super(SubjectImageStudyMaterial, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return str(self.image_study_material)
-
-
-@receiver(post_delete, sender=SubjectImageStudyMaterial)
-def auto_delete_image_file_on_delete(sender, instance, **kwargs):
-    if instance.file:
-        size = Decimal(instance.file.size)
-        if os.path.isfile(instance.file.path):
-            try:
-                os.remove(instance.file.path)
-            except Exception as e:
-                print('Error: ' + e)
-
-
-class SubjectVideoStudyMaterial(models.Model):
-    """Model for storing video study material"""
-    video_study_material = models.OneToOneField(
-        to='InstituteSubjectCourseContent', related_name='video_study_material',
-        on_delete=models.CASCADE)
-    file = models.FileField(
-        _('File'),
-        upload_to=subject_video_study_material_upload_file_path,
-        null=False,
-        blank=False,
-        max_length=1024,
-        unique=True)
-    size = models.DecimalField(
-        _('File size in Gb'), max_digits=12,
-        decimal_places=6, null=True, blank=True)
-    bit_rate = models.PositiveIntegerField(
-        _('Bit Rate'), null=True, blank=True)
-    duration = models.DecimalField(
-        _('Duration in seconds'), max_digits=10, decimal_places=2, blank=True, null=True)
-    stream_file = models.CharField(
-        _('HLS encoded stream file'), max_length=1024, blank=True)
-    can_download = models.BooleanField(
-        _('Can Download'), blank=True, default=True)
-    error_transcoding = models.BooleanField(
-        _('Error in transcoding'), default=False, blank=True)
-
-    def save(self, *args, **kwargs):
-        if not self.file:
-            raise ValueError({'error': _('File is required.')})
-        super(SubjectVideoStudyMaterial, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return str(self.video_study_material)
-
-
-@receiver(post_delete, sender=SubjectVideoStudyMaterial)
-def auto_delete_video_file_on_delete(sender, instance, **kwargs):
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            try:
-                os.remove(instance.file.path)
-            except Exception as e:
-                print('Error: ' + e)
-
-
-class SubjectPdfStudyMaterial(models.Model):
-    """Model for storing pdf study material"""
-    pdf_study_material = models.OneToOneField(
-        to='InstituteSubjectCourseContent', related_name='pdf_study_material',
-        on_delete=models.CASCADE)
-    file = models.FileField(
-        _('File'),
-        upload_to=subject_pdf_study_material_upload_file_path,
-        null=False,
-        blank=False,
-        max_length=1024,
-        unique=True)
-    duration = models.PositiveIntegerField(
-        _('Duration in seconds'), null=True, blank=True)
-    total_pages = models.PositiveIntegerField(
-        _('Total pages'), null=True, blank=True)
-    can_download = models.BooleanField(
-        _('Can Download'), blank=True, default=True)
-
-    def save(self, *args, **kwargs):
-        if not self.file:
-            raise ValueError({'error': _('File is required.')})
-        super(SubjectPdfStudyMaterial, self).save(*args, **kwargs)
-
-    def __str__(self):
-        return str(self.pdf_study_material)
-
-
-@receiver(post_delete, sender=SubjectPdfStudyMaterial)
-def auto_delete_pdf_file_on_delete(sender, instance, **kwargs):
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            try:
-                os.remove(instance.file.path)
-            except Exception as e:
-                print('Error: ' + e)
-
-
 class InstituteSubjectCourseContentQuestions(models.Model):
     """Model for storing subject course content questions"""
-    course_content = models.ForeignKey(
-        InstituteSubjectCourseContent, on_delete=models.CASCADE, related_name='course_content')
+    # course_content = models.ForeignKey(
+    #     InstituteSubjectCourseContent, on_delete=models.CASCADE, related_name='course_content')
     user = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='question_user', blank=False, null=True)
     anonymous = models.BooleanField(
@@ -1933,8 +1696,8 @@ class InstituteSubjectCourseContentQuestions(models.Model):
     def __str__(self):
         return self.question.lower()
 
-    class Meta:
-        unique_together = ('course_content', 'question')
+    # class Meta:
+    #     unique_together = ('course_content', 'question')
 
 
 class InstituteSubjectCourseContentAnswer(models.Model):
@@ -2119,8 +1882,8 @@ class InstituteSubjectStudents(models.Model):
 
 class InstituteStudyMaterialPreviewStats(models.Model):
     """Model for storing institute study material preview statistics"""
-    course_content = models.ForeignKey(
-        InstituteSubjectCourseContent, on_delete=models.CASCADE, related_name='institute_course_content')
+    # course_content = models.ForeignKey(
+    #     InstituteSubjectCourseContent, on_delete=models.CASCADE, related_name='institute_course_content')
     completed = models.BooleanField('Completed', default=False, blank=True)
     completed_on = models.DateTimeField(
         _('Completed On'), default=timezone.now, blank=True)
@@ -2130,8 +1893,8 @@ class InstituteStudyMaterialPreviewStats(models.Model):
     def __str__(self):
         return str(self.user)
 
-    class Meta:
-        unique_together = ('user', 'course_content')
+    # class Meta:
+    #     unique_together = ('user', 'course_content')
 
 
 class InstituteBannedStudent(models.Model):

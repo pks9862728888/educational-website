@@ -462,65 +462,6 @@ class InstituteClassSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'class_slug', 'created_on')
 
 
-class SubjectCourseContentCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating course content"""
-
-    class Meta:
-        model = models.InstituteSubjectCourseContent
-        fields = ('id', 'course_content_subject', 'order', 'title',
-                  'content_type', 'view', 'target_date', 'uploaded_on',
-                  'description', 'week')
-        read_only_fields = ('id', 'order', 'uploaded_on')
-
-
-class SubjectExternalLinkStudyMaterialSerializer(serializers.ModelSerializer):
-    """Serializer for creating course content"""
-
-    class Meta:
-        model = models.SubjectExternalLinkStudyMaterial
-        fields = ('id', 'external_link_study_material', 'url')
-        read_only_fields = ('id', )
-
-
-class ImageStudyMaterialSerializer(serializers.ModelSerializer):
-    """Serializer for creating course content"""
-    file = serializers.FileField(allow_null=False, use_url=True)
-
-    class Meta:
-        model = models.SubjectImageStudyMaterial
-        fields = ('id', 'image_study_material', 'file', 'can_download')
-        read_only_fields = ('id',)
-
-
-class VideoStudyMaterialSerializer(serializers.ModelSerializer):
-    """Serializer for creating course content"""
-    file = serializers.FileField(allow_null=False, use_url=True)
-
-    class Meta:
-        model = models.SubjectVideoStudyMaterial
-        fields = ('id', 'video_study_material', 'file', 'can_download')
-        read_only_fields = ('id',)
-
-
-class PdfStudyMaterialSerializer(serializers.ModelSerializer):
-    """Serializer for creating course content"""
-    file = serializers.FileField(allow_null=False, use_url=True)
-
-    class Meta:
-        model = models.SubjectPdfStudyMaterial
-        fields = ('id', 'pdf_study_material', 'file', 'can_download')
-        read_only_fields = ('id',)
-
-
-class GetImageStudyMaterialSerializer(serializers.ModelSerializer):
-    """Serializer for creating course content"""
-
-    class Meta:
-        model = models.SubjectImageStudyMaterial
-        fields = ('id', 'image_study_material', 'file')
-        read_only_fields = ('image_study_material', 'file')
-
-
 class SubjectIntroductoryFileMaterialSerializer(serializers.ModelSerializer):
     """Serializer for creating introductory study material"""
     file = serializers.FileField(allow_null=False, use_url=True)

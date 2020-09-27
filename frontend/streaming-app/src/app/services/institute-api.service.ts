@@ -121,18 +121,6 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/subject-course-content-min-statistics`;
   }
 
-  getAddWeekInSubjectModuleUrl(subjectSlug: string){
-    return `${this.instituteBaseUrl}${subjectSlug}/add-week`;
-  }
-
-  getDeleteWeekOfSubjectModuleUrl(
-     instituteSlug: string,
-     subjectSlug: string,
-     viewKey: string,
-     week: string) {
-    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${viewKey}/${week}/delete-week`;
-  }
-
   getCreateSubjectModuleUrl(subjectSlug: string) {
     return `${this.instituteBaseUrl}${subjectSlug}/add-view`;
   }
@@ -613,7 +601,7 @@ export class InstituteApiService {
   addSectionIncharge(invitee: string, sectionSlug: string) {
     return this.httpClient.post(
       this.addSectionInchargeUrl,
-      { 'invitee': invitee, 'section_slug': sectionSlug },
+      { invitee, section_slug: sectionSlug },
       { headers: this.getAuthHeader() }
     );
   }
@@ -624,30 +612,6 @@ export class InstituteApiService {
       this.getCourseMinDetailsUrl(subjectSlug),
       { headers: this.getAuthHeader() }
     );
-  }
-
-  addSubjectModuleWeek(subjectSlug: string, viewKey: string) {
-    return this.httpClient.post(
-      this.getAddWeekInSubjectModuleUrl(subjectSlug),
-      {'view_key': viewKey},
-      { headers: this.getAuthHeader() }
-    );
-  }
-
-  deleteWeekOfSubjectModule(
-    instituteSlug: string,
-    subjectSlug: string,
-    viewKey: string,
-    week: string) {
-      return this.httpClient.delete(
-        this.getDeleteWeekOfSubjectModuleUrl(
-          instituteSlug,
-          subjectSlug,
-          viewKey,
-          week
-        ),
-        { headers: this.getAuthHeader() }
-      );
   }
 
   createSubjectModule(

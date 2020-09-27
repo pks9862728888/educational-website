@@ -20,10 +20,6 @@ hr {
     background-color: #000;
 }
 
-.top-separator {
-    margin-bottom: 0.7rem;
-}
-
 .download {
     display: flex;
     right: 1.5rem;
@@ -44,14 +40,6 @@ hr {
 
 .disable-download {
     pointer-events: none;
-}
-
-.description {
-    padding: 0.5rem;
-    background-color: #303030;
-    border-radius: 5px;
-    z-index: 2;
-    box-shadow: 0px 1px 2px #222222;
 }
 
 .video-player {
@@ -79,8 +67,4 @@ hr {
 
 .m-t-1 {
     margin-top: 1rem;
-}
-
-.l-h-24 {
-    line-height: 24px;
 }
