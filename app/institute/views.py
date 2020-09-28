@@ -3247,11 +3247,13 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                 res['id'] = content.pk
                 res['name'] = content.name
                 res['content_type'] = content.content_type
+                res['data'] = dict()
 
                 if content.content_type == models.SubjectIntroductionContentType.LINK:
-                    res['link'] = content.link
+                    res['data']['link'] = content.link
                 else:
-                    res['file'] = self.request.build_absolute_uri('/').strip('/') + MEDIA_ROOT + str(content.file)
+                    res['data']['file'] = self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(content.file)
+                    res['data']['can_download'] = content.can_download
 
                 response.append(res)
         else:
@@ -3627,7 +3629,9 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
                     'id': obj.pk,
                     'name': obj.name,
                     'content_type': obj.content_type,
-                    'link': obj.link
+                    'data': {
+                        'link': obj.link
+                    }
                 })
 
             if request.data.get('content_type') != models.SubjectIntroductionContentType.LINK:
@@ -3659,11 +3663,11 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
                         float(institute_stats.storage) + request.data.get('file').size / 1000000000)
                     institute_stats.save()
 
-                    response.update(get_file_lecture_material_data(
+                    response['data'] = get_file_lecture_material_data(
                         ser.data,
                         'SER',
                         ''
-                    ))
+                    )
                     response['name'] = ser.data['name']
 
             return Response(response, status=status.HTTP_201_CREATED)
@@ -3709,13 +3713,15 @@ class InstituteSubjectEditIntroductoryContentView(APIView):
 
                 obj.link = request.data.get('link')
                 response.update({
-                    'link': obj.link
+                    'data': {
+                        'link': obj.link
+                    }
                 })
             else:
-                response.update({
+                response['data'] = {
                     'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + str(obj.file),
                     'can_download': obj.can_download
-                })
+                }
 
             obj.save()
             response['content_type'] = obj.content_type
