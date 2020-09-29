@@ -1,9 +1,7 @@
 import os
-import datetime
 import random
 import string
 import uuid
-from decimal import Decimal
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
@@ -19,6 +17,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
+from django.contrib.auth.hashers import make_password, check_password
 from app import settings
 
 from phonenumber_field.modelfields import PhoneNumberField
@@ -319,6 +318,62 @@ class StudyMaterialView:
     ]
 
 
+class QuestionMode:
+    TYPED = 'T'
+    IMAGE = 'I'
+    FILE = 'F'
+
+    QUESTION_MODE_IN_QUESTION_MODES = [
+        (TYPED, _(u'TYPED')),
+        (IMAGE, _(u'IMAGE')),
+        (FILE, _(u'FILE'))
+    ]
+
+
+class AnswerMode:
+    TYPED = 'T'
+    FILE = 'F'
+
+    ANSWER_MODE_IN_ANSWER_MODES = [
+        (TYPED, _(u'TYPED')),
+        (FILE, _(u'FILE'))
+    ]
+
+
+class TestQuestionSectionType:
+    OPTIONAL = 'O'
+    MANDATORY = 'M'
+
+    TYPE_IN_SECTION_TYPES = [
+        (OPTIONAL, _(u'OPTIONAL')),
+        (MANDATORY, _(u'MANDATORY'))
+    ]
+
+
+class QuestionType:
+    MCQ = 'M'
+    TRUE_FALSE = 'T'
+    SELECT_MULTIPLE_CHOICE = 'M'
+    FILL_IN_THE_BLANK = 'F'
+    ASSERTION = 'A'
+    SHORT_ANSWER = 'S'
+    DESCRIPTIVE_ANSWER = 'D'
+    NUMERIC_ANSWER = 'N'
+    PICTURE_TYPE_QUESTION = 'P'
+
+    TYPE_IN_QUESTION_TYPES = [
+        (MCQ, _(u'MCQ')),
+        (TRUE_FALSE, _(u'TRUE_FALSE')),
+        (SELECT_MULTIPLE_CHOICE, _(u'SELECT_MULTIPLE_CHOICE')),
+        (FILL_IN_THE_BLANK, _(u'FILL_IN_THE_BLANK')),
+        (ASSERTION, _(u'ASSERTION')),
+        (SHORT_ANSWER, _(u'SHORT_ANSWER')),
+        (DESCRIPTIVE_ANSWER, _(u'DESCRIPTIVE_ANSWER')),
+        (NUMERIC_ANSWER, _(u'NUMERIC_ANSWER')),
+        (PICTURE_TYPE_QUESTION, _(u'PICTURE_TYPE_QUESTION'))
+    ]
+
+
 def user_profile_picture_upload_file_path(instance, filename):
     """Generates file path for uploading images in user profile"""
     extension = filename.split('.')[-1]
@@ -393,6 +448,24 @@ def hls_key_saving_path(filename):
     return full_path
 
 
+def subject_file_test_question_file_path(instance, filename):
+    """Generates file path for uploading subject test file question paper"""
+    extension = filename.split('.')[-1]
+    file_name = f'{uuid.uuid4()}.{extension}'
+    path = 'institute/uploads/test/question_paper/file'
+    full_path = os.path.join(path, file_name)
+    return full_path
+
+
+def subject_image_test_question_file_path(instance, filename):
+    """Generates file path for uploading subject test image question"""
+    extension = filename.split('.')[-1]
+    file_name = f'{uuid.uuid4()}.{extension}'
+    path = 'institute/uploads/test/question_paper/image'
+    full_path = os.path.join(path, file_name)
+    return full_path
+
+
 def random_string_generator(size=10,
                             chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
@@ -427,6 +500,32 @@ def unique_coupon_code_generator(instance):
         if not qs_exists:
             break
     return slug
+
+
+def unique_slug_generator_for_test_set(instance):
+    """Generates and returns a new test set slug"""
+    while True:
+        slug = random_string_generator(size=8).upper()
+
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(set_slug=slug).exists()
+
+        if not qs_exists:
+            break
+    return slug
+
+
+def generate_student_test_password(instance):
+    """Generates and returns a new test set slug"""
+    while True:
+        hashed_password = make_password(random_string_generator(size=6).upper())
+
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(test=instance.test, password=hashed_password).exists()
+
+        if not qs_exists:
+            break
+    return hashed_password
 
 
 def create_order_receipt(instance):
@@ -2030,3 +2129,279 @@ class InstituteSubjectLastSeen(models.Model):
 
     class Meta:
         unique_together = ('user', 'last_seen_subject')
+
+
+#####################################################################
+# Models for digital adaptive test
+# Models for creating Question paper
+#####################################################################
+class SubjectTest(models.Model):
+    """Model to create test"""
+    subject = models.ForeignKey(
+        InstituteSubject, on_delete=models.CASCADE, related_name='test_subject')
+    name = models.CharField(_('Test Name'), max_length=30, null=False)
+    type = models.CharField(
+        _('Test Type'),
+        max_length=1,
+        choices=GradedType.GRADED_TYPE_IN_GRADED_TYPES)
+    total_marks = models.DecimalField(
+        _('Total Marks'), decimal_places=2, max_digits=5)
+    total_duration = models.PositiveSmallIntegerField(
+        _('Total Duration in minutes'))
+    date_time = models.DateTimeField(
+        _('Test Scheduled date and time'), blank=False)
+    instruction = models.CharField(
+        _('Instruction'), max_length=200, blank=True, default='')
+    no_of_optional_section_answer = models.PositiveSmallIntegerField(
+        _('Number of optional section answer'), default=0, blank=True)
+    question_mode = models.CharField(
+        _('Question Mode'),
+        max_length=1,
+        choices=QuestionMode.QUESTION_MODE_IN_QUESTION_MODES)
+    answer_mode = models.CharField(
+        _('Answer Mode'),
+        max_length=1,
+        choices=AnswerMode.ANSWER_MODE_IN_ANSWER_MODES)
+    auto_check = models.BooleanField(_('Auto Check'))  # MCQ, TrueFalse, SelectMultiple questions only
+    no_of_attempts = models.PositiveSmallIntegerField(
+        _('No of attempts to take exam'), default=0, blank=True)
+    publish_result_automatically = models.BooleanField(_('Publish result automatically'))
+    enable_peer_check = models.BooleanField(_('Enable peer check'))
+    created_on = models.DateTimeField(_('Created on'), default=timezone.now, blank=True)
+
+
+class SubjectTestSets(models.Model):
+    """Model for creating multiple test set"""
+    test = models.ForeignKey(
+        SubjectTest, on_delete=models.CASCADE, related_name='test_set_test')
+    set_name = models.CharField(
+        _('Set Name'), max_length=20, blank=False, null=False)
+    set_slug = models.CharField(
+        _('Set Slug'), max_length=8, blank=False, null=False)
+    verified = models.BooleanField(
+        _('Set Verified'), default=False, blank=True)
+    active = models.BooleanField(
+        _('Set Active'), default=False, blank=True)
+
+
+@receiver(pre_save, sender=SubjectTestSets)
+def set_test_slug(instance, *args, **kwargs):
+    if not instance.set_slug:
+        instance.set_slug = unique_slug_generator_for_test_set(instance)
+
+
+class SubjectTestConceptLabels(models.Model):    # If answer mode is typed
+    """Model for creating concept labels"""
+    test = models.ForeignKey(
+        SubjectTest, on_delete=models.CASCADE, related_name='test_concept_labels')
+    name = models.CharField(
+        _('Name'), max_length=30, blank=False, null=False)
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip()
+
+        super(SubjectTestConceptLabels, self).save(*args, **kwargs)
+
+
+class SubjectFileTestQuestion(models.Model):   # If question mode is file
+    """Model for storing test file question"""
+    test = models.ForeignKey(
+        SubjectTest, on_delete=models.CASCADE, related_name='file_question_test')
+    set = models.ForeignKey(
+        SubjectTestSets, on_delete=models.CASCADE, related_name='file_question_set')
+    file = models.FileField(
+        _('File'),
+        upload_to=subject_file_test_question_file_path,
+        null=True,
+        blank=True,
+        max_length=1024)
+
+
+class SubjectTestQuestionSection(models.Model):    # If question mode is typed / image
+    """Model for storing question section"""
+    test = models.ForeignKey(
+        SubjectTest, on_delete=models.CASCADE, related_name='question_section_test')
+    set = models.ForeignKey(
+        SubjectTestSets, on_delete=models.CASCADE, related_name='question_section_set')
+    type = models.CharField(
+        _('Section Type'),
+        max_length=1,
+        choices=TestQuestionSectionType.TYPE_IN_SECTION_TYPES)
+    name = models.CharField(
+        _('Name of question section'), max_length=100, blank=True, default='')
+    order = models.PositiveIntegerField(
+        _('Order'), blank=True, null=True)
+
+
+@receiver(post_save, sender=SubjectTestQuestionSection)
+def set_test_question_section_order(sender, instance, created, *args, **kwargs):
+    if created:
+        instance.order = instance.pk
+        instance.save()
+
+
+class SubjectPictureTestQuestion(models.Model):           # If question mode is picture
+    """Model for storing questions if question mode is picture"""
+    test = models.ForeignKey(
+        SubjectTest, on_delete=models.CASCADE, related_name='picture_question_test')
+    test_section = models.ForeignKey(
+        SubjectTestQuestionSection,
+        on_delete=models.CASCADE,
+        related_name='picture_question_section')
+    order = models.PositiveIntegerField(
+        _('Order'), blank=True, null=True)
+    marks = models.DecimalField(
+        _('Marks'), decimal_places=2, max_digits=5)
+    file = models.FileField(
+        _('File'),
+        upload_to=subject_image_test_question_file_path,
+        null=True,
+        blank=True,
+        max_length=1024)
+
+
+@receiver(post_save, sender=SubjectPictureTestQuestion)
+def set_picture_test_question_order(sender, instance, created, *args, **kwargs):
+    if created:
+        instance.order = instance.pk
+        instance.save()
+
+
+class SubjectTypedTestQuestion(models.Model):
+    """Model for storing typed test questions"""
+    test_section = models.ForeignKey(
+        SubjectTestQuestionSection, on_delete=models.CASCADE, related_name='typed_test_question_section')
+    type = models.CharField(
+        _('Question type'),
+        max_length=1,
+        choices=QuestionType.TYPE_IN_QUESTION_TYPES,
+        blank=False)
+    concept_label = models.ForeignKey(
+        SubjectTestConceptLabels, on_delete=models.SET_NULL, blank=True, null=True)
+    question = models.TextField(
+        'Question', blank=True, default='')
+    marks = models.DecimalField(
+        'Marks', max_digits=5, decimal_places=2)
+    order = models.PositiveIntegerField(
+        _('Order'), blank=True, null=True)
+
+
+@receiver(post_save, sender=SubjectTypedTestQuestion)
+def set_typed_test_question_order(sender, instance, created, *args, **kwargs):
+    if created:
+        instance.order = instance.pk
+        instance.save()
+
+
+class SubjectTestQuestionImage(models.Model):
+    """Model for storing test question image"""
+    question = models.ForeignKey(
+        SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='image_typed_test_question')
+    file = models.FileField(
+        _('File'),
+        upload_to=subject_image_test_question_file_path,
+        null=True,
+        blank=True,
+        max_length=1024)
+
+
+class SubjectTestMcqOptions(models.Model):
+    """Model for storing subject test mcq options and correct answer"""
+    question = models.ForeignKey(
+        SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_mcq_question')
+    option = models.CharField(
+        _('Option'), max_length=200, blank=False)
+    correct_answer = models.BooleanField(_('Is Correct Answer'))
+
+
+class SubjectTestTrueFalseCorrectAnswer(models.Model):
+    """Model for storing subject test True False correct answer"""
+    question = models.OneToOneField(
+        SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_true_false_question')
+    correct_answer = models.BooleanField(_('True / False correct answer'))
+
+
+class SubjectTestSelectMultipleCorrectAnswer(models.Model):
+    """Model for storing subject test select multiple correct answer"""
+    question = models.ForeignKey(
+        SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_select_multiple_question')
+    option = models.CharField(
+        _('Option'), max_length=200, blank=False)
+    correct_answer = models.BooleanField(_('Is Correct Answer'))
+
+
+class SubjectTestNumericCorrectAnswer(models.Model):
+    """Model for storing subject test numeric correct answer"""
+    question = models.ForeignKey(
+        SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_numeric_question')
+    correct_answer = models.DecimalField(
+        _('Correct Answer'), max_digits=20, decimal_places=6)
+
+
+class SubjectTestAssertionCorrectAnswer(models.Model):
+    """Model for storing subject test assertion correct answer"""
+    question = models.ForeignKey(
+        SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_assertion_answer')
+    correct_answer = models.BooleanField(_('True / False correct answer'))
+
+
+class SubjectTestFillInTheBlankCorrectAnswer(models.Model):
+    """Model for storing subject fill in the blank correct answer"""
+    question = models.ForeignKey(
+        SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_fill_in_the_blank_answer')
+    correct_answer = models.CharField(
+        _('Correct Answer'), max_length=100)
+    enable_strict_checking = models.BooleanField(_('Enable strict checking.'), default=False)
+    ignore_grammar = models.BooleanField(_('Ignore Grammar'), default=True)
+    ignore_special_characters = models.BooleanField(_('Ignore Special Characters'), default=True)
+
+    def save(self, *args, **kwargs):
+        if self.enable_strict_checking and (self.ignore_grammar or self.ignore_special_characters):
+            raise ValueError('Grammar and special characters can not be ignored if strict checking is enabled.')
+        super(SubjectTestFillInTheBlankCorrectAnswer, self).save(*args, **kwargs)
+
+
+#####################################################################
+# Models for test credentials
+#####################################################################
+class StudentTestCredential(models.Model):
+    """Model for storing test credentials"""
+    test = models.ForeignKey(
+        SubjectTest, on_delete=models.CASCADE, related_name='student_subject_test_credential')
+    set = models.ForeignKey(
+        SubjectTestSets, on_delete=models.CASCADE, related_name='student_test_question_set')
+    student = models.ForeignKey(
+        InstituteStudents, on_delete=models.CASCADE, related_name='student_test_credential')
+    password = models.CharField(
+        _('Test Password'), max_length=500, blank=True, null=False)
+    no_of_warning = models.PositiveSmallIntegerField(
+        _('Number of warnings'), default=0, blank=True)
+    logged_in = models.BooleanField(
+        _('Logged In'), default=False, blank=True)
+
+
+@receiver(pre_save, sender=StudentTestCredential)
+def create_password(instance, *args, **kwargs):
+    if not instance.password:
+        instance.password = generate_student_test_password(instance)
+
+
+class StudentTestLoginStats(models.Model):
+    """Model for storing login statistics of student"""
+    test = models.ForeignKey(
+        SubjectTest, on_delete=models.CASCADE, related_name='student_subject_test_login_stats')
+    attempt = models.PositiveSmallIntegerField(_('Login Attempts'))
+    net_speed = models.CharField('Net Speed', max_length=50, blank=True, null=True)
+    login_state = models.CharField(
+        _('Login State'),
+        max_length=2,
+        choices=StatesAndUnionTerritories.STATE_IN_STATE_CHOICES,
+        blank=True,
+        null=True)
+    other_region = models.CharField(
+        _('Other Region login'), max_length=100, blank=True, default='')
+    login_country = CountryField(
+        _('Login Country'), countries=OperationalCountries, default='IN')
+    created_on = models.DateTimeField(
+        _('Created on'), default=timezone.now, blank=True)
