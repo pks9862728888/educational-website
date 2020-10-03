@@ -2203,8 +2203,8 @@ class SubjectTest(models.Model):
         _('Total Marks'), decimal_places=2, max_digits=5)
     total_duration = models.PositiveSmallIntegerField(
         _('Total Duration in minutes'))
-    scheduled_date = models.PositiveIntegerField(
-        _('Scheduled date in UNIX timestamp in javascript notation'), blank=True, null=True)
+    test_schedule = models.PositiveIntegerField(
+        _('Test schedule in UNIX timestamp in millisecond'), blank=True, null=True)
     instruction = models.CharField(
         _('Instruction'), max_length=200, blank=True, default='')
     no_of_optional_section_answer = models.PositiveSmallIntegerField(
@@ -2239,8 +2239,8 @@ class SubjectTest(models.Model):
         if self.total_duration < 1:
             raise ValueError(_('Total duration should be a positive integer.'))
 
-        if int(self.total_marks) <= 0:
-            raise ValueError(_('Total marks should be a positive integer.'))
+        if float(self.total_marks) <= 0:
+            raise ValueError(_('Total marks should be a > 0.'))
 
         if self.no_of_optional_section_answer < 0:
             raise ValueError(_('No of optional section answer should be a positive integer.'))
@@ -2256,7 +2256,7 @@ class SubjectTest(models.Model):
             if self.enable_peer_check:
                 raise ValueError(_('Can not set test ENABLE PEER CHECK since question category is AUTOCHECK TYPE.'))
 
-        if not self.scheduled_date:
+        if not self.test_schedule:
             if self.allow_question_preview_10_min_before:
                 msg = _('Can not set QUESTION PREVIEW 10 MINUTES BEFORE since date & time of test is not scheduled.')
                 raise ValueError(msg)
@@ -2271,10 +2271,10 @@ class SubjectTest(models.Model):
                 msg = _('For Graded test number of attempts can not be greater than 1.')
                 raise ValueError(msg)
 
-        if self.scheduled_date:
+        if self.test_schedule:
             current_time = int(time.time()) * 1000  # In milliseconds
 
-            if current_time > self.scheduled_date:
+            if current_time > self.test_schedule:
                 raise ValueError(_('Test can not be scheduled in the past.'))
 
         if self.instruction:

@@ -5873,7 +5873,7 @@ class InstituteSubjectAddTestView(APIView):
                 type=request.data.get('type'),
                 total_marks=request.data.get('total_marks'),
                 total_duration=request.data.get('total_duration'),
-                scheduled_date=request.data.get('scheduled_date'),
+                test_schedule=request.data.get('test_schedule'),
                 instruction=request.data.get('instruction'),
                 no_of_optional_section_answer=request.data.get('no_of_optional_section_answer'),
                 question_mode=request.data.get('question_mode'),
@@ -5891,7 +5891,7 @@ class InstituteSubjectAddTestView(APIView):
             response['test_slug'] = test.test_slug
             response['name'] = test.name
             response['question_mode'] = test.question_mode
-            response['scheduled_date'] = test.scheduled_date
+            response['test_schedule'] = test.test_schedule
             response['subject_id'] = test.subject.pk
 
             if response.lecture:
