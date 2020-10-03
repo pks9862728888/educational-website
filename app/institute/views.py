@@ -5894,10 +5894,10 @@ class InstituteSubjectAddTestView(APIView):
             response['test_schedule'] = test.test_schedule
             response['subject_id'] = test.subject.pk
 
-            if response.lecture:
+            if test.lecture:
                 response['lecture_id'] = test.lecture.pk
 
-            if response.view:
+            if test.view:
                 response['view_id'] = test.view.pk
 
             return Response(response, status=status.HTTP_201_CREATED)
@@ -5905,6 +5905,7 @@ class InstituteSubjectAddTestView(APIView):
         except ValueError as e:
             return Response({'error': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Unknown internal server error occurred.')},
                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

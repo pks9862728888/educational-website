@@ -19,6 +19,8 @@ from django.db.models.signals import post_save, pre_save, post_delete
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import slugify
 from django.contrib.auth.hashers import make_password, check_password
+from unixtimestampfield.fields import UnixTimeStampField
+
 from app import settings
 
 from phonenumber_field.modelfields import PhoneNumberField
@@ -2203,8 +2205,8 @@ class SubjectTest(models.Model):
         _('Total Marks'), decimal_places=2, max_digits=5)
     total_duration = models.PositiveSmallIntegerField(
         _('Total Duration in minutes'))
-    test_schedule = models.PositiveIntegerField(
-        _('Test schedule in UNIX timestamp in millisecond'), blank=True, null=True)
+    test_schedule = UnixTimeStampField(
+        _('Test schedule in UNIX timestamp in millisecond'), use_numeric=True, blank=True, null=True)
     instruction = models.CharField(
         _('Instruction'), max_length=200, blank=True, default='')
     no_of_optional_section_answer = models.PositiveSmallIntegerField(
@@ -2236,10 +2238,10 @@ class SubjectTest(models.Model):
         if not self.name:
             raise ValueError(_('Test name is required.'))
 
-        if self.total_duration < 1:
+        if int(self.total_duration) < 1:
             raise ValueError(_('Total duration should be a positive integer.'))
 
-        if float(self.total_marks) <= 0:
+        if float(self.total_marks) <= 0.0:
             raise ValueError(_('Total marks should be a > 0.'))
 
         if self.no_of_optional_section_answer < 0:
@@ -2278,7 +2280,7 @@ class SubjectTest(models.Model):
                 raise ValueError(_('Test can not be scheduled in the past.'))
 
         if self.instruction:
-            self.instruction = self.instruction.trim()
+            self.instruction = self.instruction.strip()
 
         super(SubjectTest, self).save(*args, **kwargs)
 
