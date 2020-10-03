@@ -49,16 +49,14 @@ export function getUnixTimeStamp(selectedDate: string, hour: number, minute: num
   return +sheduledDate;
 }
 
-export function getTestSchedule(selectedDate: string, hour: number, minute: number) {
-  if (!hour) {
-    hour = 0;
-  }
-  if (!minute) {
-    minute = 0;
-  }
+export function getTestSchedule(selectedDate: string, hour = 0, minute = 0) {
   const date = new Date(selectedDate);
   return new Date(date.getFullYear(),
                   date.getMonth(),
                   date.getDate(),
                   hour, minute);
+}
+
+export function getDateFromUnixTimeStamp(timestamp) {
+  return new Date(timestamp);
 }

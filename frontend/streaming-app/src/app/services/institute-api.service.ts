@@ -205,6 +205,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${contentId}/edit-lecture-material`;
   }
 
+  getAddSubjectTestUrl(instituteSlug: string, subjectSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/add-test`;
+  }
+
   getClassStudentsListUrl(
     instituteSlug: string,
     classSlug: string,
@@ -805,8 +809,8 @@ export class InstituteApiService {
     formData.append('file', data.file);
     formData.append('content_type', data.content_type);
 
-    if (data.content_type !== LECTURE_STUDY_MATERIAL_TYPES['EXTERNAL_LINK'] &&
-        data.content_type !== LECTURE_STUDY_MATERIAL_TYPES['YOUTUBE_LINK']) {
+    if (data.content_type !== LECTURE_STUDY_MATERIAL_TYPES.EXTERNAL_LINK &&
+        data.content_type !== LECTURE_STUDY_MATERIAL_TYPES.YOUTUBE_LINK) {
       formData.append('can_download', data.can_download);
     }
 
@@ -824,6 +828,14 @@ export class InstituteApiService {
   editSubjectLectureContent(subjectSlug: string, contentId: string, data) {
     return this.httpClient.patch(
       this.getEditLectureContentUrl(subjectSlug, contentId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addSubjectTest(instituteSlug: string, subjectSlug: string, data) {
+    return this.httpClient.post(
+      this.getAddSubjectTestUrl(instituteSlug, subjectSlug),
       data,
       { headers: this.getAuthHeader() }
     );
@@ -987,7 +999,7 @@ export class InstituteApiService {
   bookmarkInstituteCourse(subjectId: string) {
     return this.httpClient.post(
       this.bookmarkCourseUrl,
-      { 'subject_id': subjectId },
+      { subject_id: subjectId },
       { headers: this.getAuthHeader() }
     );
   }

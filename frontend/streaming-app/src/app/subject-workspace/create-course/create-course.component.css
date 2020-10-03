@@ -34,6 +34,33 @@ hr {
     stroke: #f2aa4cff !important;
 }
 
+.test-container {
+    background-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 1px 1px 1px #1f1f1f;
+    margin-bottom: 0.7rem;
+    cursor: pointer;
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.test-container:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+
+.test-icon {
+    font-size: 30px;
+    height: 30px;
+    width: 30px;
+}
+
+.test-delete-icon {
+    display: flex;
+    align-items: center;
+    right: 1.7rem;
+    position: absolute;
+    transform: translateY(-250%);
+}
+
 
 /* Expansion panel */
 

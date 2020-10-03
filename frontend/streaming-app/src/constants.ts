@@ -402,3 +402,8 @@ export const SUBJECT_ADD_TEST_PLACE = {
   VIEW: 'V',
   LECTURE: 'L'
 };
+
+export const SUBJECT_VIEW_TYPE = {
+  MODULE_VIEW: 'M',
+  TEST_VIEW: 'T'
+};

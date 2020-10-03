@@ -14,10 +14,18 @@
         <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load course details.'" (retryEvent)="getMinCourseDetails()"></app-ui-reload>
         <section *ngIf="!showLoadingIndicator && !showReload && !errorText">
             <div class="m-b-1" *ngFor="let view of viewOrder; let i=index">
-                <div *ngIf="testViews.includes(view)">
-                    Design for test
+                <div *ngIf="viewDetails[view].type === SUBJECT_VIEW_TYPE.TEST_VIEW">
+                    <div class="test-container d-flex align-center">
+                        <mat-icon class="m-r-05 test-icon">assistant_photo</mat-icon>
+                        <div>
+                            <h3 *ngIf="!mq.matches" class="expansion-panel-header-color">{{ testDetails[view].name }}</h3>
+                            <p *ngIf="mq.matches" class="expansion-panel-header-color">{{ testDetails[view].name }}</p>
+                            <small>{{ getDateFromUnixTimeStamp(testDetails[view].test_schedule) | date : 'medium' }} | {{ getSubjectTestType(testDetails[view].type) }}</small>
+                        </div>
+                    </div>
+                    <mat-icon class="delete-icon test-delete-icon" (click)="confirmDeleteTest(view)">delete</mat-icon>
                 </div>
-                <div *ngIf="!testViews.includes(view)">
+                <div *ngIf="viewDetails[view].type === SUBJECT_VIEW_TYPE.MODULE_VIEW">
                     <mat-accordion>
                         <mat-expansion-panel class="text-color" [expanded]="openedPanelStep === i" (opened)="setOpenedPanelStep(i)">
                             <mat-expansion-panel-header [collapsedHeight]="'55px'" [expandedHeight]="'55px'">
@@ -237,7 +245,7 @@
                 <app-ui-mb-create-form [inputPlaceholder]="'Name of Module'" [buttonText]="'Submit'" [maxLength]="25" [progressSpinnerText]="'Creating module...'" [createIndicator]="addModuleIndicator" [formEvent]="addModuleFormEvent.asObservable()" (createEvent)="addModule($event)"></app-ui-mb-create-form>
             </div>
             <div *ngIf="showAddTestFormInGlobalView" class="m-b-1">
-                <app-add-subject-test [shouldSetDateTime]="true" (closeAddTestEvent)="toggleAddTestInGlobalView()"></app-add-subject-test>
+                <app-add-subject-test [shouldSetDateTime]="true" (closeAddTestEvent)="toggleAddTestInGlobalView()" (testCreatedData)="testCreatedInGlobalView($event)"></app-add-subject-test>
             </div>
             <div class="d-flex justify-content-end" *ngIf="hasSubjectPerm">
                 <button mat-stroked-button class="stroked-button m-r-05" (click)="toggleAddTestInGlobalView()">

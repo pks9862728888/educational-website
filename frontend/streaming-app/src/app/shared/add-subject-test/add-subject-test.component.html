@@ -20,7 +20,7 @@
                 <mat-label>Total Marks<span class="required">&nbsp;*</span></mat-label>
                 <input type="text" matInput min="0" formControlName="total_marks" placeholder="Total marks">
                 <mat-error *ngIf="addTestForm.controls['total_marks'].errors?.required">This field is required.</mat-error>
-                <mat-error *ngIf="!addTestForm.controls['total_marks'].errors?.required && addTestForm.controls['total_marks'].errors?.postiveIntegerValidator">Marks should be a positive integer.</mat-error>
+                <mat-error *ngIf="!addTestForm.controls['total_marks'].errors?.required && addTestForm.controls['total_marks'].errors?.postiveIntegerValidator">Marks should be a positive number.</mat-error>
             </mat-form-field>
             <mat-form-field class="width-100" appearance="outline">
                 <mat-label>Total Duration (in minutes)<span class="required">&nbsp;*</span></mat-label>
@@ -103,12 +103,15 @@
                 <mat-slide-toggle formControlName="enable_peer_check">Enable peer check</mat-slide-toggle>
             </div>
             <div class="m-b-1">
-                <mat-slide-toggle formControlName="allow_question_preview_10_minutes_before" (change)="questionPreviewChanged()">Allow question preview 10 minute before</mat-slide-toggle>
+                <mat-slide-toggle formControlName="allow_question_preview_10_min_before" (change)="questionPreviewChanged()">Allow question preview 10 minute before</mat-slide-toggle>
             </div>
             <div class="m-b-1">
-                <mat-slide-toggle formControlName="allow_test_after_sheduled_date_and_time" (change)="allowTestAfterScheduledDateTimeChanged()">Allow students to take test after scheduled test date and time</mat-slide-toggle>
+                <mat-slide-toggle formControlName="allow_test_after_scheduled_date_and_time" (change)="allowTestAfterScheduledDateTimeChanged()">Allow students to take test after scheduled test date and time</mat-slide-toggle>
             </div>
         </form>
+        <div *ngIf="formError" class="m-b-1">
+            <app-ui-error-text [errorText]="formError" (closeErrorTextEvent)="closeFormError()"></app-ui-error-text>
+        </div>
         <button mat-flat-button class="lightblue-button m-r-05" (click)="initializeForm()">Reset</button>
         <button mat-flat-button [disabled]="addTestForm.invalid" class="green-button" (click)="next(stepper)">Next</button>
     </mat-step>
@@ -135,9 +138,16 @@
             <h3>Number of attempts of same test by student: {{ addTestForm.value.no_of_attempts }}</h3>
             <h3>Publish result automatically after test finishes: {{ addTestForm.value.publish_result_automatically }}</h3>
             <h3>Enable peer-peer checking of answers: {{ addTestForm.value.enable_peer_check }}</h3>
-            <h3>Allow students to preview questions 10 minutes before: {{ addTestForm.value.allow_question_preview_10_minutes_before }}</h3>
+            <h3>Allow students to preview questions 10 minutes before: {{ addTestForm.value.allow_question_preview_10_min_before }}</h3>
         </div>
-        <button mat-flat-button class="lightblue-button m-r-05" (click)="editForm(stepper)">Edit</button>
-        <button mat-flat-button class="green-button" (click)="submit(stepper)">Submit</button>
+        <div class="d-flex">
+            <button mat-flat-button class="lightblue-button m-r-05" [disabled]="showSubmitIndicator" (click)="editForm(stepper)">Edit</button>
+            <button mat-flat-button class="green-button" [disabled]="showSubmitIndicator" (click)="submit(stepper)">
+              <div class="d-flex align-center">
+                  <mat-progress-spinner *ngIf="showSubmitIndicator" mode="indeterminate" [diameter]="25" class="m-r-05"></mat-progress-spinner>
+                  Submit
+              </div>
+            </button>
+        </div>
     </mat-step>
 </mat-horizontal-stepper>

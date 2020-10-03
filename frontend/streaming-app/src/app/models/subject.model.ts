@@ -81,6 +81,18 @@ export interface CreateSubjectModuleResponse {
   count: number;
 }
 
+export interface SubjectTestMinDetailsResponse {
+  id: number;
+  test_slug: string;
+  name: string;
+  question_mode: string;
+  test_schedule: number;
+  subject_id: number;
+  test_place: string;
+  lecture_id?: number;
+  view_key?: string;
+}
+
 export interface CreateSubjectCourseMinDetailsResponse {
   has_subject_perm: boolean;
   view_order: Array<string>;
@@ -88,12 +100,13 @@ export interface CreateSubjectCourseMinDetailsResponse {
     string: Array<{
       name: string;
       count: number;
+      type: string;
     }>;
   };
   test_views: Array<string>;
-  test_details: Array<{
-    name: string;
-  }>;
+  test_details: {
+    [key: string]: SubjectTestMinDetailsResponse
+  };
 }
 
 

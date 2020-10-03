@@ -1,4 +1,4 @@
-import { formatDate } from 'src/app/format-datepicker';
+import { formatDate, getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -11,7 +11,7 @@ import { CreateSubjectCourseMinDetailsResponse,
          CreateSubjectModuleResponse,
          InstituteSubjectLectureContentData,
          InstituteSubjectLectureMaterial } from 'src/app/models/subject.model';
-import { isContentTypeExternalLink,
+import { getSubjectTestType, isContentTypeExternalLink,
          isContentTypeImage,
          isContentTypeLink,
          isContentTypePdf,
@@ -24,9 +24,10 @@ import { currentSubjectSlug,
           LECTURE_STUDY_MATERIAL_TYPES,
           LECTURE_INTRODUCTORY_CONTENT_TYPES,
           courseContent,
-          SUBJECT_ADD_TEST_PLACE } from './../../../constants';
+          SUBJECT_ADD_TEST_PLACE, SUBJECT_VIEW_TYPE } from './../../../constants';
 import { MatDialog } from '@angular/material/dialog';
 import { UiActionControlsComponent } from 'src/app/shared/ui-action-controls/ui-action-controls.component';
+import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
 
 
 @Component({
@@ -90,12 +91,14 @@ export class CreateCourseComponent implements OnInit {
   isContentTypeLink = isContentTypeLink;
   isContentTypeYouTubeLink = isContentTypeYouTubeLink;
   isContentTypeExternalLink = isContentTypeExternalLink;
+  getSubjectTestType = getSubjectTestType;
+  getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
   SUBJECT_ADD_TEST_PLACE = SUBJECT_ADD_TEST_PLACE;
+  SUBJECT_VIEW_TYPE = SUBJECT_VIEW_TYPE;
   minDate = new Date();
 
   hasSubjectPerm: boolean;
   viewOrder: Array<string> = [];
-  testViews: Array<string> = [];
   viewDetails = {};
   introductionViewData = {};
   lectureViewData = {};
@@ -197,11 +200,10 @@ export class CreateCourseComponent implements OnInit {
         this.hasSubjectPerm = result.has_subject_perm;
         this.viewOrder = result.view_order;
         this.viewDetails = result.view_details;
-        this.testViews = result.test_views;
         this.testDetails = result.test_details;
 
         for (const view of this.viewOrder) {
-          if (!this.testViews.includes(view)) {
+          if (this.viewDetails[view].type === SUBJECT_VIEW_TYPE.MODULE_VIEW) {
             if (view === 'MI' || view === 'CO') {
               this.introductionViewData[view] = [];
             } else {
@@ -212,7 +214,6 @@ export class CreateCourseComponent implements OnInit {
         console.log(result);
         console.log(this.viewOrder);
         console.log(this.viewDetails);
-        console.log(this.testViews);
         console.log(this.testDetails);
       },
       errors => {
@@ -547,6 +548,33 @@ export class CreateCourseComponent implements OnInit {
       this.openedPanelStep = null;
       this.addModuleError = null;
       this.showAddTestFormInGlobalView = !this.showAddTestFormInGlobalView;
+  }
+
+  testCreatedInGlobalView(data) {
+    this.showAddTestFormInGlobalView = false;
+    const view = data.view_key;
+    delete data.view;
+    this.viewDetails[view] = {
+      type: SUBJECT_VIEW_TYPE.TEST_VIEW
+    };
+    this.testDetails[view] = data;
+    this.viewOrder.push(view);
+  }
+
+  confirmDeleteTest(view: string) {
+    const title = 'Are you sure you want to delete test "' + this.testDetails[view].name + '"?';
+    const confirmDeleteTestRef = this.dialog.open(UiDialogComponent, {
+      data: {title, trueStringDisplay: 'Yes', falseStringDisplay: 'No'}
+    });
+    confirmDeleteTestRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteTest(view);
+      }
+    });
+  }
+
+  deleteTest(view: string) {
+    alert('Deleting test');
   }
 
   toggleAddModule() {

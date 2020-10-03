@@ -151,6 +151,10 @@ button.active:focus {
     color: #FF6D00;
 }
 
+.test-icon {
+    color: #bb86fc;
+}
+
 
 /* Message color globally */
 

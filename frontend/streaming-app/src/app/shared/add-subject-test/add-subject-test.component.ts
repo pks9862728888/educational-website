@@ -1,19 +1,23 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatStepper } from '@angular/material/stepper';
 import { isNumberValidator, postiveIntegerValidator } from 'src/app/custom.validator';
 import { getTestSchedule, getUnixTimeStamp } from 'src/app/format-datepicker';
+import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { ANSWER_MODE,
          ANSWER_MODE_FORM_FIELD_OPTIONS,
+         currentInstituteSlug,
+         currentSubjectSlug,
          GRADED_TYPES,
          GRADED_TYPE_FORM_FIELD_OPTIONS,
          MONTH_FORM_FIELD_OPTIONS,
          QUESTIONS_CATEGORY,
          QUESTIONS_CATEGORY_FORM_FIELD_OPTIONS,
          QUESTION_MODE,
-         QUESTION_MODE_FORM_FIELD_OPTIONS } from 'src/constants';
+         QUESTION_MODE_FORM_FIELD_OPTIONS,
+         SUBJECT_ADD_TEST_PLACE} from 'src/constants';
 import { getSubjectTestAnswerMode, getSubjectTestQuestionMode, getSubjectTestType } from '../utilityFunctions';
 
 @Component({
@@ -24,11 +28,16 @@ import { getSubjectTestAnswerMode, getSubjectTestQuestionMode, getSubjectTestTyp
 export class AddSubjectTestComponent implements OnInit {
 
   mq: MediaQueryList;
+  currentInstituteSlug: string;
+  currentSubjectSlug: string;
   addTestForm: FormGroup;
   currentDate: Date;
   maxDate: Date;
   @Input() shouldSetDateTime: boolean;
+  @Input() viewKey: string;
+  @Input() lectureId: string;
   @Output() closeAddTestEvent = new EventEmitter<void>();
+  @Output() testCreatedData = new EventEmitter<any>();
 
   HOUR_CHOICES = [];
   MINUTE_CHOICES = [];
@@ -48,17 +57,22 @@ export class AddSubjectTestComponent implements OnInit {
   getSubjectTestAnswerMode = getSubjectTestAnswerMode;
 
   showFormView = true;
+  showSubmitIndicator = false;
+  formError: string;
 
   constructor(
     private formBuilder: FormBuilder,
     private media: MediaMatcher,
-    private uiService: UiService
+    private uiService: UiService,
+    private instituteApiService: InstituteApiService
   ) {
     this.currentDate = new Date();
     this.maxDate = new Date(this.currentDate.getFullYear() + 1,
                             this.currentDate.getMonth(),
                             this.currentDate.getDay());
     this.mq = this.media.matchMedia('(max-width: 600px)');
+    this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
+    this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
   }
 
   ngOnInit(): void {
@@ -84,8 +98,8 @@ export class AddSubjectTestComponent implements OnInit {
       no_of_attempts: [null, [Validators.required, postiveIntegerValidator]],
       publish_result_automatically: [true, [Validators.required]],
       enable_peer_check: [false, [Validators.required]],
-      allow_question_preview_10_minutes_before: [true, [Validators.required]],
-      allow_test_after_sheduled_date_and_time: [false, [Validators.required]],
+      allow_question_preview_10_min_before: [true, [Validators.required]],
+      allow_test_after_scheduled_date_and_time: [false, [Validators.required]],
       shuffle_questions: [true, [Validators.required]]
     });
     if (this.shouldSetDateTime) {
@@ -109,8 +123,8 @@ export class AddSubjectTestComponent implements OnInit {
       no_of_attempts: 1,
       publish_result_automatically: true,
       enable_peer_check: false,
-      allow_question_preview_10_minutes_before: false,
-      allow_test_after_sheduled_date_and_time: false,
+      allow_question_preview_10_min_before: false,
+      allow_test_after_scheduled_date_and_time: false,
       shuffle_questions: true
     });
     if (this.shouldSetDateTime) {
@@ -205,10 +219,10 @@ export class AddSubjectTestComponent implements OnInit {
   }
 
   questionPreviewChanged() {
-    const questionPreview = this.addTestForm.value.allow_question_preview_10_minutes_before;
+    const questionPreview = this.addTestForm.value.allow_question_preview_10_min_before;
     if (!this.addTestForm.value.date || !this.addTestForm.value.hour || !this.addTestForm.value.minute) {
       this.addTestForm.patchValue({
-        allow_question_preview_10_minutes_before: false
+        allow_question_preview_10_min_before: false
       });
       this.uiService.showSnackBar(
         'Please set date and time of test first.',
@@ -218,10 +232,10 @@ export class AddSubjectTestComponent implements OnInit {
   }
 
   allowTestAfterScheduledDateTimeChanged() {
-    const allowTestAfterScheduledDateTime = this.addTestForm.value.allow_test_after_sheduled_date_and_time;
+    const allowTestAfterScheduledDateTime = this.addTestForm.value.allow_test_after_scheduled_date_and_time;
     if (!this.addTestForm.value.date || !this.addTestForm.value.hour || !this.addTestForm.value.minute) {
       this.addTestForm.patchValue({
-        allow_test_after_sheduled_date_and_time: false
+        allow_test_after_scheduled_date_and_time: false
       });
       this.uiService.showSnackBar(
         'Please set date and time of test first.',
@@ -234,8 +248,8 @@ export class AddSubjectTestComponent implements OnInit {
     this.addTestForm.patchValue({
       hour: null,
       minute: null,
-      allow_question_preview_10_minutes_before: false,
-      allow_test_after_sheduled_date_and_time: false
+      allow_question_preview_10_min_before: false,
+      allow_test_after_scheduled_date_and_time: false
     });
   }
 
@@ -249,8 +263,8 @@ export class AddSubjectTestComponent implements OnInit {
     });
     if (!dateNow) {
       this.addTestForm.patchValue({
-        allow_question_preview_10_minutes_before: false,
-        allow_test_after_sheduled_date_and_time: false
+        allow_question_preview_10_min_before: false,
+        allow_test_after_scheduled_date_and_time: false
       });
     }
   }
@@ -263,7 +277,7 @@ export class AddSubjectTestComponent implements OnInit {
     const unixTimeNow = + new Date();
     if (unixTimeNow >= sheduledDateAndTime) {
       this.uiService.showSnackBar(
-        'Error! Test date and time should not be in the past.',
+        'Error! Test date and time can not be in the past.',
         3000
       );
     } else if (!this.addTestForm.invalid) {
@@ -273,6 +287,61 @@ export class AddSubjectTestComponent implements OnInit {
   }
 
   submit(stepper: MatStepper) {
+    const data = {...this.addTestForm.value};
+    const sheduledDateAndTime = getUnixTimeStamp(this.addTestForm.value.date,
+                                                 this.addTestForm.value.hour,
+                                                 this.addTestForm.value.minute);
+    data.test_schedule = sheduledDateAndTime;
+    delete data.date;
+    delete data.hour;
+    delete data.minute;
+
+    if (this.viewKey) {
+      data.view_key = this.viewKey;
+      data.test_place = SUBJECT_ADD_TEST_PLACE.VIEW;
+    } else if (this.lectureId) {
+      data.lecture_id = this.lectureId;
+      data.test_place = SUBJECT_ADD_TEST_PLACE.LECTURE;
+    } else {
+      data.test_place = SUBJECT_ADD_TEST_PLACE.GLOBAL;
+    }
+    console.log(data);
+    this.closeFormError();
+    this.showSubmitIndicator = true;
+    this.instituteApiService.addSubjectTest(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      data
+    ).subscribe(
+      result => {
+        this.showSubmitIndicator = false;
+        this.testCreatedData.emit(result);
+        this.uiService.showSnackBar(
+          'Test created successfully!',
+          2000
+        );
+      },
+      errors => {
+        this.showSubmitIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.formError = errors.error.error;
+            this.showFormView = true;
+            stepper.previous();
+          } else {
+            this.uiService.showSnackBar(
+              'Error! Unable to add test at the moment. Try again',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error! Unable to add test at the moment. Try again',
+            3000
+          );
+        }
+      }
+    );
   }
 
   editForm(stepper: MatStepper) {
@@ -284,5 +353,9 @@ export class AddSubjectTestComponent implements OnInit {
     this.initializeForm();
     this.showFormView = true;
     this.closeAddTestEvent.emit();
+  }
+
+  closeFormError() {
+    this.formError = null;
   }
 }
