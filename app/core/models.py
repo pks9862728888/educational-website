@@ -1545,7 +1545,7 @@ class SubjectViewNames(models.Model):
     view_subject = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE, related_name='view_subject')
     key = models.CharField(_('Key'), max_length=6, blank=False)
-    name = models.CharField(_('Name'), max_length=25, blank=False)
+    name = models.CharField(_('Name'), max_length=30, blank=False)
     order = models.PositiveIntegerField(_('Order'), blank=True, null=True)
     type = models.CharField(
         _('View Type'),
@@ -1555,9 +1555,6 @@ class SubjectViewNames(models.Model):
         blank=True)
 
     def save(self, *args, **kwargs):
-        if not self.key:
-            self.key = unique_key_generator_for_subject_view_name(
-                self.view_subject)
         if self.name:
             self.name = self.name.strip()
         if not self.name:
@@ -1572,6 +1569,12 @@ class SubjectViewNames(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['view_subject', 'key'], name='unique_key_for_subject_constraint')
         ]
+
+
+@receiver(pre_save, sender=SubjectViewNames)
+def set_view_key(instance, *args, **kwargs):
+    if not instance.key:
+        instance.key = unique_key_generator_for_subject_view_name(instance.view_subject)
 
 
 @receiver(post_save, sender=SubjectViewNames)

@@ -5862,6 +5862,12 @@ class InstituteSubjectAddTestView(APIView):
             if not view:
                 return Response({'error': _('Module not found or may have been deleted.')},
                                 status=status.HTTP_400_BAD_REQUEST)
+        else:
+            view = models.SubjectViewNames.objects.create(
+                view_subject=subject,
+                name=request.data.get('name'),
+                type=models.SubjectViewType.TEST_VIEW
+            )
 
         try:
             test = models.SubjectTest.objects.create(
