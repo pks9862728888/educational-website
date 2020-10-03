@@ -3172,6 +3172,23 @@ class InstituteSubjectMinStatisticsView(APIView):
                 }
 
                 # Fetch tests
+                test = models.SubjectTest.objects.filter(
+                    subject=subject,
+                    test_place=models.TestPlace.GLOBAL,
+                    view__pk=view.pk
+                ).only('name', 'type', 'test_place', 'test_slug',
+                       'question_mode', 'test_schedule').first()
+
+                test_details[view.key] = {
+                    'id': test.pk,
+                    'name': test.name,
+                    'type': test.type,
+                    'test_place': test.test_place,
+                    'test_slug': test.test_slug,
+                    'question_mode': test.test_mode,
+                    'test_schedule': test.test_schedule
+                }
+
             else:
                 if view.key == 'MI' or view.key == 'CO':
                     view_details[view.key] = {
