@@ -236,9 +236,15 @@
             <div *ngIf="showAddModuleForm" class="m-b-1">
                 <app-ui-mb-create-form [inputPlaceholder]="'Name of Module'" [buttonText]="'Submit'" [maxLength]="25" [progressSpinnerText]="'Creating module...'" [createIndicator]="addModuleIndicator" [formEvent]="addModuleFormEvent.asObservable()" (createEvent)="addModule($event)"></app-ui-mb-create-form>
             </div>
+            <div *ngIf="showAddTestFormInGlobalView" class="m-b-1">
+                <app-add-subject-test [shouldSetDateTime]="true" (closeAddTestEvent)="toggleAddTestInGlobalView()"></app-add-subject-test>
+            </div>
             <div class="d-flex justify-content-end" *ngIf="hasSubjectPerm">
-                <button mat-stroked-button class="stroked-button m-r-05">
-                  <mat-icon class="m-r-05 add-icon">add</mat-icon>
+                <button mat-stroked-button class="stroked-button m-r-05" (click)="toggleAddTestInGlobalView()">
+                  <mat-icon class="m-r-05">
+                    <span *ngIf="!showAddTestFormInGlobalView" class="add-icon">add</span>
+                    <span *ngIf="showAddTestFormInGlobalView" class="cancel-icon">cancel</span>
+                  </mat-icon>
                   <span class="p-r-04">Test</span>
                 </button>
                 <button mat-stroked-button class="stroked-button" (click)="toggleAddModule()">

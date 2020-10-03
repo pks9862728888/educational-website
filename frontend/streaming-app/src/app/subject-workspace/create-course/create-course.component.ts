@@ -21,7 +21,10 @@ import { currentSubjectSlug,
           currentInstituteSlug,
           LECTURE_TEXT_TYPES,
           LECTURE_LINK_TYPES,
-          LECTURE_STUDY_MATERIAL_TYPES, LECTURE_INTRODUCTORY_CONTENT_TYPES, courseContent } from './../../../constants';
+          LECTURE_STUDY_MATERIAL_TYPES,
+          LECTURE_INTRODUCTORY_CONTENT_TYPES,
+          courseContent,
+          SUBJECT_ADD_TEST_PLACE } from './../../../constants';
 import { MatDialog } from '@angular/material/dialog';
 import { UiActionControlsComponent } from 'src/app/shared/ui-action-controls/ui-action-controls.component';
 
@@ -87,6 +90,7 @@ export class CreateCourseComponent implements OnInit {
   isContentTypeLink = isContentTypeLink;
   isContentTypeYouTubeLink = isContentTypeYouTubeLink;
   isContentTypeExternalLink = isContentTypeExternalLink;
+  SUBJECT_ADD_TEST_PLACE = SUBJECT_ADD_TEST_PLACE;
   minDate = new Date();
 
   hasSubjectPerm: boolean;
@@ -96,6 +100,9 @@ export class CreateCourseComponent implements OnInit {
   introductionViewData = {};
   lectureViewData = {};
   testDetails = {};
+
+  showAddTestFormInGlobalView = false;
+  showAddTestFormInView = false;
 
   // For lecture
   loadingLectureContentIndicator: boolean;
@@ -134,6 +141,8 @@ export class CreateCourseComponent implements OnInit {
   lectureActionDataSubscription: Subscription;
   editDeleteAddAddDialogDataSubscription: Subscription;
 
+  date: Date;
+
   constructor(
     private media: MediaMatcher,
     private uiService: UiService,
@@ -144,6 +153,7 @@ export class CreateCourseComponent implements OnInit {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
+    this.date = new Date();
   }
 
   ngOnInit(): void {
@@ -531,6 +541,12 @@ export class CreateCourseComponent implements OnInit {
         }
       }
     );
+  }
+
+  toggleAddTestInGlobalView() {
+      this.openedPanelStep = null;
+      this.addModuleError = null;
+      this.showAddTestFormInGlobalView = !this.showAddTestFormInGlobalView;
   }
 
   toggleAddModule() {

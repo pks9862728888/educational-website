@@ -1,4 +1,9 @@
-import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE, LANGUAGE, COUNTRY, GENDER, LECTURE_STUDY_MATERIAL_TYPES } from '../../constants';
+import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE,
+         LANGUAGE,
+         COUNTRY,
+         GENDER,
+         LECTURE_STUDY_MATERIAL_TYPES,
+         GRADED_TYPES_REVERSE, QUESTION_MODE_REVERSE, ANSWER_MODE_REVERSE } from '../../constants';
 
 export function getFileSize(fileSize: number) {
     if (fileSize >= 1000000000) {
@@ -143,4 +148,17 @@ export function getTimeElapsed(createdOn: string, currentTime: string) {
     return '0 seconds ';
   }
   return elapsedTime;
+}
+
+
+export function getSubjectTestType(key: string) {
+  return GRADED_TYPES_REVERSE[key];
+}
+
+export function getSubjectTestQuestionMode(key: string) {
+  return QUESTION_MODE_REVERSE[key];
+}
+
+export function getSubjectTestAnswerMode(key: string) {
+  return ANSWER_MODE_REVERSE[key];
 }

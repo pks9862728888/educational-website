@@ -27,8 +27,8 @@ export const APP_DATE_FORMATS: MatDateFormats = {
   }
 };
 
-export function formatDate(date_) {
-  const date = new Date(date_);
+export function formatDate(selectedDate: string) {
+  const date = new Date(selectedDate);
   let month = '' + (date.getMonth() + 1);
   let day = '' + date.getDate();
   if (month.length < 2) {
@@ -38,4 +38,27 @@ export function formatDate(date_) {
       day = '0' + day;
   }
   return date.getFullYear() + '-' + month + '-' + day;
+}
+
+export function getUnixTimeStamp(selectedDate: string, hour: number, minute: number) {
+  const date = new Date(selectedDate);
+  const sheduledDate = new Date(date.getFullYear(),
+                                date.getMonth(),
+                                date.getDate(),
+                                hour, minute);
+  return +sheduledDate;
+}
+
+export function getTestSchedule(selectedDate: string, hour: number, minute: number) {
+  if (!hour) {
+    hour = 0;
+  }
+  if (!minute) {
+    minute = 0;
+  }
+  const date = new Date(selectedDate);
+  return new Date(date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate(),
+                  hour, minute);
 }

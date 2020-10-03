@@ -320,3 +320,85 @@ export const LECTURE_STUDY_MATERIAL_TYPES = {
   YOUTUBE_LINK: 'Y',
   LIVE_CLASS: 'L'
 };
+
+export const GRADED_TYPES = {
+  GRADED: 'G',
+  UNGRADED: 'U'
+};
+
+export const GRADED_TYPES_REVERSE = {
+  G: 'Graded',
+  U: 'Ungraded'
+};
+
+export const GRADED_TYPE_FORM_FIELD_OPTIONS = [
+  {value: 'G', viewValue: 'Graded'},
+  {value: 'U', viewValue: 'Ungraded'}
+];
+
+export const QUESTION_MODE = {
+  TYPED: 'T',
+  IMAGE: 'I',
+  FILE: 'F'
+};
+
+export const QUESTION_MODE_REVERSE = {
+  T: 'Typed',
+  I: 'Separate Image Upload for each question',
+  F: 'File Upload'
+};
+
+export const QUESTION_MODE_FORM_FIELD_OPTIONS = [
+  {value: 'T', viewValue: 'Typed'},
+  {value: 'I', viewValue: 'Image'},
+  {value: 'F', viewValue: 'File'},
+];
+
+export const ANSWER_MODE = {
+  TYPED: 'T',
+  FILE: 'F'
+};
+
+export const ANSWER_MODE_REVERSE = {
+  T: 'Typed',
+  F: 'File Upload'
+};
+
+
+export const ANSWER_MODE_FORM_FIELD_OPTIONS = [
+  {value: 'T', viewValue: 'Typed'},
+  {value: 'F', viewValue: 'File'},
+];
+
+export const QUESTIONS_CATEGORY = {
+  AUTOCHECK_TYPE: 'A',
+  ALL_TYPES: 'Z',
+  FILE_UPLOAD_TYPE: 'F'
+};
+
+export const QUESTIONS_CATEGORY_FORM_FIELD_OPTIONS = [
+  {value: 'A', viewValue: 'Automatic checking type questions'},
+  {value: 'Z', viewValue: 'All types of questions'},
+  {value: 'F', viewValue: 'File will be uploaded'},
+];
+
+export const MONTH_FORM_FIELD_OPTIONS = [
+  {value: '0', viewValue: 'January'},
+  {value: '1', viewValue: 'February'},
+  {value: '2', viewValue: 'March'},
+  {value: '3', viewValue: 'April'},
+  {value: '4', viewValue: 'May'},
+  {value: '5', viewValue: 'June'},
+  {value: '6', viewValue: 'July'},
+  {value: '7', viewValue: 'August'},
+  {value: '8', viewValue: 'September'},
+  {value: '9', viewValue: 'October'},
+  {value: '10', viewValue: 'November'},
+  {value: '11', viewValue: 'December'},
+];
+
+export const SUBJECT_ADD_TEST_PLACE = {
+  GLOBAL: 'G',
+  VIEW: 'V',
+  LECTURE: 'L'
+};

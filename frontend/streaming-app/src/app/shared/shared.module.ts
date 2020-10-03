@@ -39,6 +39,7 @@ import { SubjectStudentsComponent } from './subject-students/subject-students.co
 import { StudentInstituteCoursesComponent } from './student-institute-courses/student-institute-courses.component';
 import { UiAddYoutubeLinkComponent } from './ui-add-youtube-link/ui-add-youtube-link.component';
 import { UiEditDeleteAddAddControlsComponent } from './ui-edit-delete-add-add-controls/ui-edit-delete-add-add-controls.component';
+import { AddSubjectTestComponent } from './add-subject-test/add-subject-test.component';
 
 @NgModule({
   declarations: [
@@ -72,7 +73,8 @@ import { UiEditDeleteAddAddControlsComponent } from './ui-edit-delete-add-add-co
     StudentCoursesComponent,
     StudentInstituteCoursesComponent,
     UiAddYoutubeLinkComponent,
-    UiEditDeleteAddAddControlsComponent
+    UiEditDeleteAddAddControlsComponent,
+    AddSubjectTestComponent
   ],
   imports: [
     CommonModule,
@@ -112,7 +114,8 @@ import { UiEditDeleteAddAddControlsComponent } from './ui-edit-delete-add-add-co
     StudentCoursesComponent,
     StudentInstituteCoursesComponent,
     UiAddYoutubeLinkComponent,
-    UiEditDeleteAddAddControlsComponent
+    UiEditDeleteAddAddControlsComponent,
+    AddSubjectTestComponent
   ],
   providers: [
     InstituteApiService,

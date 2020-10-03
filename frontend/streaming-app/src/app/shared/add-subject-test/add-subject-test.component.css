@@ -1,0 +1,68 @@
+h3,
+hr {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    padding: 1rem;
+    background-color: #0f1d24;
+}
+
+.stepper-body {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+:host ::ng-deep .mat-step-header .mat-step-label.mat-step-label-active {
+    color: #fff;
+}
+
+
+/* Styling form fields */
+
+::ng-deep.mat-form-field-label {
+    /*change color of label*/
+    color: #dadada !important;
+}
+
+::ng-deep .mat-input-element::placeholder {
+    color: #838383;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+    color: #4e5458;
+}
+
+.required {
+    color: #f3f717;
+}
+
+.stroke-border {
+    border: 1px solid #6c757d;
+}
+
+.green-button:disabled {
+    color: #fff;
+    background-color: #094d49;
+    opacity: 0.5;
+}
+
+.green-button:hover {
+    color: #fff;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}

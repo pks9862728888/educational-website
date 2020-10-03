@@ -25,11 +25,15 @@ from django_countries import Countries
 from django_countries.fields import CountryField
 
 from rest_framework.authtoken.models import Token
+from rest_framework import viewsets
 
 from .tasks import create_welcome_message_after_user_creation
 
 # Constant to define unlimited limit
 UNLIMITED = 99999
+
+class Temp(viewsets.ModelViewSet):
+    pass
 
 
 class OperationalCountries(Countries):

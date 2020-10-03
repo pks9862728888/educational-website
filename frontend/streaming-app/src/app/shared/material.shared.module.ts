@@ -13,6 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatStepperModule } from '@angular/material/stepper';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatProgressBarModule,
     MatSlideToggleModule,
     MatDividerModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatStepperModule
   ],
   exports: [
     MatButtonModule,
@@ -46,7 +48,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     MatProgressBarModule,
     MatSlideToggleModule,
     MatDividerModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatStepperModule
   ]
 })
 export class MaterialSharedModule {}

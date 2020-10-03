@@ -1,4 +1,4 @@
-import { FormGroup, ValidatorFn, ValidationErrors, FormControl } from '@angular/forms';
+import { FormGroup, ValidatorFn, ValidationErrors, FormControl, AbstractControl } from '@angular/forms';
 
 // Generates error if passwords do not match.
 export const passwordMatchValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {
@@ -20,3 +20,19 @@ export const usernamePasswordValidator: ValidatorFn = (control: FormGroup): Vali
 
     return password.value === username.value ? { usernamePasswordSame : true } : null;
 };
+
+
+export function postiveIntegerValidator(control: AbstractControl): {[key: string]: boolean} | null  {
+  if (control.pristine || control.value > 0) {
+    return null;
+  }
+  return { postiveIntegerValidator: true };
+}
+
+
+export function isNumberValidator(control: AbstractControl): {[key: string]: boolean} | null {
+  if (control.pristine || control.value >= 0) {
+    return null;
+  }
+  return { isNumberValidator: true };
+}
