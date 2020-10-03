@@ -192,6 +192,11 @@ urlpatterns = [
          views.InstituteDeleteLectureObjectiveOrUseCaseText.as_view(),
          name='delete-lecture-objective-or-use-case-text'),
 
+    # Institute Add Test
+    path('<slug:institute_slug>/<slug:subject_slug>/add-test',
+         views.InstituteSubjectAddTestView.as_view(),
+         name='institute-subject-add-test'),
+
     # Institute Subject preview course
     path('list-all-student-institute-courses',
          views.InstituteStudentCourseListView.as_view(),

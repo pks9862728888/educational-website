@@ -5803,3 +5803,108 @@ class StudentJoinInstituteView(APIView):
                 subject.save()
 
         return Response({'status': 'OK'}, status.HTTP_200_OK)
+
+
+#####################################################
+# Institute Subject Test
+#####################################################
+class InstituteSubjectAddTestView(APIView):
+    """View for adding test in institute"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        license_ = get_unexpired_license(institute)
+
+        if not license_:
+            return Response({'error': _('Institute license not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lecture = None
+        view = None
+
+        if request.data.get('test_place') == models.TestPlace.LECTURE:
+            lecture = models.SubjectLecture.objects.filter(
+                pk=request.data.get('lecture_id')
+            ).only('id').first()
+
+            if not lecture:
+                return Response({'error': _('Lecture not found or may have been deleted.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+        elif request.data.get('test_place') == models.TestPlace.VIEW:
+            view = models.SubjectViewNames.objects.filter(
+                key=request.data.get('view_key')
+            ).only('id').first()
+
+            if not view:
+                return Response({'error': _('Module not found or may have been deleted.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            test = models.SubjectTest.objects.create(
+                subject=subject,
+                lecture=lecture,
+                view=view,
+                test_place=request.data.get('test_place'),
+                name=request.data.get('name'),
+                type=request.data.get('type'),
+                total_marks=request.data.get('total_marks'),
+                total_duration=request.data.get('total_duration'),
+                scheduled_date=request.data.get('scheduled_date'),
+                instruction=request.data.get('instruction'),
+                no_of_optional_section_answer=request.data.get('no_of_optional_section_answer'),
+                question_mode=request.data.get('question_mode'),
+                answer_mode=request.data.get('answer_mode'),
+                question_category=request.data.get('question_category'),
+                no_of_attempts=request.data.get('no_of_attempts'),
+                publish_result_automatically=request.data.get('publish_result_automatically'),
+                enable_peer_check=request.data.get('enable_peer_check'),
+                allow_question_preview_10_min_before=request.data.get('allow_question_preview_10_min_before'),
+                allow_test_after_scheduled_date_and_time=request.data.get('allow_test_after_scheduled_date_and_time'),
+                shuffle_questions=request.data.get('shuffle_questions')
+            )
+            response = dict()
+            response['id'] = test.id
+            response['test_slug'] = test.test_slug
+            response['name'] = test.name
+            response['question_mode'] = test.question_mode
+            response['scheduled_date'] = test.scheduled_date
+            response['subject_id'] = test.subject.pk
+
+            if response.lecture:
+                response['lecture_id'] = test.lecture.pk
+
+            if response.view:
+                response['view_id'] = test.view.pk
+
+            return Response(response, status=status.HTTP_201_CREATED)
+
+        except ValueError as e:
+            return Response({'error': str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Unknown internal server error occurred.')},
+                           status=status.HTTP_500_INTERNAL_SERVER_ERROR)

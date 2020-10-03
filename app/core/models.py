@@ -1,6 +1,7 @@
 import os
 import random
 import string
+import time
 import uuid
 
 from django.db import models
@@ -344,6 +345,18 @@ class AnswerMode:
     ]
 
 
+class QuestionCategory:
+    AUTOCHECK_TYPE = 'A'
+    ALL_TYPES = 'Z'
+    FILE_UPLOAD_TYPE = 'F'
+
+    QUESTION_CATEGORY_IN_QUESTION_CATEGORIES = [
+        (AUTOCHECK_TYPE, _(u'AUTOCHECK_TYPE')),
+        (ALL_TYPES, _(u'ALL_TYPES')),
+        (FILE_UPLOAD_TYPE, _(u'FILE_UPLOAD_TYPE'))
+    ]
+
+
 class TestQuestionSectionType:
     OPTIONAL = 'O'
     MANDATORY = 'M'
@@ -375,6 +388,18 @@ class QuestionType:
         (DESCRIPTIVE_ANSWER, _(u'DESCRIPTIVE_ANSWER')),
         (NUMERIC_ANSWER, _(u'NUMERIC_ANSWER')),
         (PICTURE_TYPE_QUESTION, _(u'PICTURE_TYPE_QUESTION'))
+    ]
+
+
+class TestPlace:
+    GLOBAL = 'G'
+    LECTURE = 'L'
+    VIEW = 'V'
+
+    PLACES_IN_PLACE_TYPES = [
+        (GLOBAL, _(u'GLOBAL')),
+        (LECTURE, _(u'LECTURE')),
+        (VIEW, _(u'VIEW'))
     ]
 
 
@@ -538,6 +563,7 @@ def create_order_receipt(instance):
         order_receipt = 'order_rcptidins' + random_string_generator(size=10)
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(order_receipt=order_receipt).exists()
+
         if not qs_exists:
             break
     return order_receipt
@@ -562,6 +588,7 @@ def unique_slug_generator_for_class(instance):
         slug = f'{slugify(instance.name)}-{random_string_generator(size=4)}-{random_string_generator(size=4)}'
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(class_slug=slug).exists()
+
         if not qs_exists:
             break
     return slug
@@ -573,6 +600,7 @@ def unique_slug_generator_for_subject(instance):
         slug = f'{slugify(instance.name)}-{random_string_generator(size=8)}'
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(subject_slug=slug).exists()
+
         if not qs_exists:
             break
     return slug
@@ -584,6 +612,19 @@ def unique_slug_generator_for_section(instance):
         slug = f'{slugify(instance.name)}-{random_string_generator(size=4)}-{random_string_generator(size=4)}'
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(section_slug=slug).exists()
+
+        if not qs_exists:
+            break
+    return slug
+
+
+def generate_test_slug(instance):
+    """Generates unique test slug"""
+    while True:
+        slug = 'f-' + random_string_generator(8)
+        k_class = instance.__class__
+        qs_exists = k_class.objects.filter(test_slug=slug).exists()
+
         if not qs_exists:
             break
     return slug
@@ -2143,6 +2184,16 @@ class SubjectTest(models.Model):
     """Model to create test"""
     subject = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE, related_name='test_subject')
+    lecture = models.ForeignKey(
+        SubjectLecture, on_delete=models.CASCADE,
+        related_name='test_lecture', blank=True, null=True)
+    view = models.ForeignKey(
+        SubjectViewNames, on_delete=models.CASCADE,
+        related_name='test_view', null=True, blank=True)
+    test_place = models.CharField(
+        'Test place view',
+        max_length=1,
+        choices=TestPlace.PLACES_IN_PLACE_TYPES)
     name = models.CharField(_('Test Name'), max_length=30, null=False)
     type = models.CharField(
         _('Test Type'),
@@ -2152,8 +2203,8 @@ class SubjectTest(models.Model):
         _('Total Marks'), decimal_places=2, max_digits=5)
     total_duration = models.PositiveSmallIntegerField(
         _('Total Duration in minutes'))
-    date_time = models.DateTimeField(
-        _('Test Scheduled date and time'), blank=False)
+    scheduled_date = models.PositiveIntegerField(
+        _('Scheduled date in UNIX timestamp in javascript notation'), blank=True, null=True)
     instruction = models.CharField(
         _('Instruction'), max_length=200, blank=True, default='')
     no_of_optional_section_answer = models.PositiveSmallIntegerField(
@@ -2166,12 +2217,79 @@ class SubjectTest(models.Model):
         _('Answer Mode'),
         max_length=1,
         choices=AnswerMode.ANSWER_MODE_IN_ANSWER_MODES)
-    auto_check = models.BooleanField(_('Auto Check'))  # MCQ, TrueFalse, SelectMultiple questions only
+    question_category = models.CharField(
+        _('Question Category'),
+        max_length=1,
+        choices=QuestionCategory.QUESTION_CATEGORY_IN_QUESTION_CATEGORIES)
     no_of_attempts = models.PositiveSmallIntegerField(
         _('No of attempts to take exam'), default=0, blank=True)
     publish_result_automatically = models.BooleanField(_('Publish result automatically'))
     enable_peer_check = models.BooleanField(_('Enable peer check'))
+    allow_question_preview_10_min_before = models.BooleanField(_('Allow question preview 10 min before'))
+    allow_test_after_scheduled_date_and_time = models.BooleanField(_('Allow test after scheduled date and time'))
+    shuffle_questions = models.BooleanField(_('Shuffle Questions'))
+    result_published = models.BooleanField(_('Result Published'), default=False, blank=True)
+    test_slug = models.CharField(_('Test Slug'), max_length=10, blank=True, null=False)
     created_on = models.DateTimeField(_('Created on'), default=timezone.now, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.name:
+            raise ValueError(_('Test name is required.'))
+
+        if self.total_duration < 1:
+            raise ValueError(_('Total duration should be a positive integer.'))
+
+        if int(self.total_marks) <= 0:
+            raise ValueError(_('Total marks should be a positive integer.'))
+
+        if self.no_of_optional_section_answer < 0:
+            raise ValueError(_('No of optional section answer should be a positive integer.'))
+
+        if self.question_mode == QuestionMode.TYPED or self.question_mode == QuestionMode.IMAGE:
+            if self.answer_mode == AnswerMode.FILE:
+                raise ValueError(_('Answer mode should be TYPED if question mode is TYPED or IMAGE.'))
+
+            if self.question_category == QuestionCategory.FILE_UPLOAD_TYPE:
+                raise ValueError(_('Question category can not be FILE UPLOAD TYPE if question mode is TYPED or IMAGE.'))
+
+        if self.question_category == QuestionCategory.AUTOCHECK_TYPE:
+            if self.enable_peer_check:
+                raise ValueError(_('Can not set test ENABLE PEER CHECK since question category is AUTOCHECK TYPE.'))
+
+        if not self.scheduled_date:
+            if self.allow_question_preview_10_min_before:
+                msg = _('Can not set QUESTION PREVIEW 10 MINUTES BEFORE since date & time of test is not scheduled.')
+                raise ValueError(msg)
+
+            if self.allow_test_after_scheduled_date_and_time:
+                msg = _('Can not set ALLOW TEST AFTER SCHEDULED DATE AND TIME since date & time of test is not '
+                        'scheduled.')
+                raise ValueError(msg)
+
+        if self.type == GradedType.GRADED:
+            if int(self.no_of_attempts) > 1:
+                msg = _('For Graded test number of attempts can not be greater than 1.')
+                raise ValueError(msg)
+
+        if self.scheduled_date:
+            current_time = int(time.time()) * 1000  # In milliseconds
+
+            if current_time > self.scheduled_date:
+                raise ValueError(_('Test can not be scheduled in the past.'))
+
+        if self.instruction:
+            self.instruction = self.instruction.trim()
+
+        super(SubjectTest, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+@receiver(pre_save, sender=SubjectTest)
+def create_test_slug(sender, instance, *args, **kwargs):
+    if not instance.test_slug:
+        instance.test_slug = generate_test_slug(instance)
 
 
 class SubjectTestSets(models.Model):
