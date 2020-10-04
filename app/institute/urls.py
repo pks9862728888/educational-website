@@ -152,7 +152,7 @@ urlpatterns = [
     path('<slug:subject_slug>/<int:lecture_id>/edit-subject-lecture',
          views.InstituteSubjectEditLectureView.as_view(),
          name='edit-subject-lecture'),
-    path('<slug:subject_slug>/<int:lecture_id>/delete-subject-lecture',
+    path('<slug:subject_slug>/<int:module_view_id>/delete-subject-lecture',
          views.InstituteSubjectDeleteLectureView.as_view(),
          name='delete-subject-lecture'),
     path('<slug:subject_slug>/add-subject-introductory-content',

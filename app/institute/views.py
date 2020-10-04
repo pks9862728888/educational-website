@@ -3224,7 +3224,7 @@ class \
 
     def get(self, *args, **kwargs):
         subject = models.InstituteSubject.objects.filter(
-            subject_slug=kwargs.get('subject_slug').lower()
+            subject_slug=kwargs.get('subject_slug')
         ).only('subject_slug').first()
 
         if not subject:
@@ -3277,15 +3277,27 @@ class \
 
                 response.append(res)
         else:
-            lectures = models.SubjectLecture.objects.filter(view__pk=view.pk)
+            module_views = models.SubjectModuleView.objects.filter(view=view)
 
-            for lecture in lectures:
+            for m in module_views:
                 res = dict()
-                res['id'] = lecture.pk
-                res['name'] = lecture.name
+                res['module_view_id'] = m.pk
+                res['type'] = m.type
 
-                if lecture.target_date:
-                    res['target_date'] = lecture.target_date
+                if m.type == models.SubjectModuleViewType.LECTURE_VIEW:
+                    res['lecture_id'] = m.lecture.pk
+                    res['name'] = m.lecture.name
+
+                    if m.lecture.target_date:
+                        res['target_date'] = m.lecture.target_date
+                elif m.type == models.SubjectLectureViewType.TEST_VIEW:
+                    res['test_id'] = m.test.pk
+                    res['test_slug'] = m.test.test_slug
+                    res['name'] = m.test.name
+                    res['question_mode'] = m.test.question_mode
+                    res['test_schedule'] = m.test.test_schedule
+                    res['test_place'] = m.test.test_place
+                    res['test_type'] = m.test.type
 
                 response.append(res)
 
@@ -3446,18 +3458,27 @@ class InstituteSubjectAddLectureView(APIView):
             return Response({'error': _('Module not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        lecture = None
         try:
             lecture = models.SubjectLecture.objects.create(
-                view=view,
                 name=request.data.get('name'),
                 target_date=request.data.get('target_date')
             )
+            module_view = models.SubjectModuleView.objects.create(
+                view=view,
+                type=models.SubjectLectureViewType.LECTURE_VIEW,
+                lecture=lecture
+            )
         except ValueError as e:
+            if lecture:
+                lecture.delete()
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         response = {
-            'id': lecture.pk,
-            'name': lecture.name
+            'module_view_id': module_view.pk,
+            'lecture_id': lecture.pk,
+            'name': lecture.name,
+            'type': models.SubjectLectureViewType.LECTURE_VIEW
         }
 
         if lecture.target_date:
@@ -3501,7 +3522,8 @@ class InstituteSubjectEditLectureView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         response = {
-            'id': lecture.pk,
+            'module_view_id': request.data.get('module_view_id'),
+            'lecture_id': lecture.pk,
             'name': lecture.name
         }
         if lecture.target_date:
@@ -3533,12 +3555,16 @@ class InstituteSubjectDeleteLectureView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        lecture = models.SubjectLecture.objects.filter(
-            pk=kwargs.get('lecture_id')
-        ).first()
+        module_view = models.SubjectModuleView.objects.filter(
+            pk=kwargs.get('module_view_id')
+        ).only('pk').first()
 
-        if not lecture:
+        if not module_view:
             return Response(status=status.HTTP_204_NO_CONTENT)
+
+        lecture = models.SubjectLecture.objects.filter(
+            pk=module_view.lecture.pk
+        ).only('pk').first()
 
         size = 0.0
 
@@ -3560,7 +3586,7 @@ class InstituteSubjectDeleteLectureView(APIView):
                 ).only('file').first().file.size
 
         try:
-            lecture.delete()
+            module_view.delete()
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -5874,7 +5900,7 @@ class InstituteSubjectAddTestView(APIView):
             if not lecture:
                 return Response({'error': _('Lecture not found or may have been deleted.')},
                                 status=status.HTTP_400_BAD_REQUEST)
-        elif request.data.get('test_place') == models.TestPlace.VIEW:
+        elif request.data.get('test_place') == models.TestPlace.MODULE:
             view = models.SubjectViewNames.objects.filter(
                 key=request.data.get('view_key')
             ).only('id').first()
@@ -5889,6 +5915,7 @@ class InstituteSubjectAddTestView(APIView):
                 type=models.SubjectViewType.TEST_VIEW
             )
 
+        test = None
         try:
             test = models.SubjectTest.objects.create(
                 subject=subject,
@@ -5913,14 +5940,22 @@ class InstituteSubjectAddTestView(APIView):
                 shuffle_questions=request.data.get('shuffle_questions')
             )
             response = dict()
-            response['id'] = test.id
+
+            if request.data.get('test_place') == models.TestPlace.MODULE:
+                module_view = models.SubjectModuleView.objects.create(
+                    view=view,
+                    type=models.SubjectModuleViewType.TEST_VIEW,
+                    test=test
+                )
+                response['module_view_id'] = module_view.pk
+
+            response['test_id'] = test.id
             response['test_slug'] = test.test_slug
             response['name'] = test.name
             response['question_mode'] = test.question_mode
             response['test_schedule'] = test.test_schedule
-            response['subject_id'] = test.subject.pk
             response['test_place'] = test.test_place
-            response['type'] = test.type
+            response['test_type'] = test.type
 
             if test.lecture:
                 response['lecture_id'] = test.lecture.pk
@@ -5931,9 +5966,10 @@ class InstituteSubjectAddTestView(APIView):
             return Response(response, status=status.HTTP_201_CREATED)
 
         except ValueError as e:
+            if test:
+                test.delete()
             return Response({'error': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(e)
             return Response({'error': _('Unknown internal server error occurred.')},
-                           status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

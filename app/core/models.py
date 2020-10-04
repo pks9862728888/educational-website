@@ -247,6 +247,16 @@ class SubjectViewType:
     ]
 
 
+class SubjectModuleViewType:
+    LECTURE_VIEW = 'L'
+    TEST_VIEW = 'T'
+
+    VIEW_TYPE_IN_VIEW_TYPES = [
+        (LECTURE_VIEW, _(u'LECTURE_VIEW')),
+        (TEST_VIEW, _(u'TEST_VIEW'))
+    ]
+
+
 class SubjectLectureMaterialsContentType:
     IMAGE = 'I'
     PDF = 'P'
@@ -396,12 +406,12 @@ class QuestionType:
 class TestPlace:
     GLOBAL = 'G'
     LECTURE = 'L'
-    VIEW = 'V'
+    MODULE = 'M'
 
     PLACES_IN_PLACE_TYPES = [
         (GLOBAL, _(u'GLOBAL')),
         (LECTURE, _(u'LECTURE')),
-        (VIEW, _(u'VIEW'))
+        (MODULE, _(u'MODULE'))
     ]
 
 
@@ -1617,10 +1627,36 @@ class SubjectIntroductoryContent(models.Model):
         return self.name
 
 
-class SubjectLecture(models.Model):
-    """Model for storing subject lecture names"""
+class SubjectModuleView(models.Model):
+    """Model for storing subject module views"""
     view = models.ForeignKey(
         SubjectViewNames, on_delete=models.CASCADE, related_name="lecture_view")
+    type = models.CharField(
+        _('Lecture View Type'),
+        max_length=1,
+        choices=SubjectModuleViewType.VIEW_TYPE_IN_VIEW_TYPES)
+    lecture = models.ForeignKey(
+        'SubjectLecture', on_delete=models.CASCADE, related_name="view_subject_lecture",
+        blank=True, null=True)
+    test = models.ForeignKey(
+        'SubjectTest', on_delete=models.CASCADE, related_name="view_test",
+        blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.type == SubjectModuleViewType.LECTURE_VIEW:
+            if not self.lecture:
+                raise ValueError(_('PROGRAMMING ERROR: Subject lecture is required.'))
+        elif self.type == SubjectModuleViewType.TEST_VIEW:
+            if not self.test:
+                raise ValueError(_('PROGRAMMING ERROR: Subject test is required.'))
+        super(SubjectModuleView, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.type
+
+
+class SubjectLecture(models.Model):
+    """Model for storing subject lecture names"""
     name = models.CharField(
         _('Lecture name'), max_length=30, blank=False, null=False)
     target_date = models.DateField(
