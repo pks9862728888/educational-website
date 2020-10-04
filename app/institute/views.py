@@ -3216,7 +3216,8 @@ class InstituteSubjectMinStatisticsView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class InstituteSubjectSpecificViewCourseContentView(APIView):
+class \
+        InstituteSubjectSpecificViewCourseContentView(APIView):
     """View for getting course content of a specific subject view"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
