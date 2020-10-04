@@ -39,7 +39,7 @@
                 <div class="col-12">
                     <button mat-stroked-button class="edit-icon float-right stroke-border m-b-1" (click)="resetDate()">Reset Date</button>
                 </div>
-                <div [class.col-12]="mq.matches" [class.col-6]="!mq.matches">
+                <div [class.col-12]="mq.matches" [class.col-6]="!mq.matches" [hidden]="addTestForm.value.allow_test_on_scheduled_date_for_whole_day">
                     <mat-form-field class="width-100" appearance="outline">
                         <mat-label>Hour <span *ngIf="shouldSetDateTime" class="required">*</span></mat-label>
                         <select matNativeControl formControlName="hour">
@@ -48,7 +48,7 @@
                         <mat-error *ngIf="addTestForm.controls['hour'].errors?.required">Time of test should be set.</mat-error>
                     </mat-form-field>
                 </div>
-                <div [class.col-12]="mq.matches" [class.col-6]="!mq.matches">
+                <div [class.col-12]="mq.matches" [class.col-6]="!mq.matches" [hidden]="addTestForm.value.allow_test_on_scheduled_date_for_whole_day">
                     <mat-form-field class="width-100" appearance="outline">
                         <mat-label>Minute <span *ngIf="shouldSetDateTime" class="required">*</span></mat-label>
                         <select matNativeControl formControlName="minute">
@@ -58,6 +58,27 @@
                     </mat-form-field>
                     <button mat-stroked-button class="edit-icon float-right stroke-border m-b-1" (click)="resetTime()">Reset Time</button>
                 </div>
+            </div>
+            <div class="m-b-1">
+                <mat-slide-toggle formControlName="shuffle_questions">Shuffle questions</mat-slide-toggle>
+            </div>
+            <div class="m-b-1">
+                <mat-slide-toggle formControlName="publish_result_automatically">Publish result automatically</mat-slide-toggle>
+            </div>
+            <div class="m-b-1" [hidden]="addTestForm.value.question_category === QUESTIONS_CATEGORY.AUTOCHECK_TYPE">
+                <mat-slide-toggle formControlName="enable_peer_check">Enable peer check</mat-slide-toggle>
+            </div>
+            <div class="m-b-1" [hidden]="!addTestForm.value.date || !addTestForm.value.hour || !addTestForm.value.minute || addTestForm.value.allow_test_on_scheduled_date_for_whole_day">
+                <mat-slide-toggle formControlName="allow_question_preview_10_min_before" (change)="questionPreviewChanged()">Allow question preview 10 minute before.</mat-slide-toggle>
+            </div>
+            <div class="m-b-1" [hidden]="!addTestForm.value.date || !addTestForm.value.hour || !addTestForm.value.minute">
+                <mat-slide-toggle formControlName="allow_test_after_scheduled_date_and_time" (change)="allowTestAfterScheduledDateTimeChanged()">Allow test after test schedule.</mat-slide-toggle>
+            </div>
+            <div class="m-b-1" [hidden]="!addTestForm.value.date">
+                <mat-slide-toggle formControlName="allow_test_on_scheduled_date_for_whole_day" (change)="allowTestOnScheduledDateForWholeDayChanged()">Allow test for whole day on scheduled date.</mat-slide-toggle>
+            </div>
+            <div class="m-b-1">
+                <hr class="dotted-hr" />
             </div>
             <mat-form-field appearance="outline" class="width-100">
                 <mat-label>Question paper mode <span class="required">*</span></mat-label>
@@ -93,21 +114,6 @@
                 <mat-error *ngIf="addTestForm.controls['no_of_attempts'].errors?.required">This field is required.</mat-error>
                 <mat-error *ngIf="!addTestForm.controls['no_of_attempts'].errors?.required && addTestForm.controls['no_of_attempts'].errors?.postiveIntegerValidator">Marks should be a positive integer.</mat-error>
             </mat-form-field>
-            <div class="m-b-1">
-                <mat-slide-toggle formControlName="shuffle_questions">Shuffle questions</mat-slide-toggle>
-            </div>
-            <div class="m-b-1">
-                <mat-slide-toggle formControlName="publish_result_automatically">Publish result automatically</mat-slide-toggle>
-            </div>
-            <div class="m-b-1" [hidden]="addTestForm.value.question_category === QUESTIONS_CATEGORY.AUTOCHECK_TYPE">
-                <mat-slide-toggle formControlName="enable_peer_check">Enable peer check</mat-slide-toggle>
-            </div>
-            <div class="m-b-1">
-                <mat-slide-toggle formControlName="allow_question_preview_10_min_before" (change)="questionPreviewChanged()">Allow question preview 10 minute before</mat-slide-toggle>
-            </div>
-            <div class="m-b-1">
-                <mat-slide-toggle formControlName="allow_test_after_scheduled_date_and_time" (change)="allowTestAfterScheduledDateTimeChanged()">Allow students to take test after scheduled test date and time</mat-slide-toggle>
-            </div>
         </form>
         <div *ngIf="formError" class="m-b-1">
             <app-ui-error-text [errorText]="formError" (closeErrorTextEvent)="closeFormError()"></app-ui-error-text>
@@ -151,3 +157,5 @@
         </div>
     </mat-step>
 </mat-horizontal-stepper>
+
+<button (click)="showData()">show</button>

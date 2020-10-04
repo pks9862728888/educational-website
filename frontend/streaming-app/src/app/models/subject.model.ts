@@ -82,13 +82,13 @@ export interface CreateSubjectModuleResponse {
 }
 
 export interface SubjectTestMinDetailsResponse {
-  id: number;
+  test_id: number;
   test_slug: string;
   name: string;
   question_mode: string;
   test_schedule: number;
-  subject_id: number;
   test_place: string;
+  test_type: string;
   lecture_id?: number;
   view_key?: string;
 }
@@ -134,7 +134,7 @@ export interface InstituteSubjectLectureContentData {
   additional_reading_link: Array<{id: number; name: string; link: string; edit?: boolean; delete?: boolean; }>;
   materials: Array<InstituteSubjectLectureMaterial>;
   assignments: [];
-  tests: [];
+  tests: SubjectTestMinDetailsResponse[];
   edit?: boolean;
   delete?: boolean;
 }

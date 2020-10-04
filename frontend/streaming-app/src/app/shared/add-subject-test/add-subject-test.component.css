@@ -57,6 +57,11 @@ hr {
     opacity: 0.5;
 }
 
+.dotted-hr {
+    border: 1px dashed #6c757d;
+    border-style: none none dashed;
+}
+
 .m-t-1 {
     margin-top: 1rem;
 }

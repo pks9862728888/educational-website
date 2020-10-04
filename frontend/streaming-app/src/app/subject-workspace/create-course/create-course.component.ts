@@ -24,7 +24,9 @@ import { currentSubjectSlug,
           LECTURE_STUDY_MATERIAL_TYPES,
           LECTURE_INTRODUCTORY_CONTENT_TYPES,
           courseContent,
-          SUBJECT_ADD_TEST_PLACE, SUBJECT_VIEW_TYPE } from './../../../constants';
+          SUBJECT_ADD_TEST_PLACE,
+          SUBJECT_VIEW_TYPE,
+          STUDY_MODULE_VIEW_TYPES } from './../../../constants';
 import { MatDialog } from '@angular/material/dialog';
 import { UiActionControlsComponent } from 'src/app/shared/ui-action-controls/ui-action-controls.component';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
@@ -95,17 +97,19 @@ export class CreateCourseComponent implements OnInit {
   getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
   SUBJECT_ADD_TEST_PLACE = SUBJECT_ADD_TEST_PLACE;
   SUBJECT_VIEW_TYPE = SUBJECT_VIEW_TYPE;
+  STUDY_MODULE_VIEW_TYPES = STUDY_MODULE_VIEW_TYPES;
   minDate = new Date();
 
   hasSubjectPerm: boolean;
   viewOrder: Array<string> = [];
   viewDetails = {};
   introductionViewData = {};
-  lectureViewData = {};
+  moduleViewData = {};
   testDetails = {};
 
   showAddTestFormInGlobalView = false;
   showAddTestFormInView = false;
+  showAddTestFormInLecture = false;
 
   // For lecture
   loadingLectureContentIndicator: boolean;
@@ -207,7 +211,7 @@ export class CreateCourseComponent implements OnInit {
             if (view === 'MI' || view === 'CO') {
               this.introductionViewData[view] = [];
             } else {
-              this.lectureViewData[view] = [];
+              this.moduleViewData[view] = [];
             }
           }
         }
@@ -281,15 +285,15 @@ export class CreateCourseComponent implements OnInit {
       if (view === 'MI' || view === 'CO') {
         this.introductionViewData[view][this.editContentIndex].edit = false;
       } else {
-        this.lectureViewData[view][this.editContentIndex].edit = false;
+        this.moduleViewData[view][this.editContentIndex].edit = false;
       }
     }
     if (view === 'MI' || view === 'CO') {
       this.editContentIndex = +this.findIdInArray(this.introductionViewData[view], content.id);
       this.introductionViewData[view][this.editContentIndex].edit = true;
     } else {
-      this.editContentIndex = +this.findIdInArray(this.lectureViewData[view], content.id);
-      this.lectureViewData[view][this.editContentIndex].edit = true;
+      this.editContentIndex = +this.findIdInArray(this.moduleViewData[view], content.id);
+      this.moduleViewData[view][this.editContentIndex].edit = true;
     }
   }
 
@@ -298,7 +302,7 @@ export class CreateCourseComponent implements OnInit {
     if (view === 'MI' || view === 'CO') {
       this.introductionViewData[view][this.editContentIndex].edit = false;
     } else {
-      this.lectureViewData[view][this.editContentIndex].edit = false;
+      this.moduleViewData[view][this.editContentIndex].edit = false;
     }
     this.editContentIndex = null;
   }
@@ -328,8 +332,8 @@ export class CreateCourseComponent implements OnInit {
               result
             );
           } else {
-            this.lectureViewData[view].splice(
-              this.findIdInArray(this.lectureViewData[view], result.id),
+            this.moduleViewData[view].splice(
+              this.findIdInArray(this.moduleViewData[view], result.id),
               1,
               result
             );
@@ -376,10 +380,16 @@ export class CreateCourseComponent implements OnInit {
     );
   }
 
-  findIdInArray(array: Array<any>, id: number) {
+  findIdInArray(array: Array<any>, id: number, idName = '') {
     for (const idx in array) {
-      if (array[idx].id === id) {
-        return idx;
+      if (idName) {
+        if (array[idx][idName] === id) {
+          return idx;
+        }
+      } else {
+        if (array[idx].id === id) {
+          return idx;
+        }
       }
     }
     return -1;
@@ -456,11 +466,11 @@ export class CreateCourseComponent implements OnInit {
             this.introductionViewData[view] = result;
             this.updateStats(view);
           } else {
-            this.lectureViewData[view] = result;
+            this.moduleViewData[view] = result;
           }
           console.log(result);
           console.log(this.introductionViewData);
-          console.log(this.lectureViewData);
+          console.log(this.moduleViewData);
         },
         errors => {
           this.loadingViewContentIndicator = false;
@@ -482,7 +492,7 @@ export class CreateCourseComponent implements OnInit {
     if (view === 'MI' || view === 'CO') {
       count = this.introductionViewData[view].length;
     } else {
-      count = this.lectureViewData[view].length;
+      count = this.moduleViewData[view].length;
     }
     this.viewDetails[view].count = count;
   }
@@ -521,7 +531,7 @@ export class CreateCourseComponent implements OnInit {
         delete result.view;
         this.viewDetails[view] = result;
         this.viewOrder.push(view);
-        this.lectureViewData[view] = [];
+        this.moduleViewData[view] = [];
         this.uiService.showSnackBar(
           'Module "' + result.name + '" added successfully!',
           2000
@@ -553,7 +563,7 @@ export class CreateCourseComponent implements OnInit {
   testCreatedInGlobalView(data) {
     this.showAddTestFormInGlobalView = false;
     const view = data.view_key;
-    delete data.view;
+    delete data.view_key;
     this.viewDetails[view] = {
       type: SUBJECT_VIEW_TYPE.TEST_VIEW
     };
@@ -561,19 +571,40 @@ export class CreateCourseComponent implements OnInit {
     this.viewOrder.push(view);
   }
 
-  confirmDeleteTest(view: string) {
-    const title = 'Are you sure you want to delete test "' + this.testDetails[view].name + '"?';
+  toggleAddTestInView() {
+    this.showAddTestFormInView = !this.showAddTestFormInView;
+  }
+
+  testCreatedInView(data) {
+    this.showAddTestFormInView = false;
+    const view = data.view_key;
+    delete data.view_key;
+    this.moduleViewData[view].push(data);
+    this.viewDetails[view].count += 1;
+  }
+
+  toggleAddTestInLectureView() {
+    this.showAddTestFormInLecture = !this.showAddTestFormInLecture;
+  }
+
+  testCreatedInLectureView(data) {
+    this.showAddTestFormInLecture = false;
+    this.lectureContentData.tests.push(data);
+  }
+
+  confirmDeleteTest(content) {
+    const title = 'Are you sure you want to delete test "' + content.name + '"?';
     const confirmDeleteTestRef = this.dialog.open(UiDialogComponent, {
       data: {title, trueStringDisplay: 'Yes', falseStringDisplay: 'No'}
     });
     confirmDeleteTestRef.afterClosed().subscribe(result => {
       if (result) {
-        this.deleteTest(view);
+        this.deleteTest(content);
       }
     });
   }
 
-  deleteTest(view: string) {
+  deleteTest(content) {
     alert('Deleting test');
   }
 
@@ -612,7 +643,7 @@ export class CreateCourseComponent implements OnInit {
       () => {
         this.showDeleteModuleSpinner = false;
         delete this.viewDetails[view];
-        delete this.lectureViewData[view];
+        delete this.moduleViewData[view];
         this.viewOrder.splice(this.viewOrder.indexOf(view), 1);
         this.uiService.showSnackBar(
           'Module "' + moduleName + '" deleted successfully!',
@@ -656,7 +687,7 @@ export class CreateCourseComponent implements OnInit {
       ).subscribe(
         result => {
           this.showAddLectureIndicator = false;
-          this.lectureViewData[view].push(result);
+          this.moduleViewData[view].push(result);
           this.viewDetails[view].count += 1;
           this.closeAddLecture();
           this.uiService.showSnackBar(
@@ -707,14 +738,14 @@ export class CreateCourseComponent implements OnInit {
   }
 
   deleteLecture(lecture, view: string) {
-    const index = this.findIdInArray(this.lectureViewData[view], lecture.id);
-    this.lectureViewData[view][index].delete = true;
+    const index = this.findIdInArray(this.moduleViewData[view], lecture.module_view_id, 'module_view_id');
+    this.moduleViewData[view][index].delete = true;
     this.instituteApiService.deleteSubjectLecture(
       this.currentSubjectSlug,
-      lecture.id.toString()
+      lecture.lecture_id.toString()
     ).subscribe(
       () => {
-        this.lectureViewData[view].splice(index, 1);
+        this.moduleViewData[view].splice(index, 1);
         this.uiService.showSnackBar(
           'Lecture "' + lecture.name + '" deleted successfully!',
           2000
@@ -722,7 +753,7 @@ export class CreateCourseComponent implements OnInit {
         this.viewDetails[view].count -= 1;
       },
       errors => {
-        this.lectureViewData[view][index].delete = false;
+        this.moduleViewData[view][index].delete = false;
         if (errors.error) {
           if (errors.error.error) {
             this.uiService.showSnackBar(
@@ -745,18 +776,18 @@ export class CreateCourseComponent implements OnInit {
     );
   }
 
-  editLectureClicked(content) {
+  editLectureClicked(lecture) {
     const view = this.viewOrder[this.openedPanelStep];
     this.editLectureForm.patchValue({
-      name: content.name,
-      target_date: content.target_date
+      name: lecture.name,
+      target_date: lecture.target_date
     });
 
-    for (const index in this.lectureViewData[view]) {
-      if (this.lectureViewData[view][index].id !== content.id) {
-        this.lectureViewData[view][index].edit = false;
+    for (const index in this.moduleViewData[view]) {
+      if (this.moduleViewData[view][index].module_view_id !== lecture.module_view_id) {
+        this.moduleViewData[view][index].edit = false;
       } else {
-        this.lectureViewData[view][index].edit = true;
+        this.moduleViewData[view][index].edit = true;
       }
     }
   }
@@ -783,7 +814,7 @@ export class CreateCourseComponent implements OnInit {
     }
   }
 
-  editLecture(content) {
+  editLecture(lecture) {
     this.editLectureForm.patchValue({
       name: this.editLectureForm.value.name.trim()
     });
@@ -796,13 +827,15 @@ export class CreateCourseComponent implements OnInit {
       this.showEditLectureIndicator = true;
       this.instituteApiService.editSubjectLecture(
         this.currentSubjectSlug,
-        content.id.toString(),
+        lecture.lecture_id.toString(),
         data
       ).subscribe(
-        result => {
+        (result: {lecture_id: number, name: string, target_date: string}) => {
           this.showEditLectureIndicator = false;
-          const index = this.findIdInArray(this.lectureViewData[view], content.id);
-          this.lectureViewData[view].splice(index, 1, result);
+          const index = this.findIdInArray(this.moduleViewData[view], lecture.module_view_id, 'module_view_id');
+          this.moduleViewData[view][index].edit = false;
+          this.moduleViewData[view][index].name = result.name;
+          this.moduleViewData[view][index].target_date = result.target_date;
           this.uiService.showSnackBar(
             'Lecture updated Successfully!',
             2000
@@ -835,8 +868,8 @@ export class CreateCourseComponent implements OnInit {
 
   closeEditLecture(content) {
     const view = this.viewOrder[this.openedPanelStep];
-    const index = this.findIdInArray(this.lectureViewData[view], content.id);
-    this.lectureViewData[view][index].edit = false;
+    const index = this.findIdInArray(this.moduleViewData[view], content.id);
+    this.moduleViewData[view][index].edit = false;
     this.editLectureForm.reset();
   }
 
@@ -877,7 +910,7 @@ export class CreateCourseComponent implements OnInit {
     this.loadingContentError = null;
     this.instituteApiService.loadSubjectLectureContents(
       this.currentSubjectSlug,
-      this.selectedLecture.id.toString()
+      this.selectedLecture.lecture_id.toString()
     ).subscribe(
       (result: InstituteSubjectLectureContentData) => {
         this.loadingLectureContentIndicator = false;
@@ -918,7 +951,7 @@ export class CreateCourseComponent implements OnInit {
       this.showAddObjectiveIndicator = true;
       this.instituteApiService.addLectureObjectiveOrUseCase(
         this.currentSubjectSlug,
-        this.selectedLecture.id.toString(),
+        this.selectedLecture.lecture_id.toString(),
         data
       ).subscribe(
         (result: {id: number; text: string; }) => {
@@ -1117,7 +1150,7 @@ export class CreateCourseComponent implements OnInit {
       this.showAddUseCaseIndicator = true;
       this.instituteApiService.addLectureObjectiveOrUseCase(
         this.currentSubjectSlug,
-        this.selectedLecture.id.toString(),
+        this.selectedLecture.lecture_id.toString(),
         data
       ).subscribe(
         (result: {id: number; text: string; }) => {
@@ -1317,7 +1350,7 @@ export class CreateCourseComponent implements OnInit {
       this.showAddAdditionalReadingIndicator = true;
       this.instituteApiService.addLectureAdditionalReadingOrUseCaseLink(
         this.currentSubjectSlug,
-        this.selectedLecture.id.toString(),
+        this.selectedLecture.lecture_id.toString(),
         data
       ).subscribe(
         (result: {id: number; name: string; link: string; }) => {
@@ -1519,7 +1552,7 @@ export class CreateCourseComponent implements OnInit {
       this.showAddGetInspiredIndicator = true;
       this.instituteApiService.addLectureAdditionalReadingOrUseCaseLink(
         this.currentSubjectSlug,
-        this.selectedLecture.id.toString(),
+        this.selectedLecture.lecture_id.toString(),
         data
       ).subscribe(
         (result: {id: number; name: string; link: string; }) => {
@@ -1781,7 +1814,7 @@ export class CreateCourseComponent implements OnInit {
     this.uploadingEvent.next('DISABLE');
     this.instituteApiService.addExternalLinkCourseContent(
       this.currentSubjectSlug,
-      this.selectedLecture.id.toString(),
+      this.selectedLecture.lecture_id.toString(),
       data
       ).subscribe(
         (result: InstituteSubjectLectureMaterial) => {
@@ -1830,7 +1863,7 @@ export class CreateCourseComponent implements OnInit {
     });
     this.instituteApiService.uploadMediaCourseContentMaterial(
       this.currentSubjectSlug,
-      this.selectedLecture.id.toString(),
+      this.selectedLecture.lecture_id.toString(),
       data
       ).subscribe(
       (result: any) => {

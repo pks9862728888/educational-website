@@ -297,6 +297,11 @@ export const STUDY_MATERIAL_VIEW_TYPES = {
   TEST_VIEW: 'T'
 };
 
+export const STUDY_MODULE_VIEW_TYPES = {
+  LECTURE_VIEW: 'L',
+  TEST_VIEW: 'T'
+};
+
 export const LECTURE_TEXT_TYPES = {
   USE_CASE: 'U',
   OBJECTIVES: 'O'
@@ -399,7 +404,7 @@ export const MONTH_FORM_FIELD_OPTIONS = [
 
 export const SUBJECT_ADD_TEST_PLACE = {
   GLOBAL: 'G',
-  VIEW: 'V',
+  MODULE: 'M',
   LECTURE: 'L'
 };
 

@@ -39,7 +39,7 @@ hr {
     box-shadow: 1px 1px 1px #1f1f1f;
     margin-bottom: 0.7rem;
     cursor: pointer;
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 5px;
 }
 
@@ -58,7 +58,7 @@ hr {
     align-items: center;
     right: 1.7rem;
     position: absolute;
-    transform: translateY(-250%);
+    transform: translateY(-230%);
 }
 
 

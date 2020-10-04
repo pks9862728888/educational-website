@@ -100,6 +100,7 @@ export class AddSubjectTestComponent implements OnInit {
       enable_peer_check: [false, [Validators.required]],
       allow_question_preview_10_min_before: [true, [Validators.required]],
       allow_test_after_scheduled_date_and_time: [false, [Validators.required]],
+      allow_test_on_scheduled_date_for_whole_day: [false, [Validators.required]],
       shuffle_questions: [true, [Validators.required]]
     });
     if (this.shouldSetDateTime) {
@@ -125,6 +126,7 @@ export class AddSubjectTestComponent implements OnInit {
       enable_peer_check: false,
       allow_question_preview_10_min_before: false,
       allow_test_after_scheduled_date_and_time: false,
+      allow_test_on_scheduled_date_for_whole_day: false,
       shuffle_questions: true
     });
     if (this.shouldSetDateTime) {
@@ -244,6 +246,32 @@ export class AddSubjectTestComponent implements OnInit {
     }
   }
 
+  allowTestOnScheduledDateForWholeDayChanged() {
+    if (!this.addTestForm.value.date) {
+      this.addTestForm.patchValue({
+        allow_test_on_scheduled_date_for_whole_day: false,
+      });
+      this.uiService.showSnackBar(
+        'Please select test date to enable this option.',
+        3000
+      );
+    } else {
+      if (!this.addTestForm.value.hour) {
+        this.addTestForm.patchValue({
+          hour: 23
+        });
+      }
+      if (!this.addTestForm.value.minute) {
+        this.addTestForm.patchValue({
+          minute: 59
+        });
+      }
+      this.addTestForm.patchValue({
+        allow_question_preview_10_min_before: false
+      });
+    }
+  }
+
   resetTime() {
     this.addTestForm.patchValue({
       hour: null,
@@ -264,7 +292,8 @@ export class AddSubjectTestComponent implements OnInit {
     if (!dateNow) {
       this.addTestForm.patchValue({
         allow_question_preview_10_min_before: false,
-        allow_test_after_scheduled_date_and_time: false
+        allow_test_after_scheduled_date_and_time: false,
+        allow_test_on_scheduled_date_for_whole_day: false
       });
     }
   }
@@ -273,16 +302,31 @@ export class AddSubjectTestComponent implements OnInit {
     this.addTestForm.patchValue({
       name: this.addTestForm.value.name.trim()
     });
-    const sheduledDateAndTime = getUnixTimeStamp(this.addTestForm.value.date, this.addTestForm.value.hour, this.addTestForm.value.minute);
-    const unixTimeNow = + new Date();
-    if (unixTimeNow >= sheduledDateAndTime) {
-      this.uiService.showSnackBar(
-        'Error! Test date and time can not be in the past.',
-        3000
-      );
-    } else if (!this.addTestForm.invalid) {
-      this.showFormView = false;
-      stepper.next();
+
+    const dt = this.addTestForm.value.date;
+    const hr = this.addTestForm.value.hr;
+    const min = this.addTestForm.value.minute;
+
+    if (this.shouldSetDateTime && dt && hr && min) {
+      const sheduledDateAndTime = getUnixTimeStamp(dt, hr, min);
+      const unixTimeNow = + new Date();
+
+      if (unixTimeNow >= sheduledDateAndTime) {
+        this.uiService.showSnackBar(
+          'Error! Test date and time can not be in the past.',
+          3000
+        );
+      } else if (!this.addTestForm.invalid) {
+        this.showFormView = false;
+        stepper.next();
+      }
+    } else if (!this.shouldSetDateTime && !dt) {
+      if (!this.addTestForm.invalid) {
+        this.showFormView = false;
+        stepper.next();
+      }
+    } else if (!this.shouldSetDateTime && dt) {
+      // sdfs
     }
   }
 
@@ -298,7 +342,7 @@ export class AddSubjectTestComponent implements OnInit {
 
     if (this.viewKey) {
       data.view_key = this.viewKey;
-      data.test_place = SUBJECT_ADD_TEST_PLACE.VIEW;
+      data.test_place = SUBJECT_ADD_TEST_PLACE.MODULE;
     } else if (this.lectureId) {
       data.lecture_id = this.lectureId;
       data.test_place = SUBJECT_ADD_TEST_PLACE.LECTURE;
@@ -357,5 +401,10 @@ export class AddSubjectTestComponent implements OnInit {
 
   closeFormError() {
     this.formError = null;
+  }
+
+  showData() {
+    console.log(this.addTestForm);
+    console.log(this.addTestForm.value);
   }
 }

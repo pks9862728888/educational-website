@@ -325,6 +325,18 @@ class GradedType:
     ]
 
 
+class TestScheduleType:
+    SPECIFIC_DATE_AND_TIME = 'DT'
+    SPECIFIC_DATE = 'D'
+    UNSCHEDULED = 'UN'
+
+    TYPE_IN_TEST_SCHEDULE_TYPES = [
+        (SPECIFIC_DATE_AND_TIME, _(u'SPECIFIC_DATE_AND_TIME')),
+        (SPECIFIC_DATE, _(u'SPECIFIC_DATE')),
+        (UNSCHEDULED, _(u'UNSCHEDULED')),
+    ]
+
+
 class StudyMaterialView:
     MEET_YOUR_INSTRUCTOR = 'MI'
     COURSE_OVERVIEW = 'CO'
@@ -2244,6 +2256,10 @@ class SubjectTest(models.Model):
         _('Total Marks'), decimal_places=2, max_digits=7)
     total_duration = models.PositiveSmallIntegerField(
         _('Total Duration in minutes'))
+    test_schedule_type = models.CharField(
+        _('Test schedule type'),
+        max_length=2,
+        choices=TestScheduleType.TYPE_IN_TEST_SCHEDULE_TYPES)
     test_schedule = UnixTimeStampField(
         _('Test schedule in UNIX timestamp in millisecond'), use_numeric=True, blank=True, null=True)
     instruction = models.CharField(
@@ -2267,10 +2283,9 @@ class SubjectTest(models.Model):
     publish_result_automatically = models.BooleanField(_('Publish result automatically'))
     enable_peer_check = models.BooleanField(_('Enable peer check'))
     allow_question_preview_10_min_before = models.BooleanField(_('Allow question preview 10 min before'))
-    allow_test_after_scheduled_date_and_time = models.BooleanField(_('Allow test after scheduled date and time'))
-    allow_test_on_scheduled_date_for_whole_day = models.BooleanField(_('Allow test on scheduled date for whole day'))
     shuffle_questions = models.BooleanField(_('Shuffle Questions'))
     result_published = models.BooleanField(_('Result Published'), default=False, blank=True)
+    test_live = models.BooleanField(_('Test live'), blank=True, default=False)
     test_slug = models.CharField(_('Test Slug'), max_length=10, blank=True, null=False)
     created_on = models.DateTimeField(_('Created on'), default=timezone.now, blank=True)
 
@@ -2298,24 +2313,14 @@ class SubjectTest(models.Model):
             if self.enable_peer_check:
                 raise ValueError(_('Can not set test ENABLE PEER CHECK since question category is AUTOCHECK TYPE.'))
 
-        if not self.test_schedule:
+        if self.test_schedule_type == TestScheduleType.UNSCHEDULED:
             if self.allow_question_preview_10_min_before:
-                msg = _('Can not set QUESTION PREVIEW 10 MINUTES BEFORE since date & time of test is not scheduled.')
-                raise ValueError(msg)
-
-            if self.allow_test_after_scheduled_date_and_time:
-                msg = _('Can not set ALLOW TEST AFTER SCHEDULED DATE AND TIME since date & time of test is not '
-                        'scheduled.')
+                msg = _('Can not set QUESTION PREVIEW 10 MINUTES BEFORE since selected test type is UNSCHEDULED.')
                 raise ValueError(msg)
 
         if self.type == GradedType.GRADED:
             if int(self.no_of_attempts) > 1:
                 msg = _('For Graded test number of attempts can not be greater than 1.')
-                raise ValueError(msg)
-
-        if self.allow_test_on_scheduled_date_for_whole_day:
-            if not self.test_schedule:
-                msg = _('Test date is not scheduled but ALLOW TEST ON SCHEDULED DATE FOR WHOLE DAY is selected.')
                 raise ValueError(msg)
 
         if self.test_schedule:
