@@ -5932,7 +5932,8 @@ class InstituteSubjectAddTestView(APIView):
                 enable_peer_check=request.data.get('enable_peer_check'),
                 allow_question_preview_10_min_before=request.data.get('allow_question_preview_10_min_before'),
                 allow_test_after_scheduled_date_and_time=request.data.get('allow_test_after_scheduled_date_and_time'),
-                shuffle_questions=request.data.get('shuffle_questions')
+                shuffle_questions=request.data.get('shuffle_questions'),
+                allow_test_on_scheduled_date_for_whole_day=request.data.get('allow_test_on_scheduled_date_for_whole_day')
             )
             response = dict()
 
@@ -5952,6 +5953,7 @@ class InstituteSubjectAddTestView(APIView):
             response['test_schedule'] = test.test_schedule
             response['test_place'] = test.test_place
             response['test_type'] = test.type
+            response['allow_test_on_scheduled_date_for_whole_day'] = test.allow_test_on_scheduled_date_for_whole_day
 
             if test.lecture:
                 response['lecture_id'] = test.lecture.pk

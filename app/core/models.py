@@ -2268,6 +2268,7 @@ class SubjectTest(models.Model):
     enable_peer_check = models.BooleanField(_('Enable peer check'))
     allow_question_preview_10_min_before = models.BooleanField(_('Allow question preview 10 min before'))
     allow_test_after_scheduled_date_and_time = models.BooleanField(_('Allow test after scheduled date and time'))
+    allow_test_on_scheduled_date_for_whole_day = models.BooleanField(_('Allow test on scheduled date for whole day'))
     shuffle_questions = models.BooleanField(_('Shuffle Questions'))
     result_published = models.BooleanField(_('Result Published'), default=False, blank=True)
     test_slug = models.CharField(_('Test Slug'), max_length=10, blank=True, null=False)
@@ -2310,6 +2311,11 @@ class SubjectTest(models.Model):
         if self.type == GradedType.GRADED:
             if int(self.no_of_attempts) > 1:
                 msg = _('For Graded test number of attempts can not be greater than 1.')
+                raise ValueError(msg)
+
+        if self.allow_test_on_scheduled_date_for_whole_day:
+            if not self.test_schedule:
+                msg = _('Test date is not scheduled but ALLOW TEST ON SCHEDULED DATE FOR WHOLE DAY is selected.')
                 raise ValueError(msg)
 
         if self.test_schedule:
