@@ -2241,7 +2241,7 @@ class SubjectTest(models.Model):
         max_length=1,
         choices=GradedType.GRADED_TYPE_IN_GRADED_TYPES)
     total_marks = models.DecimalField(
-        _('Total Marks'), decimal_places=2, max_digits=5)
+        _('Total Marks'), decimal_places=2, max_digits=7)
     total_duration = models.PositiveSmallIntegerField(
         _('Total Duration in minutes'))
     test_schedule = UnixTimeStampField(
