@@ -3160,7 +3160,6 @@ class InstituteSubjectMinStatisticsView(APIView):
             view_subject=subject
         ).order_by('order')
         view_order = list()
-        test_views = list()
         view_details = dict()
         test_details = dict()
 
@@ -3168,29 +3167,31 @@ class InstituteSubjectMinStatisticsView(APIView):
             view_order.append(view.key)
 
             if view.type == models.SubjectViewType.TEST_VIEW:
-                test_views.append(view.key)
-                test_details[view.key] = {
-                    'name': view.name
+                view_details[view.key] = {
+                    'type': view.type
                 }
+
+                # Fetch tests
             else:
                 if view.key == 'MI' or view.key == 'CO':
                     view_details[view.key] = {
                         'name': view.name,
                         'count': models.SubjectIntroductoryContent.objects.filter(
                             view__pk=view.pk
-                        ).count()
+                        ).count(),
+                        'type': view.type
                     }
                 else:
                     view_details[view.key] = {
                         'name': view.name,
                         'count': models.SubjectLecture.objects.filter(
                             view__pk=view.pk
-                        ).count()
+                        ).count(),
+                        'type': view.type
                     }
 
         response['view_order'] = view_order
         response['view_details'] = view_details
-        response['test_views'] = test_views
         response['test_details'] = test_details
         response['has_subject_perm'] = has_subject_perm
 
@@ -5899,12 +5900,13 @@ class InstituteSubjectAddTestView(APIView):
             response['question_mode'] = test.question_mode
             response['test_schedule'] = test.test_schedule
             response['subject_id'] = test.subject.pk
+            response['test_place'] = test.test_place
 
             if test.lecture:
                 response['lecture_id'] = test.lecture.pk
 
             if test.view:
-                response['view_id'] = test.view.pk
+                response['view_key'] = view.key
 
             return Response(response, status=status.HTTP_201_CREATED)
 
