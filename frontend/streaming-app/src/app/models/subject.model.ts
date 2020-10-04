@@ -89,6 +89,8 @@ export interface SubjectTestMinDetailsResponse {
   test_schedule: number;
   test_place: string;
   test_type: string;
+  test_schedule_type: string;
+  test_live: boolean;
   lecture_id?: number;
   view_key?: string;
 }

@@ -664,7 +664,7 @@
                     </h3>
                     <mat-icon class="cursor-pointer help-icon" matTooltip="Add mcq based graded / ungraded tests so that students can evaluate how much they understood the topic of the lecture." matTooltipPosition="above" matTooltipHideDelay="500">help_outline</mat-icon>
                 </div>
-                <div *ngFor="let test of selectedLecture.test">
+                <div *ngFor="let test of lectureContentData.tests">
                     <div class="test-container d-flex align-center">
                         <mat-icon class="m-r-05 test-icon">assistant_photo</mat-icon>
                         <div>
