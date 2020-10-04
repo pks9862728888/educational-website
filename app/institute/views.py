@@ -5953,6 +5953,7 @@ class InstituteSubjectAddTestView(APIView):
             response['test_place'] = test.test_place
             response['test_type'] = test.type
             response['allow_test_on_scheduled_date_for_whole_day'] = test.allow_test_on_scheduled_date_for_whole_day
+            response['test_live'] = test.test_live
 
             if test.lecture:
                 response['lecture_id'] = test.lecture.pk
