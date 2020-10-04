@@ -4368,30 +4368,32 @@ class InstituteSubjectDeleteModuleView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Finding the statistics of the content to be deleted
-        lectures = models.SubjectLecture.objects.filter(
-            view=view
-        )
+        module_views = models.SubjectModuleView.objects.filter(view=view)
         total_size = 0
 
-        for lecture in lectures:
-            study_materials = models.SubjectLectureMaterials.objects.filter(
-                lecture__pk=lecture.pk
-            ).filter(
-                Q(content_type=models.SubjectLectureMaterialsContentType.IMAGE) | Q(
-                    content_type=models.SubjectLectureMaterialsContentType.PDF))
-            for material in study_materials:
-                if material.content_type == models.StudyMaterialContentType.IMAGE:
-                    total_size += float(
-                        models.SubjectLectureImageMaterial.objects.filter(
-                            lecture_material__pk=material.pk
-                        ).first().file.size
-                    )
-                elif material.content_type == models.StudyMaterialContentType.PDF:
-                    total_size += float(
-                        models.SubjectLecturePdfMaterial.objects.filter(
-                            lecture_material__pk=material.pk
-                        ).first().file.size
-                    )
+        for mv in module_views:
+            if mv.type == models.SubjectModuleViewType.LECTURE_VIEW:
+                study_materials = models.SubjectLectureMaterials.objects.filter(
+                    lecture__pk=mv.lecture.pk
+                ).filter(
+                    Q(content_type=models.SubjectLectureMaterialsContentType.IMAGE) | Q(
+                        content_type=models.SubjectLectureMaterialsContentType.PDF))
+                for material in study_materials:
+                    if material.content_type == models.StudyMaterialContentType.IMAGE:
+                        total_size += float(
+                            models.SubjectLectureImageMaterial.objects.filter(
+                                lecture_material__pk=material.pk
+                            ).first().file.size
+                        )
+                    elif material.content_type == models.StudyMaterialContentType.PDF:
+                        total_size += float(
+                            models.SubjectLecturePdfMaterial.objects.filter(
+                                lecture_material__pk=material.pk
+                            ).first().file.size
+                        )
+            elif mv.type == models.SubjectModuleViewType.TEST_VIEW:
+                # Find size of test materials space
+                pass
 
         try:
             view.delete()
