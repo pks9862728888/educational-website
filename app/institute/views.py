@@ -3185,7 +3185,7 @@ class InstituteSubjectMinStatisticsView(APIView):
                     'type': test.type,
                     'test_place': test.test_place,
                     'test_slug': test.test_slug,
-                    'question_mode': test.test_mode,
+                    'question_mode': test.question_mode,
                     'test_schedule': test.test_schedule
                 }
 
@@ -3212,6 +3212,7 @@ class InstituteSubjectMinStatisticsView(APIView):
         response['test_details'] = test_details
         response['has_subject_perm'] = has_subject_perm
 
+        print(response)
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -5918,6 +5919,7 @@ class InstituteSubjectAddTestView(APIView):
             response['test_schedule'] = test.test_schedule
             response['subject_id'] = test.subject.pk
             response['test_place'] = test.test_place
+            response['type'] = test.type
 
             if test.lecture:
                 response['lecture_id'] = test.lecture.pk

@@ -623,7 +623,7 @@ def unique_slug_generator_for_section(instance):
 def generate_test_slug(instance):
     """Generates unique test slug"""
     while True:
-        slug = 'f-' + random_string_generator(8)
+        slug = 'test-' + random_string_generator(5)
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(test_slug=slug).exists()
 
