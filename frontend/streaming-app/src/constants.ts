@@ -326,6 +326,12 @@ export const LECTURE_STUDY_MATERIAL_TYPES = {
   LIVE_CLASS: 'L'
 };
 
+export const TEST_SCHEDULE_TYPES = {
+  SPECIFIC_DATE_AND_TIME: 'DT',
+  SPECIFIC_DATE: 'D',
+  UNSCHEDULED: 'UN'
+}
+
 export const GRADED_TYPES = {
   GRADED: 'G',
   UNGRADED: 'U'

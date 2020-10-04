@@ -3391,6 +3391,21 @@ class InstituteSubjectLectureContents(APIView):
                 'link': additional_reading_link.link
             })
 
+        for test in models.SubjectTest.objects.filter(
+            lecture__pk=lecture.pk
+        ):
+            response['tests'].append({
+                'test_id': test.pk,
+                'test_slug': test.test_slug,
+                'name': test.name,
+                'question_mode': test.question_mode,
+                'test_schedule': test.test_schedule,
+                'test_schedule_type': test.test_schedule_type,
+                'test_place': test.test_place,
+                'test_type': test.type,
+                'test_live': test.test_live
+            })
+
         for lecture_materials in models.SubjectLectureMaterials.objects.filter(
             lecture__pk=lecture.pk
         ):

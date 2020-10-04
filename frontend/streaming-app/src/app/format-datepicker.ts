@@ -40,6 +40,11 @@ export function formatDate(selectedDate: string) {
   return date.getFullYear() + '-' + month + '-' + day;
 }
 
+export function getOnlyDateFromUnixTimeStamp(unixTimeStamp) {
+  const timestampString = (new Date(unixTimeStamp)).toString();
+  return formatDate(timestampString);
+}
+
 export function getUnixTimeStamp(selectedDate: string, hour: number, minute: number) {
   const date = new Date(selectedDate);
   const sheduledDate = new Date(date.getFullYear(),

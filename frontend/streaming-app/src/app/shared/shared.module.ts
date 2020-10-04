@@ -40,6 +40,9 @@ import { StudentInstituteCoursesComponent } from './student-institute-courses/st
 import { UiAddYoutubeLinkComponent } from './ui-add-youtube-link/ui-add-youtube-link.component';
 import { UiEditDeleteAddAddControlsComponent } from './ui-edit-delete-add-add-controls/ui-edit-delete-add-add-controls.component';
 import { AddSubjectTestComponent } from './add-subject-test/add-subject-test.component';
+import { AddSubjectUnsheduledTestComponent } from './add-subject-unsheduled-test/add-subject-unsheduled-test.component';
+import { AddSubjectSpecificDateTimeTestComponent } from './add-subject-specific-date-time-test/add-subject-specific-date-time-test.component';
+import { AddSubjectSpecificDateTestComponent } from './add-subject-specific-date-test/add-subject-specific-date-test.component';
 
 @NgModule({
   declarations: [
@@ -74,7 +77,10 @@ import { AddSubjectTestComponent } from './add-subject-test/add-subject-test.com
     StudentInstituteCoursesComponent,
     UiAddYoutubeLinkComponent,
     UiEditDeleteAddAddControlsComponent,
-    AddSubjectTestComponent
+    AddSubjectTestComponent,
+    AddSubjectUnsheduledTestComponent,
+    AddSubjectSpecificDateTimeTestComponent,
+    AddSubjectSpecificDateTestComponent
   ],
   imports: [
     CommonModule,
@@ -115,7 +121,10 @@ import { AddSubjectTestComponent } from './add-subject-test/add-subject-test.com
     StudentInstituteCoursesComponent,
     UiAddYoutubeLinkComponent,
     UiEditDeleteAddAddControlsComponent,
-    AddSubjectTestComponent
+    AddSubjectTestComponent,
+    AddSubjectUnsheduledTestComponent,
+    AddSubjectSpecificDateTimeTestComponent,
+    AddSubjectSpecificDateTestComponent
   ],
   providers: [
     InstituteApiService,

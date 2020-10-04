@@ -1,161 +1,26 @@
-<div class="header d-flex justify-content-between align-center">
-    <h3>Add Test Form:</h3>
-    <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeAddTest()">close</mat-icon>
-</div>
-<mat-horizontal-stepper linear="true" #stepper class="stepper-body">
-    <mat-step [stepControl]="addTestForm" label="Fill">
-        <form [formGroup]="addTestForm">
-            <mat-form-field class="width-100" appearance="outline">
-                <mat-label>Name of the Test<span class="required">&nbsp;*</span></mat-label>
-                <input matInput maxlength="30" formControlName="name" placeholder="Name of test">
-                <mat-error *ngIf="addTestForm.controls['name'].errors?.required">This field is required.</mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="width-100">
-                <mat-label>Test type <span class="required">*</span></mat-label>
-                <select matNativeControl formControlName="type" (change)="gradedTypeChanged()">
-                  <option *ngFor="let option of GRADED_TYPE_FORM_FIELD_OPTIONS" [value]="option.value" class="options">{{ option.viewValue }}</option>
-                </select>
-            </mat-form-field>
-            <mat-form-field class="width-100" appearance="outline">
-                <mat-label>Total Marks<span class="required">&nbsp;*</span></mat-label>
-                <input type="text" matInput min="0" formControlName="total_marks" placeholder="Total marks">
-                <mat-error *ngIf="addTestForm.controls['total_marks'].errors?.required">This field is required.</mat-error>
-                <mat-error *ngIf="!addTestForm.controls['total_marks'].errors?.required && addTestForm.controls['total_marks'].errors?.postiveIntegerValidator">Marks should be a positive number.</mat-error>
-            </mat-form-field>
-            <mat-form-field class="width-100" appearance="outline">
-                <mat-label>Total Duration (in minutes)<span class="required">&nbsp;*</span></mat-label>
-                <input type="text" matInput formControlName="total_duration" placeholder="Total duration in minutes">
-                <mat-error *ngIf="addTestForm.controls['total_duration'].errors?.required">This field is required.</mat-error>
-                <mat-error *ngIf="!addTestForm.controls['total_duration'].errors?.required && addTestForm.controls['total_duration'].errors?.postiveIntegerValidator">Total duration should be a positive integer.</mat-error>
-            </mat-form-field>
-            <mat-form-field class="width-100" appearance="outline">
-                <mat-label>Test Date <span *ngIf="shouldSetDateTime" class="required">*</span></mat-label>
-                <input matInput formControlName="date" (click)="datepicker.open()" [min]="currentDate" [max]="maxDate" [matDatepicker]="datepicker">
-                <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
-                <mat-datepicker touchUi #datepicker></mat-datepicker>
-                <mat-error *ngIf="addTestForm.controls['date'].errors?.required">Date of test should be set.</mat-error>
-            </mat-form-field>
-            <div class="row">
-                <div class="col-12">
-                    <button mat-stroked-button class="edit-icon float-right stroke-border m-b-1" (click)="resetDate()">Reset Date</button>
-                </div>
-                <div [class.col-12]="mq.matches" [class.col-6]="!mq.matches" [hidden]="addTestForm.value.allow_test_on_scheduled_date_for_whole_day">
-                    <mat-form-field class="width-100" appearance="outline">
-                        <mat-label>Hour <span *ngIf="shouldSetDateTime" class="required">*</span></mat-label>
-                        <select matNativeControl formControlName="hour">
-                          <option *ngFor="let option of HOUR_CHOICES" [value]="option.value" class="options">{{ option.viewValue }}</option>
-                        </select>
-                        <mat-error *ngIf="addTestForm.controls['hour'].errors?.required">Time of test should be set.</mat-error>
-                    </mat-form-field>
-                </div>
-                <div [class.col-12]="mq.matches" [class.col-6]="!mq.matches" [hidden]="addTestForm.value.allow_test_on_scheduled_date_for_whole_day">
-                    <mat-form-field class="width-100" appearance="outline">
-                        <mat-label>Minute <span *ngIf="shouldSetDateTime" class="required">*</span></mat-label>
-                        <select matNativeControl formControlName="minute">
-                          <option *ngFor="let option of MINUTE_CHOICES" [value]="option.value" class="options">{{ option.viewValue }}</option>
-                        </select>
-                        <mat-error *ngIf="addTestForm.controls['minute'].errors?.required">Time of test should be set.</mat-error>
-                    </mat-form-field>
-                    <button mat-stroked-button class="edit-icon float-right stroke-border m-b-1" (click)="resetTime()">Reset Time</button>
-                </div>
-            </div>
-            <div class="m-b-1">
-                <mat-slide-toggle formControlName="shuffle_questions">Shuffle questions</mat-slide-toggle>
-            </div>
-            <div class="m-b-1">
-                <mat-slide-toggle formControlName="publish_result_automatically">Publish result automatically</mat-slide-toggle>
-            </div>
-            <div class="m-b-1" [hidden]="addTestForm.value.question_category === QUESTIONS_CATEGORY.AUTOCHECK_TYPE">
-                <mat-slide-toggle formControlName="enable_peer_check">Enable peer check</mat-slide-toggle>
-            </div>
-            <div class="m-b-1" [hidden]="!addTestForm.value.date || !addTestForm.value.hour || !addTestForm.value.minute || addTestForm.value.allow_test_on_scheduled_date_for_whole_day">
-                <mat-slide-toggle formControlName="allow_question_preview_10_min_before" (change)="questionPreviewChanged()">Allow question preview 10 minute before.</mat-slide-toggle>
-            </div>
-            <div class="m-b-1" [hidden]="!addTestForm.value.date || !addTestForm.value.hour || !addTestForm.value.minute">
-                <mat-slide-toggle formControlName="allow_test_after_scheduled_date_and_time" (change)="allowTestAfterScheduledDateTimeChanged()">Allow test after test schedule.</mat-slide-toggle>
-            </div>
-            <div class="m-b-1" [hidden]="!addTestForm.value.date">
-                <mat-slide-toggle formControlName="allow_test_on_scheduled_date_for_whole_day" (change)="allowTestOnScheduledDateForWholeDayChanged()">Allow test for whole day on scheduled date.</mat-slide-toggle>
-            </div>
-            <div class="m-b-1">
-                <hr class="dotted-hr" />
-            </div>
-            <mat-form-field appearance="outline" class="width-100">
-                <mat-label>Question paper mode <span class="required">*</span></mat-label>
-                <select matNativeControl formControlName="question_mode" (change)="questionModeChanged()">
-                    <option *ngFor="let option of QUESTION_MODE_FORM_FIELD_OPTIONS" [value]="option.value" class="options">{{ option.viewValue }}</option>
-                </select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="width-100">
-                <mat-label>Answer mode <span class="required">*</span></mat-label>
-                <select matNativeControl formControlName="answer_mode" (change)="answerModeChanged()">
-                  <option *ngFor="let option of ANSWER_MODE_FORM_FIELD_OPTIONS" [value]="option.value" class="options">{{ option.viewValue }}</option>
-                </select>
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="width-100">
-                <mat-label>Questions Category <span class="required">*</span></mat-label>
-                <select matNativeControl formControlName="question_category" (change)="questionCategoryChanged()">
-                  <option *ngFor="let option of QUESTIONS_CATEGORY_FORM_FIELD_OPTIONS" [value]="option.value" class="options">{{ option.viewValue }}</option>
-                </select>
-            </mat-form-field>
-            <mat-form-field class="width-100" appearance="outline">
-                <mat-label>Instruction for student</mat-label>
-                <textarea matInput maxlength="200" formControlName="instruction" placeholder="Instruction for student"></textarea>
-            </mat-form-field>
-            <mat-form-field class="width-100" appearance="outline" [hidden]="addTestForm.value.question_mode === QUESTION_MODE.FILE">
-                <mat-label>No of optional question to attempt<span class="required">&nbsp;*</span></mat-label>
-                <input matInput formControlName="no_of_optional_section_answer" placeholder="No of optional question to attempt">
-                <mat-error *ngIf="addTestForm.controls['no_of_optional_section_answer'].errors?.required">This field is required.</mat-error>
-                <mat-error *ngIf="!addTestForm.controls['no_of_optional_section_answer'].errors?.required && addTestForm.controls['no_of_optional_section_answer'].errors?.isNumberValidator">Should be a number >= 0.</mat-error>
-            </mat-form-field>
-            <mat-form-field class="width-100" appearance="outline" [hidden]="addTestForm.value.type === GRADED_TYPES.GRADED">
-                <mat-label>No of times student can take same test<span class="required">&nbsp;*</span></mat-label>
-                <input matInput formControlName="no_of_attempts" placeholder="No of times student can take same test">
-                <mat-error *ngIf="addTestForm.controls['no_of_attempts'].errors?.required">This field is required.</mat-error>
-                <mat-error *ngIf="!addTestForm.controls['no_of_attempts'].errors?.required && addTestForm.controls['no_of_attempts'].errors?.postiveIntegerValidator">Marks should be a positive integer.</mat-error>
-            </mat-form-field>
-        </form>
-        <div *ngIf="formError" class="m-b-1">
-            <app-ui-error-text [errorText]="formError" (closeErrorTextEvent)="closeFormError()"></app-ui-error-text>
+<section *ngIf="!testScheduleType">
+    <div class="header d-flex justify-content-between align-center">
+        <h3>Add Test Form:</h3>
+        <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeAddTest()">close</mat-icon>
+    </div>
+    <div class="stepper-body p-1rem">
+        <div class="cursor-pointer test-select-type m-b-1" (click)="setTestScheduleType(TEST_SCHEDULE_TYPES.SPECIFIC_DATE_AND_TIME)">
+            <h3><span class="test-select-header">SPECIFIC DATE AND TIME TEST:</span></h3> Test will begin at scheduled date and time.
         </div>
-        <button mat-flat-button class="lightblue-button m-r-05" (click)="initializeForm()">Reset</button>
-        <button mat-flat-button [disabled]="addTestForm.invalid" class="green-button" (click)="next(stepper)">Next</button>
-    </mat-step>
-    <mat-step [stepControl]="!showFormView" label="Verify & Submit">
-        <div class="m-b-1">
-            <h2>Editable Test Details:</h2>
-            <h3>Name of test: {{ addTestForm.value.name }}</h3>
-            <h3>Test type: {{ getSubjectTestType(addTestForm.value.type) }}</h3>
-            <h3>Total marks: {{ addTestForm.value.total_marks }}</h3>
-            <h3>Total duration: {{ addTestForm.value.total_duration }} minutes</h3>
-            <h3>Test scheduled on: {{ getTestSchedule(addTestForm.value.date, addTestForm.value.hour, addTestForm.value.minute) | date: 'medium' }}</h3>
-            <h3>Shuffle questions: {{ addTestForm.value.shuffle_questions }}</h3>
-            <h3>Number of questions to attempt from optional questions: {{ addTestForm.value.no_of_optional_section_answer }}</h3>
-            <h3>Instruction: {{ addTestForm.value.instruction }}</h3>
-            <hr class="top-separator m-b-1 m-t-1">
-            <h2>Uneditable Test Details:</h2>
-            <h3>Question paper making mode: {{ getSubjectTestQuestionMode(addTestForm.value.question_mode) }}</h3>
-            <h3>Student answer mode: {{ getSubjectTestAnswerMode(addTestForm.value.answer_mode) }}</h3>
-            <h3>Questions category:
-                <span *ngIf="addTestForm.value.question_category === QUESTIONS_CATEGORY.AUTOCHECK_TYPE">Autocheck type questions (True/False, MCQ)</span>
-                <span *ngIf="addTestForm.value.question_category === QUESTIONS_CATEGORY.ALL_TYPES">All Types (True/False, MCQ, Assertion, Fill in the blank, Short Answer, Long Answer, Numerical Answer Type)</span>
-                <span *ngIf="addTestForm.value.question_category === QUESTIONS_CATEGORY.FILE_UPLOAD_TYPE">Question will be uploaded as document.</span>
-            </h3>
-            <h3>Number of attempts of same test by student: {{ addTestForm.value.no_of_attempts }}</h3>
-            <h3>Publish result automatically after test finishes: {{ addTestForm.value.publish_result_automatically }}</h3>
-            <h3>Enable peer-peer checking of answers: {{ addTestForm.value.enable_peer_check }}</h3>
-            <h3>Allow students to preview questions 10 minutes before: {{ addTestForm.value.allow_question_preview_10_min_before }}</h3>
+        <div class="cursor-pointer test-select-type m-b-1" (click)="setTestScheduleType(TEST_SCHEDULE_TYPES.SPECIFIC_DATE)">
+            <h3><span class="test-select-header">SPECIFIC DATE TEST:</span></h3> Students can give test on scheduled date for whole day.
         </div>
-        <div class="d-flex">
-            <button mat-flat-button class="lightblue-button m-r-05" [disabled]="showSubmitIndicator" (click)="editForm(stepper)">Edit</button>
-            <button mat-flat-button class="green-button" [disabled]="showSubmitIndicator" (click)="submit(stepper)">
-              <div class="d-flex align-center">
-                  <mat-progress-spinner *ngIf="showSubmitIndicator" mode="indeterminate" [diameter]="25" class="m-r-05"></mat-progress-spinner>
-                  Submit
-              </div>
-            </button>
+        <div class="cursor-pointer test-select-type" (click)="setTestScheduleType(TEST_SCHEDULE_TYPES.UNSCHEDULED)">
+            <h3><span class="test-select-header">UNSCHEDULED TEST:</span></h3>Students can take test on any date at any time after test is set active.
         </div>
-    </mat-step>
-</mat-horizontal-stepper>
-
-<button (click)="showData()">show</button>
+    </div>
+</section>
+<section *ngIf="testScheduleType">
+    <div class="header d-flex justify-content-between align-center">
+        <h3>Add Test Form:</h3>
+        <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeAddTest()">close</mat-icon>
+    </div>
+    <app-add-subject-specific-date-time-test [viewKey]="viewKey" [lectureId]="lectureId" (changeTestScheduleTypeEvent)="changeTestScheduleType()" (testCreatedEvent)="testCreated($event)" *ngIf="testScheduleType === TEST_SCHEDULE_TYPES.SPECIFIC_DATE_AND_TIME"></app-add-subject-specific-date-time-test>
+    <app-add-subject-specific-date-test [viewKey]="viewKey" [lectureId]="lectureId" (changeTestScheduleTypeEvent)="changeTestScheduleType()" (testCreatedEvent)="testCreated($event)" *ngIf="testScheduleType === TEST_SCHEDULE_TYPES.SPECIFIC_DATE"></app-add-subject-specific-date-test>
+    <app-add-subject-unsheduled-test [viewKey]="viewKey" [lectureId]="lectureId" (changeTestScheduleTypeEvent)="changeTestScheduleType()" (testCreatedEvent)="testCreated($event)" *ngIf="testScheduleType === TEST_SCHEDULE_TYPES.UNSCHEDULED"></app-add-subject-unsheduled-test>
+</section>

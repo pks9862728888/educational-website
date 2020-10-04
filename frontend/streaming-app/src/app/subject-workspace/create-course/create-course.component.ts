@@ -1,4 +1,4 @@
-import { formatDate, getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
+import { formatDate, getDateFromUnixTimeStamp, getOnlyDateFromUnixTimeStamp } from 'src/app/format-datepicker';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -17,16 +17,17 @@ import { getSubjectTestType, isContentTypeExternalLink,
          isContentTypePdf,
          isContentTypeYouTubeLink } from 'src/app/shared/utilityFunctions';
 import { currentSubjectSlug,
-          STUDY_MATERIAL_VIEW_TYPES,
-          currentInstituteSlug,
-          LECTURE_TEXT_TYPES,
-          LECTURE_LINK_TYPES,
-          LECTURE_STUDY_MATERIAL_TYPES,
-          LECTURE_INTRODUCTORY_CONTENT_TYPES,
-          courseContent,
-          SUBJECT_ADD_TEST_PLACE,
-          SUBJECT_VIEW_TYPE,
-          STUDY_MODULE_VIEW_TYPES } from './../../../constants';
+         STUDY_MATERIAL_VIEW_TYPES,
+         currentInstituteSlug,
+         LECTURE_TEXT_TYPES,
+         LECTURE_LINK_TYPES,
+         LECTURE_STUDY_MATERIAL_TYPES,
+         LECTURE_INTRODUCTORY_CONTENT_TYPES,
+         courseContent,
+         SUBJECT_ADD_TEST_PLACE,
+         SUBJECT_VIEW_TYPE,
+         STUDY_MODULE_VIEW_TYPES,
+         TEST_SCHEDULE_TYPES } from './../../../constants';
 import { MatDialog } from '@angular/material/dialog';
 import { UiActionControlsComponent } from 'src/app/shared/ui-action-controls/ui-action-controls.component';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
@@ -95,9 +96,11 @@ export class CreateCourseComponent implements OnInit {
   isContentTypeExternalLink = isContentTypeExternalLink;
   getSubjectTestType = getSubjectTestType;
   getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
+  getOnlyDateFromUnixTimeStamp = getOnlyDateFromUnixTimeStamp;
   SUBJECT_ADD_TEST_PLACE = SUBJECT_ADD_TEST_PLACE;
   SUBJECT_VIEW_TYPE = SUBJECT_VIEW_TYPE;
   STUDY_MODULE_VIEW_TYPES = STUDY_MODULE_VIEW_TYPES;
+  TEST_SCHEDULE_TYPES = TEST_SCHEDULE_TYPES;
   minDate = new Date();
 
   hasSubjectPerm: boolean;
