@@ -294,6 +294,7 @@ admin.site.register(models.InstituteSectionPermission)
 # For subject lecture
 admin.site.register(models.InstituteSubjectPermission)
 admin.site.register(models.SubjectIntroductoryContent)
+admin.site.register(models.SubjectModuleView)
 admin.site.register(models.SubjectLecture)
 admin.site.register(models.SubjectAdditionalReadingUseCaseLink)
 admin.site.register(models.SubjectLectureMaterials)
