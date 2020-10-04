@@ -4391,6 +4391,8 @@ class InstituteSubjectDeleteModuleView(APIView):
                                 lecture_material__pk=material.pk
                             ).first().file.size
                         )
+                # Find size of assignments
+                # Find size of tests
             elif mv.type == models.SubjectModuleViewType.TEST_VIEW:
                 # Find size of test materials space
                 pass
