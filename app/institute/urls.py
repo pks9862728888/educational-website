@@ -129,7 +129,7 @@ urlpatterns = [
 
     # Institute subject create course
     path('<slug:subject_slug>/add-view',
-         views.InstituteSubjectAddView.as_view(),
+         views.InstituteSubjectAddModuleView.as_view(),
          name='add-view'),
     path('<slug:subject_slug>/<slug:view_key>/edit-subject-view-name',
          views.InstituteEditSubjectModuleViewName.as_view(),

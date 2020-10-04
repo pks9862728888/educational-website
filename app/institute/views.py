@@ -3069,7 +3069,7 @@ class ListSectionInchargesView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class InstituteSubjectAddView(APIView):
+class InstituteSubjectAddModuleView(APIView):
     """View for adding subject module or test"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
@@ -3099,7 +3099,8 @@ class InstituteSubjectAddView(APIView):
             return Response({
                 'name': view.name,
                 'view': view.key,
-                'count': 0
+                'count': 0,
+                'type': models.SubjectViewType.MODULE_VIEW
             }, status=status.HTTP_201_CREATED)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -3340,7 +3341,7 @@ class InstituteSubjectLectureContents(APIView):
         response = dict()
         response['id'] = lecture.pk
         response['name'] = lecture.name
-        response['view_name'] = lecture.view.name
+        # response['view_name'] = lecture.view.name
         response['objectives'] = list()
         response['use_case_text'] = list()
         response['use_case_link'] = list()
@@ -3396,7 +3397,7 @@ class InstituteSubjectLectureContents(APIView):
             res['content_type'] = lecture_materials.content_type
 
             if lecture_materials.content_type == models.SubjectLectureMaterialsContentType.YOUTUBE_LINK or\
-                lecture_materials.content_type == models.SubjectLectureMaterialsContentType.EXTERNAL_LINK:
+                    lecture_materials.content_type == models.SubjectLectureMaterialsContentType.EXTERNAL_LINK:
                 res['data'] = {
                     'link': models.SubjectLectureLinkMaterial.objects.filter(
                                 lecture_material__pk=lecture_materials.pk
