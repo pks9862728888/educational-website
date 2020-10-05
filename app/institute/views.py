@@ -3178,16 +3178,18 @@ class InstituteSubjectMinStatisticsView(APIView):
                     test_place=models.TestPlace.GLOBAL,
                     view__pk=view.pk
                 ).only('pk', 'name', 'type', 'test_place', 'test_slug',
-                       'question_mode', 'test_schedule').first()
+                       'question_mode', 'test_schedule', 'test_schedule_type', 'test_live').first()
 
                 test_details[view.key] = {
-                    'id': test.pk,
+                    'test_id': test.pk,
                     'name': test.name,
                     'test_type': test.type,
                     'test_place': test.test_place,
                     'test_slug': test.test_slug,
                     'question_mode': test.question_mode,
-                    'test_schedule': test.test_schedule
+                    'test_schedule': test.test_schedule,
+                    'test_schedule_type': test.test_schedule_type,
+                    'test_live': test.test_live
                 }
 
             else:
@@ -3297,6 +3299,7 @@ class InstituteSubjectSpecificViewCourseContentView(APIView):
                     res['test_schedule'] = m.test.test_schedule
                     res['test_place'] = m.test.test_place
                     res['test_type'] = m.test.type
+                    res['test_schedule_type'] = m.test.test_schedule_type
 
                 response.append(res)
 
@@ -5950,9 +5953,9 @@ class InstituteSubjectAddTestView(APIView):
             response['name'] = test.name
             response['question_mode'] = test.question_mode
             response['test_schedule'] = test.test_schedule
+            response['test_schedule_type'] = test.test_schedule_type
             response['test_place'] = test.test_place
             response['test_type'] = test.type
-            response['allow_test_on_scheduled_date_for_whole_day'] = test.allow_test_on_scheduled_date_for_whole_day
             response['test_live'] = test.test_live
 
             if test.lecture:
@@ -5968,6 +5971,7 @@ class InstituteSubjectAddTestView(APIView):
                 test.delete()
             return Response({'error': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Unknown internal server error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
