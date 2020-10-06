@@ -28,7 +28,7 @@ urlpatterns = [
          views.RazorpayWebhookCallbackView.as_view(),
          name='razorpay-webhook-callback'),
     path('<slug:institute_slug>/get-license-purchased',
-         views.InstituteLicenseOrderDetailsView.as_view(),
+         views.InstituteCommonLicenseOrderDetailsView.as_view(),
          name='get-license-purchased'),
     path('<slug:institute_slug>/check-license-exists',
          views.InstituteUnexpiredPaidLicenseExistsView.as_view(),

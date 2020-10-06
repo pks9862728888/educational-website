@@ -10,19 +10,19 @@ class InstituteLicenseListSerializer(serializers.ModelSerializer):
     """Serializer for getting list of institute licenses"""
 
     class Meta:
-        model = models.InstituteLicense
-        fields = ('id', 'billing', 'type', 'amount', 'discount_percent', 'storage',
+        model = models.InstituteCommonLicense
+        fields = ('id', 'billing', 'type', 'price', 'discount_percent', 'gst_percent',
                   'no_of_admin', 'no_of_staff', 'no_of_faculty',
-                  'no_of_student', 'video_call_max_attendees',
+                  'no_of_student', 'no_of_board_of_members', 'video_call_max_attendees',
                   'classroom_limit', 'department_limit',
                   'subject_limit', 'scheduled_test', 'discussion_forum',
-                  'LMS_exists')
-        read_only_fields = ('id', 'billing', 'type', 'amount', 'discount_percent',
-                            'storage', 'no_of_admin', 'no_of_staff',
-                            'no_of_faculty', 'no_of_student',
+                  'LMS_exists', 'CMS_exists')
+        read_only_fields = ('id', 'billing', 'type', 'price', 'discount_percent',
+                            'gst_percent', 'no_of_admin', 'no_of_staff',
+                            'no_of_faculty', 'no_of_student', 'no_of_board_of_members',
                             'video_call_max_attendees', 'classroom_limit',
                             'department_limit', 'subject_limit',
-                            'scheduled_test', 'discussion_forum', 'LMS_exists')
+                            'scheduled_test', 'discussion_forum', 'LMS_exists', 'CMS_exists')
 
 
 class InstituteLogoPictureOnlySerializer(serializers.ModelSerializer):

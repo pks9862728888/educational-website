@@ -207,6 +207,20 @@ class Billing:
     ]
 
 
+class InstituteLicenseTypes:
+    NOT_PURCHASED = 'N'
+    SELECTED = 'S'
+    ACTIVE = 'A'
+    EXPIRED = 'E'
+
+    LICENSE_TYPE_IN_LICENSE_TYPES = [
+        (NOT_PURCHASED, _(u'NOT_PURCHASED')),
+        (SELECTED, _(u'SELECTED')),
+        (ACTIVE, _(u'ACTIVE')),
+        (EXPIRED, _(u'EXPIRED')),
+    ]
+
+
 class InstituteLicensePlans:
     BASIC = 'BAS'
     BUSINESS = 'BUS'
@@ -219,21 +233,27 @@ class InstituteLicensePlans:
     ]
 
 
-class DiscussionForumBar:
-    ONE_PER_SUBJECT = 'O'
-    ONE_PER_SUBJECT_OR_SECTION = 'S'
-
-    DISCUSSION_FORUM_BAR_IN_DISCUSSION_FORUMS = [
-        (ONE_PER_SUBJECT, _(u'ONE_PER_SUBJECT')),
-        (ONE_PER_SUBJECT_OR_SECTION, _(u'ONE_PER_SUBJECT_OR_SECTION')),
-    ]
-
-
 class PaymentGateway:
     RAZORPAY = 'R'
 
     PAYMENT_GATEWAY_IN_PAYMENT_GATEWAYS = [
         (RAZORPAY, _(u'RAZORPAY')),
+    ]
+
+
+class ProductTypes:
+    LMS_CMS_EXAM_LIVE_STREAM = 'A'
+    DIGITAL_EXAM = 'E'
+    LIVE_STREAM = 'L'
+    STORAGE = 'S'
+    NOT_SELECTED = 'N'
+
+    PRODUCT_TYPE_IN_PRODUCT_TYPES = [
+        (LMS_CMS_EXAM_LIVE_STREAM, _(u'LMS_CMS_EXAM_LIVE_STREAM')),
+        (DIGITAL_EXAM, _(u'DIGITAL_EXAM')),
+        (LIVE_STREAM, _(u'LIVE_STREAM')),
+        (STORAGE, _(u'STORAGE')),
+        (NOT_SELECTED, _(u'NOT_SELECTED')),
     ]
 
 
@@ -813,46 +833,84 @@ def user_is_created(sender, instance, created, **kwargs):
                 UserProfile.objects.create(user=instance)
 
 
-class InstituteLicense(models.Model):
+################################################################
+#  Institute License
+################################################################
+class InstituteLicenseStat(models.Model):
+    """For storing different kind of license statistics of institute"""
+    institute = models.OneToOneField(
+        'Institute', related_name='license_statistics_of_institute',
+        on_delete=models.CASCADE)
+    exam_license_stat = models.CharField(
+        _('Exam license statistics'),
+        max_length=1,
+        choices=InstituteLicenseTypes.LICENSE_TYPE_IN_LICENSE_TYPES,
+        default=InstituteLicenseTypes.NOT_PURCHASED,
+        blank=True)
+    live_stream_license_stat = models.CharField(
+        _('Live stream license statistics'),
+        max_length=1,
+        choices=InstituteLicenseTypes.LICENSE_TYPE_IN_LICENSE_TYPES,
+        default=InstituteLicenseTypes.NOT_PURCHASED,
+        blank=True)
+    all_product_license_stat = models.CharField(
+        _('All products license statistics'),
+        max_length=1,
+        choices=InstituteLicenseTypes.LICENSE_TYPE_IN_LICENSE_TYPES,
+        default=InstituteLicenseTypes.NOT_PURCHASED,
+        blank=True)
+    total_storage = models.DecimalField(
+        _('Total storage in GB'), max_digits=13, decimal_places=9,
+        default=0.0, blank=True)
+    storage_license_end_date = UnixTimeStampField(
+        _('Storage end date'), default=0, blank=True, use_numeric=True)
+
+    def __str__(self):
+        return str(self.institute)
+
+
+class InstituteCommonLicense(models.Model):
     """Creates institute license model to store pricing structure"""
     user = models.ForeignKey(
         'User', related_name='institute_licenses', on_delete=models.CASCADE)
     type = models.CharField(
-        _('Type'), max_length=3, blank=False, null=False,
+        _('Type'), max_length=3,
         choices=InstituteLicensePlans.LICENSE_PLANS_IN_INSTITUTE_LICENSE)
     billing = models.CharField(
-        _('Billing'), max_length=1, blank=False, null=False,
+        _('Billing'), max_length=1,
         choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
-    amount = models.BigIntegerField(  # In Rs
-        _('Amount In Rs'), blank=False, null=False)
+    price = models.BigIntegerField(_('Amount In Rs'))
     discount_percent = models.DecimalField(
         _('Discount In Percentage'), default=0.0,
         max_digits=5, decimal_places=2)
-    storage = models.IntegerField(  # In Gb
-        _('Storage in Gb'), blank=False, null=False)
+    gst_percent = models.DecimalField(
+        _('GST in percentage'), default=0.0, max_digits=5, decimal_places=2)
     no_of_admin = models.PositiveIntegerField(
-        _('No of admin'), default=1)
+        _('No of admin'), default=1, blank=True)
     no_of_staff = models.PositiveIntegerField(
-        _('No of staff'), default=0)
+        _('No of staff'), default=0, blank=True)
     no_of_faculty = models.PositiveIntegerField(
-        _('No of faculty'), default=0)
+        _('No of faculty'), default=0, blank=True)
     no_of_student = models.PositiveIntegerField(
-        _('No of students'), default=UNLIMITED)
+        _('No of students'), default=UNLIMITED, blank=True)
+    no_of_board_of_members = models.PositiveIntegerField(
+        _('No of external board of members'), default=0, blank=True)
     video_call_max_attendees = models.PositiveIntegerField(
         _('Video call max attendees'), blank=False, null=False)
     classroom_limit = models.PositiveIntegerField(
-        _('Classroom Limit'), default=UNLIMITED)
+        _('Classroom Limit'), default=UNLIMITED, blank=True)
     department_limit = models.PositiveIntegerField(
-        _('Department Limit'), default=0)
+        _('Department Limit'), default=0, blank=True)
     subject_limit = models.PositiveIntegerField(
-        _('Subject Limit'), default=UNLIMITED)
-    scheduled_test = models.BooleanField(
-        _('Scheduled Test'), default=True)
+        _('Subject Limit'), default=UNLIMITED, blank=True)
+    digital_test = models.BooleanField(
+        _('Digital Test'), default=True, blank=True)
     LMS_exists = models.BooleanField(
-        _('LMS exists'), default=True)
-    discussion_forum = models.CharField(
-        _('Discussion forum'), max_length=1, blank=False, null=False,
-        choices=DiscussionForumBar.DISCUSSION_FORUM_BAR_IN_DISCUSSION_FORUMS)
+        _('LMS exists'), default=True, blank=True)
+    CMS_exists = models.BooleanField(
+        _('CMS exists'), default=True, blank=True)
+    discussion_forum = models.BooleanField(
+        _('Discussion forum exists'), default=True, blank=True)
 
     def save(self, *args, **kwargs):
         """Overriding save method to allow only superuser
@@ -860,7 +918,7 @@ class InstituteLicense(models.Model):
         if not User.objects.get(email=self.user).is_superuser:
             raise PermissionDenied()
 
-        return super(InstituteLicense, self).save(*args, **kwargs)
+        return super(InstituteCommonLicense, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.type)
@@ -877,15 +935,14 @@ class InstituteDiscountCoupon(models.Model):
     user = models.ForeignKey(
         'User', related_name='institute_discount_coupon',
         on_delete=models.SET_NULL, null=True)
-    discount_rs = models.BigIntegerField(
-        _('Discount in Rupees'), blank=False, null=False)
-    created_date = models.DateTimeField(
-        _('Created Date'), default=timezone.now, editable=False)
-    expiry_date = models.DateTimeField(
-        _('Expiry Date'), blank=False, null=False)
+    discount_rs = models.BigIntegerField(_('Discount in Rupees'), null=False)
+    created_date = UnixTimeStampField(
+        _('Created Date'), auto_now_add=True, use_numeric=True, editable=False)
+    expiry_date = UnixTimeStampField(
+        _('Expiry Date'), use_numeric=True, null=False)
     coupon_code = models.SlugField(
         _('Coupon Code'), blank=True, null=False, unique=True)
-    active = models.BooleanField(_('Active'), default=True)
+    active = models.BooleanField(_('Active'), default=True, blank=True)
 
     def save(self, *args, **kwargs):
         """Overrides save method"""
@@ -915,7 +972,7 @@ def create_discount_coupon_code(sender, instance, *args, **kwargs):
         instance.coupon_code = coupon_code
 
 
-class InstituteSelectedLicense(models.Model):
+class InstituteSelectedCommonLicense(models.Model):
     """
     Create institute selected license model to store
     selected license plans at that moment
@@ -924,49 +981,38 @@ class InstituteSelectedLicense(models.Model):
         'Institute', related_name='institute_selected_license',
         on_delete=models.CASCADE)
     type = models.CharField(
-        _('Type'), max_length=3, blank=False, null=False,
+        _('Type'), max_length=3,
         choices=InstituteLicensePlans.LICENSE_PLANS_IN_INSTITUTE_LICENSE)
     billing = models.CharField(
-        _('Billing'), max_length=1, blank=False, null=False,
+        _('Billing'), max_length=1,
         choices=Billing.BILLING_MODES_IN_INSTITUTE_BILLING)
-    amount = models.DecimalField(  # In Rs
-        _('Amount In Rs'), max_digits=10, decimal_places=2,
-        blank=False, null=False)
+    price = models.DecimalField(  # In Rs
+        _('Price In Rs'), max_digits=10, decimal_places=2)
     discount_percent = models.DecimalField(
         _('Discount In Percentage'), default=0.0,
         max_digits=5, decimal_places=2)
     discount_coupon = models.OneToOneField(
         to='InstituteDiscountCoupon', on_delete=models.SET_NULL,
-        blank=True, null=True
-    )
+        blank=True, null=True)
+    gst_percent = models.DecimalField(
+        _('GST in percentage'), default=0.0, max_digits=5, decimal_places=2)
     net_amount = models.DecimalField(
         _('Net Amount in Rs'), max_digits=10, decimal_places=2,
         blank=True, null=True)
-    storage = models.IntegerField(  # In Gb
-        _('Storage in GB'), blank=False, null=False)
-    no_of_admin = models.PositiveIntegerField(
-        _('No of admin'), blank=False, null=False)
-    no_of_staff = models.PositiveIntegerField(
-        _('No of staff'), blank=False, null=False)
-    no_of_faculty = models.PositiveIntegerField(
-        _('No of faculty'), blank=False, null=False)
-    no_of_student = models.PositiveIntegerField(
-        _('No of students'), blank=False, null=False)
-    video_call_max_attendees = models.PositiveIntegerField(
-        _('Video call max attendees'), blank=False, null=False)
-    classroom_limit = models.PositiveIntegerField(
-        _('Classroom Limit'), blank=False, null=False)
-    department_limit = models.PositiveIntegerField(
-        _('Department Limit'), blank=False, null=False)
-    subject_limit = models.PositiveIntegerField(
-        _('Subject Limit'), blank=False, null=False)
-    scheduled_test = models.BooleanField(
-        _('Scheduled Test'), blank=False, null=False)
-    LMS_exists = models.BooleanField(
-        _('LMS exists'), blank=True, null=False)
-    discussion_forum = models.CharField(
-        _('Discussion forum'), max_length=1, blank=False, null=False,
-        choices=DiscussionForumBar.DISCUSSION_FORUM_BAR_IN_DISCUSSION_FORUMS)
+    no_of_admin = models.PositiveIntegerField(_('No of admin'))
+    no_of_staff = models.PositiveIntegerField(_('No of staff'))
+    no_of_faculty = models.PositiveIntegerField(_('No of faculty'))
+    no_of_student = models.PositiveIntegerField(_('No of students'))
+    no_of_board_of_members = models.PositiveIntegerField(
+        _('No of external board of members'), default=0, blank=True)
+    video_call_max_attendees = models.PositiveIntegerField(_('Video call max attendees'))
+    classroom_limit = models.PositiveIntegerField(_('Classroom Limit'))
+    department_limit = models.PositiveIntegerField(_('Department Limit'))
+    subject_limit = models.PositiveIntegerField(_('Subject Limit'), default=UNLIMITED, blank=True)
+    digital_test = models.BooleanField(_('Digital Test'), default=True)
+    LMS_exists = models.BooleanField(_('LMS exists'), default=True, blank=True)
+    CMS_exists = models.BooleanField(_('CMS exists'), default=True, blank=True)
+    discussion_forum = models.BooleanField(_('Discussion forum exists'), default=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.discount_coupon:
@@ -976,23 +1022,23 @@ class InstituteSelectedLicense(models.Model):
             if timezone.now() > self.discount_coupon.expiry_date:
                 raise ValueError({'discount_coupon': _('Coupon expired.')})
 
-        super(InstituteSelectedLicense, self).save(*args, **kwargs)
+        super(InstituteSelectedCommonLicense, self).save(*args, **kwargs)
 
     def __str__(self):
         return 'License: ' + str(self.type) + ', billed: ' + str(self.billing)
 
 
-@receiver(post_save, sender=InstituteSelectedLicense)
+@receiver(post_save, sender=InstituteSelectedCommonLicense)
 def calculate_net_amount(sender, instance, created, *args, **kwargs):
     """Calculates net amount to be paid"""
     if created and not instance.net_amount:
         if instance.discount_coupon:
-            instance.net_amount = max(0, instance.amount * (
-                    1 - instance.discount_percent / 100) -
+            instance.net_amount = max(0, instance.price * (
+                    1 - (instance.discount_percent + instance.gst_percent) / 100) -
                                       instance.discount_coupon.discount_rs)
         else:
-            instance.net_amount = max(0, instance.amount * (
-                    1 - instance.discount_percent / 100))
+            instance.net_amount = max(0, instance.price * (
+                    1 - (instance.discount_percent + instance.gst_percent) / 100))
         instance.save()
 
         if instance.discount_coupon:
@@ -1000,38 +1046,34 @@ def calculate_net_amount(sender, instance, created, *args, **kwargs):
             instance.discount_coupon.save()
 
 
-class InstituteLicenseOrderDetails(models.Model):
-    """Model to store institute license order"""
+class InstituteCommonLicenseOrderDetails(models.Model):
+    """Model to store institute common license order"""
     order_receipt = models.CharField(
-        _('Order receipt'), max_length=27, blank=True, null=False)
+        _('Order receipt'), max_length=30, blank=True, null=False)
     order_id = models.CharField(
         _('Order Id'), max_length=100, blank=True, null=False)
     amount = models.DecimalField(
-        _('Amount in Rupees'), max_digits=10, decimal_places=2,
-        blank=True, null=False)
-    currency = models.CharField(
-        _('Currency'), default='INR', null=False, max_length=4)
+        _('Amount in Rupees'), max_digits=10, decimal_places=2, blank=True, null=False)
+    currency = models.CharField(_('Currency'), default='INR', blank=True, max_length=4)
     institute = models.ForeignKey(
         'Institute', on_delete=models.SET_NULL,
-        related_name='institute_license_order', null=True, blank=False)
+        related_name='institute_license_order', null=True)
     selected_license = models.OneToOneField(
-        to='InstituteSelectedLicense', on_delete=models.SET_NULL,
+        to='InstituteSelectedCommonLicense', on_delete=models.SET_NULL,
         null=True)
     payment_gateway = models.CharField(
-        _('Payment gateway'), max_length=1, null=False, blank=False,
+        _('Payment gateway'), max_length=1,
         choices=PaymentGateway.PAYMENT_GATEWAY_IN_PAYMENT_GATEWAYS)
-    active = models.BooleanField(
-        _('Active'), default=False, blank=True, null=False)
-    paid = models.BooleanField(
-        _('Paid'), default=False, blank=True, null=False)
-    order_created_on = models.DateTimeField(
-        _('Order Created On'), default=timezone.now, editable=False)
-    payment_date = models.DateTimeField(
-        _('Payment Date'), null=True, blank=True)
-    start_date = models.DateTimeField(
-        _('License Start Date'), blank=True, null=True)
-    end_date = models.DateTimeField(
-        _('License Expiry Date'), blank=True, null=True)
+    active = models.BooleanField(_('Active'), default=False, blank=True)
+    paid = models.BooleanField(_('Paid'), default=False, blank=True)
+    order_created_on = UnixTimeStampField(
+        _('Order Created On'), auto_now_add=True, use_numeric=True, editable=False)
+    payment_date = UnixTimeStampField(
+        _('Payment Date'), use_numeric=True, null=True, blank=True)
+    start_date = UnixTimeStampField(
+        _('License Start Date'), use_numeric=True, blank=True, null=True)
+    end_date = UnixTimeStampField(
+        _('License Expiry Date'), use_numeric=True, blank=True, null=True)
 
     def __str__(self):
         return self.order_receipt
@@ -1040,7 +1082,7 @@ class InstituteLicenseOrderDetails(models.Model):
         unique_together = ('institute', 'selected_license')
 
 
-@receiver(pre_save, sender=InstituteLicenseOrderDetails)
+@receiver(pre_save, sender=InstituteCommonLicenseOrderDetails)
 def create_unique_receipt_id(sender, instance, *args, **kwargs):
     """Creates unique order id for institute"""
     if not instance.amount:
@@ -1072,10 +1114,16 @@ class RazorpayCallback(models.Model):
     razorpay_signature = models.CharField(
         _('Razorpay signature'), max_length=150,
         blank=False, null=False)
-    institute_license_order_details = models.ForeignKey(
-        InstituteLicenseOrderDetails,
+    product_type = models.CharField(
+        _('Product type'),
+        max_length=1,
+        choices=ProductTypes.PRODUCT_TYPE_IN_PRODUCT_TYPES,
+        default=ProductTypes.NOT_SELECTED,
+        blank=True)
+    institute_common_license_order_details = models.ForeignKey(
+        InstituteCommonLicenseOrderDetails,
         on_delete=models.CASCADE,
-        blank=False, null=False,
+        blank=True, null=True,
         related_name='institute_license_order_details')
 
 
@@ -1087,6 +1135,12 @@ class RazorpayWebHookCallback(models.Model):
     razorpay_payment_id = models.CharField(
         _('Razorpay payment id'), max_length=100,
         blank=False, null=False)
+    product_type = models.CharField(
+        _('Product type'),
+        max_length=1,
+        choices=ProductTypes.PRODUCT_TYPE_IN_PRODUCT_TYPES,
+        default=ProductTypes.NOT_SELECTED,
+        blank=True)
 
 
 class ProfilePictures(models.Model):
@@ -1327,6 +1381,7 @@ def institute_is_created(sender, instance, created, **kwargs):
         admin_role.active = True
         admin_role.save()
         InstituteStatistics.objects.create(institute=instance)
+        InstituteLicenseStat.objects.create(institute=instance)
     else:
         try:
             instance.institute_profile.save()

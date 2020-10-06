@@ -38,7 +38,7 @@ def get_unexpired_license(institute):
     Returns order if institute has unexpired institute license,
     else returns None
     """
-    order = models.InstituteLicenseOrderDetails.objects.filter(
+    order = models.InstituteCommonLicenseOrderDetails.objects.filter(
         institute__pk=institute.pk,
         paid=True
     )
@@ -57,7 +57,7 @@ def get_unexpired_license(institute):
 
 def get_active_license(institute):
     """Returns license order if institute has active license else returns None"""
-    order = models.InstituteLicenseOrderDetails.objects.filter(
+    order = models.InstituteCommonLicenseOrderDetails.objects.filter(
         institute=institute,
         paid=True,
         active=True
@@ -357,7 +357,7 @@ class InstituteLicenseListView(ListAPIView):
 
     def get(self, *args, **kwargs):
         """Used for formatting and sending structured data"""
-        licenses = models.InstituteLicense.objects.all()
+        licenses = models.InstituteCommonLicense.objects.all()
         monthly_license = licenses.filter(
             billing=models.Billing.MONTHLY).order_by('type')
         yearly_license = licenses.filter(
@@ -403,7 +403,7 @@ class InstituteLicenseDetailView(APIView):
             return Response({'error': 'Unauthorized request.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = models.InstituteLicense.objects.filter(pk=id_).values()
+        license_ = models.InstituteCommonLicense.objects.filter(pk=id_).values()
 
         if license_:
             return Response(license_[0], status=status.HTTP_200_OK)
@@ -461,7 +461,7 @@ class InstituteSelectLicenseView(APIView):
                 return Response({'coupon_code': _('Coupon expired.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = models.InstituteLicense.objects.filter(
+        license_ = models.InstituteCommonLicense.objects.filter(
             pk=license_id
         ).first()
         if not license_:
@@ -469,24 +469,26 @@ class InstituteSelectLicenseView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            sel_lic = models.InstituteSelectedLicense.objects.create(
+            sel_lic = models.InstituteSelectedCommonLicense.objects.create(
                 institute=institute,
                 type=license_.type,
                 billing=license_.billing,
-                amount=license_.amount,
+                price=license_.price,
                 discount_percent=license_.discount_percent,
                 discount_coupon=coupon,
-                storage=license_.storage,
+                gst_percent=license_.gst_percent,
                 no_of_admin=license_.no_of_admin,
                 no_of_staff=license_.no_of_staff,
                 no_of_faculty=license_.no_of_faculty,
                 no_of_student=license_.no_of_student,
+                no_of_board_of_members=license_.no_of_board_of_members,
                 video_call_max_attendees=license_.video_call_max_attendees,
                 classroom_limit=license_.classroom_limit,
                 department_limit=license_.department_limit,
                 subject_limit=license_.subject_limit,
-                scheduled_test=license_.scheduled_test,
+                digital_test=license_.digital_test,
                 LMS_exists=license_.LMS_exists,
+                CMS_exists=license_.CMS_exists,
                 discussion_forum=license_.discussion_forum
             )
             if sel_lic:
@@ -540,7 +542,7 @@ class InstituteCreateOrderView(APIView):
             return Response({'error': _('Insufficient permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = models.InstituteSelectedLicense.objects.filter(
+        license_ = models.InstituteSelectedCommonLicense.objects.filter(
             pk=license_id
         ).first()
         if not license_:
@@ -551,7 +553,7 @@ class InstituteCreateOrderView(APIView):
             return Response({'error': _('Payment gateway not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        prev_order = models.InstituteLicenseOrderDetails.objects.filter(
+        prev_order = models.InstituteCommonLicenseOrderDetails.objects.filter(
             institute=institute,
             selected_license=license_
         ).first()
@@ -573,7 +575,7 @@ class InstituteCreateOrderView(APIView):
                 status=status.HTTP_201_CREATED)
 
         try:
-            order = models.InstituteLicenseOrderDetails.objects.create(
+            order = models.InstituteCommonLicenseOrderDetails.objects.create(
                 institute=institute,
                 payment_gateway=payment_gateway,
                 selected_license=license_
@@ -622,7 +624,7 @@ class RazorpayPaymentCallbackView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            order = models.InstituteLicenseOrderDetails.objects.filter(pk=order_details_id).first()
+            order = models.InstituteCommonLicenseOrderDetails.objects.filter(pk=order_details_id).first()
             if not order:
                 return Response({
                     'error': _('Order not found. If payment is successful it will be verified automatically.')},
@@ -658,7 +660,7 @@ class RazorpayWebhookCallbackView(APIView):
         try:
             razorpay_order_id = request.data['payload']['payment']['entity']['order_id']
             razorpay_payment_id = request.data['payload']['payment']['entity']['id']
-            order = models.InstituteLicenseOrderDetails.objects.filter(order_id=razorpay_order_id).first()
+            order = models.InstituteCommmonLicenseOrderDetails.objects.filter(order_id=razorpay_order_id).first()
             if not order:
                 return Response({'status': 'Order does not exist'}, status=status.HTTP_400_BAD_REQUEST)
             if order.paid:
@@ -683,7 +685,7 @@ class RazorpayWebhookCallbackView(APIView):
             return Response({'status': 'failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class InstituteLicenseOrderDetailsView(APIView):
+class InstituteCommonLicenseOrderDetailsView(APIView):
     """View for getting list of license orders"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
@@ -730,7 +732,7 @@ class InstituteLicenseOrderDetailsView(APIView):
             return Response({'error': _('Insufficient permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        orders = models.InstituteLicenseOrderDetails.objects.filter(
+        orders = models.InstituteCommonLicenseOrderDetails.objects.filter(
             institute=institute,
             paid=True
         )
@@ -803,7 +805,7 @@ class InstituteUnexpiredPaidLicenseExistsView(APIView):
             return Response({'error': 'Permission denied.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        order = models.InstituteLicenseOrderDetails.objects.filter(
+        order = models.InstituteCommonLicenseOrderDetails.objects.filter(
             institute=institute,
             paid=True
         ).order_by('-payment_date').first()
@@ -2190,7 +2192,7 @@ class CreateClassView(CreateAPIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = models.InstituteLicenseOrderDetails.objects.filter(
+        license_ = models.InstituteCommonLicenseOrderDetails.objects.filter(
             institute=institute,
             paid=True
         ).order_by('-payment_date').first()

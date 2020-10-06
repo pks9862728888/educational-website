@@ -137,9 +137,9 @@ class CustomInstituteStatistics(admin.ModelAdmin):
     search_fields = ['institute__name']
 
 
-class CustomInstituteLicense(admin.ModelAdmin):
-    model = models.InstituteLicense
-    list_display = ['type', 'billing', 'amount', 'discount_percent']
+class CustomInstituteCommonLicense(admin.ModelAdmin):
+    model = models.InstituteCommonLicense
+    list_display = ['type', 'billing', 'price', 'discount_percent']
     list_filter = ['type', 'billing']
 
 
@@ -153,7 +153,7 @@ class CustomInstituteDiscountCoupon(admin.ModelAdmin):
 class CustomRazorpayCallback(admin.ModelAdmin):
     model = models.RazorpayCallback
     list_display = ['razorpay_order_id', 'razorpay_payment_id',
-                    'razorpay_signature', 'institute_license_order_details']
+                    'razorpay_signature']
     search_fields = ['razorpay_order_id', 'razorpay_payment_id']
 
 
@@ -164,20 +164,20 @@ class CustomRazorpayWebhookCallback(admin.ModelAdmin):
 
 
 class CustomInstitute(admin.ModelAdmin):
-    model = models.InstituteLicense
+    model = models.Institute
     list_display = ['name', 'institute_category', 'type']
     list_filter = ['institute_category', 'type']
 
 
-class CustomInstituteSelectedLicense(admin.ModelAdmin):
-    model = models.InstituteSelectedLicense
+class CustomInstituteSelectedCommonLicense(admin.ModelAdmin):
+    model = models.InstituteSelectedCommonLicense
     list_display = ['type', 'billing', 'net_amount',
                     'discount_coupon']
     list_filter = ['type', 'billing']
 
 
-class CustomInstituteLicenseOrderDetails(admin.ModelAdmin):
-    model = models.InstituteLicenseOrderDetails
+class CustomInstituteCommonLicenseOrderDetails(admin.ModelAdmin):
+    model = models.InstituteCommonLicenseOrderDetails
     list_display = ['order_receipt', 'payment_gateway', 'amount',
                     'selected_license', 'order_created_on',
                     'paid', 'active', 'end_date']
@@ -254,25 +254,22 @@ class CustomInstituteClass(admin.ModelAdmin):
     search_fields = ['name', 'class_institute']
 
 
-# class CustomInstituteSubject(admin.ModelAdmin):
-#     model = models.InstituteSubject
-#     list_display = ['name', 'type']
-#     search_fields = ['name', 'type']
-#     list_filter = ['type']
-
-
 admin.site.register(models.User, CustomUserAdmin)
-admin.site.register(models.InstituteLicense, CustomInstituteLicense)
-admin.site.register(models.InstituteSelectedLicense,
-                    CustomInstituteSelectedLicense)
-admin.site.register(models.InstituteLicenseOrderDetails,
-                    CustomInstituteLicenseOrderDetails)
+
+# For Institute License
+admin.site.register(models.InstituteLicenseStat)
+admin.site.register(models.InstituteCommonLicense, CustomInstituteCommonLicense)
+admin.site.register(models.InstituteSelectedCommonLicense,
+                    CustomInstituteSelectedCommonLicense)
+admin.site.register(models.InstituteCommonLicenseOrderDetails,
+                    CustomInstituteCommonLicenseOrderDetails)
 admin.site.register(models.InstituteDiscountCoupon,
                     CustomInstituteDiscountCoupon)
 admin.site.register(models.RazorpayCallback,
                     CustomRazorpayCallback)
 admin.site.register(models.RazorpayWebHookCallback,
                     CustomRazorpayWebhookCallback)
+
 admin.site.register(models.SystemMessage, CustomSystemMessages)
 admin.site.register(models.UserProfile, CustomUserProfile)
 admin.site.register(models.ProfilePictures, CustomProfilePictures)
