@@ -406,14 +406,36 @@ class InstituteUnpaidCommonLicenseDetailView(APIView):
         license_ = models.InstituteSelectedCommonLicense.objects.filter(
             institute=institute,
             payment_id_generated=False
-        ).first().values()
+        ).first()
 
         if license_:
-            return Response(license_[0], status=status.HTTP_200_OK)
-        else:
             return Response({
-                'has_unpaid_license': False
-            }, status=status.HTTP_400_BAD_REQUEST)
+                'id': license_.pk,
+                'type': license_.type,
+                'billing': license_.billing,
+                'price': license_.price,
+                'discount_percent': license_.discount_percent,
+                'gst_percent': license_.gst_percent,
+                'net_amount': license_.net_amount,
+                'no_of_admin': license_.no_of_admin,
+                'no_of_staff': license_.no_of_staff,
+                'no_of_faculty': license_.no_of_faculty,
+                'no_of_student': license_.no_of_student,
+                'no_of_board_of_members': license_.no_of_board_of_members,
+                'classroom_limit': license_.classroom_limit,
+                'department_limit': license_.department_limit,
+                'subject_limit': license_.subject_limit,
+                'digital_test': license_.digital_test,
+                'LMS_exists': license_.LMS_exists,
+                'CMS_exists': license_.CMS_exists,
+                'discussion_forum': license_.discussion_forum,
+                'payment_id_generated': license_.payment_id_generated,
+                'video_call_max_attendees': license_.video_call_max_attendees,
+                'created_on': license_.created_on,
+                'has_unpaid_license': True
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({'has_unpaid_license': False}, status=status.HTTP_200_OK)
 
 
 class InstituteCommonLicenseDetailView(APIView):
@@ -471,19 +493,21 @@ class InstituteSelectCommonLicenseView(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=institute_slug
-        ).first()
+        ).only('institute_slug').first()
+
         if not institute:
-            return Response({'error': _('Invalid request.')},
+            return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not models.InstitutePermission.objects.filter(
-            institute=institute.pk,
-            invitee=self.request.user.pk,
+            institute=institute,
+            invitee=self.request.user,
             active=True,
             role=models.InstituteRole.ADMIN
-        ):
+        ).exists():
             return Response({'error': _('Insufficient permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
+
         coupon = None
         if coupon_code:
             coupon = models.InstituteDiscountCoupon.objects.filter(
@@ -498,8 +522,7 @@ class InstituteSelectCommonLicenseView(APIView):
                                 status=status.HTTP_400_BAD_REQUEST)
 
         license_ = models.InstituteCommonLicense.objects.filter(
-            pk=license_id,
-            institute=institute
+            pk=license_id
         ).first()
         if not license_:
             return Response({'error': _('License not found.')},
@@ -526,7 +549,8 @@ class InstituteSelectCommonLicenseView(APIView):
                 digital_test=license_.digital_test,
                 LMS_exists=license_.LMS_exists,
                 CMS_exists=license_.CMS_exists,
-                discussion_forum=license_.discussion_forum
+                discussion_forum=license_.discussion_forum,
+                created_on=request.data.get('current_time')
             )
             if sel_lic:
                 return Response({'status': _('SUCCESS'),
@@ -536,6 +560,8 @@ class InstituteSelectCommonLicenseView(APIView):
             else:
                 return Response({'error': _('Internal server error.')},
                                 status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_400_BAD_REQUEST)

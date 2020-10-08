@@ -1014,9 +1014,12 @@ class InstituteSelectedCommonLicense(models.Model):
     CMS_exists = models.BooleanField(_('CMS exists'), default=True, blank=True)
     discussion_forum = models.BooleanField(_('Discussion forum exists'), default=True, blank=True)
     payment_id_generated = models.BooleanField(_('Payment id generated'), default=False, blank=True)
-    created_on = UnixTimeStampField(_('Created on'), use_numeric=True)
+    created_on = UnixTimeStampField(_('Created timestamp in milliseconds'), use_numeric=True, blank=False, null=False)
 
     def save(self, *args, **kwargs):
+        if not self.created_on:
+            raise ValueError(_('Time of creation is required.'))
+
         if self.discount_coupon:
             if not self.discount_coupon.active:
                 raise ValueError({'discount_coupon': _('Coupon already used.')})
