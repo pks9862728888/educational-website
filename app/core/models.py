@@ -937,9 +937,9 @@ class InstituteDiscountCoupon(models.Model):
         on_delete=models.SET_NULL, null=True)
     discount_rs = models.BigIntegerField(_('Discount in Rupees'), null=False)
     created_date = UnixTimeStampField(
-        _('Created Date'), auto_now_add=True, use_numeric=True, editable=False)
+        _('Created timestamp in seconds'), auto_now_add=True, use_numeric=True, editable=False)
     expiry_date = UnixTimeStampField(
-        _('Expiry Date'), use_numeric=True, null=False)
+        _('Expiry timestamp in seconds'), use_numeric=True, null=False)
     coupon_code = models.SlugField(
         _('Coupon Code'), blank=True, null=False, unique=True)
     active = models.BooleanField(_('Active'), default=True, blank=True)
@@ -1020,13 +1020,6 @@ class InstituteSelectedCommonLicense(models.Model):
         if not self.created_on:
             raise ValueError(_('Time of creation is required.'))
 
-        if self.discount_coupon:
-            if not self.discount_coupon.active:
-                raise ValueError({'discount_coupon': _('Coupon already used.')})
-
-            if timezone.now() > self.discount_coupon.expiry_date:
-                raise ValueError({'discount_coupon': _('Coupon expired.')})
-
         super(InstituteSelectedCommonLicense, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -1048,6 +1041,14 @@ def calculate_net_amount(sender, instance, created, *args, **kwargs):
 
         if instance.discount_coupon:
             instance.discount_coupon.active = False
+            instance.discount_coupon.save()
+
+
+@receiver(post_delete, sender=InstituteSelectedCommonLicense)
+def activate_discount_coupon_if_not_used_and_unexpired(sender, instance, **kwargs):
+    if instance.discount_coupon and not instance.payment_id_generated:
+        if int(time.time()) * 1000 < instance.discount_coupon.expiry_date:
+            instance.discount_coupon.active = True
             instance.discount_coupon.save()
 
 
@@ -1107,6 +1108,13 @@ def create_unique_receipt_id(sender, instance, *args, **kwargs):
             instance.order_id = order['id']
 
 
+@receiver(post_save, sender=InstituteCommonLicenseOrderDetails)
+def update_selected_license(sender, instance, created, *args, **kwargs):
+    if created:
+        instance.selected_license.payment_id_generated = True
+        instance.selected_license.save()
+
+
 class RazorpayCallback(models.Model):
     """Stores Razorpay callback credentials"""
     razorpay_order_id = models.CharField(
@@ -1128,7 +1136,7 @@ class RazorpayCallback(models.Model):
         InstituteCommonLicenseOrderDetails,
         on_delete=models.CASCADE,
         blank=True, null=True,
-        related_name='institute_license_order_details')
+        related_name='institute_common_license_order_details')
 
 
 class RazorpayWebHookCallback(models.Model):
@@ -1372,7 +1380,7 @@ class InstituteStatistics(models.Model):
 
 
 @receiver(post_save, sender=Institute)
-def institute_is_created(sender, instance, created, **kwargs):
+def institute_is_created(sender, instance, created, *args, **kwargs):
     if created:
         InstituteProfile.objects.create(institute=instance)
         admin_role = InstitutePermission.objects.create(

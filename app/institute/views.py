@@ -338,7 +338,7 @@ class GetInstituteDiscountCouponView(APIView):
             return Response({'error': _('Coupon already used.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if timezone.now() > coupon.expiry_date:
+        if int(time.time()) * 1000 > coupon.expiry_date:
             return Response({'error': _('Coupon expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -380,64 +380,6 @@ class InstituteLicenseListView(ListAPIView):
         }, status=status.HTTP_200_OK)
 
 
-class InstituteUnpaidCommonLicenseDetailView(APIView):
-    """
-    View for getting institute unpaid common license details
-    """
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def get(self, request, *args, **kwargs):
-        institute = models.Institute.objects.filter(
-            institute_slug=kwargs.get('institute_slug')
-        ).only('institute_slug').first()
-
-        if not institute:
-            return Response({'error': _('Institute not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        if not models.InstitutePermission.objects.filter(
-            invitee=self.request.user.pk,
-            role=models.InstituteRole.ADMIN
-        ).exists():
-            return Response({'error': _('Unauthorized request.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        license_ = models.InstituteSelectedCommonLicense.objects.filter(
-            institute=institute,
-            payment_id_generated=False
-        ).first()
-
-        if license_:
-            return Response({
-                'id': license_.pk,
-                'type': license_.type,
-                'billing': license_.billing,
-                'price': license_.price,
-                'discount_percent': license_.discount_percent,
-                'gst_percent': license_.gst_percent,
-                'net_amount': license_.net_amount,
-                'no_of_admin': license_.no_of_admin,
-                'no_of_staff': license_.no_of_staff,
-                'no_of_faculty': license_.no_of_faculty,
-                'no_of_student': license_.no_of_student,
-                'no_of_board_of_members': license_.no_of_board_of_members,
-                'classroom_limit': license_.classroom_limit,
-                'department_limit': license_.department_limit,
-                'subject_limit': license_.subject_limit,
-                'digital_test': license_.digital_test,
-                'LMS_exists': license_.LMS_exists,
-                'CMS_exists': license_.CMS_exists,
-                'discussion_forum': license_.discussion_forum,
-                'payment_id_generated': license_.payment_id_generated,
-                'video_call_max_attendees': license_.video_call_max_attendees,
-                'created_on': license_.created_on,
-                'has_unpaid_license': True
-            }, status=status.HTTP_200_OK)
-        else:
-            return Response({'has_unpaid_license': False}, status=status.HTTP_200_OK)
-
-
 class InstituteCommonLicenseDetailView(APIView):
     """
     View for getting institute common license details
@@ -446,6 +388,28 @@ class InstituteCommonLicenseDetailView(APIView):
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def post(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                role=models.InstituteRole.ADMIN,
+                active=True
+        ).exists():
+            return Response({'error': _('Permission denied.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        models.InstituteSelectedCommonLicense.objects.filter(
+            institute=institute,
+            payment_id_generated=False
+        ).delete()
+
         try:
             id_ = int(request.data.get('id'))
         except Exception:
@@ -517,7 +481,7 @@ class InstituteSelectCommonLicenseView(APIView):
             if not coupon.active:
                 return Response({'coupon_code': _('Coupon already used.')},
                                 status=status.HTTP_400_BAD_REQUEST)
-            if timezone.now() > coupon.expiry_date:
+            if int(time.time()) > coupon.expiry_date:
                 return Response({'coupon_code': _('Coupon expired.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
@@ -552,14 +516,10 @@ class InstituteSelectCommonLicenseView(APIView):
                 discussion_forum=license_.discussion_forum,
                 created_on=request.data.get('current_time')
             )
-            if sel_lic:
-                return Response({'status': _('SUCCESS'),
-                                 'net_amount': sel_lic.net_amount,
-                                 'selected_license_id': sel_lic.id},
-                                status=status.HTTP_200_OK)
-            else:
-                return Response({'error': _('Internal server error.')},
-                                status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': _('SUCCESS'),
+                             'net_amount': sel_lic.net_amount,
+                             'selected_license_id': sel_lic.id},
+                            status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception:
@@ -567,35 +527,8 @@ class InstituteSelectCommonLicenseView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class InstituteDeleteSelectedCommonLicenseView(APIView):
-    """View for deleting previous selected common license"""
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated, IsTeacher)
-
-    def delete(self, *args, **kwargs):
-        institute = models.Institute.objects.filter(
-            institute_slug=kwargs.get('institute_slug')
-        ).only('institute_slug').first()
-
-        if not institute:
-            return Response({'error': _('Institute not found.')},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        selected_license = models.InstituteSelectedCommonLicense.objects.filter(
-            pk=kwargs.get('selected_license_id'),
-            institute=institute,
-            payment_id_generated=False
-        ).first()
-
-        if not selected_license:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            selected_license.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class InstituteCreateOrderView(APIView):
-    """View for creating order"""
+class InstituteCreateCommonLicenseOrderView(APIView):
+    """View for creating common license order"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
@@ -618,14 +551,14 @@ class InstituteCreateOrderView(APIView):
 
         institute = models.Institute.objects.filter(
             institute_slug=institute_slug
-        ).first()
+        ).only('institute_slug').first()
         if not institute:
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not models.InstitutePermission.objects.filter(
-                institute=institute.pk,
-                invitee=self.request.user.pk,
+                institute=institute,
+                invitee=self.request.user,
                 active=True,
                 role=models.InstituteRole.ADMIN
         ):
@@ -648,6 +581,7 @@ class InstituteCreateOrderView(APIView):
             institute=institute,
             selected_license=license_
         ).first()
+
         if prev_order:
             if prev_order.payment_gateway != payment_gateway:
                 prev_order.payment_gateway = payment_gateway
@@ -692,7 +626,8 @@ class InstituteCreateOrderView(APIView):
                     status=status.HTTP_201_CREATED)
             else:
                 pass  # Generate response
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -733,7 +668,7 @@ class RazorpayPaymentCallbackView(APIView):
                 razorpay_order_id=params_dict['razorpay_order_id'],
                 razorpay_payment_id=params_dict['razorpay_payment_id'],
                 razorpay_signature=params_dict['razorpay_signature'],
-                institute_license_order_details=order)
+                institute_common_license_order_details=order)
 
             try:
                 client.utility.verify_payment_signature(params_dict)
