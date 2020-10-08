@@ -522,7 +522,8 @@ class InstituteSelectCommonLicenseView(APIView):
                             status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -673,14 +674,27 @@ class RazorpayPaymentCallbackView(APIView):
             try:
                 client.utility.verify_payment_signature(params_dict)
                 order.paid = True
-                order.payment_date = timezone.now()
+                order.payment_date = int(time.time()) * 1000
+                order.active = True
+                order.start_date = int(time.time()) * 1000
+                days = 0
+
+                if order.selected_license.billing == models.Billing.MONTHLY:
+                    days = 30
+                else:
+                    days = 365
+
+                end_date = datetime.datetime.now() + datetime.timedelta(days=days)
+                order.end_date = datetime.datetime.timestamp(end_date) * 1000
                 order.save()
+
                 return Response({'status': _('SUCCESS')},
                                 status=status.HTTP_200_OK)
             except SignatureVerificationError:
                 return Response({'status': _('FAILURE')},
                                 status=status.HTTP_200_OK)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Internal server error. Dont worry, if payment was successful it will be verified automatically. If problem persists let us know.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -729,7 +743,6 @@ class InstituteCommonLicenseOrderDetailsView(APIView):
             'type': selected_license.type,
             'billing': selected_license.billing,
             'net_amount': float(selected_license.net_amount),
-            'storage': selected_license.storage,
             'no_of_admin': selected_license.no_of_admin,
             'no_of_staff': selected_license.no_of_staff,
             'no_of_faculty': selected_license.no_of_faculty,

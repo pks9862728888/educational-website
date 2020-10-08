@@ -1030,12 +1030,17 @@ class InstituteSelectedCommonLicense(models.Model):
 def calculate_net_amount(sender, instance, created, *args, **kwargs):
     """Calculates net amount to be paid"""
     if created and not instance.net_amount:
+        if instance.billing == Billing.MONTHLY:
+            amount = instance.price
+        elif instance.billing == Billing.ANNUALLY:
+            amount = instance.price * 12
+
         if instance.discount_coupon:
-            amount = instance.price * (1 - instance.discount_percent / 100) -\
+            amount = amount * (1 - instance.discount_percent / 100) -\
                      instance.discount_coupon.discount_rs
             instance.net_amount = max(0, amount * (1 - instance.discount_percent / 100))
         else:
-            amount = instance.price * (1 - instance.discount_percent / 100)
+            amount *= (1 - instance.discount_percent / 100)
             instance.net_amount = max(0, amount * (1 - instance.discount_percent / 100))
         instance.save()
 
@@ -1072,13 +1077,17 @@ class InstituteCommonLicenseOrderDetails(models.Model):
     active = models.BooleanField(_('Active'), default=False, blank=True)
     paid = models.BooleanField(_('Paid'), default=False, blank=True)
     order_created_on = UnixTimeStampField(
-        _('Order Created On'), auto_now_add=True, use_numeric=True, editable=False)
+        _('Order Created On'), use_numeric=True, editable=False)
     payment_date = UnixTimeStampField(
         _('Payment Date'), use_numeric=True, null=True, blank=True)
     start_date = UnixTimeStampField(
         _('License Start Date'), use_numeric=True, blank=True, null=True)
     end_date = UnixTimeStampField(
         _('License Expiry Date'), use_numeric=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.order_created_on = int(time.time()) * 1000
+        super(InstituteCommonLicenseOrderDetails, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.order_receipt
