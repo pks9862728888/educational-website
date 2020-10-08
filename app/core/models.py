@@ -1038,12 +1038,12 @@ def calculate_net_amount(sender, instance, created, *args, **kwargs):
     """Calculates net amount to be paid"""
     if created and not instance.net_amount:
         if instance.discount_coupon:
-            instance.net_amount = max(0, instance.price * (
-                    1 - (instance.discount_percent + instance.gst_percent) / 100) -
-                                      instance.discount_coupon.discount_rs)
+            amount = instance.price * (1 - instance.discount_percent / 100) -\
+                     instance.discount_coupon.discount_rs
+            instance.net_amount = max(0, amount * (1 - instance.discount_percent / 100))
         else:
-            instance.net_amount = max(0, instance.price * (
-                    1 - (instance.discount_percent + instance.gst_percent) / 100))
+            amount = instance.price * (1 - instance.discount_percent / 100)
+            instance.net_amount = max(0, amount * (1 - instance.discount_percent / 100))
         instance.save()
 
         if instance.discount_coupon:

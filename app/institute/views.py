@@ -567,6 +567,33 @@ class InstituteSelectCommonLicenseView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
+class InstituteDeleteSelectedCommonLicenseView(APIView):
+    """View for deleting previous selected common license"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        selected_license = models.InstituteSelectedCommonLicense.objects.filter(
+            pk=kwargs.get('selected_license_id'),
+            institute=institute,
+            payment_id_generated=False
+        ).first()
+
+        if not selected_license:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            selected_license.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class InstituteCreateOrderView(APIView):
     """View for creating order"""
     authentication_classes = (TokenAuthentication,)
@@ -593,7 +620,7 @@ class InstituteCreateOrderView(APIView):
             institute_slug=institute_slug
         ).first()
         if not institute:
-            return Response({'error': _('Invalid request.')},
+            return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not models.InstitutePermission.objects.filter(
