@@ -1013,6 +1013,7 @@ class InstituteSelectedCommonLicense(models.Model):
     LMS_exists = models.BooleanField(_('LMS exists'), default=True, blank=True)
     CMS_exists = models.BooleanField(_('CMS exists'), default=True, blank=True)
     discussion_forum = models.BooleanField(_('Discussion forum exists'), default=True, blank=True)
+    payment_id_generated = models.BooleanField(_('Payment id generated'), default=False, blank=True)
 
     def save(self, *args, **kwargs):
         if self.discount_coupon:
@@ -1059,8 +1060,7 @@ class InstituteCommonLicenseOrderDetails(models.Model):
         'Institute', on_delete=models.SET_NULL,
         related_name='institute_license_order', null=True)
     selected_license = models.OneToOneField(
-        to='InstituteSelectedCommonLicense', on_delete=models.SET_NULL,
-        null=True)
+        to='InstituteSelectedCommonLicense', on_delete=models.CASCADE, null=False)
     payment_gateway = models.CharField(
         _('Payment gateway'), max_length=1,
         choices=PaymentGateway.PAYMENT_GATEWAY_IN_PAYMENT_GATEWAYS)

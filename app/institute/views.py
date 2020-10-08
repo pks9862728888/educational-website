@@ -380,9 +380,9 @@ class InstituteLicenseListView(ListAPIView):
         }, status=status.HTTP_200_OK)
 
 
-class InstituteLicenseDetailView(APIView):
+class InstituteCommonLicenseDetailView(APIView):
     """
-    View for getting institute license details
+    View for getting institute common license details
     """
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
@@ -413,8 +413,8 @@ class InstituteLicenseDetailView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
-class InstituteSelectLicenseView(APIView):
-    """View for confirming institute license"""
+class InstituteSelectCommonLicenseView(APIView):
+    """View for selecting institute common license"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
@@ -462,7 +462,8 @@ class InstituteSelectLicenseView(APIView):
                                 status=status.HTTP_400_BAD_REQUEST)
 
         license_ = models.InstituteCommonLicense.objects.filter(
-            pk=license_id
+            pk=license_id,
+            institute=institute
         ).first()
         if not license_:
             return Response({'error': _('License not found.')},
@@ -543,7 +544,8 @@ class InstituteCreateOrderView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         license_ = models.InstituteSelectedCommonLicense.objects.filter(
-            pk=license_id
+            pk=license_id,
+            institute=institute
         ).first()
         if not license_:
             return Response({'error': _('Selected license not found.')},
@@ -562,17 +564,21 @@ class InstituteCreateOrderView(APIView):
                 prev_order.payment_gateway = payment_gateway
                 # Generate order with new payment gateway
                 prev_order.save()
-            return Response(
-                {'status': 'SUCCESS',
-                 'amount': prev_order.amount,
-                 'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
-                 'currency': prev_order.currency,
-                 'order_id': prev_order.order_id,
-                 'order_details_id': prev_order.pk,
-                 'email': str(self.request.user),
-                 'contact': str(self.request.user.user_profile.phone),
-                 'type': prev_order.selected_license.type},
-                status=status.HTTP_201_CREATED)
+
+            if prev_order.payment_gateway == models.PaymentGateway.RAZORPAY:
+                return Response(
+                    {'status': 'SUCCESS',
+                     'amount': prev_order.amount,
+                     'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
+                     'currency': prev_order.currency,
+                     'order_id': prev_order.order_id,
+                     'order_details_id': prev_order.pk,
+                     'email': str(self.request.user),
+                     'contact': str(self.request.user.user_profile.phone),
+                     'type': prev_order.selected_license.type
+                     }, status=status.HTTP_201_CREATED)
+            else:
+                pass  # Generate appropriate response
 
         try:
             order = models.InstituteCommonLicenseOrderDetails.objects.create(
@@ -580,7 +586,10 @@ class InstituteCreateOrderView(APIView):
                 payment_gateway=payment_gateway,
                 selected_license=license_
             )
-            if order:
+            license_.payment_id_generated = True
+            license_.save()
+
+            if order.payment_gateway == models.PaymentGateway.RAZORPAY:
                 return Response(
                     {'status': 'SUCCESS',
                      'amount': order.amount,
@@ -593,8 +602,7 @@ class InstituteCreateOrderView(APIView):
                      'type': order.selected_license.type},
                     status=status.HTTP_201_CREATED)
             else:
-                return Response({'error': _('Internal server error.')},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                pass  # Generate response
         except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -706,7 +714,7 @@ class InstituteCommonLicenseOrderDetailsView(APIView):
             'classroom_limit': selected_license.classroom_limit,
             'department_limit': selected_license.department_limit,
             'discussion_forum': selected_license.discussion_forum,
-            'scheduled_test': selected_license.scheduled_test,
+            'digital_test': selected_license.digital_test,
             'LMS_exists': selected_license.LMS_exists,
         }
 

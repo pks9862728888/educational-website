@@ -12,12 +12,12 @@ urlpatterns = [
     path('institute-license-list',
          views.InstituteLicenseListView.as_view(),
          name="institute-license-list"),
-    path('institute-license-detail',
-         views.InstituteLicenseDetailView.as_view(),
-         name="institute-license-detail"),
-    path('select-license',
-         views.InstituteSelectLicenseView.as_view(),
-         name='select-license'),
+    path('institute-common-license-detail',
+         views.InstituteCommonLicenseDetailView.as_view(),
+         name="institute-common-license-detail"),
+    path('select-common-license',
+         views.InstituteSelectCommonLicenseView.as_view(),
+         name='select-common-license'),
     path('create-order',
          views.InstituteCreateOrderView.as_view(),
          name='create-order'),
@@ -33,6 +33,7 @@ urlpatterns = [
     path('<slug:institute_slug>/check-license-exists',
          views.InstituteUnexpiredPaidLicenseExistsView.as_view(),
          name='check-license-exists'),
+
     # Institute related url
     path('create',
          views.CreateInstituteView.as_view(),
@@ -52,6 +53,7 @@ urlpatterns = [
     path('institute-min-details-student',
          views.InstituteMinDetailsStudentView.as_view(),
          name="institute-min-details-student"),
+
     # Institute permission
     path('<slug:institute_slug>/provide-permission',
          views.InstituteProvidePermissionView.as_view(),
@@ -77,6 +79,7 @@ urlpatterns = [
     path('<slug:institute_slug>/join-institute-student',
          views.StudentJoinInstituteView.as_view(),
          name="join-institute-student"),
+
     # Institute class
     path('<slug:institute_slug>/create-class',
          views.CreateClassView.as_view(),
@@ -99,6 +102,7 @@ urlpatterns = [
     path('<slug:class_slug>/has-class-perm',
          views.CheckClassPermView.as_view(),
          name='has-class-perm'),
+
     # Institute Class Student
     path('<slug:institute_slug>/<slug:class_slug>/class-student-list/<slug:student_type>',
          views.InstituteClassStudentListView.as_view(),
@@ -106,6 +110,7 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:class_slug>/add-student-to-class',
          views.AddStudentToClassView.as_view(),
          name="add-student-to-class"),
+
     # Institute subject
     path('<slug:class_slug>/create-subject',
          views.CreateSubjectView.as_view(),
