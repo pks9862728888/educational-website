@@ -731,29 +731,10 @@ class RazorpayWebhookCallbackView(APIView):
             return Response({'status': 'failed'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class InstituteCommonLicenseOrderDetailsView(APIView):
+class InstituteOrderedLicenseOrderDetailsView(APIView):
     """View for getting list of license orders"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
-
-    def _get_license_details(self, selected_license):
-        """Used to add license details"""
-        return {
-            'id': selected_license.pk,
-            'type': selected_license.type,
-            'billing': selected_license.billing,
-            'net_amount': float(selected_license.net_amount),
-            'no_of_admin': selected_license.no_of_admin,
-            'no_of_staff': selected_license.no_of_staff,
-            'no_of_faculty': selected_license.no_of_faculty,
-            'no_of_student': selected_license.no_of_student,
-            'video_call_max_attendees': selected_license.video_call_max_attendees,
-            'classroom_limit': selected_license.classroom_limit,
-            'department_limit': selected_license.department_limit,
-            'discussion_forum': selected_license.discussion_forum,
-            'digital_test': selected_license.digital_test,
-            'LMS_exists': selected_license.LMS_exists,
-        }
 
     def get(self, *args, **kwargs):
         """
@@ -762,10 +743,10 @@ class InstituteCommonLicenseOrderDetailsView(APIView):
         """
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
-            return Response({'error': _('Invalid institute.')},
+            return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not models.InstitutePermission.objects.filter(
@@ -777,50 +758,144 @@ class InstituteCommonLicenseOrderDetailsView(APIView):
             return Response({'error': _('Insufficient permission.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        orders = models.InstituteCommonLicenseOrderDetails.objects.filter(
-            institute=institute,
-            paid=True
-        )
-        active_license = orders.filter(
-            active=True,
-            end_date__gte=timezone.now()).first()
-        purchased_inactive_license = orders.filter(
-            active=False,
-            end_date=None).first()
-        expired_license = orders.filter(
-            active=False,
-            end_date__lte=timezone.now()).first()
-        response = {}
-        if not active_license:
-            response['active_license'] = {}
-        else:
-            response['active_license'] = {
-                'payment_date': str(active_license.payment_date),
-                'start_date': str(active_license.start_date),
-                'end_date': str(active_license.end_date),
-                'license_details': self._get_license_details(
-                    active_license.selected_license)
-            }
+        response = dict()
+        response['active_license'] = list()
+        response['expired_license'] = list()
+        response['pending_payment_license'] = list()
 
-        if not purchased_inactive_license:
-            response['purchased_inactive_license'] = {}
-        else:
-            response['purchased_inactive_license'] = {
-                'payment_date': str(purchased_inactive_license.payment_date),
-                'license_details': self._get_license_details(
-                    purchased_inactive_license.selected_license)
-            }
+        if kwargs.get('product_type') == models.ProductTypes.LMS_CMS_EXAM_LIVE_STREAM:
+            # Updating the orders
+            for order in models.InstituteCommonLicenseOrderDetails.objects.filter(
+                institute=institute,
+                paid=True,
+                active=True
+            ):
+                if int(time.time()) * 1000 > order.end_date:
+                    query = models.InstituteCommmonLicenseOrderDetails.objects.filter(
+                        pk=order.pk
+                    )
+                    query.active = False
+                    query.save()
 
-        if not expired_license:
-            response['expired_license'] = {}
+            orders = models.InstituteCommmonLicenseOrderDetails.objects.filter(
+                institute=institute
+            )
+            active_license = orders.filter(
+                paid=True,
+                active=True,
+                end_date__gte=int(time.time()) * 1000).order_by('-end_date')
+            expired_license = orders.filter(
+                paid=True,
+                active=False,
+                end_date__lte=int(time.time()) * 1000).order_by('-end_date')
+            pending_payment_license = orders.filter(
+                paid=False).order_by('-order_created_on')
+
+            if active_license:
+                for al in active_license:
+                    response['active_license'].append({
+                        'order_receipt': al.order_receipt,
+                        'payment_date': al.payment_date,
+                        'start_date': al.start_date,
+                        'end_date': al.end_date,
+                        'selected_license_id': al.selected_license.pk,
+                        'type': al.selected_license.type,
+                        'billing': al.selected_license.billing,
+                        'amount': al.amount
+                    })
+
+            if expired_license:
+                for el in expired_license:
+                    response['expired_license'].append({
+                        'order_receipt': el.order_receipt,
+                        'payment_date': el.payment_date,
+                        'start_date': el.start_date,
+                        'end_date': el.end_date,
+                        'selected_license_id': el.selected_license.pk,
+                        'type': el.selected_license.type,
+                        'billing': el.selected_license.billing,
+                        'amount': el.amount
+                    })
+
+            if pending_payment_license:
+                for pp in pending_payment_license:
+                    response['pending_payment_license'].append({
+                        'order_created_on': pp.order_created_on,
+                        'order_receipt': pp.order_receipt,
+                        'selected_license_id': pp.selected_license.pk,
+                        'type': pp.selected_license.type,
+                        'billing': pp.selected_license.billing,
+                        'amount': pp.amount,
+                        'order_pk': pp.pk
+                    })
+        elif kwargs.get('product_type') == models.ProductTypes.STORAGE:
+            pass
+        elif kwargs.get('product_type') == models.ProductTypes.DIGITAL_EXAM:
+            pass
+        elif kwargs.get('product_type') == models.ProductTypes.LIVE_STREAM:
+            pass
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteSelectedCommonLicenseDetailsView(APIView):
+    """View for getting institute selected common license details"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': _('Insufficient permission.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        license_ = models.InstituteSelectedCommonLicense.objects.filter(
+            pk=kwargs.get('selected_license_id'),
+            institute=institute
+        ).first()
+
+        if not license_:
+            return Response({'error': _('License not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        response = {
+            'type': license_.type,
+            'billing': license_.billing,
+            'price': license_.price,
+            'discount_percent': license_.discount_percent,
+            'gst_percent': license_.gst_percent,
+            'no_of_admin': license_.no_of_admin,
+            'no_of_staff': license_.no_of_staff,
+            'no_of_faculty': license_.no_of_faculty,
+            'no_of_student': license_.no_of_student,
+            'no_of_board_of_members': license_.no_of_board_of_members,
+            'video_call_max_attendees': license_.video_call_max_attendees,
+            'classroom_limit': license_.classroom_limit,
+            'department_limit': license_.department_limit,
+            'subject_limit': license_.subject_limit,
+            'digital_test': license_.digital_test,
+            'LMS_exists': license_.LMS_exists,
+            'CMS_exists': license_.CMS_exists,
+            'discussion_forum': license_.discussion_forum
+        }
+
+        if license_.discount_coupon:
+            response['discount_coupon'] = license_.discount_coupon.coupon_code
+            response['dicount_rs'] = license_.discount_coupon.discount_rs
         else:
-            response['expired_license'] = {
-                'payment_date': str(expired_license.payment_date),
-                'start_date': str(expired_license.start_date),
-                'end_date': str(expired_license.end_date),
-                'license_details': self._get_license_details(
-                    expired_license.selected_license)
-            }
+            response['discount_coupon'] = ''
 
         return Response(response, status=status.HTTP_200_OK)
 

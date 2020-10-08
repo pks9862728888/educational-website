@@ -207,20 +207,6 @@ class Billing:
     ]
 
 
-class InstituteLicenseTypes:
-    NOT_PURCHASED = 'N'
-    SELECTED = 'S'
-    ACTIVE = 'A'
-    EXPIRED = 'E'
-
-    LICENSE_TYPE_IN_LICENSE_TYPES = [
-        (NOT_PURCHASED, _(u'NOT_PURCHASED')),
-        (SELECTED, _(u'SELECTED')),
-        (ACTIVE, _(u'ACTIVE')),
-        (EXPIRED, _(u'EXPIRED')),
-    ]
-
-
 class InstituteLicensePlans:
     BASIC = 'BAS'
     BUSINESS = 'BUS'
@@ -841,24 +827,6 @@ class InstituteLicenseStat(models.Model):
     institute = models.OneToOneField(
         'Institute', related_name='license_statistics_of_institute',
         on_delete=models.CASCADE)
-    exam_license_stat = models.CharField(
-        _('Exam license statistics'),
-        max_length=1,
-        choices=InstituteLicenseTypes.LICENSE_TYPE_IN_LICENSE_TYPES,
-        default=InstituteLicenseTypes.NOT_PURCHASED,
-        blank=True)
-    live_stream_license_stat = models.CharField(
-        _('Live stream license statistics'),
-        max_length=1,
-        choices=InstituteLicenseTypes.LICENSE_TYPE_IN_LICENSE_TYPES,
-        default=InstituteLicenseTypes.NOT_PURCHASED,
-        blank=True)
-    all_product_license_stat = models.CharField(
-        _('All products license statistics'),
-        max_length=1,
-        choices=InstituteLicenseTypes.LICENSE_TYPE_IN_LICENSE_TYPES,
-        default=InstituteLicenseTypes.NOT_PURCHASED,
-        blank=True)
     total_storage = models.DecimalField(
         _('Total storage in GB'), max_digits=13, decimal_places=9,
         default=0.0, blank=True)
@@ -1147,6 +1115,9 @@ class RazorpayCallback(models.Model):
         blank=True, null=True,
         related_name='institute_common_license_order_details')
 
+    def __str__(self):
+        return self.razorpay_order_id
+
 
 class RazorpayWebHookCallback(models.Model):
     """Stores Razorpay webhook callback credentials"""
@@ -1162,6 +1133,9 @@ class RazorpayWebHookCallback(models.Model):
         choices=ProductTypes.PRODUCT_TYPE_IN_PRODUCT_TYPES,
         default=ProductTypes.NOT_SELECTED,
         blank=True)
+
+    def __str__(self):
+        return self.order_id
 
 
 class ProfilePictures(models.Model):
