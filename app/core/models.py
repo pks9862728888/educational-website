@@ -1014,6 +1014,7 @@ class InstituteSelectedCommonLicense(models.Model):
     CMS_exists = models.BooleanField(_('CMS exists'), default=True, blank=True)
     discussion_forum = models.BooleanField(_('Discussion forum exists'), default=True, blank=True)
     payment_id_generated = models.BooleanField(_('Payment id generated'), default=False, blank=True)
+    created_on = UnixTimeStampField(_('Created on'), use_numeric=True)
 
     def save(self, *args, **kwargs):
         if self.discount_coupon:

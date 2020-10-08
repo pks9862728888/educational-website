@@ -380,6 +380,42 @@ class InstituteLicenseListView(ListAPIView):
         }, status=status.HTTP_200_OK)
 
 
+class InstituteUnpaidCommonLicenseDetailView(APIView):
+    """
+    View for getting institute unpaid common license details
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+            invitee=self.request.user.pk,
+            role=models.InstituteRole.ADMIN
+        ).exists():
+            return Response({'error': _('Unauthorized request.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        license_ = models.InstituteSelectedCommonLicense.objects.filter(
+            institute=institute,
+            payment_id_generated=False
+        ).first().values()
+
+        if license_:
+            return Response(license_[0], status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'has_unpaid_license': False
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
 class InstituteCommonLicenseDetailView(APIView):
     """
     View for getting institute common license details
@@ -400,7 +436,7 @@ class InstituteCommonLicenseDetailView(APIView):
             invitee=self.request.user.pk,
             role=models.InstituteRole.ADMIN
         ).exists():
-            return Response({'error': 'Unauthorized request.'},
+            return Response({'error': _('Unauthorized request.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         license_ = models.InstituteCommonLicense.objects.filter(pk=id_).values()
