@@ -771,13 +771,13 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                 active=True
             ):
                 if int(time.time()) * 1000 > order.end_date:
-                    query = models.InstituteCommmonLicenseOrderDetails.objects.filter(
+                    query = models.InstituteCommonLicenseOrderDetails.objects.filter(
                         pk=order.pk
                     )
                     query.active = False
                     query.save()
 
-            orders = models.InstituteCommmonLicenseOrderDetails.objects.filter(
+            orders = models.InstituteCommonLicenseOrderDetails.objects.filter(
                 institute=institute
             )
             active_license = orders.filter(
@@ -929,7 +929,7 @@ class InstituteUnexpiredPaidLicenseExistsView(APIView):
             institute=institute,
             paid=True
         ).order_by('-payment_date').first()
-        if not order or (order.active and order.end_date < timezone.now()):
+        if not order or (order.active and order.end_date < int(time.time()) * 1000):
             return Response({'status': False}, status=status.HTTP_200_OK)
         else:
             return Response({'status': True}, status=status.HTTP_200_OK)
