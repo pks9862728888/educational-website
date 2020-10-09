@@ -3,7 +3,7 @@ import { SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE,
          COUNTRY,
          GENDER,
          LECTURE_STUDY_MATERIAL_TYPES,
-         GRADED_TYPES_REVERSE, QUESTION_MODE_REVERSE, ANSWER_MODE_REVERSE } from '../../constants';
+         GRADED_TYPES_REVERSE, QUESTION_MODE_REVERSE, ANSWER_MODE_REVERSE, currentInstituteType, INSTITUTE_CATEGORY, INSTITUTE_CATEGORY_REVERSE, INSTITUTE_TYPE_REVERSE } from '../../constants';
 
 export function getFileSize(fileSize: number) {
     if (fileSize >= 1000000000) {
@@ -161,4 +161,12 @@ export function getSubjectTestQuestionMode(key: string) {
 
 export function getSubjectTestAnswerMode(key: string) {
   return ANSWER_MODE_REVERSE[key];
+}
+
+export function isInstituteCollege() {
+  if (sessionStorage.getItem(currentInstituteType) === INSTITUTE_TYPE_REVERSE.College) {
+    return true;
+  } else {
+    return false;
+  }
 }

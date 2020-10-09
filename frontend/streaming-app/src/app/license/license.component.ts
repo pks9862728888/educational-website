@@ -1,11 +1,18 @@
-import { Subscription } from 'rxjs';
 import { InAppDataTransferService } from './../services/in-app-data-transfer.service';
-import { INSTITUTE_LICENSE_PLANS, BILLING_TERM, UNLIMITED, DISCUSSION_FORUM_PER_ATTENDEES, INSTITUTE_TYPE_REVERSE, purchasedLicenseExists, paymentComplete } from './../../constants';
+import { INSTITUTE_LICENSE_PLANS,
+         BILLING_TERM, UNLIMITED,
+         purchasedLicenseExists,
+         paymentComplete, PRODUCT_TYPES, INSTITUTE_LICENSE_PLANS_REVERSE, BILLING_TERM_REVERSE } from './../../constants';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { InstituteApiService } from '../services/institute-api.service';
-import { PaidLicenseResponse, ActiveLicenseDetails, PurchasedInactiveLicenseDetails, ExpiredLicenseDetails } from './license.model';
+import { LicenseOrderResponse,
+         ActiveLicenseDetails,
+         ExpiredLicenseDetails, LicenseDetails } from '../models/license.model';
+import { getDateFromUnixTimeStamp } from '../format-datepicker';
+import { UiService } from '../services/ui.service';
+import { isInstituteCollege } from '../shared/utilityFunctions';
 
 
 @Component({
@@ -13,118 +20,171 @@ import { PaidLicenseResponse, ActiveLicenseDetails, PurchasedInactiveLicenseDeta
   templateUrl: './license.component.html',
   styleUrls: ['./license.component.css']
 })
-export class LicenseComponent implements OnInit, OnDestroy {
+export class LicenseComponent implements OnInit {
 
-  mobileQuery: MediaQueryList;
-  fetchedLicenseDetails: boolean;
-  fetchActiveLicenseIndicator: boolean;
-  reloadErrorText: string;
-  errorText: string;
+  mq: MediaQueryList;
   currentInstituteSlug: string;
-  activeLicenseDetails: ActiveLicenseDetails;
-  expiredLicenseDetails: ExpiredLicenseDetails;
-  purchasedInactiveLicenseDetails: PurchasedInactiveLicenseDetails;
+
   UNLIMITED = UNLIMITED;
-  fetchLicenseText = 'Fetching Institute License Details...';
+  PRODUCT_TYPES = PRODUCT_TYPES;
+  INSTITUTE_LICENSE_PLANS_REVERSE = INSTITUTE_LICENSE_PLANS_REVERSE;
+  INSTITUTE_LICENSE_PLANS = INSTITUTE_LICENSE_PLANS;
+  BILLING_TERM = BILLING_TERM;
+  getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
+  isInstituteCollege = isInstituteCollege;
 
-  // For controlling expansion panel
-  licenseStep: number;
-  canPurchaseAnotherLicense: boolean;
+  openedProductStep: number;
+  openedLicenseTypeStep: number;
+  openedLicensePlanStep: number;
+  productTypes = [
+    'LMS + CMS + Digital Exam Licenses',
+    'Storage'
+  ];
 
-  constructor( private media: MediaMatcher,
-               private router: Router,
-               private instituteApiService: InstituteApiService,
-               private inAppDataTransferService: InAppDataTransferService) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
+  licenseOrdersLoading: boolean;
+  licenseOrdersError: string;
+  licenseOrdersReload: boolean;
+  loadingLicensePlanDetails: boolean;
+
+  licenseData: LicenseOrderResponse;
+  commonLicensePlanDetails: LicenseDetails;
+
+  constructor(
+    private media: MediaMatcher,
+    private router: Router,
+    private instituteApiService: InstituteApiService,
+    private inAppDataTransferService: InAppDataTransferService,
+    private uiService: UiService
+    ) {
+    this.mq = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
-    this.fetchedLicenseDetails = false;
-    if (!(sessionStorage.getItem(paymentComplete) === 'false')) {
-      this.canPurchaseAnotherLicense = true;
-    } else {
-      this.canPurchaseAnotherLicense = false;
+  }
+
+  ngOnInit() {}
+
+  fetchLicenseDetails(step: number) {
+    let licenseType: string;
+
+    if (step === 0) {
+      licenseType = PRODUCT_TYPES.LMS_CMS_EXAM_LIVE_STREAM;
+    } else if (step === 1) {
+      licenseType = PRODUCT_TYPES.STORAGE;
     }
-  }
 
-  ngOnInit() {
-    this.fetchLicenseDetails();
-  }
+    this.licenseOrdersLoading = true;
+    this.licenseOrdersReload = false;
+    this.licenseOrdersError = null;
 
-  fetchLicenseDetails() {
-    this.fetchActiveLicenseIndicator = true;
-    this.reloadErrorText = null;
-    this.instituteApiService.getInstituteLicensePurchased(this.currentInstituteSlug).subscribe(
-      (result: PaidLicenseResponse) => {
-        this.activeLicenseDetails = result.active_license;
-        this.purchasedInactiveLicenseDetails = result.purchased_inactive_license;
-        this.expiredLicenseDetails = result.expired_license;
-        this.fetchedLicenseDetails = true;
-        this.fetchActiveLicenseIndicator = false;
-        this.purchasedInactiveLicenseExists();
+    this.instituteApiService.getInstituteOrderedLicense(
+      this.currentInstituteSlug,
+      licenseType
+      ).subscribe(
+      (result: LicenseOrderResponse) => {
+        this.licenseOrdersLoading = false;
+        this.licenseData = result;
+        console.log(result);
       },
       errors => {
-        this.fetchActiveLicenseIndicator = false;
+        this.licenseOrdersLoading = false;
         if (errors.error) {
-          if(errors.error.error) {
-            this.errorText = errors.error.error;
+          if (errors.error.error) {
+            this.licenseOrdersError = errors.error.error;
           } else {
-            this.reloadErrorText = 'Unable to fetch licence details.';
+            this.licenseOrdersReload = true;
           }
         } else {
-          this.reloadErrorText = 'Unable to fetch licence details.';
+          this.licenseOrdersReload = true;
         }
       }
     );
   }
 
-  setLicenseStep(step: number) {
-    this.licenseStep = step;
+  loadMoreCommonLicenseDetails(selectedLicenseId: number) {
+    this.loadingLicensePlanDetails = true;
+    this.instituteApiService.getOrderedCommonLicenseDetails(
+      this.currentInstituteSlug,
+      selectedLicenseId.toString()
+    ).subscribe(
+      (result: LicenseDetails) => {
+        this.loadingLicensePlanDetails = false;
+        console.log(result);
+        this.commonLicensePlanDetails = result;
+      },
+      errors => {
+        this.loadingLicensePlanDetails = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              3000
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error! Unable to load license plan details at the moment.',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error! Unable to load license plan details at the moment.',
+            3000
+          );
+        }
+      }
+    );
   }
 
-  closeErrorTextClicked() {
-    this.errorText = null;
-  }
+  setOpenedProductStep(step: number) {
+    this.openedLicenseTypeStep = null;
+    this.openedLicensePlanStep = null;
+    this.commonLicensePlanDetails = null;
+    this.loadingLicensePlanDetails = false;
 
-  activeLicenseExists() {
-    const status =  Object.keys(this.activeLicenseDetails).length !== 0;
-    if (status) {
-      this.inAppDataTransferService.showTeacherFullInstituteView();
+    if (step === this.openedProductStep) {
+      this.openedProductStep = null;
+      this.licenseOrdersLoading = false;
+      this.licenseOrdersError = null;
+      this.licenseOrdersReload = false;
     } else {
-      sessionStorage.setItem(purchasedLicenseExists, 'false');
+      this.openedProductStep = step;
+      this.fetchLicenseDetails(step);
     }
-    return status;
   }
 
-  expiredLicenseExists() {
-    return Object.keys(this.expiredLicenseDetails).length !== 0;
-  }
+  setOpenedLicenseTypeStep(step: number) {
+    this.openedLicensePlanStep = null;
+    this.loadingLicensePlanDetails = false;
+    this.commonLicensePlanDetails = null;
 
-  purchasedInactiveLicenseExists() {
-    const status =  Object.keys(this.purchasedInactiveLicenseDetails).length !== 0;
-    if (status) {
-      sessionStorage.setItem(purchasedLicenseExists, 'true');
-      this.inAppDataTransferService.showTeacherFullInstituteView();
-      this.canPurchaseAnotherLicense = false;
+    if (step === this.openedLicenseTypeStep) {
+      this.openedLicenseTypeStep = null;
     } else {
-      sessionStorage.setItem(purchasedLicenseExists, 'false');
+      let type: string;
+      if (step === 0) {
+        type = 'active_license';
+      } else if (step === 1) {
+        type = 'expired_license';
+      } else {
+        type = 'pending_payment_license';
+      }
+      if (this.licenseData[type].length > 0) {
+        this.openedLicenseTypeStep = step;
+      }
     }
-    return status;
-}
-
-  getLicensePlan(key: string) {
-    return INSTITUTE_LICENSE_PLANS[key];
   }
 
-  getBillingType(key: string) {
-    return BILLING_TERM[key];
-  }
+  setOpenedLicensePlanStep(step: number) {
+    this.loadingLicensePlanDetails = false;
+    this.commonLicensePlanDetails = null;
 
-  getDiscussionForum(key: string) {
-    return DISCUSSION_FORUM_PER_ATTENDEES[key];
+    if (step === this.openedLicensePlanStep) {
+      this.openedLicensePlanStep = null;
+    } else {
+      this.openedLicensePlanStep = step;
+    }
   }
 
   purchaseLicense() {
-    this.router.navigate([window.location.pathname + '/purchase']);
+    this.router.navigate([window.location.pathname + '/choose-product-type']);
   }
-
-  ngOnDestroy() {}
 }

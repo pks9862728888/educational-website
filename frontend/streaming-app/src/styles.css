@@ -13,7 +13,7 @@ body {
 }
 
 .parent-container {
-    background-color: #3b3b3b;
+    background-color: rgba(255, 255, 255, 0.06);
     color: #bdbdbd;
     user-select: none;
     -webkit-user-select: none;

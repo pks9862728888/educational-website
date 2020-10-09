@@ -1,0 +1,33 @@
+<section class="parent-container">
+    <div class="d-flex justify-content-between align-center">
+        <h2>Choose Product Type:</h2>
+        <div class="d-flex align-center cursor-pointer m-l-05 back-icon" (click)="navigateToInstituteLicenseDetails()">
+            <mat-icon>arrow_back_ios</mat-icon><span *ngIf="!mq.matches">Back</span>
+        </div>
+    </div>
+    <hr class="top-separator m-t-05 m-b-1" />
+    <div class="row" [class.m-b-1]="!mq.matches">
+        <div class="col-12 col-sm-6" [class.m-b-1]="mq.matches">
+            <div class="product" (click)="navigateToPurchaseCommonLicense()">
+                <h3 class="header">LMS + CMS + DIGITAL EXAM</h3>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6">
+            <div class="product" (click)="navigateToPurchaseStorageLicense()">
+                <h3 class="header">STORAGE</h3>
+            </div>
+        </div>
+    </div>
+    <div class="row" [hidden]="true">
+        <div class="col-12 col-sm-6" [class.m-b-1]="mq.matches">
+            <div class="product" (click)="navigateToPurchaseLiveClassLicense()">
+                <h3 class="header">LIVE CLASSES</h3>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6" [class.m-b-1]="mq.matches">
+            <div class="product" (click)="navigateToPurchaseDigitalExamLicense()">
+                <h3 class="header">DIGITAL ADAPTIVE EXAM</h3>
+            </div>
+        </div>
+    </div>
+</section>

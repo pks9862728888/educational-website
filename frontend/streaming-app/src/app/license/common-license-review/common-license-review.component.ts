@@ -1,21 +1,26 @@
 import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { UNLIMITED, INSTITUTE_TYPE_REVERSE, DISCUSSION_FORUM_PER_ATTENDEES, BILLING_TERM, BILLING_TERM_REVERSE, currentInstituteType, currentInstituteSlug, selectedLicenseId } from './../../../constants';
+import { UNLIMITED, INSTITUTE_TYPE_REVERSE,
+         BILLING_TERM,
+         BILLING_TERM_REVERSE,
+         currentInstituteType,
+         currentInstituteSlug,
+         selectedLicenseId } from '../../../constants';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { LicenseDetails, InstituteDiscountCouponDetailsResponse, InstituteLicenseSelectedResponse } from './../license.model';
+import { LicenseDetails, InstituteDiscountCouponDetailsResponse, InstituteLicenseSelectedResponse } from '../../models/license.model';
 import { Component, OnInit } from '@angular/core';
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
 
 
 @Component({
-  selector: 'app-license-review',
-  templateUrl: './license-review.component.html',
-  styleUrls: ['./license-review.component.css']
+  selector: 'app-common-license-review',
+  templateUrl: './common-license-review.component.html',
+  styleUrls: ['./common-license-review.component.css']
 })
-export class LicenseReviewComponent implements OnInit {
+export class CommonLicenseReviewComponent implements OnInit {
 
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
   loadingText = 'Fetching License Details...';
   retryGetLicenseDetails: boolean;
   retryGetLicenseDetailsText = 'Unable to fetch license details...';
@@ -40,8 +45,10 @@ export class LicenseReviewComponent implements OnInit {
                private instituteApiService: InstituteApiService,
                private formBuilder: FormBuilder,
                private router: Router ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
+    this.mq = this.media.matchMedia('(max-width: 540px)');
     this.selectedLicenseId = sessionStorage.getItem(selectedLicenseId);
+    this.currentInstituteType = sessionStorage.getItem(currentInstituteType);
+    this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
   }
 
   ngOnInit(): void {
@@ -49,37 +56,40 @@ export class LicenseReviewComponent implements OnInit {
     this.couponCodeForm = this.formBuilder.group({
       coupon_code: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
     });
-    this.currentInstituteType = sessionStorage.getItem(currentInstituteType);
-    this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
   }
 
   getLicenseDetails() {
     this.retryGetLicenseDetails = null;
-    this.instituteApiService.getSelectedLicenseDetails(this.selectedLicenseId).subscribe(
+    this.instituteApiService.getSelectedCommonLicenseDetails(
+      sessionStorage.getItem(currentInstituteSlug),
+      this.selectedLicenseId
+      ).subscribe(
       (result: LicenseDetails) => {
         this.selectedLicense = result;
-        if (result.billing === BILLING_TERM_REVERSE['MONTHLY']) {
-          this.netPayableAmount = Math.max(0, result.amount * (1 - result.discount_percent/100));
+        if (result.billing === BILLING_TERM_REVERSE.MONTHLY) {
+          const amount = Math.max(0, result.price * (1 - result.discount_percent / 100));
+          this.netPayableAmount = Math.max(0, amount * (1 - result.gst_percent / 100));
         } else {
-          this.netPayableAmount = Math.max(0, result.amount * 12 * (1 - result.discount_percent/100));
+          const amount = Math.max(0, result.price * 12 * (1 - result.discount_percent / 100));
+          this.netPayableAmount = Math.max(0, amount * (1 - result.gst_percent / 100));
         }
       },
       errors => {
         this.retryGetLicenseDetails = true;
       }
-    )
+    );
   }
 
   convertToUpperCase() {
     this.couponCodeForm.patchValue({
-      'coupon_code': this.couponCodeForm.value['coupon_code'].toUpperCase()
+      coupon_code: this.couponCodeForm.value.coupon_code.toUpperCase()
     });
   }
 
   applyCouponCode() {
     this.couponError = null;
     this.showApplyingIndicator = true;
-    this.couponCode = this.couponCodeForm.value['coupon_code'];
+    this.couponCode = this.couponCodeForm.value.coupon_code;
     this.instituteApiService.getDiscountCouponDetails(this.couponCode).subscribe(
       (result: InstituteDiscountCouponDetailsResponse) => {
         this.showApplyingIndicator = false;
@@ -101,7 +111,7 @@ export class LicenseReviewComponent implements OnInit {
           this.couponError = 'Unable to check coupon.';
         }
       }
-    )
+    );
   }
 
   getActivePlan(key: string) {
@@ -112,30 +122,16 @@ export class LicenseReviewComponent implements OnInit {
     return BILLING_TERM[key];
   }
 
-  getDiscussionForums(key: string) {
-    return DISCUSSION_FORUM_PER_ATTENDEES[key];
+  calculateCostInThousands(price: number, discountPercent: number) {
+    return Math.max(0, (price * (1 - discountPercent / 100) / 1000)).toFixed(3);
   }
 
-  calculateCostInThousands(amount:number, discountPercent: number) {
-    return Math.max(0, (amount * (1 - discountPercent/100))/1000);
-  }
-
-  instituteIsCoaching() {
-    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['Coaching']) {
-      return true
+  instituteIsCollege() {
+    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.College) {
+      return true;
     } else {
-      return false
+      return false;
     }
-  }
-
-  changeLicense() {
-    sessionStorage.removeItem('selectedLicenseId');
-    const pathName = window.location.pathname;
-    this.router.navigate([pathName.slice(0, pathName.lastIndexOf('review')) + 'purchase']);
-  }
-
-  hideCouponError() {
-    this.couponError = null;
   }
 
   hidePurchaseError() {
@@ -145,10 +141,14 @@ export class LicenseReviewComponent implements OnInit {
   purchaseClicked() {
     this.showPurchasingIndicator = true;
     this.purchaseError = null;
-    this.instituteApiService.purchase(
+    let code = this.couponCode;
+    if (this.couponError) {
+      code = '';
+    }
+    this.instituteApiService.purchaseCommonLicense(
       this.currentInstituteSlug,
       this.selectedLicenseId,
-      this.couponCode || ''
+      code || ''
     ).subscribe(
       (result: InstituteLicenseSelectedResponse) => {
         this.showPurchasingIndicator = false;
@@ -179,6 +179,12 @@ export class LicenseReviewComponent implements OnInit {
           this.purchaseError = 'Unable to purchase at the moment. Please let us know.';
         }
       }
-    )
+    );
+  }
+
+  navigateToPurchaseCommonLicense() {
+    const urlLocation = window.location.pathname;
+    const loc = urlLocation.slice(0, urlLocation.length - '/review'.length);
+    this.router.navigate([ loc + '/purchase-common-license' ]);
   }
 }

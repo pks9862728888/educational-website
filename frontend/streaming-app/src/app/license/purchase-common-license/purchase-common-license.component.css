@@ -2,9 +2,11 @@
 .col,
 .col-12,
 .col-md-4,
+h1,
 h2,
 h3,
-p {
+p,
+hr {
     margin: 0px;
     padding: 0px;
 }
@@ -21,10 +23,8 @@ button.active:focus {
     background-color: rgba(255, 255, 255, 0.06);
 }
 
-.heading {
-    margin-bottom: 1rem;
-    text-align: center;
-}
+
+/* Styling license list */
 
 .width-100 {
     display: flex;
@@ -196,8 +196,36 @@ button.active:focus {
     font-size: large;
 }
 
-.margin-bottom-1 {
+.p-t-1 {
+    padding-top: 1rem;
+}
+
+.p-l-1 {
+    padding-left: 1rem;
+}
+
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-t-3 {
+    margin-top: 3rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
     margin-bottom: 1rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}
+
+.m-l-1 {
+    margin-left: 1rem;
 }
 
 @media screen and (max-width: 991.98px) {

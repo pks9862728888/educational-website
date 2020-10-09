@@ -1,16 +1,12 @@
 .row,
 .col-12,
-h2,
+h1,
 h3,
 p,
 hr {
     margin: 0;
     padding: 0;
     word-wrap: break-word;
-}
-
-.top-separator {
-    margin-bottom: 0.7rem;
 }
 
 .payment-portals {
@@ -33,7 +29,7 @@ hr {
 
 .green-button:disabled {
     background-color: #008000;
-    color: #ffffff;
+    color: #fff;
     opacity: 0.3;
     cursor: progress;
 }
@@ -53,8 +49,16 @@ hr {
     margin-top: 0.1rem;
 }
 
-.margin-right-05 {
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-r-05 {
     margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
 }
 
 .error-text-margin {

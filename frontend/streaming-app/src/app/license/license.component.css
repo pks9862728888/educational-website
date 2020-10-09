@@ -1,18 +1,111 @@
-.row,
-.col,
-.col-12,
+h1,
 h2,
 h3,
-p,
-hr {
+hr,
+p {
     margin: 0;
     padding: 0;
     word-wrap: break-word;
 }
 
-.mat-card {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #bdbdbd;
+.parent-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.purchase-icon {
+    color: #f2aa4cff;
+}
+
+.translate-purchase-icon-mb {
+    transform: translateY(20%);
+}
+
+.product-header {
+    padding: 1rem;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.07);
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.product-header:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3%);
+}
+
+.license-type-header,
+.license-order-header {
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.07);
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.license-type-header {
+    color: #7fc0ba;
+}
+
+.license-order-header {
+    color: #bb86fc;
+}
+
+.license-type-header:hover,
+.license-order-header:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3%);
+}
+
+.license-order-header:hover~.license-body {
+    transform: translateY(-0.9%);
+}
+
+.license-body {
+    background-color: rgba(255, 255, 255, 0.07);
+    padding: 1rem;
+    border-top: 1px solid rgba(31, 31, 31, 0.5);
+}
+
+.icon-circle {
+    background-color: rgba(255, 255, 255, 0.02);
+    border-radius: 50%;
+    overflow: hidden;
+    height: 2rem;
+    width: 2rem;
+    border: 2px solid #bb86fc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.plan-icon {
+    color: #bb86fc;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+}
+
+.link,
+.link-color {
+    color: #7fc0ba;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.loading-bg {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 5px;
+    border: 1px solid rgba(108, 117, 125, 0.7);
+}
+
+.button-border {
+    border: 1px solid rgba(108, 117, 125, 0.7);
+}
+
+.button-border:hover {
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
 
@@ -49,50 +142,30 @@ hr {
     background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-.license-icon {
-    color: #03dac5;
+.no-box-shadow {
+    box-shadow: none;
 }
 
-.invite-top-separator,
-.invite-bottom-separator {
-    background-color: #6c757d;
+.m-t-05 {
+    margin-top: 0.5rem;
 }
 
-.invite-top-separator {
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-05 {
     margin-bottom: 0.5rem;
 }
 
-.invite-bottom-separator {
-    margin: 0.5rem 0;
+.m-b-1 {
+    margin-bottom: 1rem;
 }
 
-.invite-details {
-    padding: 0.3rem 0;
-    color: #bdbdbd;
-}
-
-.top-separator {
-    margin-bottom: 0.7rem;
-}
-
-.margin-bottom-03 {
-    margin-bottom: 0.3rem;
-}
-
-.margin-bottom-07 {
-    margin-bottom: 0.7rem;
-}
-
-.heading-text {
-    line-height: 36px;
-    margin-bottom: 0.5rem;
-    transform: translateY(0.75rem);
-}
-
-.purchase-icon {
-    color: #f2aa4cff;
-}
-
-.yellow-color {
-    color: #f2aa4cff;
+.m-l-05 {
+    margin-left: 0.5rem;
 }

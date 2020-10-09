@@ -4,7 +4,7 @@ import { baseUrl } from '../../urls';
 import { CookieService } from 'ngx-cookie-service';
 import { Injectable } from '@angular/core';
 import { authTokenName } from './../../constants';
-import { PaymentSuccessCallbackResponse } from './../license/license.model';
+import { PaymentSuccessCallbackResponse } from '../models/license.model';
 
 interface FormDataInterface {
   name: string;
@@ -48,10 +48,9 @@ export class InstituteApiService {
 
   // Insitute license related urls
   instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
-  instituteSelectedLicenseDetail = `${this.instituteBaseUrl}institute-license-detail`;
   instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
-  licenseSelectPlanUrl = `${this.instituteBaseUrl}select-license`;
-  createLicensePurchaseOrderUrl = `${this.instituteBaseUrl}create-order`;
+  commonLicenseSelectPlanUrl = `${this.instituteBaseUrl}select-common-license`;
+  createCommmonLicenseOrderUrl = `${this.instituteBaseUrl}create-common-license-order`;
   razorpayCallbackUrl = `${this.instituteBaseUrl}razorpay-payment-callback`;
 
   // Institute class related urls
@@ -63,6 +62,14 @@ export class InstituteApiService {
 
   // Institute section related urls
   addSectionInchargeUrl = `${this.instituteBaseUrl}add-section-permission`;
+
+  getInstituteSelectedCommonLicenseDetailUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/institute-common-license-detail`;
+  }
+
+  getOrderedCommonLicenseDetailsUrl(instituteSlug: string, licenseId: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${licenseId}/get-selected-common-license-details`;
+  }
 
   getInstituteDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}detail/${instituteSlug}`;
@@ -80,8 +87,8 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/accept-delete-permission`;
   }
 
-  getInstituteLicensePurchasedUrl(instituteSlug: string) {
-    return `${this.instituteBaseUrl}${instituteSlug}/get-license-purchased`;
+  getInstituteLicenseOrderDetailsUrl(instituteSlug: string, productType: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${productType}/get-ordered-license-orders`;
   }
 
   getPaidInstituteLicenseUrl(instituteSlug: string) {
@@ -397,7 +404,7 @@ export class InstituteApiService {
   }
 
   // Get list of admins
-  getUserList(instituteSlug: string, role:string) {
+  getUserList(instituteSlug: string, role: string) {
     return this.httpClient.get(
       this.getUserListUrl(instituteSlug, role),
       { headers: this.getAuthHeader() });
@@ -415,23 +422,30 @@ export class InstituteApiService {
   acceptDeleteInstituteJoinInvitation(instituteSlug: string, operation: string) {
     return this.httpClient.post(
       this.getInstituteJoinDeclineUrl(instituteSlug),
-      { 'operation': operation.toUpperCase()},
+      { operation: operation.toUpperCase()},
       { headers: this.getAuthHeader() }
     );
   }
 
   // Get institute license list
-  getInstituteLicenseList() {
+  getInstituteLicenseList(instituteSlug: string) {
     return this.httpClient.get(
       this.instituteLicenseListUrl,
-      { 'headers': this.getAuthHeader() });
+      { headers: this.getAuthHeader() });
   }
 
-  // Get specific license details
-  getSelectedLicenseDetails(id: string) {
+  // Get specific common license details
+  getSelectedCommonLicenseDetails(instituteSlug: string, id: string) {
     return this.httpClient.post(
-      this.instituteSelectedLicenseDetail,
-      {'id': id},
+      this.getInstituteSelectedCommonLicenseDetailUrl(instituteSlug),
+      { id },
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getOrderedCommonLicenseDetails(instituteSlug: string, licenseId: string) {
+    return this.httpClient.get(
+      this.getOrderedCommonLicenseDetailsUrl(instituteSlug, licenseId),
       { headers: this.getAuthHeader() }
     );
   }
@@ -440,51 +454,51 @@ export class InstituteApiService {
   getDiscountCouponDetails(couponCode: string) {
     return this.httpClient.post(
       this.instituteDiscountCouponDetailUrl,
-      { 'coupon_code': couponCode },
+      { coupon_code: couponCode },
       { headers: this.getAuthHeader() }
     );
   }
 
   // To initiate purchase request
-  purchase(institute_slug: string, license_id: string, coupon_code: string) {
+  purchaseCommonLicense(instituteSlug: string, licenseId: string, couponCode: string) {
     return this.httpClient.post(
-      this.licenseSelectPlanUrl,
-      { 'institute_slug': institute_slug, 'license_id': license_id, 'coupon_code': coupon_code },
+      this.commonLicenseSelectPlanUrl,
+      { institute_slug: instituteSlug, license_id: licenseId, coupon_code: couponCode, current_time: +new Date() },
       { headers: this.getAuthHeader() }
     );
   }
 
   // To create order for license purchase
-  createOrder(instituteSlug: string, selectedLicensePlanId: string, paymentGateway: string) {
+  createCommonLicenseOrder(instituteSlug: string, selectedLicensePlanId: string, paymentGateway: string) {
     return this.httpClient.post(
-      this.createLicensePurchaseOrderUrl,
+      this.createCommmonLicenseOrderUrl,
       {
-        'institute_slug': instituteSlug,
-        'payment_gateway': paymentGateway,
-        'license_id': selectedLicensePlanId
+        institute_slug: instituteSlug,
+        payment_gateway: paymentGateway,
+        license_id: selectedLicensePlanId
       },
       { headers: this.getAuthHeader() }
     );
   }
 
   // To send razorpay callback to server
-  sendCallbackAndVerifyPayment(data: PaymentSuccessCallbackResponse, order_details_id: string) {
+  sendCallbackAndVerifyPayment(data: PaymentSuccessCallbackResponse, orderDetailsId: string) {
     return this.httpClient.post(
       this.razorpayCallbackUrl,
       {
-        'razorpay_order_id': data.razorpay_order_id,
-        'razorpay_payment_id': data.razorpay_payment_id,
-        'razorpay_signature': data.razorpay_signature,
-        'order_details_id': order_details_id
+        razorpay_order_id: data.razorpay_order_id,
+        razorpay_payment_id: data.razorpay_payment_id,
+        razorpay_signature: data.razorpay_signature,
+        order_details_id: orderDetailsId
       },
       { headers: this.getAuthHeader() }
     );
   }
 
   // To get license purchase details of institue
-  getInstituteLicensePurchased(instituteSlug: string) {
+  getInstituteOrderedLicense(instituteSlug: string, productType: string) {
     return this.httpClient.get(
-      this.getInstituteLicensePurchasedUrl(instituteSlug),
+      this.getInstituteLicenseOrderDetailsUrl(instituteSlug, productType),
       { headers: this.getAuthHeader() }
     );
   }
@@ -494,7 +508,7 @@ export class InstituteApiService {
     return this.httpClient.get(
       this.getPaidInstituteLicenseUrl(instituteSlug),
       { headers: this.getAuthHeader() }
-    )
+    );
   }
 
   // To get all institute class list
@@ -508,7 +522,7 @@ export class InstituteApiService {
   createInstituteClass(instituteSlug: string, name: string) {
     return this.httpClient.post(
       this.createInstituteClassUrl(instituteSlug),
-      { 'name': name },
+      { name },
       { headers: this.getAuthHeader() }
     );
   }
@@ -533,14 +547,14 @@ export class InstituteApiService {
     return this.httpClient.get(
       this.getInstituteClassPermissionListUrl(classSlug),
       { headers: this.getAuthHeader()}
-    )
+    );
   }
 
   // To add class incharge
   addClassIncharge(invitee: string, classSlug: string) {
     return this.httpClient.post(
       this.addClassPermissionUrl,
-      { 'invitee': invitee, 'class_slug': classSlug },
+      { invitee, class_slug: classSlug },
       { headers: this.getAuthHeader() }
     );
   }
@@ -549,10 +563,7 @@ export class InstituteApiService {
   createSubject(classSlug: string, name: string, type: string) {
     return this.httpClient.post(
       this.createSubjectUrl(classSlug),
-      {
-        'name': name,
-        'type': type
-      },
+      { name, type },
       { headers: this.getAuthHeader() }
     );
   }
@@ -574,7 +585,7 @@ export class InstituteApiService {
   addSubjectIncharge(invitee: string, subjectSlug: string) {
     return this.httpClient.post(
       this.addSubjectInchargeUrl,
-      { 'invitee': invitee, 'subject_slug': subjectSlug },
+      { invitee, subject_slug: subjectSlug },
       { headers: this.getAuthHeader() }
     );
   }
@@ -583,7 +594,7 @@ export class InstituteApiService {
   createClassSection(classSlug: string, name: string) {
     return this.httpClient.post(
       this.createSectionUrl(classSlug),
-      {'name': name},
+      { name },
       { headers: this.getAuthHeader() }
     );
   }
@@ -625,7 +636,7 @@ export class InstituteApiService {
   ) {
     return this.httpClient.post(
       this.getCreateSubjectModuleUrl(subjectSlug),
-      {'name': name, 'type': type},
+      { name, type},
       { headers: this.getAuthHeader() }
     );
   }
@@ -637,7 +648,7 @@ export class InstituteApiService {
   ) {
     return this.httpClient.patch(
       this.getEditSubjectModuleUrl(subjectSlug, viewKey),
-      {'name': moduleName},
+      { name: moduleName},
       { headers: this.getAuthHeader() }
     );
   }
@@ -672,7 +683,7 @@ export class InstituteApiService {
     formData.append('file', data.file);
     formData.append('content_type', data.content_type);
 
-    if (data.content_type !== SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['LINK']) {
+    if (data.content_type !== SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE.LINK) {
       formData.append('can_download', data.can_download);
     }
 
@@ -687,7 +698,7 @@ export class InstituteApiService {
     );
   }
 
-  editSubjectCourseContent(data: any, subjectSlug:string, pk: string) {
+  editSubjectCourseContent(data: any, subjectSlug: string, pk: string) {
     return this.httpClient.patch(
       this.editSubjectCourseContentUrl(subjectSlug, pk),
       data,
@@ -1033,7 +1044,7 @@ export class InstituteApiService {
         courseContentId
       ),
       { headers: this.getAuthHeader() }
-    )
+    );
   }
 
   loadAnswerOfInstituteCourseQuestion(

@@ -4,18 +4,26 @@ import { LicenseComponent } from './license.component';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LicenseMaterialWorkspaceModule } from './material.license.workspace.module';
-import { LicenseCheckoutComponent } from './license-checkout/license-checkout.component';
-import { LicenseReviewComponent } from './license-review/license-review.component';
+import { CommonLicenseCheckoutComponent } from './common-license-checkout/common-license-checkout.component';
+import { CommonLicenseReviewComponent } from './common-license-review/common-license-review.component';
 import { WindowRefService } from '../services/window-ref.service';
-import { PurchaseLicenseComponent } from './purchase-license/purchase-license.component';
+import { PurchaseCommonLicenseComponent } from './purchase-common-license/purchase-common-license.component';
+import { ChooseProductTypeComponent } from './choose-product-type/choose-product-type.component';
+import { PurchaseStorageComponent } from './purchase-storage/purchase-storage.component';
+import { PurchaseLiveClassLicenseComponent } from './purchase-live-class-license/purchase-live-class-license.component';
+import { PurchaseDigitalAdaptiveExamLicenseComponent } from './purchase-digital-adaptive-exam-license/purchase-digital-adaptive-exam-license.component';
 
 
 @NgModule({
   declarations: [
     LicenseComponent,
-    LicenseCheckoutComponent,
-    LicenseReviewComponent,
-    PurchaseLicenseComponent,
+    CommonLicenseCheckoutComponent,
+    CommonLicenseReviewComponent,
+    PurchaseCommonLicenseComponent,
+    ChooseProductTypeComponent,
+    PurchaseStorageComponent,
+    PurchaseLiveClassLicenseComponent,
+    PurchaseDigitalAdaptiveExamLicenseComponent
   ],
   imports: [
     CommonModule,
@@ -25,9 +33,13 @@ import { PurchaseLicenseComponent } from './purchase-license/purchase-license.co
   ],
   exports: [
     LicenseComponent,
-    LicenseCheckoutComponent,
-    LicenseReviewComponent,
-    PurchaseLicenseComponent
+    CommonLicenseCheckoutComponent,
+    CommonLicenseReviewComponent,
+    PurchaseCommonLicenseComponent,
+    ChooseProductTypeComponent,
+    PurchaseStorageComponent,
+    PurchaseLiveClassLicenseComponent,
+    PurchaseDigitalAdaptiveExamLicenseComponent
   ],
   providers: [WindowRefService]
 })

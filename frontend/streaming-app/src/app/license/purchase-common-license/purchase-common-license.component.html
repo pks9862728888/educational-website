@@ -1,0 +1,176 @@
+<section>
+    <div class="parent-container">
+        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
+        <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load licenses at the moment.'" (retryEvent)="reloadLicensePlans()"></app-ui-reload>
+        <section *ngIf="!showLoadingIndicator && !showReload">
+            <div class="d-flex justify-content-between align-center">
+                <h1 *ngIf="!mq.matches">Choose a License:</h1>
+                <h2 *ngIf="mq.matches">Choose a License:</h2>
+                <div class="back-icon cursor-pointer m-l-05 d-flex align-center" (click)="navigateToChooseProductType()">
+                    <mat-icon>arrow_back_ios</mat-icon>
+                    <span *ngIf="!mq.matches">Back</span>
+                </div>
+            </div>
+            <hr class="top-separator m-b-1 m-t-05" />
+            <app-ui-error-text *ngIf="loadingErrorText" [errorText]="loadingErrorText" [hideCloseButton]="true"></app-ui-error-text>
+            <div *ngIf="!loadingErrorText">
+                <div class="width-100">
+                    <div>
+                        <div class="row">
+                            <div class="col billing-term monthly" [class.active-term]="activeBilling === 'MONTHLY'" (click)="changeBillingTerm('MONTHLY')">Monthly</div>
+                            <div class="col billing-term yearly" [class.active-term]="activeBilling === 'YEARLY'" (click)="changeBillingTerm('YEARLY')">Yearly</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="width-100">
+                    <div [ngClass]="{'plan-container': !mq.matches, 'col-12': mq.matches}">
+                        <div class="row">
+                            <div class="col-md-4" *ngFor="let mp of currentActiveLicensePlans" [ngClass]="{'m-b-1': mq.matches, 'inactive-container': !mq.matches && activePlanContainer !== getActivePlan(mp.type)}">
+                                <mat-card class="choose-plan-container" [class.choose-plan-active-container]="activePlanContainer === getActivePlan(mp.type)" (click)="changeActivePlanContainer(getActivePlan(mp.type))">
+                                    <div class="row center header-background-color" [ngClass]="{'active-container': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                        <div class="icon-circle" [class.icon-circle-active]="!mq.matches && activePlanContainer === getActivePlan(mp.type)">
+                                            <mat-icon *ngIf="getActivePlan(mp.type) === 'BASIC'" class="plan-icon">laptop_mac</mat-icon>
+                                            <mat-icon *ngIf="getActivePlan(mp.type) === 'BUSINESS'" class="plan-icon">school</mat-icon>
+                                            <mat-icon *ngIf="getActivePlan(mp.type) === 'ENTERPRISE'" class="plan-icon">account_balance</mat-icon>
+                                        </div>
+                                        <div class="col-12 text-center" [ngClass]="{'main-content-plan-inactive': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'main-content-plan-active': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <h2 class="license-name">{{ getActivePlan(mp.type) }}</h2>
+                                            <h3 class="price">
+                                                <span *ngIf="isDiscountPresent(mp.discount_percent)" class="strike-color">
+                                            <span class="striked-text">&#8377;{{ mp.price / 1000 }} K</span>
+                                                </span>
+                                                &nbsp;
+                                                <span class="current-price">&#8377; {{ calculateCostInThousands(mp.price, mp.discount_percent) }} K / month</span>
+                                            </h3>
+                                            <p>Best suited for <span *ngIf="getActivePlan(mp.type) === 'BASIC'">coachings</span><span *ngIf="getActivePlan(mp.type) === 'BUSINESS'">schools</span><span *ngIf="getActivePlan(mp.type) === 'ENTERPRISE'">colleges</span>.</p>
+                                            <p>Billed <span *ngIf="getBillingTerm(mp.billing) === 'MONTHLY'">monthly</span><span *ngIf="getBillingTerm(mp.billing) === 'ANNUALLY'">annually</span>.</p>
+                                            <button mat-flat-button class="green-button rounded-button" (click)="selectedLicense(mp.id)">Get started</button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Admin
+                                                </div>
+                                                <div *ngIf="!(mp.no_of_admin === UNLIMITED)" class="col">{{ mp.no_of_admin }}</div>
+                                                <div *ngIf="mp.no_of_admin === UNLIMITED" class="col">Unlimited</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Staffs
+                                                </div>
+                                                <div *ngIf="!(mp.no_of_staff === UNLIMITED)" class="col">{{ mp.no_of_staff }}</div>
+                                                <div *ngIf="mp.no_of_staff === UNLIMITED" class="col">Unlimited</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Faculties
+                                                </div>
+                                                <div *ngIf="!(mp.no_of_faculty === UNLIMITED)" class="col">{{ mp.no_of_faculty }}</div>
+                                                <div *ngIf="mp.no_of_faculty === UNLIMITED" class="col">Unlimited</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Students
+                                                </div>
+                                                <div *ngIf="!(mp.no_of_student === UNLIMITED)" class="col">{{ mp.no_of_student }}</div>
+                                                <div *ngIf="mp.no_of_student === UNLIMITED" class="col">Unlimited<span *ngIf="getActivePlan(mp.type) === 'BASIC'">*</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Board of members
+                                                </div>
+                                                <div *ngIf="!(mp.no_of_board_of_members === UNLIMITED)" class="col">{{ mp.no_of_board_of_members }}</div>
+                                                <div *ngIf="mp.no_of_board_of_members === UNLIMITED" class="col">Unlimited</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" *ngIf="instituteIsCollege()" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Departments
+                                                </div>
+                                                <div *ngIf="!(mp.department_limit === UNLIMITED)" class="col">{{ mp.department_limit }}</div>
+                                                <div *ngIf="mp.department_limit === UNLIMITED" class="col">Unlimited</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Classrooms
+                                                </div>
+                                                <div *ngIf="!(mp.classroom_limit === UNLIMITED)" class="col">{{ mp.classroom_limit }}</div>
+                                                <div *ngIf="mp.classroom_limit === UNLIMITED" class="col">Unlimited</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Subjects
+                                                </div>
+                                                <div *ngIf="!(mp.subject_limit === UNLIMITED)" class="col">{{ mp.subject_limit }}</div>
+                                                <div *ngIf="mp.subject_limit === UNLIMITED" class="col">Unlimited</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Digital Test
+                                                </div>
+                                                <div *ngIf="mp.digital_test" class="col">Available</div>
+                                                <div *ngIf="!mp.digital_test" class="col">Not Available</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    LMS
+                                                </div>
+                                                <div *ngIf="mp.LMS_exists" class="col">Available</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    CMS
+                                                </div>
+                                                <div *ngIf="mp.CMS_exists" class="col">Available</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Discussion Forum
+                                                </div>
+                                                <div class="col">
+                                                    <span *ngIf="mp.discussion_forum">Available</span>
+                                                    <span *ngIf="!mp.discussion_forum">Not Available</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 features last-child" [hidden]="true" [ngClass]="{'features-deactivated': mq.matches || activePlanContainer !== getActivePlan(mp.type), 'features-activated': !mq.matches && activePlanContainer === getActivePlan(mp.type)}">
+                                            <div class="row">
+                                                <div class="col">
+                                                    Live Attendees
+                                                </div>
+                                                <div class="col">{{ mp.video_call_max_attendees}}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </mat-card>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</section>

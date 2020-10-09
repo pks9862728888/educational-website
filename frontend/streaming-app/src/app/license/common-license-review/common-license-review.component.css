@@ -6,6 +6,7 @@
 .col-sm-6,
 .col-md-4,
 .col-md-8,
+h1,
 h2,
 h3,
 p,
@@ -16,7 +17,7 @@ hr {
 }
 
 .parent-container {
-    background-color: #3b3b3b;
+    background-color: rgba(255, 255, 255, 0.05);
     color: #bdbdbd;
     user-select: none;
     -webkit-user-select: none;
@@ -140,7 +141,7 @@ hr {
 }
 
 .search-color {
-    background-color: #303030;
+    background-color: inherit;
     color: #bdbdbd;
     border-color: #6c757d;
     box-shadow: none;
@@ -148,15 +149,15 @@ hr {
 
 .apply-button-active:not(.disabled) {
     color: #fff;
-    border-color: #6c757d;
-    background-color: #6c757e;
+    border-color: #094d49;
+    background-color: #094d49;
     box-shadow: none;
 }
 
 .apply-button-disabled {
-    border-color: #6c757d;
+    border-color: #094d49;
     color: #fff;
-    background-color: #6c757e;
+    background-color: #094d49;
     box-shadow: none;
     opacity: 0.2;
 }
@@ -171,17 +172,6 @@ hr {
     float: right;
 }
 
-.coupon-error-text {
-    padding-top: 0.1rem;
-}
-
-.highlight-icon {
-    color: rgb(187, 134, 252);
-    cursor: pointer;
-    padding-top: 0.2rem;
-}
-
-.error-text,
 .success-text {
     padding: 0.25rem 0.6rem;
     margin-top: 1rem;
@@ -196,7 +186,7 @@ hr {
 /* Styling costing */
 
 .costing-card {
-    background-color: #3f3f3f;
+    background-color: rgba(255, 255, 255, 0.07);
     color: #bdbdbd;
 }
 
@@ -218,19 +208,26 @@ hr {
 
 /* Padding and margin */
 
-.padding-top-1 {
+.p-t-1 {
     padding-top: 1rem;
 }
 
-.padding-left-1 {
+.p-l-1 {
     padding-left: 1rem;
 }
 
-.padding-tb-1 {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+.m-t-05 {
+    margin-top: 0.5rem;
 }
 
-.margin-bottom-1 {
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-b-1 {
     margin-bottom: 1rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
 }

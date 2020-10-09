@@ -1,539 +1,674 @@
-<section>
-    <mat-card>
-        <div class="d-flex justify-content-between">
-            <h3 [ngClass]="{'heading-text': !mobileQuery.matches && canPurchaseAnotherLicense}"><strong>License Details:</strong></h3>
-            <div *ngIf="canPurchaseAnotherLicense">
-                <button *ngIf="!mobileQuery.matches" mat-flat-button class="green-button" (click)="purchaseLicense()">Purchase License</button>
-                <mat-icon class="purchase-icon" *ngIf="mobileQuery.matches" (click)="purchaseLicense()">shopping_cart</mat-icon>
+<section class="parent-container">
+    <div class="d-flex justify-content-between">
+        <h1>License Details:</h1>
+        <div>
+            <button *ngIf="!mq.matches" mat-flat-button class="green-button" (click)="purchaseLicense()">
+              <div class="d-flex align-center">
+                <mat-icon class="purchase-icon m-r-05">shopping_cart</mat-icon>Purchase License
+              </div>
+            </button>
+            <mat-icon class="purchase-icon translate-purchase-icon-mb m-l-05" *ngIf="mq.matches" (click)="purchaseLicense()">shopping_cart</mat-icon>
+        </div>
+    </div>
+    <hr class="top-separator m-t-05 m-b-1" />
+    <div *ngFor="let product of productTypes; let i=index" class="m-b-1">
+        <div class="product-header d-flex justify-content-between align-center cursor-pointer expansion-panel-header-color" (click)="setOpenedProductStep(i)">
+            <h2 *ngIf="!mq.matches">{{ product }}</h2>
+            <h3 *ngIf="mq.matches">{{ product }}</h3>
+            <mat-icon>
+                <span *ngIf="openedProductStep !== i">keyboard_arrow_down</span>
+                <span *ngIf="openedProductStep === i">keyboard_arrow_up</span>
+            </mat-icon>
+        </div>
+        <div *ngIf="openedProductStep === i">
+            <div class="loading-bg m-b-1 m-t-1" *ngIf="licenseOrdersLoading">
+                <app-ui-loading [actionText]="'Loading Licenses...'"></app-ui-loading>
+            </div>
+            <app-ui-reload *ngIf="licenseOrdersReload" [errorText]="'Unable to load license details.'" (retryEvent)="fetchLicenseDetails(i)"></app-ui-reload>
+            <div class="m-t-1" *ngIf="licenseOrdersError">
+                <app-ui-error-text [errorText]="licenseOrdersError" [hideCloseButton]="true"></app-ui-error-text>
+            </div>
+            <div *ngIf="!licenseOrdersLoading && !licenseOrdersReload && !licenseOrdersError" class="m-t-1">
+                <div class="d-flex justify-content-between align-center license-type-header" [class.cursor-pointer]="licenseData.active_license.length > 0" (click)="setOpenedLicenseTypeStep(0)">
+                    <h3>Active Licenses: <span *ngIf="licenseData.active_license.length === 0">None</span><span *ngIf="licenseData.active_license.length !== 0">({{ licenseData.active_license.length }})</span></h3>
+                    <mat-icon *ngIf="licenseData.active_license.length > 0">
+                        <span *ngIf="openedLicenseTypeStep !== 0">keyboard_arrow_down</span>
+                        <span *ngIf="openedLicenseTypeStep === 0">keyboard_arrow_up</span>
+                    </mat-icon>
+                </div>
+                <div *ngIf="openedLicenseTypeStep === 0" class="m-t-1 m-b-1">
+                    <div *ngFor="let lic of licenseData.active_license; let lic_step = index" class="m-b-1">
+                        <div class="d-flex justify-content-between align-center license-order-header cursor-pointer" (click)="setOpenedLicensePlanStep(lic_step)" [class.no-box-shadow]="openedLicensePlanStep === lic_step">
+                            <div class="d-flex align-center">
+                                <div class="icon-circle m-r-05">
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC" class="plan-icon">laptop_mac</mat-icon>
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BUSINESS" class="plan-icon">school</mat-icon>
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.ENTERPRISE" class="plan-icon">account_balance</mat-icon>
+                                </div>
+                                <h3>{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</h3>
+                            </div>
+                            <mat-icon *ngIf="licenseData.active_license.length > 0">
+                                <span *ngIf="openedLicensePlanStep !== lic_step">keyboard_arrow_down</span>
+                                <span *ngIf="openedLicensePlanStep === lic_step">keyboard_arrow_up</span>
+                            </mat-icon>
+                        </div>
+                        <div *ngIf="openedLicensePlanStep === lic_step" class="license-body">
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Order receipt:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ lic.order_receipt }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Total amount:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>Rs. {{ lic.amount }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Paid on:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ getDateFromUnixTimeStamp(lic.payment_date) | date: 'medium' }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Billing:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ BILLING_TERM[lic.billing] | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>License Starts on:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ getDateFromUnixTimeStamp(lic.start_date) | date: 'medium' }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>License Expires on:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ getDateFromUnixTimeStamp(lic.end_date) | date: 'medium' }}</p>
+                                </div>
+                            </div>
+                            <div *ngIf="commonLicensePlanDetails">
+                                <h3 class="m-b-1 link-color">License Plan Details:</h3>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of admin:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_admin !== UNLIMITED">{{ commonLicensePlanDetails.no_of_admin }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_admin === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of faculty:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_faculty !== UNLIMITED">{{ commonLicensePlanDetails.no_of_faculty }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_faculty === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of student:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_student !== UNLIMITED">{{ commonLicensePlanDetails.no_of_student }}<span *ngIf="commonLicensePlanDetails.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC">*</span></p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_student === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of board of members:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_board_of_members !== UNLIMITED">{{ commonLicensePlanDetails.no_of_board_of_members }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_board_of_members === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1" *ngIf="isInstituteCollege()">
+                                    <div class="col-6">
+                                        <p>Department limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.department_limit !== UNLIMITED">{{ commonLicensePlanDetails.department_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.department_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Classroom limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.classroom_limit !== UNLIMITED">{{ commonLicensePlanDetails.classroom_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.classroom_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Subject limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.subject_limit !== UNLIMITED">{{ commonLicensePlanDetails.subject_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.subject_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>LMS:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.LMS_exists">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.LMS_exists">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>CMS:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.CMS_exists">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.CMS_exists">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Digital test:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.digital_test">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.digital_test">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Discussion forum:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.discussion_forum">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.discussion_forum">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1" [hidden]="true">
+                                    <div class="col-6">
+                                        <p>Live attendees:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.video_call_max_attendees">{{ commonLicensePlanDetails.video_call_max_attendees }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
+                                <mat-icon class="m-r-05 link-color">read_more</mat-icon>
+                                <span class="link">Show License Plan Details</span>
+                            </p>
+                            <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
+                                <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
+                                Loading Plan Details...
+                            </p>
+                            <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
+                                <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
+                                <span class="link">Hide License Plan Details</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-center license-type-header m-t-1" [class.cursor-pointer]="licenseData.expired_license.length > 0" (click)="setOpenedLicenseTypeStep(1)">
+                    <h3>Expired Licenses: <span *ngIf="licenseData.expired_license.length === 0">None</span><span *ngIf="licenseData.expired_license.length !== 0">({{ licenseData.expired_license.length }})</span></h3>
+                    <mat-icon *ngIf="licenseData.expired_license.length > 0">
+                        <span *ngIf="openedLicenseTypeStep !== 1">keyboard_arrow_down</span>
+                        <span *ngIf="openedLicenseTypeStep === 1">keyboard_arrow_up</span>
+                    </mat-icon>
+                </div>
+                <div *ngIf="openedLicenseTypeStep === 1" class="m-t-1 m-b-1">
+                    <div *ngFor="let lic of licenseData.expired_license; let lic_step = index" class="m-b-1">
+                        <div class="d-flex justify-content-between align-center license-order-header cursor-pointer" (click)="setOpenedLicensePlanStep(lic_step)" [class.no-box-shadow]="openedLicensePlanStep === lic_step">
+                            <div class="d-flex align-center">
+                                <div class="icon-circle m-r-05">
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC" class="plan-icon">laptop_mac</mat-icon>
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BUSINESS" class="plan-icon">school</mat-icon>
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.ENTERPRISE" class="plan-icon">account_balance</mat-icon>
+                                </div>
+                                <h3>{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</h3>
+                            </div>
+                            <mat-icon *ngIf="licenseData.expired_license.length > 0">
+                                <span *ngIf="openedLicensePlanStep !== lic_step">keyboard_arrow_down</span>
+                                <span *ngIf="openedLicensePlanStep === lic_step">keyboard_arrow_up</span>
+                            </mat-icon>
+                        </div>
+                        <div *ngIf="openedLicensePlanStep === lic_step" class="license-body">
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Order receipt:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ lic.order_receipt }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Total amount:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>Rs. {{ lic.amount }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Paid on:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ getDateFromUnixTimeStamp(lic.payment_date) | date: 'medium' }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Billing:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ BILLING_TERM[lic.billing] | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>License Starts on:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ getDateFromUnixTimeStamp(lic.start_date) | date: 'medium' }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>License Expired on:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ getDateFromUnixTimeStamp(lic.end_date) | date: 'medium' }}</p>
+                                </div>
+                            </div>
+                            <div *ngIf="commonLicensePlanDetails">
+                                <h3 class="m-b-1 link-color">License Plan Details:</h3>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of admin:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_admin !== UNLIMITED">{{ commonLicensePlanDetails.no_of_admin }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_admin === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of faculty:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_faculty !== UNLIMITED">{{ commonLicensePlanDetails.no_of_faculty }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_faculty === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of student:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_student !== UNLIMITED">{{ commonLicensePlanDetails.no_of_student }}<span *ngIf="commonLicensePlanDetails.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC">*</span></p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_student === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of board of members:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_board_of_members !== UNLIMITED">{{ commonLicensePlanDetails.no_of_board_of_members }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_board_of_members === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1" *ngIf="isInstituteCollege()">
+                                    <div class="col-6">
+                                        <p>Department limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.department_limit !== UNLIMITED">{{ commonLicensePlanDetails.department_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.department_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Classroom limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.classroom_limit !== UNLIMITED">{{ commonLicensePlanDetails.classroom_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.classroom_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Subject limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.subject_limit !== UNLIMITED">{{ commonLicensePlanDetails.subject_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.subject_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>LMS:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.LMS_exists">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.LMS_exists">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>CMS:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.CMS_exists">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.CMS_exists">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Digital test:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.digital_test">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.digital_test">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Discussion forum:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.discussion_forum">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.discussion_forum">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1" [hidden]="true">
+                                    <div class="col-6">
+                                        <p>Live attendees:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.video_call_max_attendees">{{ commonLicensePlanDetails.video_call_max_attendees }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
+                                <mat-icon class="m-r-05 link-color">read_more</mat-icon>
+                                <span class="link">Show License Plan Details</span>
+                            </p>
+                            <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
+                                <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
+                                Loading Plan Details...
+                            </p>
+                            <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
+                                <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
+                                <span class="link">Hide License Plan Details</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-center license-type-header m-t-1" [class.cursor-pointer]="licenseData.expired_license.length > 0" (click)="setOpenedLicenseTypeStep(2)">
+                    <h3>Payment Pending Licenses: <span *ngIf="licenseData.pending_payment_license.length === 0">None</span><span *ngIf="licenseData.pending_payment_license.length !== 0">({{ licenseData.pending_payment_license.length }})</span></h3>
+                    <mat-icon *ngIf="licenseData.pending_payment_license.length > 0">
+                        <span *ngIf="openedLicenseTypeStep !== 2">keyboard_arrow_down</span>
+                        <span *ngIf="openedLicenseTypeStep === 2">keyboard_arrow_up</span>
+                    </mat-icon>
+                </div>
+                <div *ngIf="openedLicenseTypeStep === 2" class="m-t-1 m-b-1">
+                    <div *ngFor="let lic of licenseData.pending_payment_license; let lic_step = index" class="m-b-1">
+                        <div class="d-flex justify-content-between align-center license-order-header cursor-pointer" (click)="setOpenedLicensePlanStep(lic_step)" [class.no-box-shadow]="openedLicensePlanStep === lic_step">
+                            <div class="d-flex align-center">
+                                <div class="icon-circle m-r-05">
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC" class="plan-icon">laptop_mac</mat-icon>
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BUSINESS" class="plan-icon">school</mat-icon>
+                                    <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.ENTERPRISE" class="plan-icon">account_balance</mat-icon>
+                                </div>
+                                <h3>{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</h3>
+                            </div>
+                            <mat-icon *ngIf="licenseData.pending_payment_license.length > 0">
+                                <span *ngIf="openedLicensePlanStep !== lic_step">keyboard_arrow_down</span>
+                                <span *ngIf="openedLicensePlanStep === lic_step">keyboard_arrow_up</span>
+                            </mat-icon>
+                        </div>
+                        <div *ngIf="openedLicensePlanStep === lic_step" class="license-body">
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Order receipt:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ lic.order_receipt }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Total payable amount:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>Rs. {{ lic.amount }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Order created on:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ getDateFromUnixTimeStamp(lic.order_created_on) | date: 'medium' }}</p>
+                                </div>
+                            </div>
+                            <div class="row m-b-1">
+                                <div class="col-6">
+                                    <p>Billing:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>{{ BILLING_TERM[lic.billing] | titlecase }}</p>
+                                </div>
+                            </div>
+                            <div *ngIf="commonLicensePlanDetails">
+                                <h3 class="m-b-1 link-color">License Plan Details:</h3>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Price:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p>Rs. {{ commonLicensePlanDetails.price }}</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Flat discount:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p>{{ commonLicensePlanDetails.discount_percent }} %</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>GST:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p>{{ commonLicensePlanDetails.gst_percent }} %</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Applied discount coupon:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p>{{ commonLicensePlanDetails.discount_coupon }}</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Applied discount coupon price:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p>Rs. {{ commonLicensePlanDetails.discount_rs }}</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of admin:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_admin !== UNLIMITED">{{ commonLicensePlanDetails.no_of_admin }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_admin === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of faculty:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_faculty !== UNLIMITED">{{ commonLicensePlanDetails.no_of_faculty }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_faculty === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of student:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_student !== UNLIMITED">{{ commonLicensePlanDetails.no_of_student }}<span *ngIf="commonLicensePlanDetails.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC">*</span></p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_student === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>No of board of members:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.no_of_board_of_members !== UNLIMITED">{{ commonLicensePlanDetails.no_of_board_of_members }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.no_of_board_of_members === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1" *ngIf="isInstituteCollege()">
+                                    <div class="col-6">
+                                        <p>Department limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.department_limit !== UNLIMITED">{{ commonLicensePlanDetails.department_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.department_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Classroom limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.classroom_limit !== UNLIMITED">{{ commonLicensePlanDetails.classroom_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.classroom_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Subject limit:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.subject_limit !== UNLIMITED">{{ commonLicensePlanDetails.subject_limit }}</p>
+                                        <p *ngIf="commonLicensePlanDetails.subject_limit === UNLIMITED">Unlimited</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>LMS:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.LMS_exists">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.LMS_exists">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>CMS:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.CMS_exists">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.CMS_exists">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Digital test:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.digital_test">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.digital_test">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1">
+                                    <div class="col-6">
+                                        <p>Discussion forum:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.discussion_forum">Available</p>
+                                        <p *ngIf="!commonLicensePlanDetails.discussion_forum">Not Available</p>
+                                    </div>
+                                </div>
+                                <div class="row m-b-1" [hidden]="true">
+                                    <div class="col-6">
+                                        <p>Live attendees:</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p *ngIf="commonLicensePlanDetails.video_call_max_attendees">{{ commonLicensePlanDetails.video_call_max_attendees }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
+                                <mat-icon class="m-r-05 link-color">read_more</mat-icon>
+                                <span class="link">Show License Plan Details</span>
+                            </p>
+                            <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
+                                <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
+                                Loading Plan Details...
+                            </p>
+                            <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
+                                <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
+                                <span class="link">Hide License Plan Details</span>
+                            </p>
+                            <hr class="top-separator m-t-1 m-b-1" />
+                            <h3 class="link-color">Instructions:</h3>
+                            <ul>
+                                <li>Please do not pay again if money was deducted.</li>
+                                <li>If money was charged from your bank, please let us know by raising issue.</li>
+                                <li>If money was not deducted then you can retry payment.</li>
+                                <li>If you delete this order, then the discount coupon can be reused if the coupon has not expired.</li>
+                            </ul>
+                            <hr class="top-separator m-t-1 m-b-1" />
+                            <div class="d-flex justify-content-end m-b-05">
+                                <button mat-stroked-button class="button-border m-r-05">
+                                  <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">pan_tool</mat-icon>
+                                  <span *ngIf="!mq.matches">Raise</span><span> Issue</span>
+                                </button>
+                                <button mat-stroked-button class="button-border m-r-05">
+                                  <mat-icon class="delete-icon" [class.m-r-05]="!mq.matches">delete</mat-icon>
+                                  <span *ngIf="!mq.matches">Delete</span><span> Order</span>
+                                </button>
+                                <button mat-stroked-button class="button-border">
+                                  <mat-icon class="add-icon" [class.m-r-05]="!mq.matches">refresh</mat-icon>
+                                  <span *ngIf="!mq.matches">Retry Payment</span>
+                                  <span *ngIf="mq.matches">Pay</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <hr class="top-separator" />
-        <app-ui-loading *ngIf="fetchActiveLicenseIndicator" [actionText]="fetchLicenseText"></app-ui-loading>
-        <app-ui-error-text *ngIf="errorText" [errorText]="errorText" (closeErrorTextEvent)="closeErrorTextClicked()"></app-ui-error-text>
-        <app-ui-reload *ngIf="reloadErrorText" [errorText]="reloadErrorText" (retryEvent)="fetchLicenseDetails()"></app-ui-reload>
-        <section *ngIf="fetchedLicenseDetails">
-            <section class="margin-bottom-07">
-                <h3 class="margin-bottom-03">Active License: <span *ngIf="!activeLicenseExists()">None</span></h3>
-                <mat-accordion *ngIf="activeLicenseExists()">
-                    <mat-expansion-panel [expanded]="licenseStep === activeLicenseDetails.license_details.id" (opened)="setLicenseStep(activeLicenseDetails.license_details.id)">
-                        <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                            <mat-panel-title>
-                                <div>
-                                    <mat-icon class="license-icon">
-                                        <span *ngIf="getLicensePlan(activeLicenseDetails.license_details.type) === 'BUSINESS'">school</span>
-                                        <span *ngIf="getLicensePlan(activeLicenseDetails.license_details.type) === 'ENTERPRISE'">account_balance</span>
-                                        <span *ngIf="getLicensePlan(activeLicenseDetails.license_details.type) === 'BASIC'">laptop_mac</span>
-                                    </mat-icon>
-                                </div>
-                                <div class="col-sm-8 col-md-6 col-lg-4">
-                                    <h3 class="expansion-panel-header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(activeLicenseDetails.license_details.type) }}</h3>
-                                    <p class="expansion-panel-header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(activeLicenseDetails.license_details.type) }}</p>
-                                </div>
-                                <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="expansion-panel-header-color">{{ getBillingType(activeLicenseDetails.license_details.billing) | titlecase}}</h3>
-                                </div>
-                            </mat-panel-title>
-                        </mat-expansion-panel-header>
-                        <hr class="invite-top-separator" />
-                        <div class="row invite-body">
-                            <div class="col-12">
-                                <div class="row invite-details" *ngIf="this.mobileQuery.matches">
-                                    <div class="col">
-                                        <p>Billing Type:</p>
-                                    </div>
-                                    <div class="col ">
-                                        <p>{{ getBillingType(activeLicenseDetails.license_details.billing) | titlecase}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Purchased on:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ activeLicenseDetails.payment_date | date}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Activated on:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ activeLicenseDetails.start_date | date}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Expiry date:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ activeLicenseDetails.end_date | date}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Paid amount:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>&#8377; {{ activeLicenseDetails.license_details.net_amount | number }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of admins:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="activeLicenseDetails.license_details.no_of_admin !== UNLIMITED">{{ activeLicenseDetails.license_details.no_of_admin }}</span>
-                                            <span *ngIf="activeLicenseDetails.license_details.no_of_admin === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of staffs:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="activeLicenseDetails.license_details.no_of_staff !== UNLIMITED">{{ activeLicenseDetails.license_details.no_of_staff }}</span>
-                                            <span *ngIf="activeLicenseDetails.license_details.no_of_staff === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of faculties:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="activeLicenseDetails.license_details.no_of_faculty !== UNLIMITED">{{ activeLicenseDetails.license_details.no_of_faculty }}</span>
-                                            <span *ngIf="activeLicenseDetails.license_details.no_of_faculty === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of students:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="activeLicenseDetails.license_details.no_of_student !== UNLIMITED">{{ activeLicenseDetails.license_details.no_of_student }}</span>
-                                            <span *ngIf="activeLicenseDetails.license_details.no_of_student === UNLIMITED">Unlimited<span class="yellow-color" *ngIf="getLicensePlan(activeLicenseDetails.license_details.type) === 'BASIC'">*</span></span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details">
-                                    <div class="col">
-                                        <p>Live attendees:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ activeLicenseDetails.license_details.video_call_max_attendees }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details" *ngIf="getLicensePlan(activeLicenseDetails.license_details.type) !== 'BASIC'">
-                                    <div class="col">
-                                        <p>Department limit:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="activeLicenseDetails.license_details.department_limit !== UNLIMITED">{{ activeLicenseDetails.license_details.department_limit }}</span>
-                                            <span *ngIf="activeLicenseDetails.license_details.department_limit === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details">
-                                    <div class="col">
-                                        <p>Classroom Limit:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="activeLicenseDetails.license_details.classroom_limit !== UNLIMITED">{{ activeLicenseDetails.license_details.classroom_limit }}</span>
-                                            <span *ngIf="activeLicenseDetails.license_details.classroom_limit === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Discussion forum:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ getDiscussionForum(activeLicenseDetails.license_details.discussion_forum) }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Scheduled Test:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="activeLicenseDetails.license_details.scheduled_test">Available</span>
-                                            <span *ngIf="!activeLicenseDetails.license_details.scheduled_test">Not Available</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>LMS:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="activeLicenseDetails.license_details.LMS_exists">Available</span>
-                                            <span *ngIf="!activeLicenseDetails.license_details.LMS_exists">Not Available</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="invite-bottom-separator" />
-                        <div class="col">
-                            <div class="d-flex justify-content-end">
-                                <button mat-button class="green-button">Activate</button>
-                            </div>
-                        </div>
-                    </mat-expansion-panel>
-                </mat-accordion>
-            </section>
-            <section class="margin-bottom-07">
-                <h3 class="margin-bottom-03">Purchased Inactive License: <span *ngIf="!purchasedInactiveLicenseExists()">None</span></h3>
-                <mat-accordion *ngIf="purchasedInactiveLicenseExists()">
-                    <mat-expansion-panel [expanded]="licenseStep === purchasedInactiveLicenseDetails.license_details.id" (opened)="setLicenseStep(purchasedInactiveLicenseDetails.license_details.id)">
-                        <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                            <mat-panel-title>
-                                <div>
-                                    <mat-icon class="license-icon">
-                                        <span *ngIf="getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) === 'BUSINESS'">school</span>
-                                        <span *ngIf="getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) === 'ENTERPRISE'">account_balance</span>
-                                        <span *ngIf="getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) === 'BASIC'">laptop_mac</span>
-                                    </mat-icon>
-                                </div>
-                                <div class="col-sm-8 col-md-6 col-lg-4">
-                                    <h3 class="expansion-panel-header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) }}</h3>
-                                    <p class="expansion-panel-header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) }}</p>
-                                </div>
-                                <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="expansion-panel-header-color">{{ getBillingType(purchasedInactiveLicenseDetails.license_details.billing) | titlecase}}</h3>
-                                </div>
-                            </mat-panel-title>
-                        </mat-expansion-panel-header>
-                        <hr class="invite-top-separator" />
-                        <div class="row invite-body">
-                            <div class="col-12">
-                                <div class="row invite-details" *ngIf="this.mobileQuery.matches">
-                                    <div class="col">
-                                        <p>Billing Type:</p>
-                                    </div>
-                                    <div class="col ">
-                                        <p>{{ getBillingType(purchasedInactiveLicenseDetails.license_details.billing) | titlecase}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Purchased on:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ purchasedInactiveLicenseDetails.payment_date | date}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Paid amount:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>&#8377; {{ purchasedInactiveLicenseDetails.license_details.net_amount | number }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of admins:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.no_of_admin !== UNLIMITED">{{ purchasedInactiveLicenseDetails.license_details.no_of_admin }}</span>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.no_of_admin === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of staffs:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.no_of_staff !== UNLIMITED">{{ purchasedInactiveLicenseDetails.license_details.no_of_staff }}</span>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.no_of_staff === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of faculties:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.no_of_faculty !== UNLIMITED">{{ purchasedInactiveLicenseDetails.license_details.no_of_faculty }}</span>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.no_of_faculty === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of students:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.no_of_student !== UNLIMITED">{{ purchasedInactiveLicenseDetails.license_details.no_of_student }}</span>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.no_of_student === UNLIMITED">Unlimited<span class="yellow-color" *ngIf="getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) === 'BASIC'">*</span></span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details">
-                                    <div class="col">
-                                        <p>Live attendees:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ purchasedInactiveLicenseDetails.license_details.video_call_max_attendees }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details" *ngIf="getLicensePlan(purchasedInactiveLicenseDetails.license_details.type) !== 'BASIC'">
-                                    <div class="col">
-                                        <p>Department limit:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.department_limit !== UNLIMITED">{{ purchasedInactiveLicenseDetails.license_details.department_limit }}</span>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.department_limit === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details">
-                                    <div class="col">
-                                        <p>Classroom Limit:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.classroom_limit !== UNLIMITED">{{ purchasedInactiveLicenseDetails.license_details.classroom_limit }}</span>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.classroom_limit === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Discussion forum:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ getDiscussionForum(purchasedInactiveLicenseDetails.license_details.discussion_forum) }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Scheduled Test:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.scheduled_test">Available</span>
-                                            <span *ngIf="!purchasedInactiveLicenseDetails.license_details.scheduled_test">Not Available</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>LMS:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="purchasedInactiveLicenseDetails.license_details.LMS_exists">Available</span>
-                                            <span *ngIf="!purchasedInactiveLicenseDetails.license_details.LMS_exists">Not Available</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="invite-bottom-separator" />
-                        <div class="col">
-                            <div class="d-flex justify-content-end">
-                                <button mat-button class="green-button">Activate</button>
-                            </div>
-                        </div>
-                    </mat-expansion-panel>
-                </mat-accordion>
-            </section>
-            <section class="margin-bottom-07">
-                <h3 class="margin-bottom-03">Expired License: <span *ngIf="!expiredLicenseExists()">None</span></h3>
-                <mat-accordion *ngIf="expiredLicenseExists()">
-                    <mat-expansion-panel [expanded]="licenseStep === expiredLicenseDetails.license_details.id" (opened)="setLicenseStep(expiredLicenseDetails.license_details.id)">
-                        <mat-expansion-panel-header [collapsedHeight]="'70px'" [expandedHeight]="'65px'">
-                            <mat-panel-title>
-                                <div>
-                                    <mat-icon class="license-icon">
-                                        <span *ngIf="getLicensePlan(expiredLicenseDetails.license_details.type) === 'BUSINESS'">school</span>
-                                        <span *ngIf="getLicensePlan(expiredLicenseDetails.license_details.type) === 'ENTERPRISE'">account_balance</span>
-                                        <span *ngIf="getLicensePlan(expiredLicenseDetails.license_details.type) === 'BASIC'">laptop_mac</span>
-                                    </mat-icon>
-                                </div>
-                                <div class="col-sm-8 col-md-6 col-lg-4">
-                                    <h3 class="expansion-panel-header-color" *ngIf="!this.mobileQuery.matches">{{ getLicensePlan(expiredLicenseDetails.license_details.type) }}</h3>
-                                    <p class="expansion-panel-header-color" *ngIf="this.mobileQuery.matches">{{ getLicensePlan(expiredLicenseDetails.license_details.type) }}</p>
-                                </div>
-                                <div class="col d-flex justify-content-lg-center" *ngIf="!this.mobileQuery.matches">
-                                    <h3 class="expansion-panel-header-color">{{ getBillingType(expiredLicenseDetails.license_details.billing) | titlecase}}</h3>
-                                </div>
-                            </mat-panel-title>
-                        </mat-expansion-panel-header>
-                        <hr class="invite-top-separator" />
-                        <div class="row invite-body">
-                            <div class="col-12">
-                                <div class="row invite-details" *ngIf="this.mobileQuery.matches">
-                                    <div class="col">
-                                        <p>Billing Type:</p>
-                                    </div>
-                                    <div class="col ">
-                                        <p>{{ getBillingType(expiredLicenseDetails.license_details.billing) | titlecase}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Purchased on:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ expiredLicenseDetails.payment_date | date}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Activated on:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ expiredLicenseDetails.start_date | date}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Expired on:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ expiredLicenseDetails.end_date | date}}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Paid amount:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>&#8377; {{ expiredLicenseDetails.license_details.net_amount | number }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of admins:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="expiredLicenseDetails.license_details.no_of_admin !== UNLIMITED">{{ expiredLicenseDetails.license_details.no_of_admin }}</span>
-                                            <span *ngIf="expiredLicenseDetails.license_details.no_of_admin === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of staffs:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="expiredLicenseDetails.license_details.no_of_staff !== UNLIMITED">{{ expiredLicenseDetails.license_details.no_of_staff }}</span>
-                                            <span *ngIf="expiredLicenseDetails.license_details.no_of_staff === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of faculties:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="expiredLicenseDetails.license_details.no_of_faculty !== UNLIMITED">{{ expiredLicenseDetails.license_details.no_of_faculty }}</span>
-                                            <span *ngIf="expiredLicenseDetails.license_details.no_of_faculty === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Number of students:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="expiredLicenseDetails.license_details.no_of_student !== UNLIMITED">{{ expiredLicenseDetails.license_details.no_of_student }}</span>
-                                            <span *ngIf="expiredLicenseDetails.license_details.no_of_student === UNLIMITED">Unlimited<span class="yellow-color" *ngIf="getLicensePlan(expiredLicenseDetails.license_details.type) === 'BASIC'">*</span></span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details">
-                                    <div class="col">
-                                        <p>Live attendees:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ expiredLicenseDetails.license_details.video_call_max_attendees }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details" *ngIf="getLicensePlan(expiredLicenseDetails.license_details.type) !== 'BASIC'">
-                                    <div class="col">
-                                        <p>Department limit:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="expiredLicenseDetails.license_details.department_limit !== UNLIMITED">{{ expiredLicenseDetails.license_details.department_limit }}</span>
-                                            <span *ngIf="expiredLicenseDetails.license_details.department_limit === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details">
-                                    <div class="col">
-                                        <p>Classroom Limit:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="expiredLicenseDetails.license_details.classroom_limit !== UNLIMITED">{{ expiredLicenseDetails.license_details.classroom_limit }}</span>
-                                            <span *ngIf="expiredLicenseDetails.license_details.classroom_limit === UNLIMITED">Unlimited</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Discussion forum:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>{{ getDiscussionForum(expiredLicenseDetails.license_details.discussion_forum) }}</p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>Scheduled Test:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="expiredLicenseDetails.license_details.scheduled_test">Available</span>
-                                            <span *ngIf="!expiredLicenseDetails.license_details.scheduled_test">Not Available</span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="row invite-details ">
-                                    <div class="col">
-                                        <p>LMS:</p>
-                                    </div>
-                                    <div class="col">
-                                        <p>
-                                            <span *ngIf="expiredLicenseDetails.license_details.LMS_exists">Available</span>
-                                            <span *ngIf="!expiredLicenseDetails.license_details.LMS_exists">Not Available</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="invite-bottom-separator" />
-                        <div class="col">
-                            <div class="d-flex justify-content-end">
-                                <button mat-button class="green-button">Activate</button>
-                            </div>
-                        </div>
-                    </mat-expansion-panel>
-                </mat-accordion>
-            </section>
-        </section>
+    </div>
+</section>

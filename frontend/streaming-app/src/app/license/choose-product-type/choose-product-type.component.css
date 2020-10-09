@@ -1,0 +1,42 @@
+h2,
+h3,
+hr {
+    margin: 0;
+    padding: 0;
+}
+
+.parent-container {
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 5px;
+}
+
+.product {
+    background-color: rgba(255, 255, 255, 0.10);
+    box-shadow: 1px 1px 1px #1f1f1f;
+    border-radius: 3px;
+    padding: 2rem;
+    cursor: pointer;
+    height: 100%;
+}
+
+.product:hover {
+    padding: 1.9rem;
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+.header {
+    color: #7fc0ba;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}
+
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}

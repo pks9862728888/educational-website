@@ -1,19 +1,21 @@
-import { InAppDataTransferService } from './../../services/in-app-data-transfer.service';
+import { InAppDataTransferService } from '../../services/in-app-data-transfer.service';
 import { INSTITUTE_LICENSE_PLANS } from 'src/constants';
-import { WindowRefService } from './../../services/window-ref.service';
-import { PAYMENT_PORTAL_REVERSE, INSTITUTE_TYPE_REVERSE } from './../../../constants';
+import { WindowRefService } from '../../services/window-ref.service';
+import { PAYMENT_PORTAL_REVERSE, INSTITUTE_TYPE_REVERSE } from '../../../constants';
 import { InstituteApiService } from '../../services/institute-api.service';
-import { Component, OnInit, NgZone } from '@angular/core';
-import { InstituteLicenceOrderCreatedResponse, PaymentSuccessCallbackResponse, PaymentVerificatonResponse } from '../license.model';
+import { Component, OnInit, NgZone, OnDestroy } from '@angular/core';
+import { InstituteLicenceOrderCreatedResponse,
+         PaymentSuccessCallbackResponse,
+         PaymentVerificatonResponse } from '../../models/license.model';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-license-checkout',
-  templateUrl: './license-checkout.component.html',
-  styleUrls: ['./license-checkout.component.css']
+  selector: 'app-common-license-checkout',
+  templateUrl: './common-license-checkout.component.html',
+  styleUrls: ['./common-license-checkout.component.css']
 })
-export class LicenseCheckoutComponent implements OnInit {
+export class CommonLicenseCheckoutComponent implements OnInit, OnDestroy {
 
   mobileQuery: MediaQueryList;
   currentInstituteSlug: string;
@@ -31,12 +33,14 @@ export class LicenseCheckoutComponent implements OnInit {
   retryVerification: boolean;
   ref = this;
 
-  constructor( private media: MediaMatcher,
-               private router: Router,
-               private instituteApiService: InstituteApiService,
-               private inAppDataTransferService: InAppDataTransferService,
-               private windowRefService: WindowRefService,
-               private ngZone: NgZone ) {
+  constructor(
+    private media: MediaMatcher,
+    private router: Router,
+    private instituteApiService: InstituteApiService,
+    private inAppDataTransferService: InAppDataTransferService,
+    private windowRefService: WindowRefService,
+    private ngZone: NgZone
+    ) {
     this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.currentInstituteType = sessionStorage.getItem('currentInstituteType');
@@ -50,7 +54,7 @@ export class LicenseCheckoutComponent implements OnInit {
     this.paymentPortalName = paymentPortalName;
     this.initiatingPaymentIndicator = true;
     this.errorText = null;
-    this.instituteApiService.createOrder(
+    this.instituteApiService.createCommonLicenseOrder(
       this.currentInstituteSlug,
       this.selectedLicensePlanId,
       PAYMENT_PORTAL_REVERSE[paymentPortalName]).subscribe(
@@ -73,7 +77,7 @@ export class LicenseCheckoutComponent implements OnInit {
             this.errorText = 'Unable to process request. Check internet connectivity.';
           }
         }
-      )
+      );
   }
 
   razorpayCallbackFunction(response: PaymentSuccessCallbackResponse) {
@@ -83,6 +87,8 @@ export class LicenseCheckoutComponent implements OnInit {
       this.errorText = null;
       this.successText = null;
       this.retryVerification = false;
+      sessionStorage.removeItem('selectedLicensePlanId');
+      sessionStorage.removeItem('netPayableAmount');
       this.instituteApiService.sendCallbackAndVerifyPayment(response, this.orderDetailsId).subscribe(
         (result: PaymentVerificatonResponse) => {
           this.verifyPaymentIndicator = false;
@@ -92,8 +98,6 @@ export class LicenseCheckoutComponent implements OnInit {
               this.ngZone.run(() => this.redirectToLicenseView());
             }, 2000);
             this.inAppDataTransferService.showTeacherFullInstituteView();
-            sessionStorage.setItem('paymentComplete', 'true');
-            sessionStorage.setItem('purchasedLicenseExists', 'true');
           } else {
             this.errorText = 'Payment verification failed. You can retry payment if money was not deducted. If money was deducted please let us know.';
           }
@@ -104,38 +108,39 @@ export class LicenseCheckoutComponent implements OnInit {
             if (errors.error.error) {
               this.errorText = errors.error.error;
             } else {
-              this.errorText = 'Payment verification error. If payment was successful, then we will verify it automatically after sometime.';
+              this.errorText = 'Payment verification error.' +
+              ' If payment was successful, then we will verify it automatically after sometime.';
             }
           } else {
             this.errorText = 'Payment verification error. If payment was successful, then we will verify it automatically after sometime.';
           }
           this.retryVerification = true;
         }
-      )
+      );
     });
   }
 
   payWithRazorpay(data: InstituteLicenceOrderCreatedResponse, ref: any) {
     const options = {
-      "key": data.key_id,
-      "amount": data.amount,
-      "currency": data.currency,
-      "name": "Edu Web",
-      "description": "Purchasing institute " + INSTITUTE_LICENSE_PLANS[data.type].toLowerCase() + " license.",
-      "image": "",
-      "order_id": data.order_id,
-      "handler": function(response: PaymentSuccessCallbackResponse){
+      key: data.key_id,
+      amount: data.amount,
+      currency: data.currency,
+      name: 'Scholar Diet',
+      description: 'Purchasing institute ' + INSTITUTE_LICENSE_PLANS[data.type].toLowerCase() + ' license.',
+      image: '',
+      order_id: data.order_id,
+      // tslint:disable-next-line: object-literal-shorthand && only-arrow-functions
+      handler: function(response: PaymentSuccessCallbackResponse){
         ref.paymentSuccessCallbackResponse = response;
-        sessionStorage.setItem('paymentComplete', 'true');
         ref.razorpayCallbackFunction(response);
       },
-      "prefill": {
-        "email": data.email,
-        "contact": data.contact || ''
+      prefill: {
+        email: data.email,
+        contact: data.contact || ''
       },
-      "notes": {},
-      "theme": {
-          "color": "#4CC5E4"
+      notes: {},
+      theme: {
+          color: '#4CC5E4'
       }
     };
 
@@ -144,11 +149,11 @@ export class LicenseCheckoutComponent implements OnInit {
   }
 
   redirectToLicenseView() {
-    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['School']) {
+    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.School) {
       this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + '/license']);
-    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['College']) {
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.College) {
       this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + '/license']);
-    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['Coaching']) {
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.Coaching) {
       this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + '/license']);
     }
   }
@@ -161,5 +166,10 @@ export class LicenseCheckoutComponent implements OnInit {
 
   hideErrorText() {
     this.errorText = null;
+  }
+
+  ngOnDestroy() {
+    sessionStorage.removeItem('selectedLicensePlanId');
+    sessionStorage.removeItem('netPayableAmount');
   }
 }

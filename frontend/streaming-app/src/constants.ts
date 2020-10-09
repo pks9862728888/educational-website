@@ -4,8 +4,11 @@ export const UNLIMITED = 99999;
 
 // For user
 export const userId = 'user_id';
+// tslint:disable-next-line: variable-name
 export const is_student = 'is_student_qwersf';
+// tslint:disable-next-line: variable-name
 export const is_teacher = 'is_teacher_jdlfgd';
+// tslint:disable-next-line: variable-name
 export const is_staff = 'is_staff_xcvxpd';
 
 // For institutes
@@ -245,11 +248,6 @@ export const INSTITUTE_LICENSE_PLANS_REVERSE = {
   ENTERPRISE: 'ENT'
 };
 
-export const DISCUSSION_FORUM_PER_ATTENDEES = {
-  O: '1 per subject',
-  S: 'Custom'
-};
-
 export const PAYMENT_PORTAL = {
   R: 'RAZORPAY',
 };
@@ -330,7 +328,7 @@ export const TEST_SCHEDULE_TYPES = {
   SPECIFIC_DATE_AND_TIME: 'DT',
   SPECIFIC_DATE: 'D',
   UNSCHEDULED: 'UN'
-}
+};
 
 export const GRADED_TYPES = {
   GRADED: 'G',
@@ -418,3 +416,10 @@ export const SUBJECT_VIEW_TYPE = {
   MODULE_VIEW: 'M',
   TEST_VIEW: 'T'
 };
+
+export const PRODUCT_TYPES = {
+  LMS_CMS_EXAM_LIVE_STREAM: 'A',
+  DIGITAL_EXAM: 'D',
+  LIVE_STREAM: 'L',
+  STORAGE: 'S'
+}

@@ -1,7 +1,13 @@
 <section>
     <mat-card class="parent-container">
-        <h3><strong>Review Your License:</strong></h3>
-        <hr class="top-separator">
+        <div class="d-flex justify-content-between align-center">
+            <h1>Review Your License:</h1>
+            <div class="d-flex align-center cursor-pointer back-icon m-l-05" (click)="navigateToPurchaseCommonLicense()">
+                <mat-icon>arrow_back_ios</mat-icon>
+                <span *ngIf="!mq.matches">Back</span>
+            </div>
+        </div>
+        <hr class="top-separator m-b-1 m-t-05">
         <app-ui-loading *ngIf="!selectedLicense && !retryGetLicenseDetails" [actionText]="loadingText"></app-ui-loading>
         <app-ui-reload *ngIf="retryGetLicenseDetails" [errorText]="retryGetLicenseDetailsText" (retryEvent)="getLicenseDetails()"></app-ui-reload>
         <div class="row main-content-row" *ngIf="selectedLicense">
@@ -17,14 +23,14 @@
                             <h2 class="license-name">{{ getActivePlan(selectedLicense.type) }}</h2>
                             <h3 class="price">
                                 <span *ngIf="selectedLicense.discount_percent" class="strike-color">
-                                  <span class="striked-text">&#8377;{{ selectedLicense.amount / 1000 }} K</span>
+                                  <span class="striked-text">&#8377;{{ selectedLicense.price / 1000 }} K</span>
                                 </span>
                                 &nbsp;
-                                <span class="current-price">&#8377; {{ calculateCostInThousands(selectedLicense.amount, selectedLicense.discount_percent) }} K / month</span>
+                                <span class="current-price">&#8377; {{ calculateCostInThousands(selectedLicense.price, selectedLicense.discount_percent) }} K / month</span>
                             </h3>
                             <p>Best suited for <span *ngIf="getActivePlan(selectedLicense.type) === 'BASIC'">coachings</span><span *ngIf="getActivePlan(selectedLicense.type) === 'BUSINESS'">schools</span><span *ngIf="getActivePlan(selectedLicense.type) === 'ENTERPRISE'">colleges</span>.</p>
                             <p>Billed {{ getBillingTerm(selectedLicense.billing) | lowercase}}.</p>
-                            <button mat-flat-button class="green-button rounded-button" (click)="changeLicense()">Change license</button>
+                            <button mat-flat-button class="green-button rounded-button" (click)="navigateToPurchaseCommonLicense()">Change license</button>
                         </div>
                     </div>
                     <div class="row">
@@ -67,13 +73,13 @@
                         <div class="col-12 features">
                             <div class="row">
                                 <div class="col">
-                                    Storage
+                                    Board of Members
                                 </div>
-                                <div *ngIf="!(selectedLicense.storage === UNLIMITED)" class="col">{{ selectedLicense.storage }} GB</div>
-                                <div *ngIf="selectedLicense.storage === UNLIMITED" class="col">Custom</div>
+                                <div *ngIf="!(selectedLicense.no_of_board_of_members === UNLIMITED)" class="col">{{ selectedLicense.no_of_board_of_members }}</div>
+                                <div *ngIf="selectedLicense.no_of_board_of_members === UNLIMITED" class="col">Unlimited</div>
                             </div>
                         </div>
-                        <div class="col-12 features" *ngIf="!instituteIsCoaching()">
+                        <div class="col-12 features" *ngIf="instituteIsCollege()">
                             <div class="row">
                                 <div class="col">
                                     Departments
@@ -103,9 +109,9 @@
                         <div class="col-12 features">
                             <div class="row">
                                 <div class="col">
-                                    Scheduled Test
+                                    Digital Exam
                                 </div>
-                                <div *ngIf="selectedLicense.scheduled_test" class="col">Available</div>
+                                <div *ngIf="selectedLicense.digital_test" class="col">Available</div>
                             </div>
                         </div>
                         <div class="col-12 features">
@@ -119,12 +125,23 @@
                         <div class="col-12 features">
                             <div class="row">
                                 <div class="col">
-                                    Discussion Forum
+                                    CMS
                                 </div>
-                                <div class="col">{{ getDiscussionForums(selectedLicense.discussion_forum) }}</div>
+                                <div *ngIf="selectedLicense.CMS_exists" class="col">Available</div>
                             </div>
                         </div>
                         <div class="col-12 features last-child">
+                            <div class="row">
+                                <div class="col">
+                                    Discussion Forum
+                                </div>
+                                <div class="col">
+                                    <p *ngIf="selectedLicense.discussion_forum">Available</p>
+                                    <p *ngIf="!selectedLicense.discussion_forum">Not Available</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 features last-child" [hidden]="true">
                             <div class="row">
                                 <div class="col">
                                     Live Attendees
@@ -135,8 +152,8 @@
                     </div>
                 </mat-card>
             </div>
-            <div class="col-sm-6 col-md-8" [ngClass]="{'padding-left-1': !mobileQuery.matches, 'padding-top-1': mobileQuery.matches}">
-                <mat-card class="costing-card margin-bottom-1">
+            <div class="col-sm-6 col-md-8" [ngClass]="{'p-l-1': !mq.matches, 'p-t-1': mq.matches}">
+                <mat-card class="costing-card m-b-1">
                     <div class="row">
                         <div class="col-12">
                             <form [formGroup]="couponCodeForm" class="input-group">
@@ -151,13 +168,8 @@
                                     <h3 class="applying-text">Applying...</h3>
                                 </div>
                             </div>
-                            <div class="col-12 error-text" *ngIf="couponError">
-                                <div class="d-flex justify-content-between">
-                                    <h3 class="coupon-error-text">{{ couponError }}</h3>
-                                    <div>
-                                        <mat-icon class="highlight-icon" (click)="hideCouponError()">highlight_off</mat-icon>
-                                    </div>
-                                </div>
+                            <div *ngIf="couponError" class="m-t-1">
+                                <app-ui-error-text [errorText]="couponError" [hideCloseButton]="true"></app-ui-error-text>
                             </div>
                             <div class="col-12 success-text" *ngIf="couponApplied">
                                 <div class="row">
@@ -184,7 +196,7 @@
                             <h3>Monthly charge:</h3>
                         </div>
                         <div class="col-5">
-                            <h3 class="align-end">&#8377; {{ selectedLicense.amount | number }}</h3>
+                            <h3 class="align-end">&#8377; {{ selectedLicense.price | number }}</h3>
                         </div>
                     </div>
                     <div class="row" *ngIf="getBillingTerm(selectedLicense.billing) === 'ANNUALLY'">
@@ -192,7 +204,7 @@
                             <h3>Yearly charge:</h3>
                         </div>
                         <div class="col-5">
-                            <h3 class="align-end">&#8377; {{ selectedLicense.amount * 12 | number}}</h3>
+                            <h3 class="align-end">&#8377; {{ selectedLicense.price * 12 | number}}</h3>
                         </div>
                     </div>
                     <div class="row" *ngIf="selectedLicense.discount_percent">
@@ -201,6 +213,14 @@
                         </div>
                         <div class="col-5">
                             <h3 class="align-end">{{ selectedLicense.discount_percent }} %</h3>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="selectedLicense.gst_percent">
+                        <div class="col-7">
+                            <h3>GST:</h3>
+                        </div>
+                        <div class="col-5">
+                            <h3 class="align-end">{{ selectedLicense.gst_percent }} %</h3>
                         </div>
                     </div>
                     <hr class="mid-separator" *ngIf="couponApplied" />
@@ -228,7 +248,9 @@
                         </div>
                     </div>
                     <hr class="mid-separator" />
-                    <app-ui-error-text *ngIf="purchaseError" [errorText]="purchaseError" (closeErrorTextEvent)="hidePurchaseError()"></app-ui-error-text>
+                    <div *ngIf="purchaseError" class="m-t-1">
+                        <app-ui-error-text [errorText]="purchaseError" (closeErrorTextEvent)="hidePurchaseError()"></app-ui-error-text>
+                    </div>
                     <hr class="purchase-error-separator" *ngIf="purchaseError" />
                     <div class="purchase-button">
                         <div *ngIf="showPurchasingIndicator" class="d-flex">
