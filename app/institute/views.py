@@ -893,7 +893,7 @@ class InstituteSelectedCommonLicenseDetailsView(APIView):
 
         if license_.discount_coupon:
             response['discount_coupon'] = license_.discount_coupon.coupon_code
-            response['dicount_rs'] = license_.discount_coupon.discount_rs
+            response['discount_rs'] = license_.discount_coupon.discount_rs
         else:
             response['discount_coupon'] = ''
 
