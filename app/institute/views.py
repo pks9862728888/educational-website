@@ -347,6 +347,26 @@ class GetInstituteDiscountCouponView(APIView):
                         status=status.HTTP_200_OK)
 
 
+class InstituteLicenseCostView(ListAPIView):
+    """
+    View for getting cost of institute storage license
+    """
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        lic = models.InstituteStorageLicense.objects.all().first()
+
+        if not lic:
+            return Response({'error': _('Storage license costing not set up.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'price': lic.price,
+            'gst_percent': lic.gst_percent
+        }, status=status.HTTP_200_OK)
+
+
 class InstituteLicenseListView(ListAPIView):
     """
     View for getting list of all available institute license
@@ -356,7 +376,6 @@ class InstituteLicenseListView(ListAPIView):
     serializer_class = serializer.InstituteLicenseListSerializer
 
     def get(self, *args, **kwargs):
-        """Used for formatting and sending structured data"""
         licenses = models.InstituteCommonLicense.objects.all()
         monthly_license = licenses.filter(
             billing=models.Billing.MONTHLY).order_by('type')

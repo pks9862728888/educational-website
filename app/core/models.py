@@ -590,7 +590,7 @@ def generate_student_test_password(instance):
 def create_order_receipt(instance):
     """Generates unique receipt id for institute"""
     while True:
-        order_receipt = 'order_rcptidins' + random_string_generator(size=10)
+        order_receipt = 'order_receiptid' + random_string_generator(size=10)
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(order_receipt=order_receipt).exists()
 
@@ -837,6 +837,92 @@ class InstituteLicenseStat(models.Model):
         return str(self.institute)
 
 
+class InstituteStorageLicense(models.Model):
+    """Model for storing storage license cost"""
+    user = models.ForeignKey(
+        'User', related_name='institute_storage_licenses', on_delete=models.CASCADE)
+    price = models.DecimalField(
+        _('Price per Gb per day'), max_digits=12, decimal_places=6)
+    gst_percent = models.DecimalField(
+        _('GST in percentage'), default=0.0, max_digits=5, decimal_places=2)
+
+    def save(self, *args, **kwargs):
+        if not User.objects.get(email=self.user).is_superuser:
+            raise PermissionDenied()
+
+        return super(InstituteStorageLicense, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.price
+
+
+class InstituteStorageLicenseOrderDetails(models.Model):
+    """Model for storing order details of institute storage license"""
+    order_receipt = models.CharField(
+        _('Order receipt'), max_length=30, blank=True, null=False)
+    order_id = models.CharField(
+        _('Order Id'), max_length=100, blank=True, null=False)
+    amount = models.DecimalField(
+        _('Amount in Rupees'), max_digits=15, decimal_places=6, blank=True, null=False)
+    price = models.DecimalField(
+        _('Price per GB per day'), max_digits=15, decimal_places=6, blank=True, null=False)
+    gst_percent = models.DecimalField(
+        _('GST percent'), max_digits=15, decimal_places=6, blank=True, default=0.0)
+    no_of_gb = models.BigIntegerField(_('Number of GB of storage required.'))
+    months = models.BigIntegerField(_('Months of storage'))
+    currency = models.CharField(_('Currency'), default='INR', blank=True, max_length=4)
+    institute = models.ForeignKey(
+        'Institute', on_delete=models.SET_NULL,
+        related_name='institute_storage_license_order', null=True)
+    payment_gateway = models.CharField(
+        _('Payment gateway'), max_length=1,
+        choices=PaymentGateway.PAYMENT_GATEWAY_IN_PAYMENT_GATEWAYS)
+    active = models.BooleanField(_('Active'), default=False, blank=True)
+    paid = models.BooleanField(_('Paid'), default=False, blank=True)
+    order_created_on = UnixTimeStampField(
+        _('Order Created On'), use_numeric=True, editable=False)
+    payment_date = UnixTimeStampField(
+        _('Payment Date'), use_numeric=True, null=True, blank=True)
+    start_date = UnixTimeStampField(
+        _('License Start Date'), use_numeric=True, blank=True, null=True)
+    end_date = UnixTimeStampField(
+        _('License Expiry Date'), use_numeric=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.months:
+            raise ValueError(_('Months is required.'))
+
+        if not self.no_of_gb:
+            raise ValueError(_('No of GB is required'))
+
+        if not self.amount:
+            cost = float(self.price) * self.months * 30 * self.no_of_gb
+            self.amount = cost * (1 - self.gst_percent / 100)
+
+        if not self.order_receipt:
+            self.order_receipt = create_order_receipt(self)
+
+        if not self.order_id:
+            if self.payment_gateway == PaymentGateway.RAZORPAY:
+                order = settings.client.order.create(
+                    data={
+                        'amount': float(self.amount) * 100,
+                        'currency': self.currency,
+                        'receipt': self.order_receipt,
+                        'notes': {'institute': self.institute.institute_slug},
+                        'payment_capture': '1'
+                    })
+                self.order_id = order['id']
+
+        if not self.order_created_on:
+            self.order_created_on = int(time.time()) * 1000
+
+        super(InstituteStorageLicenseOrderDetails, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.order_receipt
+
+
 class InstituteCommonLicense(models.Model):
     """Creates institute license model to store pricing structure"""
     user = models.ForeignKey(
@@ -1054,7 +1140,8 @@ class InstituteCommonLicenseOrderDetails(models.Model):
         _('License Expiry Date'), use_numeric=True, blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.order_created_on = int(time.time()) * 1000
+        if not self.order_created_on:
+            self.order_created_on = int(time.time()) * 1000
         super(InstituteCommonLicenseOrderDetails, self).save(*args, **kwargs)
 
     def __str__(self):

@@ -258,6 +258,8 @@ admin.site.register(models.User, CustomUserAdmin)
 
 # For Institute License
 admin.site.register(models.InstituteLicenseStat)
+admin.site.register(models.InstituteStorageLicense)
+admin.site.register(models.InstituteStorageLicenseOrderDetails)
 admin.site.register(models.InstituteCommonLicense, CustomInstituteCommonLicense)
 admin.site.register(models.InstituteSelectedCommonLicense,
                     CustomInstituteSelectedCommonLicense)
