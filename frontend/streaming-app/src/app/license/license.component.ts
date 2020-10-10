@@ -184,6 +184,14 @@ export class LicenseComponent implements OnInit {
     }
   }
 
+  durationMoreThanThreeDays(orderCreationTimeStamp: number) {
+    if (+new Date() - orderCreationTimeStamp > 86400 * 1000 * 3) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   purchaseLicense() {
     this.router.navigate([window.location.pathname + '/choose-product-type']);
   }

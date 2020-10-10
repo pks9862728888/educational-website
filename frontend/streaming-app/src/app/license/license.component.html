@@ -11,20 +11,20 @@
         </div>
     </div>
     <hr class="top-separator m-t-05 m-b-1" />
-    <div *ngFor="let product of productTypes; let i=index" class="m-b-1">
-        <div class="product-header d-flex justify-content-between align-center cursor-pointer expansion-panel-header-color" (click)="setOpenedProductStep(i)">
+    <div *ngFor="let product of productTypes; let productIndex=index" class="m-b-1">
+        <div class="product-header d-flex justify-content-between align-center cursor-pointer expansion-panel-header-color" (click)="setOpenedProductStep(productIndex)">
             <h2 *ngIf="!mq.matches">{{ product }}</h2>
             <h3 *ngIf="mq.matches">{{ product }}</h3>
             <mat-icon>
-                <span *ngIf="openedProductStep !== i">keyboard_arrow_down</span>
-                <span *ngIf="openedProductStep === i">keyboard_arrow_up</span>
+                <span *ngIf="openedProductStep !== productIndex">keyboard_arrow_down</span>
+                <span *ngIf="openedProductStep === productIndex">keyboard_arrow_up</span>
             </mat-icon>
         </div>
-        <div *ngIf="openedProductStep === i">
+        <div *ngIf="openedProductStep === productIndex">
             <div class="loading-bg m-b-1 m-t-1" *ngIf="licenseOrdersLoading">
                 <app-ui-loading [actionText]="'Loading Licenses...'"></app-ui-loading>
             </div>
-            <app-ui-reload *ngIf="licenseOrdersReload" [errorText]="'Unable to load license details.'" (retryEvent)="fetchLicenseDetails(i)"></app-ui-reload>
+            <app-ui-reload *ngIf="licenseOrdersReload" [errorText]="'Unable to load license details.'" (retryEvent)="fetchLicenseDetails(productIndex)"></app-ui-reload>
             <div class="m-t-1" *ngIf="licenseOrdersError">
                 <app-ui-error-text [errorText]="licenseOrdersError" [hideCloseButton]="true"></app-ui-error-text>
             </div>
@@ -44,8 +44,12 @@
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC" class="plan-icon">laptop_mac</mat-icon>
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BUSINESS" class="plan-icon">school</mat-icon>
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.ENTERPRISE" class="plan-icon">account_balance</mat-icon>
+                                    <mat-icon *ngIf="!lic.type" class="plan-icon">storage</mat-icon>
                                 </div>
-                                <h3>{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</h3>
+                                <h3>
+                                    <span *ngIf="productIndex === 0">{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</span>
+                                    <span *ngIf="productIndex === 1">{{ lic.no_of_gb }} GB @ {{ lic.months }} months</span>
+                                </h3>
                             </div>
                             <mat-icon *ngIf="licenseData.active_license.length > 0">
                                 <span *ngIf="openedLicensePlanStep !== lic_step">keyboard_arrow_down</span>
@@ -77,7 +81,7 @@
                                     <p>{{ getDateFromUnixTimeStamp(lic.payment_date) | date: 'medium' }}</p>
                                 </div>
                             </div>
-                            <div class="row m-b-1">
+                            <div class="row m-b-1" *ngIf="productIndex !== 1">
                                 <div class="col-6">
                                     <p>Billing:</p>
                                 </div>
@@ -211,18 +215,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
-                                <mat-icon class="m-r-05 link-color">read_more</mat-icon>
-                                <span class="link">Show License Plan Details</span>
-                            </p>
-                            <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
-                                <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
-                                Loading Plan Details...
-                            </p>
-                            <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
-                                <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
-                                <span class="link">Hide License Plan Details</span>
-                            </p>
+                            <div *ngIf="productIndex !== 1">
+                                <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
+                                    <mat-icon class="m-r-05 link-color">read_more</mat-icon>
+                                    <span class="link">Show License Plan Details</span>
+                                </p>
+                                <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
+                                    <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
+                                    Loading Plan Details...
+                                </p>
+                                <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
+                                    <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
+                                    <span class="link">Hide License Plan Details</span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -241,8 +247,12 @@
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC" class="plan-icon">laptop_mac</mat-icon>
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BUSINESS" class="plan-icon">school</mat-icon>
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.ENTERPRISE" class="plan-icon">account_balance</mat-icon>
+                                    <mat-icon *ngIf="!lic.type" class="plan-icon">storage</mat-icon>
                                 </div>
-                                <h3>{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</h3>
+                                <h3>
+                                    <span *ngIf="productIndex === 0">{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</span>
+                                    <span *ngIf="productIndex === 1">{{ lic.no_of_gb }} GB @ {{ lic.months }} months</span>
+                                </h3>
                             </div>
                             <mat-icon *ngIf="licenseData.expired_license.length > 0">
                                 <span *ngIf="openedLicensePlanStep !== lic_step">keyboard_arrow_down</span>
@@ -274,7 +284,7 @@
                                     <p>{{ getDateFromUnixTimeStamp(lic.payment_date) | date: 'medium' }}</p>
                                 </div>
                             </div>
-                            <div class="row m-b-1">
+                            <div class="row m-b-1" *ngIf="productIndex !== 1">
                                 <div class="col-6">
                                     <p>Billing:</p>
                                 </div>
@@ -408,18 +418,20 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
-                                <mat-icon class="m-r-05 link-color">read_more</mat-icon>
-                                <span class="link">Show License Plan Details</span>
-                            </p>
-                            <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
-                                <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
-                                Loading Plan Details...
-                            </p>
-                            <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
-                                <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
-                                <span class="link">Hide License Plan Details</span>
-                            </p>
+                            <div *ngIf="productIndex !== 1">
+                                <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
+                                    <mat-icon class="m-r-05 link-color">read_more</mat-icon>
+                                    <span class="link">Show License Plan Details</span>
+                                </p>
+                                <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
+                                    <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
+                                    Loading Plan Details...
+                                </p>
+                                <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
+                                    <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
+                                    <span class="link">Hide License Plan Details</span>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -438,8 +450,12 @@
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC" class="plan-icon">laptop_mac</mat-icon>
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BUSINESS" class="plan-icon">school</mat-icon>
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.ENTERPRISE" class="plan-icon">account_balance</mat-icon>
+                                    <mat-icon *ngIf="!lic.type" class="plan-icon">storage</mat-icon>
                                 </div>
-                                <h3>{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</h3>
+                                <h3>
+                                    <span *ngIf="productIndex === 0">{{ INSTITUTE_LICENSE_PLANS[lic.type] | titlecase }}</span>
+                                    <span *ngIf="productIndex === 1">{{ lic.no_of_gb }} GB @ {{ lic.months }} months</span>
+                                </h3>
                             </div>
                             <mat-icon *ngIf="licenseData.pending_payment_license.length > 0">
                                 <span *ngIf="openedLicensePlanStep !== lic_step">keyboard_arrow_down</span>
@@ -463,6 +479,14 @@
                                     <p>Rs. {{ lic.amount }}</p>
                                 </div>
                             </div>
+                            <div class="row m-b-1" *ngIf="productIndex === 1">
+                                <div class="col-6">
+                                    <p>Price per GB per day:</p>
+                                </div>
+                                <div class="col-6">
+                                    <p>Rs. {{ lic.cost_per_gb }}</p>
+                                </div>
+                            </div>
                             <div class="row m-b-1">
                                 <div class="col-6">
                                     <p>Order created on:</p>
@@ -471,7 +495,7 @@
                                     <p>{{ getDateFromUnixTimeStamp(lic.order_created_on) | date: 'medium' }}</p>
                                 </div>
                             </div>
-                            <div class="row m-b-1">
+                            <div class="row m-b-1" *ngIf="productIndex !== 1">
                                 <div class="col-6">
                                     <p>Billing:</p>
                                 </div>
@@ -629,25 +653,29 @@
                                     </div>
                                 </div>
                             </div>
-                            <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
-                                <mat-icon class="m-r-05 link-color">read_more</mat-icon>
-                                <span class="link">Show License Plan Details</span>
-                            </p>
-                            <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
-                                <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
-                                Loading Plan Details...
-                            </p>
-                            <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
-                                <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
-                                <span class="link">Hide License Plan Details</span>
-                            </p>
+                            <div *ngIf="productIndex !== 1">
+                                <p class="cursor-pointer d-flex align-center" *ngIf="!loadingLicensePlanDetails && !commonLicensePlanDetails" (click)="loadMoreCommonLicenseDetails(lic.selected_license_id)">
+                                    <mat-icon class="m-r-05 link-color">read_more</mat-icon>
+                                    <span class="link">Show License Plan Details</span>
+                                </p>
+                                <p *ngIf="loadingLicensePlanDetails" class="d-flex align-center">
+                                    <mat-progress-spinner class="m-r-05" mode="indeterminate" [diameter]="25"></mat-progress-spinner>
+                                    Loading Plan Details...
+                                </p>
+                                <p *ngIf="commonLicensePlanDetails" class="cursor-pointer d-flex align-center" (click)="commonLicensePlanDetails = null;">
+                                    <mat-icon class="m-r-05 link-color">keyboard_arrow_up</mat-icon>
+                                    <span class="link">Hide License Plan Details</span>
+                                </p>
+                            </div>
                             <hr class="top-separator m-t-1 m-b-1" />
                             <h3 class="link-color">Instructions:</h3>
                             <ul>
                                 <li>Please do not pay again if money was deducted.</li>
                                 <li>If money was charged from your bank, please let us know by raising issue.</li>
                                 <li>If money was not deducted then you can retry payment.</li>
-                                <li>If you delete this order, then the discount coupon can be reused (if any) if the coupon has not expired.</li>
+                                <li *ngIf="productIndex !== 1">If you delete this order, then the discount coupon can be reused (if any) if the coupon has not expired.</li>
+                                <li>You can retry payment within 3 days after the order creation date.</li>
+                                <li>This unpaid order will be automatically deleted after 14 days from the order creation date.</li>
                             </ul>
                             <hr class="top-separator m-t-1 m-b-1" />
                             <div class="d-flex justify-content-end m-b-05">
@@ -655,14 +683,14 @@
                                   <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">pan_tool</mat-icon>
                                   <span *ngIf="!mq.matches">Raise</span><span> Issue</span>
                                 </button>
-                                <button mat-stroked-button class="button-border m-r-05">
-                                  <mat-icon class="delete-icon" [class.m-r-05]="!mq.matches">delete</mat-icon>
-                                  <span *ngIf="!mq.matches">Delete</span><span> Order</span>
-                                </button>
-                                <button mat-stroked-button class="button-border">
+                                <button mat-stroked-button class="button-border m-r-05" [hidden]="durationMoreThanThreeDays(lic.order_created_on)">
                                   <mat-icon class="add-icon" [class.m-r-05]="!mq.matches">refresh</mat-icon>
                                   <span *ngIf="!mq.matches">Retry Payment</span>
                                   <span *ngIf="mq.matches">Pay</span>
+                                </button>
+                                <button mat-stroked-button class="button-border">
+                                  <mat-icon class="delete-icon" [class.m-r-05]="!mq.matches">delete</mat-icon>
+                                  <span *ngIf="!mq.matches">Delete</span><span> Order</span>
                                 </button>
                             </div>
                         </div>

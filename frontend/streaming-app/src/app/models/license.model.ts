@@ -80,9 +80,13 @@ export interface ActiveLicenseDetails {
   payment_date: number;
   start_date: number;
   end_date: number;
-  type: string;
-  billing: string;
-  selected_license_id: number;
+  // For common license
+  type?: string;
+  billing?: string;
+  selected_license_id?: number;
+  // For storage license
+  months?: number;
+  no_of_gb?: number;
 }
 
 export interface ExpiredLicenseDetails {
@@ -91,19 +95,28 @@ export interface ExpiredLicenseDetails {
   payment_date: number;
   start_date: number;
   end_date: number;
-  type: string;
-  billing: string;
-  selected_license_id: number;
+  // For common license
+  type?: string;
+  billing?: string;
+  selected_license_id?: number;
+  // For storage license
+  months?: number;
+  no_of_gb?: number;
 }
 
 export interface PendingPaymentLicenseDetails {
   order_created_on: number;
   order_pk: number;
   order_receipt: string;
-  selected_license_id: number;
-  type: string;
-  billing: string;
   amount: number;
+  // For common license
+  selected_license_id?: number;
+  type?: string;
+  billing?: string;
+  // For storage license
+  months?: number;
+  no_of_gb?: number;
+  cost_per_gb?: number;
 }
 
 export interface LicenseOrderResponse {
