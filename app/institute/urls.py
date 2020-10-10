@@ -9,15 +9,22 @@ urlpatterns = [
     path('get-discount-coupon',
          views.GetInstituteDiscountCouponView.as_view(),
          name='get-discount-coupon'),
-    path('institute-license-list',
-         views.InstituteLicenseListView.as_view(),
-         name="institute-license-list"),
+
+    # For storage license
     path('<slug:institute_slug>/institute-storage-license-cost',
          views.InstituteLicenseCostView.as_view(),
          name="institute-storage-license-cost"),
     path('<slug:institute_slug>/create-storage-license-order',
          views.InstituteCreateStorageLicenseOrderView.as_view(),
          name='create-storage-license-order'),
+    path('razorpay-storage-payment-callback',
+         views.RazorpayStoragePaymentCallbackView.as_view(),
+         name='razorpay-storage-payment-callback'),
+
+    # For common license
+    path('institute-license-list',
+         views.InstituteLicenseListView.as_view(),
+         name="institute-license-list"),
     path('<slug:institute_slug>/institute-common-license-detail',
          views.InstituteCommonLicenseDetailView.as_view(),
          name="institute-common-license-detail"),

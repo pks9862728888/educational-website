@@ -1201,6 +1201,11 @@ class RazorpayCallback(models.Model):
         on_delete=models.CASCADE,
         blank=True, null=True,
         related_name='institute_common_license_order_details')
+    institute_storage_license_order_details = models.ForeignKey(
+        InstituteStorageLicenseOrderDetails,
+        on_delete=models.CASCADE,
+        blank=True, null=True,
+        related_name='institute_storage_license_order_details')
 
     def __str__(self):
         return self.razorpay_order_id

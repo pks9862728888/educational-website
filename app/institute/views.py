@@ -478,6 +478,78 @@ class InstituteCreateStorageLicenseOrderView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class RazorpayStoragePaymentCallbackView(APIView):
+    """
+    View for storing storage payment callback data
+    and checking whether payment was successful
+    """
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        params_dict = {
+            'razorpay_order_id': request.data.get('razorpay_order_id'),
+            'razorpay_payment_id': request.data.get('razorpay_payment_id'),
+            'razorpay_signature': request.data.get('razorpay_signature')
+        }
+        order_details_id = request.data.get('order_details_id')
+
+        if not params_dict['razorpay_order_id'] or\
+                not params_dict['razorpay_payment_id'] or\
+                not params_dict['razorpay_signature'] or\
+                not order_details_id:
+            return Response({'error': _('Invalid fields. Contact support.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            order = models.InstituteStorageLicenseOrderDetails.objects.filter(
+                pk=order_details_id
+            ).first()
+
+            if not order:
+                return Response({
+                    'error': _('Order not found. If payment is successful it will be verified automatically.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            if order.paid:
+                return Response({'status': 'SUCCESS'}, status=status.HTTP_200_OK)
+
+            models.RazorpayCallback.objects.create(
+                razorpay_order_id=params_dict['razorpay_order_id'],
+                razorpay_payment_id=params_dict['razorpay_payment_id'],
+                razorpay_signature=params_dict['razorpay_signature'],
+                product_type=models.ProductTypes.STORAGE,
+                institute_storage_license_order_details=order)
+
+            try:
+                client.utility.verify_payment_signature(params_dict)
+                order.paid = True
+                order.payment_date = int(time.time()) * 1000
+                order.active = True
+                order.start_date = int(time.time()) * 1000
+                end_date = datetime.datetime.now() + datetime.timedelta(days=order.months * 30)
+                order.end_date = datetime.datetime.timestamp(end_date) * 1000
+                order.save()
+
+                license_stat = models.InstituteLicenseStat.objects.filter(
+                    institute__pk=order.institute.pk
+                ).only('total_storage', 'storage_license_end_date').first()
+                license_stat.total_storage += order.no_of_gb
+
+                if license_stat.storage_license_end_date < order.end_date:
+                    license_stat.storage_license_end_date = order.end_date
+
+                license_stat.save()
+
+                return Response({'status': _('SUCCESS')},
+                                status=status.HTTP_200_OK)
+            except SignatureVerificationError:
+                return Response({'status': _('FAILURE')},
+                                status=status.HTTP_200_OK)
+        except Exception:
+            return Response({'error': _('Internal server error. Dont worry, if payment was successful it will be verified automatically. If problem persists let us know.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class InstituteLicenseListView(ListAPIView):
     """
     View for getting list of all available institute license
@@ -779,9 +851,9 @@ class RazorpayPaymentCallbackView(APIView):
         }
         order_details_id = request.data.get('order_details_id')
 
-        if not params_dict['razorpay_order_id'] and\
-                not params_dict['razorpay_payment_id'] and\
-                not params_dict['razorpay_signature'] and\
+        if not params_dict['razorpay_order_id'] or\
+                not params_dict['razorpay_payment_id'] or\
+                not params_dict['razorpay_signature'] or\
                 not order_details_id:
             return Response({'error': _('Invalid fields. Contact support.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -799,6 +871,7 @@ class RazorpayPaymentCallbackView(APIView):
                 razorpay_order_id=params_dict['razorpay_order_id'],
                 razorpay_payment_id=params_dict['razorpay_payment_id'],
                 razorpay_signature=params_dict['razorpay_signature'],
+                product_type=models.ProductTypes.LMS_CMS_EXAM_LIVE_STREAM,
                 institute_common_license_order_details=order)
 
             try:
