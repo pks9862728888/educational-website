@@ -418,37 +418,37 @@ class InstituteCreateStorageLicenseOrderView(APIView):
         except Exception:
             pass
 
-        prev_order = models.InstituteStorageLicenseOrderDetails.objects.filter(
-            institute=institute,
-            paid=False,
-            active=False,
-            no_of_gb=request.data.get('no_of_gb'),
-            months=request.data.get('months')
-        ).first()
-
-        if prev_order:
-            if prev_order.payment_gateway != request.data.get('payment_gateway'):
-                prev_order.payment_gateway = request.data.get('payment_gateway')
-                # Generate order with new payment gateway
-                prev_order.save()
-
-            if prev_order.payment_gateway == models.PaymentGateway.RAZORPAY:
-                return Response(
-                    {'status': 'SUCCESS',
-                     'amount': prev_order.amount,
-                     'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
-                     'currency': prev_order.currency,
-                     'order_id': prev_order.order_id,
-                     'order_details_id': prev_order.pk,
-                     'email': str(self.request.user),
-                     'contact': contact,
-                     'no_of_gb': prev_order.no_of_gb,
-                     'months': prev_order.months
-                     }, status=status.HTTP_201_CREATED)
-            else:
-                pass  # Generate appropriate response
-
         try:
+            prev_order = models.InstituteStorageLicenseOrderDetails.objects.filter(
+                institute=institute,
+                paid=False,
+                active=False,
+                no_of_gb=request.data.get('no_of_gb'),
+                months=request.data.get('months')
+            ).first()
+
+            if prev_order:
+                if prev_order.payment_gateway != request.data.get('payment_gateway'):
+                    prev_order.payment_gateway = request.data.get('payment_gateway')
+                    # Generate order with new payment gateway
+                    prev_order.save()
+
+                if prev_order.payment_gateway == models.PaymentGateway.RAZORPAY:
+                    return Response(
+                        {'status': 'SUCCESS',
+                         'amount': prev_order.amount,
+                         'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
+                         'currency': prev_order.currency,
+                         'order_id': prev_order.order_id,
+                         'order_details_id': prev_order.pk,
+                         'email': str(self.request.user),
+                         'contact': contact,
+                         'no_of_gb': prev_order.no_of_gb,
+                         'months': prev_order.months
+                         }, status=status.HTTP_201_CREATED)
+                else:
+                    pass  # Generate appropriate response
+
             order = models.InstituteStorageLicenseOrderDetails.objects.create(
                 institute=institute,
                 payment_gateway=request.data.get('payment_gateway'),

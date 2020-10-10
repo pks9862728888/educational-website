@@ -898,7 +898,7 @@ class InstituteStorageLicenseOrderDetails(models.Model):
 
         if not self.amount:
             cost = float(self.price) * self.months * 30 * self.no_of_gb
-            self.amount = cost * (1 + self.gst_percent / 100)
+            self.amount = round(cost * (1 + float(self.gst_percent) / 100), 2)
 
         if not self.order_receipt:
             self.order_receipt = create_order_receipt(self)
