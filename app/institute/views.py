@@ -387,6 +387,97 @@ class InstituteLicenseCostView(ListAPIView):
         }, status=status.HTTP_200_OK)
 
 
+class InstituteCreateStorageLicenseOrderView(APIView):
+    """View for creating storage license order"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+        ):
+            return Response({'error': _('Permission denied. Only Admin is permitted.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        contact = ''
+        lic = models.InstituteStorageLicense.objects.all().first()
+
+        try:
+            contact = str(self.request.user.user_profile.phone)
+        except Exception:
+            pass
+
+        prev_order = models.InstituteStorageLicenseOrderDetails.objects.filter(
+            institute=institute,
+            paid=False,
+            active=False,
+            no_of_gb=request.data.get('no_of_gb'),
+            months=request.data.get('months')
+        ).first()
+
+        if prev_order:
+            if prev_order.payment_gateway != request.data.get('payment_gateway'):
+                prev_order.payment_gateway = request.data.get('payment_gateway')
+                # Generate order with new payment gateway
+                prev_order.save()
+
+            if prev_order.payment_gateway == models.PaymentGateway.RAZORPAY:
+                return Response(
+                    {'status': 'SUCCESS',
+                     'amount': prev_order.amount,
+                     'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
+                     'currency': prev_order.currency,
+                     'order_id': prev_order.order_id,
+                     'order_details_id': prev_order.pk,
+                     'email': str(self.request.user),
+                     'contact': contact,
+                     'no_of_gb': prev_order.no_of_gb,
+                     'months': prev_order.months
+                     }, status=status.HTTP_201_CREATED)
+            else:
+                pass  # Generate appropriate response
+
+        try:
+            order = models.InstituteStorageLicenseOrderDetails.objects.create(
+                institute=institute,
+                payment_gateway=request.data.get('payment_gateway'),
+                price=lic.price,
+                gst_percent=lic.gst_percent,
+                no_of_gb=request.data.get('no_of_gb'),
+                months=request.data.get('months')
+            )
+
+            if order.payment_gateway == models.PaymentGateway.RAZORPAY:
+                return Response(
+                    {'status': 'SUCCESS',
+                     'amount': order.amount,
+                     'key_id': os.environ.get('RAZORPAY_TEST_KEY_ID'),
+                     'currency': order.currency,
+                     'order_id': order.order_id,
+                     'order_details_id': order.pk,
+                     'email': str(self.request.user),
+                     'contact': contact,
+                     'no_of_gb': prev_order.no_of_gb,
+                     'months': prev_order.months},
+                    status=status.HTTP_201_CREATED)
+            else:
+                pass  # Generate response
+        except Exception:
+            return Response({'error': _('Internal server error.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class InstituteLicenseListView(ListAPIView):
     """
     View for getting list of all available institute license
