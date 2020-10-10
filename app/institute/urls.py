@@ -12,7 +12,7 @@ urlpatterns = [
     path('institute-license-list',
          views.InstituteLicenseListView.as_view(),
          name="institute-license-list"),
-    path('institute-storage-license-cost',
+    path('<slug:institute_slug>/institute-storage-license-cost',
          views.InstituteLicenseCostView.as_view(),
          name="institute-storage-license-cost"),
     path('<slug:institute_slug>/institute-common-license-detail',

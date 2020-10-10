@@ -4,6 +4,7 @@ import datetime
 from decimal import Decimal
 import time
 import json
+from math import ceil
 
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
@@ -355,6 +356,24 @@ class InstituteLicenseCostView(ListAPIView):
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute_stat = models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).only('storage').first()
+
+        license_stat = models.InstituteLicenseStat.objects.filter(
+            institute=institute
+        ).only('total_storage').first()
+
+        min_storage = max(5, int(abs(ceil(float(license_stat.total_storage - institute_stat.storage)))))
+
         lic = models.InstituteStorageLicense.objects.all().first()
 
         if not lic:
@@ -363,7 +382,8 @@ class InstituteLicenseCostView(ListAPIView):
 
         return Response({
             'price': lic.price,
-            'gst_percent': lic.gst_percent
+            'gst_percent': lic.gst_percent,
+            'min_storage': min_storage
         }, status=status.HTTP_200_OK)
 
 
