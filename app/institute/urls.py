@@ -12,6 +12,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:product_type>/get-ordered-license-orders',
          views.InstituteOrderedLicenseOrderDetailsView.as_view(),
          name='get-ordered-license-orders'),
+    path('<slug:institute_slug>/check-license-exists',
+         views.InstituteUnexpiredPaidLicenseExistsView.as_view(),
+         name='check-license-exists'),
 
     # For storage license
     path('<slug:institute_slug>/institute-storage-license-cost',
@@ -23,6 +26,9 @@ urlpatterns = [
     path('razorpay-storage-payment-callback',
          views.RazorpayStoragePaymentCallbackView.as_view(),
          name='razorpay-storage-payment-callback'),
+    path('<slug:institute_slug>/<int:license_order_id>/delete-unpaid-storage-license',
+         views.DeleteUnpaidStorageLicenseView.as_view(),
+         name='delete-unpaid-storage-license'),
 
     # For common license
     path('institute-license-list',
@@ -46,9 +52,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<int:selected_license_id>/get-selected-common-license-details',
          views.InstituteSelectedCommonLicenseDetailsView.as_view(),
          name='get-selected-common-license-details'),
-    path('<slug:institute_slug>/check-license-exists',
-         views.InstituteUnexpiredPaidLicenseExistsView.as_view(),
-         name='check-license-exists'),
+    path('<slug:institute_slug>/<int:license_order_id>/delete-unpaid-common-license',
+         views.DeleteUnpaidCommonLicenseView.as_view(),
+         name='delete-unpaid-common-license'),
 
     # Institute related url
     path('create',

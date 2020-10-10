@@ -407,7 +407,7 @@ class InstituteCreateStorageLicenseOrderView(APIView):
                 active=True,
                 role=models.InstituteRole.ADMIN
         ):
-            return Response({'error': _('Permission denied. Only Admin is permitted.')},
+            return Response({'error': _('Permission denied [Admin only]')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         contact = ''
@@ -548,6 +548,42 @@ class RazorpayStoragePaymentCallbackView(APIView):
         except Exception:
             return Response({'error': _('Internal server error. Dont worry, if payment was successful it will be verified automatically. If problem persists let us know.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DeleteUnpaidStorageLicenseView(APIView):
+    """View for deleting unpaid storage license"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+        ):
+            return Response({'error': _('Permission denied [Admin only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lic = models.InstituteStorageLicenseOrderDetails.objects.filter(
+            pk=kwargs.get('license_order_id'),
+            institute=institute,
+            paid=False
+        ).first()
+
+        if not lic:
+            return Response(status.HTTP_204_NO_CONTENT)
+        else:
+            lic.delete()
+            return Response(status.HTTP_204_NO_CONTENT)
 
 
 class InstituteLicenseListView(ListAPIView):
@@ -1198,6 +1234,44 @@ class InstituteSelectedCommonLicenseDetailsView(APIView):
             response['discount_coupon'] = ''
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class DeleteUnpaidCommonLicenseView(APIView):
+    """View for deleting unpaid common license"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+        ):
+            return Response({'error': _('Permission denied [Admin only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        lic = models.InstituteCommonLicenseOrderDetails.objects.filter(
+            pk=kwargs.get('license_order_id'),
+            institute=institute,
+            paid=False
+        ).only('selected_license').first()
+
+        if not lic:
+            return Response(status.HTTP_204_NO_CONTENT)
+        else:
+            models.InstituteSelectedCommonLicense.objects.filter(
+                pk=lic.selected_license.pk
+            ).delete()
+            return Response(status.HTTP_204_NO_CONTENT)
 
 
 class InstituteUnexpiredPaidLicenseExistsView(APIView):
