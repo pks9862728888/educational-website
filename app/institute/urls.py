@@ -9,6 +9,9 @@ urlpatterns = [
     path('get-discount-coupon',
          views.GetInstituteDiscountCouponView.as_view(),
          name='get-discount-coupon'),
+    path('<slug:institute_slug>/<slug:product_type>/get-ordered-license-orders',
+         views.InstituteOrderedLicenseOrderDetailsView.as_view(),
+         name='get-ordered-license-orders'),
 
     # For storage license
     path('<slug:institute_slug>/institute-storage-license-cost',
@@ -40,9 +43,6 @@ urlpatterns = [
     path('razorpay-webhook-callback',
          views.RazorpayWebhookCallbackView.as_view(),
          name='razorpay-webhook-callback'),
-    path('<slug:institute_slug>/<slug:product_type>/get-ordered-license-orders',
-         views.InstituteOrderedLicenseOrderDetailsView.as_view(),
-         name='get-ordered-license-orders'),
     path('<slug:institute_slug>/<int:selected_license_id>/get-selected-common-license-details',
          views.InstituteSelectedCommonLicenseDetailsView.as_view(),
          name='get-selected-common-license-details'),

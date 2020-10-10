@@ -976,7 +976,7 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                 if int(time.time()) * 1000 > order.end_date:
                     query = models.InstituteCommonLicenseOrderDetails.objects.filter(
                         pk=order.pk
-                    )
+                    ).first()
                     query.active = False
                     query.save()
 
@@ -1032,7 +1032,80 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                         'order_pk': pp.pk
                     })
         elif kwargs.get('product_type') == models.ProductTypes.STORAGE:
-            pass
+            storage = 0
+            # Updating the orders
+            for order in models.InstituteStorageLicenseOrderDetails.objects.filter(
+                    institute=institute,
+                    paid=True,
+                    active=True
+            ).only('active', 'end_date'):
+                if int(time.time()) * 1000 > order.end_date:
+                    query = models.InstituteStorageLicenseOrderDetails.objects.filter(
+                        pk=order.pk
+                    ).only('active').first()
+                    query.active = False
+                    query.save()
+
+                    storage += float(query.no_of_gb)
+
+            if storage > 0:
+                lic = models.InstituteLicense.objects.filter(
+                    institute=institute
+                ).only('total_storage').first()
+
+                lic.total_storage = max(0.0, float(lic.total_storage) - storage)
+                lic.save()
+
+            orders = models.InstituteStorageLicenseOrderDetails.objects.filter(
+                institute=institute
+            )
+            active_license = orders.filter(
+                paid=True,
+                active=True,
+                end_date__gte=int(time.time()) * 1000).order_by('-end_date')
+            expired_license = orders.filter(
+                paid=True,
+                active=False,
+                end_date__lte=int(time.time()) * 1000).order_by('-end_date')
+            pending_payment_license = orders.filter(
+                paid=False).order_by('-order_created_on')
+
+            if active_license:
+                for al in active_license:
+                    response['active_license'].append({
+                        'order_receipt': al.order_receipt,
+                        'payment_date': al.payment_date,
+                        'start_date': al.start_date,
+                        'end_date': al.end_date,
+                        'no_of_gb': al.selected_license.no_of_gb,
+                        'month': al.selected_license.month,
+                        'amount': al.amount
+                    })
+
+            if expired_license:
+                for el in expired_license:
+                    response['expired_license'].append({
+                        'order_receipt': el.order_receipt,
+                        'payment_date': el.payment_date,
+                        'start_date': el.start_date,
+                        'end_date': el.end_date,
+                        'no_of_gb': al.selected_license.no_of_gb,
+                        'month': al.selected_license.month,
+                        'amount': el.amount
+                    })
+
+            if pending_payment_license:
+                for pp in pending_payment_license:
+                    response['pending_payment_license'].append({
+                        'order_created_on': pp.order_created_on,
+                        'order_receipt': pp.order_receipt,
+                        'no_of_gb': al.selected_license.no_of_gb,
+                        'month': al.selected_license.month,
+                        'amount': pp.amount,
+                        'cost_per_gb': pp.price,
+                        'order_pk': pp.pk
+                    })
+
         elif kwargs.get('product_type') == models.ProductTypes.DIGITAL_EXAM:
             pass
         elif kwargs.get('product_type') == models.ProductTypes.LIVE_STREAM:
