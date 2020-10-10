@@ -3,6 +3,7 @@ import random
 import string
 import time
 import uuid
+from decimal import Decimal
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
@@ -853,7 +854,7 @@ class InstituteStorageLicense(models.Model):
         return super(InstituteStorageLicense, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.price
+        return str(self.price)
 
 
 class InstituteStorageLicenseOrderDetails(models.Model):
@@ -897,7 +898,7 @@ class InstituteStorageLicenseOrderDetails(models.Model):
 
         if not self.amount:
             cost = float(self.price) * self.months * 30 * self.no_of_gb
-            self.amount = cost * (1 - self.gst_percent / 100)
+            self.amount = cost * (1 + self.gst_percent / 100)
 
         if not self.order_receipt:
             self.order_receipt = create_order_receipt(self)
@@ -1090,12 +1091,11 @@ def calculate_net_amount(sender, instance, created, *args, **kwargs):
             amount = instance.price * 12
 
         if instance.discount_coupon:
-            amount = amount * (1 - instance.discount_percent / 100) -\
-                     instance.discount_coupon.discount_rs
-            instance.net_amount = max(0, amount * (1 - instance.discount_percent / 100))
+            amount = amount * (1 - instance.discount_percent / 100) - instance.discount_coupon.discount_rs
+            instance.net_amount = max(0, amount * (1 + instance.gst_percent / 100))
         else:
             amount *= (1 - instance.discount_percent / 100)
-            instance.net_amount = max(0, amount * (1 - instance.discount_percent / 100))
+            instance.net_amount = max(0, amount * (1 + instance.gst_percent / 100))
         instance.save()
 
         if instance.discount_coupon:
