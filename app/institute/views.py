@@ -468,8 +468,8 @@ class InstituteCreateStorageLicenseOrderView(APIView):
                      'order_details_id': order.pk,
                      'email': str(self.request.user),
                      'contact': contact,
-                     'no_of_gb': prev_order.no_of_gb,
-                     'months': prev_order.months},
+                     'no_of_gb': order.no_of_gb,
+                     'months': order.months},
                     status=status.HTTP_201_CREATED)
             else:
                 pass  # Generate response

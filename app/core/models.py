@@ -894,7 +894,7 @@ class InstituteStorageLicenseOrderDetails(models.Model):
             raise ValueError(_('Months is required.'))
 
         if not self.no_of_gb:
-            raise ValueError(_('No of GB is required'))
+            raise ValueError(_('No of GB is required.'))
 
         if not self.amount:
             cost = float(self.price) * self.months * 30 * self.no_of_gb
