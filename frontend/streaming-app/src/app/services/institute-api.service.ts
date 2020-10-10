@@ -51,7 +51,8 @@ export class InstituteApiService {
   instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
   commonLicenseSelectPlanUrl = `${this.instituteBaseUrl}select-common-license`;
   createCommmonLicenseOrderUrl = `${this.instituteBaseUrl}create-common-license-order`;
-  razorpayCallbackUrl = `${this.instituteBaseUrl}razorpay-payment-callback`;
+  razorpayCommonLicenseCallbackUrl = `${this.instituteBaseUrl}razorpay-payment-callback`;
+  razorpayStorageLicenseCallbackUrl = `${this.instituteBaseUrl}razorpay-storage-payment-callback`;
 
   // Institute class related urls
   addClassPermissionUrl = `${this.instituteBaseUrl}add-class-permission`;
@@ -62,6 +63,14 @@ export class InstituteApiService {
 
   // Institute section related urls
   addSectionInchargeUrl = `${this.instituteBaseUrl}add-section-permission`;
+
+  getStorageLicenseCredentialsUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/institute-storage-license-cost`;
+  }
+
+  getCreateStorageLicenseOrderUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/create-storage-license-order`;
+  }
 
   getInstituteSelectedCommonLicenseDetailUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/institute-common-license-detail`;
@@ -434,7 +443,21 @@ export class InstituteApiService {
       { headers: this.getAuthHeader() });
   }
 
-  // Get specific common license details
+  getStorageLicenseCredentials(instituteSlug: string) {
+    return this.httpClient.get(
+      this.getStorageLicenseCredentialsUrl(instituteSlug),
+      { headers: this.getAuthHeader() });
+  }
+
+  createStorageLicenseOrder(instituteSlug: string, data: any) {
+    return this.httpClient.post(
+      this.getCreateStorageLicenseOrderUrl(instituteSlug),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+
   getSelectedCommonLicenseDetails(instituteSlug: string, id: string) {
     return this.httpClient.post(
       this.getInstituteSelectedCommonLicenseDetailUrl(instituteSlug),
@@ -481,10 +504,28 @@ export class InstituteApiService {
     );
   }
 
-  // To send razorpay callback to server
-  sendCallbackAndVerifyPayment(data: PaymentSuccessCallbackResponse, orderDetailsId: string) {
+  sendCommonLicensePurchaseCallbackAndVerifyPayment(
+    data: PaymentSuccessCallbackResponse,
+    orderDetailsId: string
+    ) {
     return this.httpClient.post(
-      this.razorpayCallbackUrl,
+      this.razorpayCommonLicenseCallbackUrl,
+      {
+        razorpay_order_id: data.razorpay_order_id,
+        razorpay_payment_id: data.razorpay_payment_id,
+        razorpay_signature: data.razorpay_signature,
+        order_details_id: orderDetailsId
+      },
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  sendStorageLicenseCallbackAndVerifyPayment(
+    data: PaymentSuccessCallbackResponse,
+    orderDetailsId: string
+    ) {
+    return this.httpClient.post(
+      this.razorpayStorageLicenseCallbackUrl,
       {
         razorpay_order_id: data.razorpay_order_id,
         razorpay_payment_id: data.razorpay_payment_id,

@@ -10,8 +10,8 @@
             <h3 class="wait-line-height">Verifying payment. Please wait...</h3>&nbsp;
         </div>
         <div *ngIf="!paymentComplete">
-            <h3 *ngIf="!mobileQuery.matches">Choose payment portal to make payment of &#8377; {{ netPayableAmount | number}}</h3>
-            <p *ngIf="mobileQuery.matches">Choose payment portal to make payment of &#8377; {{ netPayableAmount | number}}</p>
+            <h3 *ngIf="!mq.matches">Choose payment portal to make payment of &#8377; {{ netPayableAmount | number}}</h3>
+            <p *ngIf="mq.matches">Choose payment portal to make payment of &#8377; {{ netPayableAmount | number}}</p>
             <div *ngIf="initiatingPaymentIndicator" class="progress-indicator">
                 <mat-spinner mode="indeterminate" [diameter]="30" class="m-r-05"></mat-spinner>
                 <h3 class="wait-line-height">Creating order. Please wait...</h3>&nbsp;
@@ -20,23 +20,23 @@
         <div *ngIf="errorText" class="error-text-margin">
             <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="hideErrorText()"></app-ui-error-text>
         </div>
-        <div class="row" *ngIf="retryVerification">
-            <button mat-flat-button class="green-button retry-verification" (click)="retryVerificationClicked()">Retry Verification</button>
+        <div class="d-flex align-center" *ngIf="retryVerification">
+            <button mat-flat-button class="green-button" [class.w-100]="mq.matches" (click)="retryVerificationClicked()">
+              <div class="f-flex align-center">
+                Retry Verification
+              </div>
+            </button>
         </div>
-        <div class="row" *ngIf="successText">
-            <div class="col-12 success-text">
-                <h3>
-                    <div class="redirect-indicator">
-                        <mat-spinner mode="indeterminate" [diameter]="25" class="m-r-05"></mat-spinner>
-                        {{ successText }}
-                    </div>
-                </h3>
-            </div>
+        <div *ngIf="successText" class="d-flex success-text">
+            <h3 class="d-flex align-center">
+                <mat-spinner mode="indeterminate" [diameter]="25" class="m-r-05"></mat-spinner>
+                {{ successText }}
+            </h3>
         </div>
         <div *ngIf="!paymentComplete">
             <div class="payment-portals">
-                <button [disabled]="initiatingPaymentIndicator" mat-flat-button class="green-button" [ngClass]="{'full-width-button': mobileQuery.matches}" (click)="createOrder('RAZORPAY')" aria-label="Pay with Razorpay (recommended)">
-                  Pay With Razorpay<span *ngIf="!mobileQuery.matches"> Payment Portal</span> (recommended)
+                <button [disabled]="initiatingPaymentIndicator" mat-flat-button class="green-button" [ngClass]="{'full-width-button': mq.matches}" (click)="createOrder('RAZORPAY')" aria-label="Pay with Razorpay (recommended)">
+                  Pay With Razorpay<span *ngIf="!mq.matches"> Payment Portal</span> (recommended)
                 </button>
             </div>
         </div>

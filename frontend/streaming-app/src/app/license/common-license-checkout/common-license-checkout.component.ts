@@ -4,7 +4,7 @@ import { WindowRefService } from '../../services/window-ref.service';
 import { PAYMENT_PORTAL_REVERSE, INSTITUTE_TYPE_REVERSE } from '../../../constants';
 import { InstituteApiService } from '../../services/institute-api.service';
 import { Component, OnInit, NgZone, OnDestroy } from '@angular/core';
-import { InstituteLicenceOrderCreatedResponse,
+import { InstituteLicenseOrderCreatedResponse,
          PaymentSuccessCallbackResponse,
          PaymentVerificatonResponse } from '../../models/license.model';
 import { MediaMatcher } from '@angular/cdk/layout';
@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
 })
 export class CommonLicenseCheckoutComponent implements OnInit, OnDestroy {
 
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
   currentInstituteSlug: string;
   currentInstituteType: string;
   errorText: string;
@@ -41,7 +41,7 @@ export class CommonLicenseCheckoutComponent implements OnInit, OnDestroy {
     private windowRefService: WindowRefService,
     private ngZone: NgZone
     ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 540px)');
+    this.mq = this.media.matchMedia('(max-width: 540px)');
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.currentInstituteType = sessionStorage.getItem('currentInstituteType');
     this.selectedLicensePlanId = sessionStorage.getItem('selectedLicensePlanId');
@@ -58,7 +58,7 @@ export class CommonLicenseCheckoutComponent implements OnInit, OnDestroy {
       this.currentInstituteSlug,
       this.selectedLicensePlanId,
       PAYMENT_PORTAL_REVERSE[paymentPortalName]).subscribe(
-        (result: InstituteLicenceOrderCreatedResponse) => {
+        (result: InstituteLicenseOrderCreatedResponse) => {
           this.initiatingPaymentIndicator = false;
           if (result.status === 'SUCCESS') {
             this.orderDetailsId = result.order_details_id;
@@ -89,7 +89,10 @@ export class CommonLicenseCheckoutComponent implements OnInit, OnDestroy {
       this.retryVerification = false;
       sessionStorage.removeItem('selectedLicensePlanId');
       sessionStorage.removeItem('netPayableAmount');
-      this.instituteApiService.sendCallbackAndVerifyPayment(response, this.orderDetailsId).subscribe(
+      this.instituteApiService.sendCommonLicensePurchaseCallbackAndVerifyPayment(
+        response,
+        this.orderDetailsId
+        ).subscribe(
         (result: PaymentVerificatonResponse) => {
           this.verifyPaymentIndicator = false;
           if (result.status === 'SUCCESS') {
@@ -120,7 +123,7 @@ export class CommonLicenseCheckoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  payWithRazorpay(data: InstituteLicenceOrderCreatedResponse, ref: any) {
+  payWithRazorpay(data: InstituteLicenseOrderCreatedResponse, ref: any) {
     const options = {
       key: data.key_id,
       amount: data.amount,

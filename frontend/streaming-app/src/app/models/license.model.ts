@@ -39,7 +39,7 @@ export interface InstituteLicenseSelectedResponse {
   selected_license_id: string;
 }
 
-export interface InstituteLicenceOrderCreatedResponse {
+export interface InstituteLicenseOrderCreatedResponse {
   status: string;
   amount: number;
   key_id: string;
@@ -49,6 +49,19 @@ export interface InstituteLicenceOrderCreatedResponse {
   email: string;
   contact: string;
   type: string;
+}
+
+export interface InstituteStorageLicenseOrderCreatedResponse {
+  status: string;
+  amount: number;
+  key_id: string;
+  currency: string;
+  order_id: string;
+  order_details_id: number;
+  email: string;
+  contact: string;
+  no_of_gb: number;
+  months: number;
 }
 
 export interface PaymentSuccessCallbackResponse {
@@ -97,4 +110,10 @@ export interface LicenseOrderResponse {
   active_license: ActiveLicenseDetails[];
   expired_license: ExpiredLicenseDetails[];
   pending_payment_license: PendingPaymentLicenseDetails[];
+}
+
+export interface StorageLicenseCredentials {
+  price: number;
+  gst_percent: number;
+  min_storage: number;
 }

@@ -22,6 +22,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatExpansionModule, } from '@angular/material/expansion';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatSliderModule } from '@angular/material/slider';
 
 
 @NgModule({
@@ -48,7 +49,8 @@ import { MatChipsModule } from '@angular/material/chips';
         MatProgressSpinnerModule,
         MatExpansionModule,
         TextFieldModule,
-        MatChipsModule
+        MatChipsModule,
+        MatSliderModule
     ],
     exports: [
         MatSidenavModule,
@@ -73,7 +75,8 @@ import { MatChipsModule } from '@angular/material/chips';
         MatProgressSpinnerModule,
         MatExpansionModule,
         TextFieldModule,
-        MatChipsModule
+        MatChipsModule,
+        MatSliderModule
     ],
 })
 export class SchoolMaterialWorkspaceModule { }
