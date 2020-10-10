@@ -372,7 +372,7 @@ class InstituteLicenseCostView(ListAPIView):
             institute=institute
         ).only('total_storage').first()
 
-        min_storage = max(5, int(ceil(abs(float(license_stat.total_storage - institute_stat.storage)))))
+        min_storage = max(20, int(abs(ceil(float(license_stat.total_storage - institute_stat.storage)))))
 
         lic = models.InstituteStorageLicense.objects.all().first()
 
