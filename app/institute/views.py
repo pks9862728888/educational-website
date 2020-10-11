@@ -968,6 +968,7 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
 
         if kwargs.get('product_type') == models.ProductTypes.LMS_CMS_EXAM_LIVE_STREAM:
             # Updating the orders
+            # De-activating order if expired
             for order in models.InstituteCommonLicenseOrderDetails.objects.filter(
                 institute=institute,
                 paid=True,
@@ -979,6 +980,17 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                     ).first()
                     query.active = False
                     query.save()
+
+            # Deleting unpaid orders if its not paid for more than 14 days
+            for order in models.InstituteCommonLicenseOrderDetails.objects.filter(
+                    institute=institute,
+                    paid=False,
+                    active=False
+            ).only('order_created_on', 'selected_license'):
+                if int(time.time()) * 1000 - order.order_created_on > 86400 * 1000 * 14:
+                    models.InstituteSelectedCommonLicense.objects.filter(
+                        pk=order.selected_license.pk
+                    ).delete()
 
             orders = models.InstituteCommonLicenseOrderDetails.objects.filter(
                 institute=institute
@@ -1034,6 +1046,7 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
         elif kwargs.get('product_type') == models.ProductTypes.STORAGE:
             storage = 0
             # Updating the orders
+            # Setting expired orders to inactive
             for order in models.InstituteStorageLicenseOrderDetails.objects.filter(
                     institute=institute,
                     paid=True,
@@ -1049,12 +1062,23 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                     storage += float(query.no_of_gb)
 
             if storage > 0:
-                lic = models.InstituteLicense.objects.filter(
+                lic = models.InstituteLicenseStat.objects.filter(
                     institute=institute
                 ).only('total_storage').first()
 
                 lic.total_storage = max(0.0, float(lic.total_storage) - storage)
                 lic.save()
+
+            # Deleting unpaid orders if its not paid for more than 14 days
+            for order in models.InstituteStorageLicenseOrderDetails.objects.filter(
+                    institute=institute,
+                    paid=False,
+                    active=False
+            ).only('order_created_on'):
+                if int(time.time()) * 1000 - order.order_created_on > 86400 * 1000 * 14:
+                    models.InstituteStorageLicenseOrderDetails.objects.filter(
+                        pk=order.pk
+                    ).delete()
 
             orders = models.InstituteStorageLicenseOrderDetails.objects.filter(
                 institute=institute
@@ -1077,8 +1101,8 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                         'payment_date': al.payment_date,
                         'start_date': al.start_date,
                         'end_date': al.end_date,
-                        'no_of_gb': al.selected_license.no_of_gb,
-                        'month': al.selected_license.month,
+                        'no_of_gb': al.no_of_gb,
+                        'months': al.months,
                         'amount': al.amount
                     })
 
@@ -1089,8 +1113,8 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                         'payment_date': el.payment_date,
                         'start_date': el.start_date,
                         'end_date': el.end_date,
-                        'no_of_gb': al.selected_license.no_of_gb,
-                        'month': al.selected_license.month,
+                        'no_of_gb': el.no_of_gb,
+                        'months': el.months,
                         'amount': el.amount
                     })
 
@@ -1099,8 +1123,8 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                     response['pending_payment_license'].append({
                         'order_created_on': pp.order_created_on,
                         'order_receipt': pp.order_receipt,
-                        'no_of_gb': al.selected_license.no_of_gb,
-                        'month': al.selected_license.month,
+                        'no_of_gb': pp.no_of_gb,
+                        'months': pp.months,
                         'amount': pp.amount,
                         'cost_per_gb': pp.price,
                         'order_pk': pp.pk
