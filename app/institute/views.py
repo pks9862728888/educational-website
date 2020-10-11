@@ -918,7 +918,7 @@ class InstituteCreateCommonLicenseOrderView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class RazorpayPaymentCallbackView(APIView):
+class RazorpayCommonLicensePaymentCallbackView(APIView):
     """
     View for storing payment callback data
     and checking whether payment was successful
