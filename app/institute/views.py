@@ -1308,19 +1308,83 @@ class DeleteUnpaidCommonLicenseView(APIView):
             return Response({'error': _('Permission denied [Admin only]')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        lic = models.InstituteCommonLicenseOrderDetails.objects.filter(
+        order = models.InstituteCommonLicenseOrderDetails.objects.filter(
             pk=kwargs.get('license_order_id'),
             institute=institute,
             paid=False
         ).only('selected_license').first()
 
-        if not lic:
+        if not order:
             return Response(status.HTTP_204_NO_CONTENT)
         else:
             models.InstituteSelectedCommonLicense.objects.filter(
-                pk=lic.selected_license.pk
+                pk=order.selected_license.pk
             ).delete()
             return Response(status.HTTP_204_NO_CONTENT)
+
+
+class CommonLicenseCredentialsForRetryPaymentView(APIView):
+    """View for getting common license credentials for retrying payment"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+        ):
+            return Response({'error': _('Permission denied [Admin only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        order = models.InstituteCommonLicenseOrderDetails.objects.filter(
+            pk=kwargs.get('license_order_id'),
+            institute=institute,
+            paid=False
+        ).first()
+
+        if not order:
+            return Response({'error': _('Order not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        response = {
+            'id': order.pk,
+            'order_receipt': order.order_receipt,
+            'type': order.selected_license.type,
+            'billing': order.selected_license.billing,
+            'price': order.selected_license.price,
+            'discount_percent': order.selected_license.discount_percent,
+            'gst_percent': order.selected_license.gst_percent,
+            'order_created_on': order.order_created_on,
+            'amount': order.amount,
+            'no_of_admin': order.selected_license.no_of_admin,
+            'no_of_staff': order.selected_license.no_of_staff,
+            'no_of_faculty': order.selected_license.no_of_faculty,
+            'no_of_student': order.selected_license.no_of_student,
+            'no_of_board_of_members': order.selected_license.no_of_board_of_members,
+            'video_call_max_attendees': order.selected_license.video_call_max_attendees,
+            'classroom_limit': order.selected_license.classroom_limit,
+            'department_limit': order.selected_license.department_limit,
+            'subject_limit': order.selected_license.subject_limit,
+            'LMS_exists': order.selected_license.LMS_exists,
+            'CMS_exists': order.selected_license.CMS_exists,
+            'discussion_forum': order.selected_license.discussion_forum
+        }
+        
+        if order.selected_license.discount_coupon:
+            response['discount_coupon_code'] = order.selected_license.discount_coupon.coupon_code
+            response['discount_rs'] = order.selected_license.discount_rs
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class InstituteUnexpiredPaidLicenseExistsView(APIView):

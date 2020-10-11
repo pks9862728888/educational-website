@@ -58,6 +58,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<int:license_order_id>/delete-unpaid-common-license',
          views.DeleteUnpaidCommonLicenseView.as_view(),
          name='delete-unpaid-common-license'),
+    path('<slug:institute_slug>/<int:license_order_id>/common-license-credentials-for-retry-payment',
+         views.CommonLicenseCredentialsForRetryPaymentView.as_view(),
+         name='common-license-credentials-for-retry-payment'),
 
     # Institute related url
     path('create',
