@@ -29,6 +29,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<int:license_order_id>/delete-unpaid-storage-license',
          views.DeleteUnpaidStorageLicenseView.as_view(),
          name='delete-unpaid-storage-license'),
+    path('<slug:institute_slug>/<int:license_order_id>/storage-license-credentials-for-retry-payment',
+         views.StorageLicenseCredentialsForRetryPaymentView.as_view(),
+         name='storage-license-credentials-for-retry-payment'),
 
     # For common license
     path('institute-license-list',

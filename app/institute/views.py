@@ -575,17 +575,62 @@ class DeleteUnpaidStorageLicenseView(APIView):
             return Response({'error': _('Permission denied [Admin only]')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        lic = models.InstituteStorageLicenseOrderDetails.objects.filter(
+        order = models.InstituteStorageLicenseOrderDetails.objects.filter(
             pk=kwargs.get('license_order_id'),
             institute=institute,
             paid=False
         ).first()
 
-        if not lic:
+        if not order:
             return Response(status.HTTP_204_NO_CONTENT)
         else:
-            lic.delete()
+            order.delete()
             return Response(status.HTTP_204_NO_CONTENT)
+
+
+class StorageLicenseCredentialsForRetryPaymentView(APIView):
+    """View for getting storage license credentials for retrying payment"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                active=True,
+                role=models.InstituteRole.ADMIN
+        ):
+            return Response({'error': _('Permission denied [Admin only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        order = models.InstituteStorageLicenseOrderDetails.objects.filter(
+            pk=kwargs.get('license_order_id'),
+            institute=institute,
+            paid=False
+        ).first()
+
+        if not order:
+            return Response({'error': _('Order not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'id': order.pk,
+            'order_receipt': order.order_receipt,
+            'no_of_gb': order.no_of_gb,
+            'months': order.months,
+            'price': order.price,
+            'gst_percent': order.gst_percent,
+            'order_created_on': order.order_created_on,
+            'amount': order.amount,
+        }, status=status.HTTP_200_OK)
 
 
 class InstituteLicenseListView(ListAPIView):
