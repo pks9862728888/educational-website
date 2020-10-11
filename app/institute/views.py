@@ -546,7 +546,9 @@ class RazorpayStoragePaymentCallbackView(APIView):
                 return Response({'status': _('FAILURE')},
                                 status=status.HTTP_200_OK)
         except Exception:
-            return Response({'error': _('Internal server error. Dont worry, if payment was successful it will be verified automatically. If problem persists let us know.')},
+            msg = _('Internal server error. Dont worry, if payment was successful it will be verified automatically.' +\
+                    'If problem persists let us know.')
+            return Response({'error': msg},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -1052,7 +1054,8 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                         'selected_license_id': al.selected_license.pk,
                         'type': al.selected_license.type,
                         'billing': al.selected_license.billing,
-                        'amount': al.amount
+                        'amount': al.amount,
+                        'order_pk': al.pk
                     })
 
             if expired_license:
@@ -1139,7 +1142,8 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
                         'end_date': al.end_date,
                         'no_of_gb': al.no_of_gb,
                         'months': al.months,
-                        'amount': al.amount
+                        'amount': al.amount,
+                        'order_pk': al.pk
                     })
 
             if expired_license:
