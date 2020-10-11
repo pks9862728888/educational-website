@@ -1,9 +1,7 @@
 import os
-import sys
 import datetime
 from decimal import Decimal
 import time
-import json
 from math import ceil
 
 from django.contrib.auth import get_user_model
@@ -40,17 +38,17 @@ def get_unexpired_license(institute):
     else returns None
     """
     order = models.InstituteCommonLicenseOrderDetails.objects.filter(
-        institute__pk=institute.pk,
+        institute=institute,
         paid=True
-    )
+    ).order_by('-end_date')
 
     if order.filter(active=True).exists():
         order = order.filter(active=True).first()
     else:
         order = order.order_by('-order_created_on').first()
 
-    if not order or (order.active and order.end_date < timezone.now()) or \
-            not order.active and order.end_date and order.end_date < timezone.now():
+    if not order or (order.active and order.end_date < int(time.time()) * 1000) or \
+            not order.active and order.end_date and order.end_date < int(time.time()) * 1000:
         return None
     else:
         return order
@@ -62,9 +60,9 @@ def get_active_license(institute):
         institute=institute,
         paid=True,
         active=True
-    ).first()
+    ).order_by('-order_created_on').first()
 
-    if not order or (timezone.now() > order.end_date):
+    if not order or (int(time.time()) * 1000 > order.end_date):
         return None
     else:
         return order
@@ -633,9 +631,9 @@ class StorageLicenseCredentialsForRetryPaymentView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class InstituteLicenseListView(ListAPIView):
+class InstituteCommonLicenseListView(ListAPIView):
     """
-    View for getting list of all available institute license
+    View for getting list of all available common institute license
     """
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, IsTeacher)
@@ -675,7 +673,7 @@ class InstituteCommonLicenseDetailView(APIView):
     def post(self, request, *args, **kwargs):
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
-        ).first()
+        ).only('institute_slug').first()
 
         if not institute:
             return Response({'error': _('Institute not found.')},
@@ -807,8 +805,7 @@ class InstituteSelectCommonLicenseView(APIView):
                             status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            print(e)
+        except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -838,6 +835,7 @@ class InstituteCreateCommonLicenseOrderView(APIView):
         institute = models.Institute.objects.filter(
             institute_slug=institute_slug
         ).only('institute_slug').first()
+
         if not institute:
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -855,6 +853,7 @@ class InstituteCreateCommonLicenseOrderView(APIView):
             pk=license_id,
             institute=institute
         ).first()
+
         if not license_:
             return Response({'error': _('Selected license not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -912,8 +911,7 @@ class InstituteCreateCommonLicenseOrderView(APIView):
                     status=status.HTTP_201_CREATED)
             else:
                 pass  # Generate response
-        except Exception as e:
-            print(e)
+        except Exception:
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -948,7 +946,7 @@ class RazorpayCommonLicensePaymentCallbackView(APIView):
                     'error': _('Order not found. If payment is successful it will be verified automatically.')},
                                 status=status.HTTP_400_BAD_REQUEST)
             if order.paid:
-                return Response({'status': 'SUCCESS'}, status=status.HTTP_200_OK)
+                return Response({'status': _('SUCCESS')}, status=status.HTTP_200_OK)
 
             models.RazorpayCallback.objects.create(
                 razorpay_order_id=params_dict['razorpay_order_id'],
@@ -992,9 +990,12 @@ class RazorpayWebhookCallbackView(APIView):
         try:
             razorpay_order_id = request.data['payload']['payment']['entity']['order_id']
             razorpay_payment_id = request.data['payload']['payment']['entity']['id']
-            order = models.InstituteCommmonLicenseOrderDetails.objects.filter(order_id=razorpay_order_id).first()
+            order = models.InstituteCommmonLicenseOrderDetails.objects.filter(
+                order_id=razorpay_order_id).first()
+
             if not order:
                 return Response({'status': 'Order does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
             if order.paid:
                 return Response({'status': 'ok'}, status=status.HTTP_200_OK)
         except Exception:
@@ -1006,7 +1007,7 @@ class RazorpayWebhookCallbackView(APIView):
                 request.META.get('HTTP_X_RAZORPAY_SIGNATURE'),
                 os.environ.get('RAZORPAY_WEBHOOK_SECRET'))
             order.paid = True
-            order.payment_date = timezone.now()
+            order.payment_date = int(time.time()) * 1000
             order.save()
             models.RazorpayWebHookCallback.objects.create(
                 order_id=razorpay_order_id,
@@ -1624,7 +1625,7 @@ class AddStudentToInstituteView(APIView):
                 'date_of_birth': student.date_of_birth,
                 'enrollment_no': student.enrollment_no,
                 'registration_no': student.registration_no,
-                'created_on': str(student.created_on),
+                'created_on': student.created_on,
                 'image': '',
             }
 
@@ -1635,8 +1636,7 @@ class AddStudentToInstituteView(APIView):
         except IntegrityError:
             return Response({'error': _('Student was already invited.')},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            print(e)
+        except Exception:
             return Response({'error': _('Unknown error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -1691,7 +1691,7 @@ class EditInstituteStudentDetailsView(APIView):
         response['last_name'] = student_details.last_name
         response['gender'] = student_details.gender
         response['date_of_birth'] = student_details.date_of_birth
-        response['created_on'] = str(student_details.created_on)
+        response['created_on'] = student_details.created_on
         if student_details.active:
             response['is_banned'] = student_details.is_banned
         response['image'] = ''
@@ -1951,25 +1951,28 @@ class InstituteClassStudentListView(APIView):
                 institute_class__pk=class_.pk,
                 active=True,
                 is_banned=False
-            ).only('institute_student', 'created_on', 'is_banned').order_by('institute_student__enrollment_no')
+            ).only('institute_student', 'created_on', 'is_banned').order_by(
+                'institute_student__enrollment_no')
         elif kwargs.get('student_type') == 'inactive':
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
                 active=False,
                 is_banned=False
-            ).only('institute_student', 'created_on', 'is_banned').order_by('institute_student__enrollment_no')
+            ).only('institute_student', 'created_on', 'is_banned').order_by(
+                'institute_student__enrollment_no')
         elif kwargs.get('student_type') == 'banned':
             student_list = models.InstituteClassStudents.objects.filter(
                 institute_class__pk=class_.pk,
                 active=True,
                 is_banned=True
-            ).only('institute_student', 'created_on', 'is_banned').order_by('institute_student__enrollment_no')
+            ).only('institute_student', 'created_on', 'is_banned').order_by(
+                'institute_student__enrollment_no')
         response = list()
 
         for s in student_list:
             res = dict()
             res['invitee_email'] = str(s.institute_student.invitee)
-            res['created_on'] = str(s.created_on)
+            res['created_on'] = s.created_on
             res['is_banned'] = s.is_banned
 
             res['id'] = s.institute_student.pk
@@ -1988,18 +1991,18 @@ class InstituteClassStudentListView(APIView):
                     active=True
                 ).first()
                 res['banning_reason'] = ban_details.reason
-                res['banned_on'] = str(ban_details.created_on)
-                res['ban_start_date'] = str(ban_details.start_date)
+                res['banned_on'] = ban_details.created_on
+                res['ban_start_date'] = ban_details.start_date
 
                 if ban_details.banned_by.user_profile.first_name:
                     first_name = ban_details.banned_by.user_profile.first_name
                     last_name = ban_details.banned_by.user_profile.last_name
                     res['banned_by'] = first_name + ' ' + last_name
                 else:
-                    res['banned_by'] = str(ban_details.banned_by)
+                    res['banned_by'] = ban_details.banned_by
 
-                if ban_details.end_date:
-                    res['ban_end_date'] = str(ban_details.end_date)
+                if ban_details.end_date != models.UNLIMITED:
+                    res['ban_end_date'] = ban_details.end_date
 
             response.append(res)
 
@@ -2124,7 +2127,7 @@ class AddStudentToSubjectView(APIView):
                 'date_of_birth': institute_student.date_of_birth,
                 'enrollment_no': institute_student.enrollment_no,
                 'registration_no': institute_student.registration_no,
-                'created_on': str(subject_student.created_on),
+                'created_on': subject_student.created_on,
                 'image': '',
                 'active': subject_student.active
             }
@@ -2209,24 +2212,27 @@ class InstituteSubjectStudentListView(APIView):
                 institute_subject__pk=subject.pk,
                 active=True,
                 is_banned=False
-            ).only('institute_student', 'created_on', 'is_banned').order_by('institute_student__enrollment_no')
+            ).only('institute_student', 'created_on', 'is_banned').order_by(
+                'institute_student__enrollment_no')
         elif kwargs.get('student_type') == 'inactive':
             student_list = models.InstituteSubjectStudents.objects.filter(
                 institute_subject__pk=subject.pk,
                 active=False,
                 is_banned=False
-            ).only('institute_student', 'created_on', 'is_banned').order_by('institute_student__enrollment_no')
+            ).only('institute_student', 'created_on', 'is_banned').order_by(
+                'institute_student__enrollment_no')
         elif kwargs.get('student_type') == 'banned':
             student_list = models.InstituteSubjectStudents.objects.filter(
                 institute_subject__pk=subject.pk,
                 is_banned=True
-            ).only('institute_student', 'created_on', 'active', 'is_banned').order_by('institute_student__enrollment_no')
+            ).only('institute_student', 'created_on', 'active', 'is_banned').order_by(
+                'institute_student__enrollment_no')
         response = list()
 
         for s in student_list:
             res = dict()
             res['invitee_email'] = str(s.institute_student.invitee)
-            res['created_on'] = str(s.created_on)
+            res['created_on'] = s.created_on
             res['is_banned'] = s.is_banned
             res['id'] = s.institute_student.pk
             res['first_name'] = s.institute_student.first_name
@@ -2243,8 +2249,8 @@ class InstituteSubjectStudentListView(APIView):
                     banned_subject__pk=subject.pk
                 ).first()
                 res['banning_reason'] = ban_details.reason
-                res['banned_on'] = str(ban_details.created_on)
-                res['ban_start_date'] = str(ban_details.start_date)
+                res['banned_on'] = ban_details.created_on
+                res['ban_start_date'] = ban_details.start_date
                 res['active'] = s.active
 
                 if ban_details.banned_by.user_profile.first_name:
@@ -2254,8 +2260,8 @@ class InstituteSubjectStudentListView(APIView):
                 else:
                     res['banned_by'] = str(ban_details.banned_by)
 
-                if ban_details.end_date:
-                    res['ban_end_date'] = str(ban_details.end_date)
+                if ban_details.end_date != models.UNLIMITED:
+                    res['ban_end_date'] = ban_details.end_date
 
             response.append(res)
 
@@ -3051,7 +3057,7 @@ class ProvideClassPermissionView(CreateAPIView):
                 'email': str(invitee),
                 'inviter_name': inviter.first_name + ' ' + inviter.last_name,
                 'inviter_email': str(inviter),
-                'created_on': str(perm.created_on),
+                'created_on': perm.created_on,
                 'image': None
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
@@ -3109,7 +3115,7 @@ class ListPermittedClassInchargeView(APIView):
             else:
                 res['inviter_name'] = 'Anonymous'
                 res['inviter_email'] = ' '
-            res['created_on'] = str(p.created_on)
+            res['created_on'] = p.created_on
             res['image'] = None
             response.append(res)
         return Response(response, status=status.HTTP_200_OK)
@@ -3345,7 +3351,7 @@ class ListSubjectInstructorsView(APIView):
                 invite_details['inviter_email'] = ' '
 
             invite_details['name'] = invitee.first_name + ' ' + invitee.last_name
-            invite_details['created_on'] = str(perm.created_on)
+            invite_details['created_on'] = perm.created_on
             invite_details['image'] = None
             response.append(invite_details)
 
@@ -3415,7 +3421,7 @@ class AddSubjectPermissionView(APIView):
                 'invitee_id': perm.invitee.pk,
                 'inviter_email': str(perm.inviter),
                 'inviter_name': inviter.first_name + ' ' + inviter.last_name,
-                'created_on': str(perm.created_on),
+                'created_on': perm.created_on,
                 'image': None
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
@@ -3547,7 +3553,7 @@ class AddSectionPermissionView(APIView):
                 'invitee_id': perm.invitee.pk,
                 'inviter_email': str(perm.inviter),
                 'inviter_name': inviter.first_name + ' ' + inviter.last_name,
-                'created_on': str(perm.created_on),
+                'created_on': perm.created_on,
                 'image': None
             }, status=status.HTTP_201_CREATED)
         except IntegrityError:
@@ -3674,7 +3680,7 @@ class ListSectionInchargesView(APIView):
                 invite_details['inviter_email'] = ' '
 
             invite_details['name'] = invitee.first_name + ' ' + invitee.last_name
-            invite_details['created_on'] = str(perm.created_on)
+            invite_details['created_on'] = perm.created_on
             invite_details['image'] = None
             response.append(invite_details)
 
@@ -5590,8 +5596,7 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
                 'description': question.description,
                 'rgb_color': question.rgb_color,
                 'anonymous': question.anonymous,
-                'created_on': str(question.created_on),
-                'current_time': str(timezone.now()),
+                'created_on': question.created_on,
                 'upvotes': 0,
                 'answer_count': 0,
                 'user_id': self.request.user.pk,
@@ -5690,8 +5695,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
                 'anonymous': ans.anonymous,
                 'role': role,
                 'pin': ans.pin,
-                'created_on': str(ans.created_on),
-                'current_time': str(timezone.now()),
+                'created_on': ans.created_on,
                 'content_question_id': ans.content_question.pk,
                 'upvotes': 0,
                 'user_id': self.request.user.pk,
@@ -5978,8 +5982,7 @@ class InstituteSubjectCourseContentEditAnswerView(APIView):
 
             response = {
                 'id': ans.pk,
-                'created_on': str(ans.created_on),
-                'current_time': str(timezone.now()),
+                'created_on': ans.created_on,
                 'pin': ans.pin,
                 'anonymous': ans.anonymous,
                 'rgb_color': ans.rgb_color,
@@ -6072,8 +6075,7 @@ class InstituteSubjectCourseContentEditQuestionView(APIView):
             response['id'] = question.id
             response['question'] = question.question
             response['rgb_color'] = question.rgb_color
-            response['created_on'] = str(question.created_on)
-            response['current_time'] = str(timezone.now())
+            response['created_on'] = question.created_on
             response['description'] = question.description
             response['anonymous'] = question.anonymous
             response['edited'] = question.edited
@@ -6212,8 +6214,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
             for ans in answers:
                 res = dict()
                 res['id'] = ans.pk
-                res['created_on'] = str(ans.created_on)
-                res['current_time'] = str(timezone.now())
+                res['created_on'] = ans.created_on
                 res['pin'] = ans.pin
                 res['anonymous'] = ans.anonymous
                 res['rgb_color'] = ans.rgb_color
@@ -6327,8 +6328,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
             res['id'] = q.id
             res['question'] = q.question
             res['rgb_color'] = q.rgb_color
-            res['created_on'] = str(q.created_on)
-            res['current_time'] = str(timezone.now())
+            res['created_on'] = q.created_on
             res['description'] = q.description
             res['anonymous'] = q.anonymous
             res['edited'] = q.edited

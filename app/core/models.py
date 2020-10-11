@@ -36,9 +36,6 @@ from .tasks import create_welcome_message_after_user_creation
 # Constant to define unlimited limit
 UNLIMITED = 99999
 
-class Temp(viewsets.ModelViewSet):
-    pass
-
 
 class OperationalCountries(Countries):
     """Overriding countries to include only operational countries."""
@@ -701,13 +698,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(_('Is Staff'), default=False)
     is_student = models.BooleanField(_('Is Student'), default=False)
     is_teacher = models.BooleanField(_('Is Teacher'), default=False)
-    created_date = models.DateTimeField(
-        _('Created Date'), default=timezone.now, editable=False)
+    created_date = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), blank=True, use_numeric=True, editable=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', ]
+
+    def save(self, *args, **kwargs):
+        if not self.created_date:
+            self.created_date = int(time.time()) * 1000
+        super(User, self).save(*args, **kwargs)
 
     def __str__(self):
         """String representation of user model"""
@@ -795,8 +797,13 @@ class SystemMessage(models.Model):
     title = models.CharField(_('Title'), max_length=30)
     message = models.TextField(_('Message'), max_length=60)
     seen = models.BooleanField(_('Seen'), default=False)
-    created_date = models.DateTimeField(
-        _('Created Date'), default=timezone.now, editable=False)
+    created_date = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        if not self.created_date:
+            self.created_date = int(time.time()) * 1000
+        super(SystemMessage, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(receiver)
@@ -992,7 +999,7 @@ class InstituteDiscountCoupon(models.Model):
         on_delete=models.SET_NULL, null=True)
     discount_rs = models.BigIntegerField(_('Discount in Rupees'), null=False)
     created_date = UnixTimeStampField(
-        _('Created timestamp in seconds'), auto_now_add=True, use_numeric=True, editable=False)
+        _('Created timestamp in seconds'), use_numeric=True, editable=False)
     expiry_date = UnixTimeStampField(
         _('Expiry timestamp in seconds'), use_numeric=True, null=False)
     coupon_code = models.SlugField(
@@ -1001,6 +1008,9 @@ class InstituteDiscountCoupon(models.Model):
 
     def save(self, *args, **kwargs):
         """Overrides save method"""
+        if not self.created_date:
+            self.created_date = int(time.time()) * 1000
+
         if not self.discount_rs:
             raise ValueError({'discount_rs': _('This field is required.')})
 
@@ -1242,12 +1252,17 @@ class ProfilePictures(models.Model):
         max_length=1024,
         validators=(validate_image_file_extension,)
     )
-    uploaded_on = models.DateTimeField(_('Uploaded on'),
-                                       default=timezone.now, editable=False)
+    uploaded_on = UnixTimeStampField(
+        _('Uploaded timestamp in milliseconds'), use_numeric=True, editable=False)
     class_profile_picture = models.BooleanField(
         _("ClassProfilePicture"), default=False)
     public_profile_picture = models.BooleanField(
         _("PublicProfilePicture"), default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.uploaded_on:
+            self.uploaded_on = int(time.time()) * 1000
+        super(ProfilePictures, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = 'Profile Pictures'
@@ -1273,8 +1288,8 @@ class Institute(models.Model):
         _('Institute Type'), max_length=2,
         choices=InstituteType.TYPE_IN_INSTITUTE_TYPE,
         blank=False, null=False)
-    created_date = models.DateTimeField(
-        _('Created Date'), default=timezone.now, editable=False
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, editable=False
     )
     institute_slug = models.SlugField(
         _('Institute Slug'),
@@ -1297,6 +1312,9 @@ class Institute(models.Model):
         # Only teachers can create institute
         if not User.objects.get(email=self.user).is_teacher:
             raise PermissionDenied()
+
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000;
 
         super(Institute, self).save(*args, **kwargs)
 
@@ -1367,11 +1385,15 @@ class InstituteLogo(models.Model):
         null=True,
         blank=True,
         max_length=1024,
-        validators=(validate_image_file_extension,)
-    )
-    uploaded_on = models.DateTimeField(_('Uploaded on'),
-                                       default=timezone.now, editable=False)
+        validators=(validate_image_file_extension,))
+    uploaded_on = UnixTimeStampField(
+        _('Uploaded timestamp in milliseconds'), use_numeric=True, editable=False)
     active = models.BooleanField(_("Active"), default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.uploaded_on:
+            self.uploaded_on = int(time.time()) * 1000
+        super(InstituteLogo, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = 'Institute Logos'
@@ -1392,9 +1414,14 @@ class InstituteBanner(models.Model):
         max_length=1024,
         validators=(validate_image_file_extension,)
     )
-    uploaded_on = models.DateTimeField(_('Uploaded on'),
-                                       default=timezone.now, editable=False)
+    uploaded_on = UnixTimeStampField(
+        _('Uploaded timestamp in milliseconds'), use_numeric=True, editable=False)
     active = models.BooleanField(_("Active"), default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.uploaded_on:
+            self.uploaded_on = int(time.time()) * 1000
+        super(InstituteBanner, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = 'Institute Banners'
@@ -1419,10 +1446,15 @@ class InstitutePermission(models.Model):
         null=False,
         blank=False)
     active = models.BooleanField(_('Active'), default=False)
-    request_date = models.DateTimeField(
-        _('Request Date'), default=timezone.now, editable=False)
-    request_accepted_on = models.DateTimeField(
-        _('Request Accept Date'), null=True, blank=True)
+    request_date = UnixTimeStampField(
+        _('Request timestamp in millisecond'), use_numeric=True, editable=False)
+    request_accepted_on = UnixTimeStampField(
+        _('Request accept timestamp in millisecond'), use_numeric=True, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.request_date:
+            self.request_date = int(time.time()) * 1000
+        super(InstitutePermission, self).save(*args, **kwargs)
 
     class Meta:
         unique_together = ('institute', 'invitee')
@@ -1447,8 +1479,6 @@ class InstituteStatistics(models.Model):
                                   max_digits=14, decimal_places=9)
     uploaded_video_duration = models.PositiveIntegerField(
         _('Uploaded video duration in seconds'), default=0)
-    uploaded_pdf_duration = models.PositiveIntegerField(
-        _('Uploaded pdf reading duration in seconds'), default=0)
 
     def __str__(self):
         return self.institute.name
@@ -1485,13 +1515,16 @@ class InstituteClass(models.Model):
         _('Name'), max_length=40, blank=False, null=False)
     class_slug = models.CharField(
         _('Class slug'), max_length=50, blank=True, null=True)
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, editable=False)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in millisecond'), use_numeric=True, editable=False)
 
     class Meta:
         unique_together = ('class_institute', 'name')
 
     def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+
         if self.name:
             self.name = self.name.lower().strip()
 
@@ -1526,11 +1559,14 @@ class InstituteSubject(models.Model):
         null=False)
     subject_slug = models.CharField(
         _('Subject Slug'), max_length=60, blank=True, null=False, unique=True)
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, editable=False)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in millisecond'), use_numeric=True, editable=False)
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower().strip()
+
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
 
         if not self.name:
             raise ValueError({'error': _('Subject name can not be blank.')})
@@ -1617,11 +1653,14 @@ class InstituteSection(models.Model):
         _('Section Name'), max_length=20, blank=False, null=False)
     section_slug = models.CharField(
         _('Section Slug'), max_length=32, blank=True, null=False, unique=True)
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, editable=False)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in millisecond'), use_numeric=True, editable=False)
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower().strip()
+
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
 
         if not self.name:
             raise ValueError({'error': _('Section name can not be blank.')})
@@ -1652,8 +1691,13 @@ class InstituteClassPermission(models.Model):
     to = models.ForeignKey(
         InstituteClass, on_delete=models.CASCADE,
         related_name='perm_class_institute')
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, editable=False)
+    created_on = UnixTimeStampField(
+        _('Created On'), use_numeric=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+        super(InstituteClassPermission, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.invitee)
@@ -1673,8 +1717,13 @@ class InstituteSubjectPermission(models.Model):
     to = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE,
         related_name='perm_subject_institute')
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, editable=False)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+        super(InstituteSubjectPermission, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.invitee)
@@ -1694,8 +1743,13 @@ class InstituteSectionPermission(models.Model):
     to = models.ForeignKey(
         InstituteSection, on_delete=models.CASCADE,
         related_name='perm_section_institute')
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, editable=False)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+        super(InstituteSectionPermission, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.invitee)
@@ -1769,12 +1823,16 @@ class SubjectIntroductoryContent(models.Model):
         null=False,
         blank=False,
         choices=SubjectIntroductionContentType.CONTENT_TYPE_IN_CONTENT_TYPES)
-    created_on = models.DateTimeField(
-        _('Created on'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
 
     def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+
         if not self.can_download:
             self.can_download = False
+
         super(SubjectIntroductoryContent, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -1815,10 +1873,13 @@ class SubjectLecture(models.Model):
         _('Lecture name'), max_length=30, blank=False, null=False)
     target_date = models.DateField(
         _('Target Date'), max_length=10, blank=True, null=True)
-    created_on = models.DateTimeField(
-        _('Created on'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
 
     def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+
         self.name = self.name.strip()
         super(SubjectLecture, self).save(*args, **kwargs)
 
@@ -2137,8 +2198,8 @@ class InstituteStudents(models.Model):
         choices=Gender.GENDER_IN_GENDER_CHOICES)
     date_of_birth = models.DateField(
         _('Date of Birth'), max_length=10, null=True, blank=True)
-    created_on = models.DateTimeField(
-        _('Created on'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
     edited = models.BooleanField(
         _('Edited'), default=False, blank=True)   # For allowing invitee to change first name last name only once.
     active = models.BooleanField(
@@ -2147,14 +2208,21 @@ class InstituteStudents(models.Model):
         _('Is Banned'), default=False, blank=True)
 
     def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+
         if self.enrollment_no:
             self.enrollment_no = self.enrollment_no.strip()
+
         if self.registration_no:
             self.registration_no = self.registration_no.strip()
+
         if self.first_name:
             self.first_name = self.first_name.lower().strip()
+
         if self.last_name:
             self.last_name = self.last_name.lower().strip()
+
         super(InstituteStudents, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -2174,8 +2242,13 @@ class InstituteClassStudents(models.Model):
         User, on_delete=models.SET_NULL, related_name='class_student_inviter', null=True)
     active = models.BooleanField(_('Active'), default=False, blank=True)
     is_banned = models.BooleanField(_('Is Banned'), default=False, blank=True)
-    created_on = models.DateTimeField(
-        _('Created on'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+        super(InstituteClassStudents, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.institute_student.invitee)
@@ -2209,8 +2282,13 @@ class InstituteSubjectStudents(models.Model):
         User, on_delete=models.SET_NULL, related_name='subject_student_inviter', null=True)
     active = models.BooleanField(_('Active'), default=False, blank=True)
     is_banned = models.BooleanField(_('Is Banned'), default=False, blank=True)
-    created_on = models.DateTimeField(
-        _('Created on'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+        super(InstituteSubjectStudents, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.institute_student.invitee)
@@ -2224,13 +2302,18 @@ class InstituteStudyMaterialPreviewStats(models.Model):
     # course_content = models.ForeignKey(
     #     InstituteSubjectCourseContent, on_delete=models.CASCADE, related_name='institute_course_content')
     completed = models.BooleanField('Completed', default=False, blank=True)
-    completed_on = models.DateTimeField(
-        _('Completed On'), default=timezone.now, blank=True)
+    completed_on = UnixTimeStampField(
+        _('Completed timestamp in milliseconds'), use_numeric=True, blank=True)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='course_content_user')
 
     def __str__(self):
         return str(self.user)
+
+    def save(self, *args, **kwargs):
+        if not self.completed_on:
+            self.completed_on = int(time.time()) * 1000
+        super(InstituteStudyMaterialPreviewStats, self).save(*args, **kwargs)
 
     # class Meta:
     #     unique_together = ('user', 'course_content')
@@ -2244,20 +2327,24 @@ class InstituteBannedStudent(models.Model):
         User, on_delete=models.CASCADE, related_name='institute_banning_user')
     banned_institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, related_name='banned_institute')
-    start_date = models.DateTimeField(
-        _('Start Date'), blank=False, null=False)
-    end_date = models.DateTimeField(
-        _('End Date'), blank=True, null=True)
+    start_date = UnixTimeStampField(
+        _('Start timestamp in milliseconds'), use_numeric=True, blank=False, null=False)
+    end_date = UnixTimeStampField(
+        _('End timestamp in milliseconds'), use_numeric=True, default=UNLIMITED, blank=True)
     reason = models.CharField(
         _('Reason'), max_length=100, blank=False, null=False)
     active = models.BooleanField(
         _('Ban Active'), default=True, blank=True)
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
 
     def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+
         if not self.reason:
             raise ValueError(_('You need to provide a reason for banning.'))
+
         self.reason = self.reason.strip()
         super(InstituteBannedStudent, self).save(*args, **kwargs)
 
@@ -2273,18 +2360,20 @@ class InstituteClassBannedStudent(models.Model):
         User, on_delete=models.CASCADE, related_name='class_banned_by')
     banned_class = models.ForeignKey(
         InstituteClass, on_delete=models.CASCADE, related_name='banned_class')
-    start_date = models.DateTimeField(
-        _('Start Date'), blank=False, null=False)
-    end_date = models.DateTimeField(
-        _('End Date'), blank=True, null=True)
+    start_date = UnixTimeStampField(
+        _('Start timestamp in milliseconds'), use_numeric=True, blank=False, null=False)
+    end_date = UnixTimeStampField(
+        _('End timestamp in milliseconds'), use_numeric=True, default=UNLIMITED, blank=True)
     reason = models.CharField(
         _('Reason'), max_length=500, blank=False, null=False)
     active = models.BooleanField(
         _('Ban Active'), default=True, blank=True)
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
 
     def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
         if not self.reason:
             raise ValueError(_('You need to provide a reason for banning.'))
         self.reason = self.reason.strip()
@@ -2302,20 +2391,24 @@ class InstituteSubjectBannedStudent(models.Model):
         User, on_delete=models.CASCADE, related_name='subject_banned_by')
     banned_subject = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE, related_name='banned_subject')
-    start_date = models.DateTimeField(
-        _('Start Date'), blank=False, null=False)
-    end_date = models.DateTimeField(
-        _('End Date'), blank=True, null=True)
+    start_date = UnixTimeStampField(
+        _('Start timestamp in milliseconds'), use_numeric=True, blank=False, null=False)
+    end_date = UnixTimeStampField(
+        _('End timestamp in milliseconds'), use_numeric=True, default=UNLIMITED, blank=True)
     reason = models.CharField(
         _('Reason'), max_length=100, blank=False, null=False)
     active = models.BooleanField(
         _('Ban Active'), default=True, blank=True)
-    created_on = models.DateTimeField(
-        _('Created On'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
 
     def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+
         if not self.reason:
             raise ValueError(_('You need to provide a reason for banning.'))
+
         self.reason = self.reason.strip()
         super(InstituteSubjectBannedStudent, self).save(*args, **kwargs)
 
@@ -2329,8 +2422,13 @@ class InstituteLastSeen(models.Model):
         User, on_delete=models.CASCADE, related_name='institute_last_seen_user')
     last_seen_institute = models.ForeignKey(
         Institute, on_delete=models.CASCADE, related_name='last_seen_institute')
-    last_seen = models.DateTimeField(
-        _('Last Seen'), default=timezone.now, blank=True)
+    last_seen = UnixTimeStampField(
+        _('Last Seen timestamp in milliseconds'), use_numeric=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.last_seen:
+            self.last_seen = int(time.time()) * 1000
+        super(InstituteLastSeen, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.user)
@@ -2345,8 +2443,13 @@ class InstituteClassLastSeen(models.Model):
         User, on_delete=models.CASCADE, related_name='institute_class_last_seen_user')
     last_seen_class = models.ForeignKey(
         InstituteClass, on_delete=models.CASCADE, related_name='last_seen_class')
-    last_seen = models.DateTimeField(
-        _('Last Seen'), default=timezone.now, blank=True)
+    last_seen = UnixTimeStampField(
+        _('Last Seen timestamp in milliseconds'), use_numeric=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.last_seen:
+            self.last_seen = int(time.time()) * 1000
+        super(InstituteClassLastSeen, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.user)
@@ -2361,8 +2464,13 @@ class InstituteSubjectLastSeen(models.Model):
         User, on_delete=models.CASCADE, related_name='institute_subject_last_seen_user')
     last_seen_subject = models.ForeignKey(
         InstituteSubject, on_delete=models.CASCADE, related_name='last_seen_subject')
-    last_seen = models.DateTimeField(
-        _('Last Seen'), default=timezone.now, blank=True)
+    last_seen = UnixTimeStampField(
+        _('Last Seen timestamp in milliseconds'), use_numeric=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.last_seen:
+            self.last_seen = int(time.time()) * 1000
+        super(InstituteSubjectLastSeen, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.user)
@@ -2719,5 +2827,10 @@ class StudentTestLoginStats(models.Model):
         _('Other Region login'), max_length=100, blank=True, default='')
     login_country = CountryField(
         _('Login Country'), countries=OperationalCountries, default='IN')
-    created_on = models.DateTimeField(
-        _('Created on'), default=timezone.now, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in milliseconds'), use_numeric=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+        super(StudentTestLoginStats, self).save(*args, **kwargs)

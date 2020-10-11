@@ -35,7 +35,7 @@ urlpatterns = [
 
     # For common license
     path('institute-license-list',
-         views.InstituteLicenseListView.as_view(),
+         views.InstituteCommonLicenseListView.as_view(),
          name="institute-license-list"),
     path('<slug:institute_slug>/institute-common-license-detail',
          views.InstituteCommonLicenseDetailView.as_view(),
