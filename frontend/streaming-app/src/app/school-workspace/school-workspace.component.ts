@@ -5,6 +5,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
+import { InstituteLicenseExists } from '../models/license.model';
 
 
 @Component({
@@ -26,8 +27,14 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
   routerEventsSubscription: Subscription;
-  purchasedLicenseExists: boolean;
+  licenseExistsStatistics: InstituteLicenseExists = {
+    purchased_common_license: false
+  };
   purchasedLicenseSubscription: Subscription;
+
+  loadingIndicator: boolean;
+  loadingError: string;
+  reloadIndicator: boolean;
 
   constructor(
     private router: Router,
@@ -39,7 +46,7 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
     this.activeLink = 'PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
-        if(val.url.includes('profile')) {
+        if (val.url.includes('profile')) {
           this.activeLink = 'PROFILE';
         } else if (val.url.includes('permissions')) {
           this.activeLink = 'PERMISSIONS';
@@ -62,9 +69,9 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
       this.userType = 'TEACHER';
     }
     this.baseUrl = '/school-workspace/' + this.currentInstituteSlug;
-    this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherFullInstituteView$.subscribe(
+    this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherLmsCmsView$.subscribe(
       () => {
-        this.purchasedLicenseExists = true;
+        this.licenseExistsStatistics.purchased_common_license = true;
       }
     );
   }
@@ -81,17 +88,33 @@ export class SchoolWorkspaceComponent implements OnInit, OnDestroy {
         this.tempBreadcrumbLinkName = linkName;
       }
     );
-    this.instituteApiService.getPaidUnexpiredLicenseDetails(sessionStorage.getItem('currentInstituteSlug')).subscribe(
-      (result: {status: boolean}) => {
-        if (result.status === true) {
-          this.purchasedLicenseExists = true;
-          sessionStorage.setItem('purchasedLicenseExists', 'true');
+    this.loadLicenseStatistics();
+  }
+
+  loadLicenseStatistics() {
+    this.loadingIndicator = true;
+    this.loadingError = null;
+    this.reloadIndicator = false;
+    this.instituteApiService.getLicenseExistsStatistics(
+      sessionStorage.getItem(currentInstituteSlug)
+      ).subscribe(
+      (result: InstituteLicenseExists) => {
+        this.loadingIndicator = false;
+        this.licenseExistsStatistics = result;
+      },
+      errors => {
+        this.loadingIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.loadingError = errors.error.error;
+          } else {
+            this.reloadIndicator = true;
+          }
         } else {
-          sessionStorage.setItem('purchasedLicenseExists', 'false');
-          this.purchasedLicenseExists = false;
+          this.reloadIndicator = true;
         }
       }
-    )
+    );
   }
 
   // For navigating to teacher-workspace view

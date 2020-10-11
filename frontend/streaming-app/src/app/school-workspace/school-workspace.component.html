@@ -1,5 +1,13 @@
-<!-- Showing sidenav -->
-<div class="full-body-container" [ngClass]="{'is-mobile': mq.matches}">
+<section class="full-body-container sidenav-container" *ngIf="loadingIndicator || loadingError || reloadIndicator">
+    <div class="center-container">
+        <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading...'"></app-ui-loading>
+    </div>
+    <div *ngIf="loadingError || reloadIndicator" class="p-1rem">
+        <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
+        <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load data.'" (retryEvent)="loadLicenseStatistics()"></app-ui-reload>
+    </div>
+</section>
+<section class="full-body-container" *ngIf="!loadingIndicator && !loadingError && !reloadIndicator" [ngClass]="{'is-mobile': mq.matches}">
     <mat-sidenav-container class="sidenav-container">
         <mat-sidenav #snav [mode]="mq.matches ? 'over' : 'side'" [fixedInViewport]="mq.matches" [ngClass]="{'sidenav-container-20': mq.matches === false,
                                      'sidenav-container-75': mq.matches}" fixedTopGap="46px" [(opened)]="opened" autoFocus="false" class="sidenav-background-color">
@@ -10,11 +18,11 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PROFILE'" (click)="performAction('profile')">School Profile</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PERMISSIONS'" (click)="performAction('PERMISSIONS')" *ngIf="purchasedLicenseExists && userIsTeacher()">School Permissions</div>
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'PERMISSIONS'" (click)="performAction('PERMISSIONS')" *ngIf="licenseExistsStatistics.purchased_common_license && userIsTeacher()">School Permissions</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'STUDENTS'" (click)="performAction('STUDENTS')" *ngIf="purchasedLicenseExists && userIsTeacher()">School Students</div>
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'STUDENTS'" (click)="performAction('STUDENTS')" *ngIf="licenseExistsStatistics.purchased_common_license && userIsTeacher()">School Students</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CLASSES'" (click)="performAction('CLASSES')" *ngIf="purchasedLicenseExists && userIsTeacher()">School Classes</div>
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CLASSES'" (click)="performAction('CLASSES')" *ngIf="licenseExistsStatistics.purchased_common_license && userIsTeacher()">School Classes</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')" *ngIf="userIsAdmin()">License</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
@@ -38,9 +46,9 @@
                         <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
                         <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'PROFILE'">Profile</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'PERMISSIONS'" *ngIf="purchasedLicenseExists && userIsTeacher()">Permissions</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'STUDENTS'" *ngIf="purchasedLicenseExists && userIsTeacher()">Invite</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CLASSES'" *ngIf="purchasedLicenseExists && userIsTeacher()">Classes</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'PERMISSIONS'" *ngIf="licenseExistsStatistics.purchased_common_license && userIsTeacher()">Permissions</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'STUDENTS'" *ngIf="licenseExistsStatistics.purchased_common_license && userIsTeacher()">Invite</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CLASSES'" *ngIf="licenseExistsStatistics.purchased_common_license && userIsTeacher()">Classes</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'" *ngIf="userIsAdmin() && userIsTeacher()">License</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'STUDENT-COURSES'" *ngIf="userIsStudent()">Courses</li>
                     </ol>
@@ -51,4 +59,4 @@
             </div>
         </mat-sidenav-content>
     </mat-sidenav-container>
-</div>
+</section>

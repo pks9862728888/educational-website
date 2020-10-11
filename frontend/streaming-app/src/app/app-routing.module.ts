@@ -7,7 +7,6 @@ import { StudentWorkspaceGuard, TeacherWorkspaceGuard,
 import { LoginComponent } from './auth/login/login.component';
 import { SignupComponent } from './auth/signup/signup.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
-import { ClassRoutingGuard } from './guard/institute.guard';
 
 
 const routes: Routes = [
@@ -52,8 +51,7 @@ const routes: Routes = [
   },
   {
     path: 'class-workspace',
-    loadChildren: () => import('./class-workspace/class-workspace.module').then(m => m.ClassWorkspaceModule),
-    canLoad: [ClassRoutingGuard]
+    loadChildren: () => import('./class-workspace/class-workspace.module').then(m => m.ClassWorkspaceModule)
   },
   {
     path: 'subject-workspace',
@@ -103,8 +101,7 @@ const routes: Routes = [
     StaffWorkspaceGuard,
     SchoolWorkspaceGuard,
     CollegeWorkspaceGuard,
-    CoachingWorkspaceGuard,
-    ClassRoutingGuard
+    CoachingWorkspaceGuard
   ]
 })
 export class AppRoutingModule { }

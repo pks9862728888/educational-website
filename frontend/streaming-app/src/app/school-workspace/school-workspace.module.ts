@@ -1,9 +1,7 @@
-import { MatInputModule } from '@angular/material/input';
 import { SharedModule } from './../shared/shared.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SchoolMaterialWorkspaceModule } from './material.school.workspace.module';
-import { LicenseModule } from './../license/license.module';
 import { SchoolWorkspaceRoutingModule, schoolWorkspaceRoutingComponents } from './school-workspace-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -22,7 +20,6 @@ import { UiService } from '../services/ui.service';
     CommonModule,
     SchoolWorkspaceRoutingModule,
     SchoolMaterialWorkspaceModule,
-    LicenseModule,
     FormsModule,
     ReactiveFormsModule,
     FlexLayoutModule,

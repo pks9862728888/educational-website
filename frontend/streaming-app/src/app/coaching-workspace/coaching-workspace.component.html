@@ -1,42 +1,47 @@
-<!-- Showing sidenav -->
-<div class="full-body-container" [ngClass]="{'is-mobile': mobileQuery.matches}">
+<section class="full-body-container sidenav-container" *ngIf="loadingIndicator || loadingError || reloadIndicator">
+    <div class="center-container">
+        <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading...'"></app-ui-loading>
+    </div>
+    <div *ngIf="loadingError || reloadIndicator" class="p-1rem">
+        <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
+        <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load data.'" (retryEvent)="loadLicenseStatistics()"></app-ui-reload>
+    </div>
+</section>
+<section class="full-body-container" [ngClass]="{'is-mobile': mq.matches}" *ngIf="!loadingIndicator && !loadingError && !reloadIndicator">
     <mat-sidenav-container class="sidenav-container">
-        <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches" [ngClass]="{'sidenav-container-20': mobileQuery.matches === false,
-                                     'sidenav-container-75': mobileQuery.matches}" fixedTopGap="46px" [(opened)]="opened" autoFocus="false" class="sidenav-background-color">
+        <mat-sidenav #snav [mode]="mq.matches ? 'over' : 'side'" [fixedInViewport]="mq.matches" [ngClass]="{'sidenav-container-20': mq.matches === false,
+                                     'sidenav-container-75': mq.matches}" fixedTopGap="46px" [(opened)]="opened" autoFocus="false" class="sidenav-background-color">
 
             <!-- Sidenav contents -->
             <mat-nav-list>
-                <h1 *ngIf="mobileQuery.matches" class="website-name">EduWeb</h1>
-                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                                'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COACHING_PROFILE'" (click)="performAction('COACHING_PROFILE')">Coaching Profile</div>
-                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'COACHING_PERMISSIONS'" (click)="performAction('COACHING_PERMISSIONS')" *ngIf="purchasedLicenseExists">Coaching Permissions</div>
-                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                              'sidenav-content-more-padding': !mobileQuery.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')">License</div>
-                <div [ngClass]="{'sidenav-content-less-padding': mobileQuery.matches,
-                              'sidenav-content-more-padding': !mobileQuery.matches}" (click)="performAction('EXIT')">Exit</div>
+                <h1 *ngIf="mq.matches" class="website-name">EduWeb</h1>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'COACHING_PROFILE'" (click)="performAction('COACHING_PROFILE')">Coaching Profile</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'COACHING_PERMISSIONS'" (click)="performAction('COACHING_PERMISSIONS')" *ngIf="licenseExistsStatistics.purchased_common_license">Coaching Permissions</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                              'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'LICENSE'" (click)="performAction('LICENSE')">License</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                              'sidenav-content-more-padding': !mq.matches}" (click)="performAction('EXIT')">Exit</div>
             </mat-nav-list>
         </mat-sidenav>
 
         <mat-sidenav-content>
-            <section [ngClass]="{'toggle-icon-mobile': mobileQuery.matches, 'toggle-icon-desktop': !mobileQuery.matches}" (click)="snav.toggle()">
+            <section [ngClass]="{'toggle-icon-mobile': mq.matches, 'toggle-icon-desktop': !mq.matches}" (click)="snav.toggle()">
                 <mat-icon *ngIf="opened === false" class="icon" aria-hidden="false" aria-label="Show navigaion pane icon">keyboard_arrow_right</mat-icon>
                 <mat-icon *ngIf="opened" class="icon" aria-hidden="false" aria-label="Hide navigaion Pane icon">
                     keyboard_arrow_left</mat-icon>
             </section>
-
-            <!-- Navigation breadcrumb -->
             <div class="padding-main-content">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
                         <li class="breadcrumb-item clickable-link"><a (click)="performAction('INSTITUTES')">Institutes</a></li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COACHING_PROFILE'">Profile</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COACHING_PERMISSIONS'" *ngIf="purchasedLicenseExists">Permissions</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'COACHING_PERMISSIONS'" *ngIf="licenseExistsStatistics.purchased_common_license">Permissions</li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'LICENSE'">License</li>
                     </ol>
                 </nav>
-
                 <!-- Router outlet for dynamic content -->
                 <div class="no-scrollbar">
                     <router-outlet></router-outlet>
@@ -44,4 +49,4 @@
             </div>
         </mat-sidenav-content>
     </mat-sidenav-container>
-</div>
+</section>

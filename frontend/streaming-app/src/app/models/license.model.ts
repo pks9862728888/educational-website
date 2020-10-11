@@ -1,3 +1,7 @@
+export interface InstituteLicenseExists {
+  purchased_common_license: boolean;
+}
+
 export interface LicenseDetails {
   id: string;
   billing: string;

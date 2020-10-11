@@ -116,8 +116,8 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${productType}/get-ordered-license-orders`;
   }
 
-  getPaidInstituteLicenseUrl(instituteSlug: string) {
-    return `${this.instituteBaseUrl}${instituteSlug}/check-license-exists`;
+  getLicenseExistsStatisticsUrl(instituteSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/license-exists-statistics`;
   }
 
   getInstituteClassListUrl(instituteSlug: string) {
@@ -592,9 +592,9 @@ export class InstituteApiService {
   }
 
   // To get paid unexpired license details
-  getPaidUnexpiredLicenseDetails(instituteSlug: string) {
+  getLicenseExistsStatistics(instituteSlug: string) {
     return this.httpClient.get(
-      this.getPaidInstituteLicenseUrl(instituteSlug),
+      this.getLicenseExistsStatisticsUrl(instituteSlug),
       { headers: this.getAuthHeader() }
     );
   }

@@ -4,6 +4,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
+import { InstituteLicenseExists } from '../models/license.model';
+import { currentInstituteSlug } from 'src/constants';
 
 @Component({
   selector: 'app-coaching-workspace',
@@ -13,7 +15,7 @@ import { Subscription } from 'rxjs';
 export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
 
   // For showing sidenav toolbar
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
   currentInstituteSlug: string;
   baseUrl: string;
   opened: boolean;
@@ -22,19 +24,24 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
   routerEventsSubscription: Subscription;
-  purchasedLicenseExists: boolean;
+  licenseExistsStatistics: InstituteLicenseExists;
   purchasedLicenseSubscription: Subscription;
 
+  loadingIndicator: boolean;
+  loadingError: string;
+  reloadIndicator: boolean;
 
-  constructor( private router: Router,
-               private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService,
-               private instituteApiService: InstituteApiService ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+  constructor(
+    private router: Router,
+    private media: MediaMatcher,
+    private inAppDataTransferService: InAppDataTransferService,
+    private instituteApiService: InstituteApiService
+    ) {
+    this.mq = this.media.matchMedia('(max-width: 600px)');
     this.activeLink = 'COACHING_PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
-        if(val.url.includes('profile')) {
+        if (val.url.includes('profile')) {
           this.activeLink = 'COACHING_PROFILE';
         } else if (val.url.includes('permissions')) {
           this.activeLink = 'COACHING_PERMISSIONS';
@@ -45,17 +52,16 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
     });
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.baseUrl = '/coaching-workspace/' + this.currentInstituteSlug;
-    this.purchasedLicenseExists = false;
-    this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherFullInstituteView$.subscribe(
+    this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherLmsCmsView$.subscribe(
       () => {
-        this.purchasedLicenseExists = true;
+        this.licenseExistsStatistics.purchased_common_license = true;
       }
     );
   }
 
   ngOnInit(): void {
     // For keeping the sidenav opened in desktop view in the beginning
-    if (this.mobileQuery.matches === true) {
+    if (this.mq.matches === true) {
       this.opened = false;
     } else {
       this.opened = true;
@@ -65,17 +71,33 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
         this.tempBreadcrumbLinkName = linkName;
       }
     );
-    this.instituteApiService.getPaidUnexpiredLicenseDetails(sessionStorage.getItem('currentInstituteSlug')).subscribe(
-      (result: {status: boolean}) => {
-        if (result.status === true) {
-          sessionStorage.setItem('purchasedLicenseExists', 'true');
-          this.purchasedLicenseExists = true;
+    this.loadLicenseStatistics();
+  }
+
+  loadLicenseStatistics() {
+    this.loadingIndicator = true;
+    this.loadingError = null;
+    this.reloadIndicator = false;
+    this.instituteApiService.getLicenseExistsStatistics(
+      sessionStorage.getItem(currentInstituteSlug)
+      ).subscribe(
+      (result: InstituteLicenseExists) => {
+        this.loadingIndicator = false;
+        this.licenseExistsStatistics = result;
+      },
+      errors => {
+        this.loadingIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.loadingError = errors.error.error;
+          } else {
+            this.reloadIndicator = true;
+          }
         } else {
-          sessionStorage.setItem('purchasedLicenseExists', 'false');
-          this.purchasedLicenseExists = false;
+          this.reloadIndicator = true;
         }
       }
-    )
+    );
   }
 
   // For navigating to teacher-workspace view
@@ -88,9 +110,7 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
         sessionStorage.removeItem('currentInstituteSlug');
         sessionStorage.removeItem('currentInstituteRole');
         sessionStorage.removeItem('currentInstituteType');
-        sessionStorage.removeItem('purchasedLicenseExists');
         sessionStorage.removeItem('selectedLicenseId');
-        sessionStorage.removeItem('paymentComplete');
         this.router.navigate(['/teacher-workspace/institutes']);
       } else {
         if (link === 'COACHING_PROFILE') {
@@ -109,7 +129,7 @@ export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
   // For navbar
   performAction(link: string) {
     // Hiding navbar if it is mobile
-    if (this.mobileQuery.matches === true) {
+    if (this.mq.matches === true) {
       this.opened = false;
     }
     this.navigate(link);

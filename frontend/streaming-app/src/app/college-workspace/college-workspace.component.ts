@@ -4,6 +4,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
+import { currentInstituteSlug } from 'src/constants';
+import { InstituteLicenseExists } from '../models/license.model';
 
 @Component({
   selector: 'app-college-workspace',
@@ -11,7 +13,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./college-workspace.component.css']
 })
 export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
   currentInstituteSlug: string;
   baseUrl: string;
   opened: boolean;
@@ -20,19 +22,24 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
   showTempNamesSubscription: Subscription;
   tempBreadcrumbLinkName: string;
   routerEventsSubscription: Subscription;
-  purchasedLicenseExists: boolean;
+  licenseExistsStatistics: InstituteLicenseExists;
   purchasedLicenseSubscription: Subscription;
 
-  constructor( private router: Router,
-               private media: MediaMatcher,
-               private inAppDataTransferService: InAppDataTransferService,
-               private instituteApiService: InstituteApiService ) {
+  loadingIndicator: boolean;
+  loadingError: string;
+  reloadIndicator: boolean;
 
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+  constructor(
+    private router: Router,
+    private media: MediaMatcher,
+    private inAppDataTransferService: InAppDataTransferService,
+    private instituteApiService: InstituteApiService
+    ) {
+    this.mq = this.media.matchMedia('(max-width: 600px)');
     this.activeLink = 'COLLEGE_PROFILE';
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
-        if(val.url.includes('profile')) {
+        if (val.url.includes('profile')) {
           this.activeLink = 'COLLEGE_PROFILE';
         } else if (val.url.includes('permissions')) {
           this.activeLink = 'COLLEGE_PERMISSIONS';
@@ -43,17 +50,16 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
     });
     this.currentInstituteSlug = sessionStorage.getItem('currentInstituteSlug');
     this.baseUrl = '/college-workspace/' + this.currentInstituteSlug;
-    this.purchasedLicenseExists = false;
-    this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherFullInstituteView$.subscribe(
+    this.purchasedLicenseSubscription = this.inAppDataTransferService.teacherLmsCmsView$.subscribe(
       () => {
-        this.purchasedLicenseExists = true;
+        this.licenseExistsStatistics.purchased_common_license = true;
       }
     );
   }
 
   ngOnInit(): void {
     // For keeping the sidenav opened in desktop view in the beginning
-    if (this.mobileQuery.matches === true) {
+    if (this.mq.matches === true) {
       this.opened = false;
     } else {
       this.opened = true;
@@ -63,17 +69,33 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
         this.tempBreadcrumbLinkName = linkName;
       }
     );
-    this.instituteApiService.getPaidUnexpiredLicenseDetails(sessionStorage.getItem('currentInstituteSlug')).subscribe(
-      (result: {status: boolean}) => {
-        if(result.status === true) {
-          sessionStorage.setItem('purchasedLicenseExists', 'true');
-          this.purchasedLicenseExists = true;
+    this.loadLicenseStatistics();
+  }
+
+  loadLicenseStatistics() {
+    this.loadingIndicator = true;
+    this.loadingError = null;
+    this.reloadIndicator = false;
+    this.instituteApiService.getLicenseExistsStatistics(
+      sessionStorage.getItem(currentInstituteSlug)
+      ).subscribe(
+      (result: InstituteLicenseExists) => {
+        this.loadingIndicator = false;
+        this.licenseExistsStatistics = result;
+      },
+      errors => {
+        this.loadingIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.loadingError = errors.error.error;
+          } else {
+            this.reloadIndicator = true;
+          }
         } else {
-          sessionStorage.setItem('purchasedLicenseExists', 'false');
-          this.purchasedLicenseExists = false;
+          this.reloadIndicator = true;
         }
       }
-    )
+    );
   }
 
   // For navigating to teacher-workspace view
@@ -86,7 +108,6 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
         sessionStorage.removeItem('currentInstituteSlug');
         sessionStorage.removeItem('currentInstituteRole');
         sessionStorage.removeItem('currentInstituteType');
-        sessionStorage.removeItem('purchasedLicenseExists');
         sessionStorage.removeItem('selectedLicenseId');
         sessionStorage.removeItem('paymentComplete');
         this.router.navigate(['/teacher-workspace/institutes']);
@@ -108,7 +129,7 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
   // For navbar
   performAction(link: string) {
     // Hiding navbar if it is mobile
-    if (this.mobileQuery.matches === true) {
+    if (this.mq.matches === true) {
       this.opened = false;
     }
     this.navigate(link);
@@ -126,12 +147,11 @@ export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
     if (this.showTempNamesSubscription) {
       this.showTempNamesSubscription.unsubscribe();
     }
-    if(this.routerEventsSubscription) {
+    if (this.routerEventsSubscription) {
       this.routerEventsSubscription.unsubscribe();
     }
     if (this.purchasedLicenseSubscription) {
       this.purchasedLicenseSubscription.unsubscribe();
     }
   }
-
 }

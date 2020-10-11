@@ -101,7 +101,7 @@ export class CommonLicenseCheckoutComponent implements OnInit, OnDestroy {
             setTimeout(() => {
               this.ngZone.run(() => this.redirectToLicenseView());
             }, 2000);
-            this.inAppDataTransferService.showTeacherFullInstituteView();
+            this.inAppDataTransferService.showTeacherLmsCmsInstituteView();
           } else {
             this.errorText = 'Payment verification failed. You can retry payment if money was not deducted. If money was deducted please let us know.';
           }

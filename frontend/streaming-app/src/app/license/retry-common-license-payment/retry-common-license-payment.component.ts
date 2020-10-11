@@ -149,7 +149,7 @@ export class RetryCommonLicensePaymentComponent implements OnInit {
             setTimeout(() => {
               this.ngZone.run(() => this.redirectToLicenseView());
             }, 2000);
-            this.inAppDataTransferService.showTeacherFullInstituteView();
+            this.inAppDataTransferService.showTeacherLmsCmsInstituteView();
           } else {
             this.verificationErrorText = 'Payment verification failed. You can retry payment if money was not deducted. If money was deducted please let us know.';
           }

@@ -3,6 +3,11 @@
     width: 100%;
 }
 
+.center-container {
+    -ms-transform: translateY(40%);
+    transform: translateY(40%);
+}
+
 
 /* Styling sidenav toggle icon */
 
@@ -121,4 +126,8 @@
     color: #858585;
     cursor: default;
     font-weight: normal;
+}
+
+.p-1rem {
+    padding: 1rem;
 }

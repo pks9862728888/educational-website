@@ -3,6 +3,11 @@
     width: 100%;
 }
 
+.center-container {
+    -ms-transform: translateY(40%);
+    transform: translateY(40%);
+}
+
 
 /* Styling sidenav toggle icon */
 
@@ -140,4 +145,8 @@
      ::-webkit-scrollbar {
         width: 10px;
     }
+}
+
+.p-1rem {
+    padding: 1rem;
 }
