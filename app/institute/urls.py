@@ -12,9 +12,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:product_type>/get-ordered-license-orders',
          views.InstituteOrderedLicenseOrderDetailsView.as_view(),
          name='get-ordered-license-orders'),
-    path('<slug:institute_slug>/check-license-exists',
+    path('<slug:institute_slug>/license-exists-statistics',
          views.InstituteMinLicenseStatisticsView.as_view(),
-         name='check-license-exists'),
+         name='license-exists-statistics'),
 
     # For storage license
     path('<slug:institute_slug>/institute-storage-license-cost',
