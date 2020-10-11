@@ -3,8 +3,7 @@ import { INSTITUTE_LICENSE_PLANS,
          BILLING_TERM, UNLIMITED,
          PRODUCT_TYPES,
          INSTITUTE_LICENSE_PLANS_REVERSE,
-         BILLING_TERM_REVERSE,
-         INSTITUTE_TYPE_REVERSE } from './../../constants';
+         BILLING_TERM_REVERSE } from './../../constants';
 import { Router } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';

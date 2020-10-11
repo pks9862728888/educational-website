@@ -51,7 +51,7 @@ export class InstituteApiService {
   instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
   commonLicenseSelectPlanUrl = `${this.instituteBaseUrl}select-common-license`;
   createCommmonLicenseOrderUrl = `${this.instituteBaseUrl}create-common-license-order`;
-  razorpayCommonLicenseCallbackUrl = `${this.instituteBaseUrl}razorpay-payment-callback`;
+  razorpayCommonLicenseCallbackUrl = `${this.instituteBaseUrl}razorpay-common-license-payment-callback`;
   razorpayStorageLicenseCallbackUrl = `${this.instituteBaseUrl}razorpay-storage-payment-callback`;
 
   // Institute class related urls
@@ -70,6 +70,10 @@ export class InstituteApiService {
 
   getStorageLicenseCredentialsForRetryPaymentUrl(instituteSlug: string, licenseOrderId: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/${licenseOrderId}/storage-license-credentials-for-retry-payment`;
+  }
+
+  getCommonLicenseCredentialsForRetryPaymentUrl(instituteSlug: string, licenseOrderId: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${licenseOrderId}/common-license-credentials-for-retry-payment`;
   }
 
   getDeleteUnpaidStorageLicenseUrl(instituteSlug: string, licenseOrderId: string) {
@@ -503,8 +507,11 @@ export class InstituteApiService {
     );
   }
 
-  // To create order for license purchase
-  createCommonLicenseOrder(instituteSlug: string, selectedLicensePlanId: string, paymentGateway: string) {
+  createCommonLicenseOrder(
+    instituteSlug: string,
+    selectedLicensePlanId: string,
+    paymentGateway: string
+    ) {
     return this.httpClient.post(
       this.createCommmonLicenseOrderUrl,
       {
@@ -565,6 +572,13 @@ export class InstituteApiService {
   getStorageLicenseCredentialsForRetryPayment(instituteSlug: string, orderPk: string) {
     return this.httpClient.get(
       this.getStorageLicenseCredentialsForRetryPaymentUrl(instituteSlug, orderPk),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getCommonLicenseCredentialsForRetryPayment(instituteSlug: string, orderPk: string) {
+    return this.httpClient.get(
+      this.getCommonLicenseCredentialsForRetryPaymentUrl(instituteSlug, orderPk),
       { headers: this.getAuthHeader() }
     );
   }

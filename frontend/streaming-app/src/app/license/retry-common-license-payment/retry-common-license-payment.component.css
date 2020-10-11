@@ -1,0 +1,54 @@
+h1,
+h2,
+h3,
+p,
+hr,
+.row,
+.col-4,
+.col-8 {
+    margin: 0;
+    padding: 0;
+    word-wrap: break-word;
+}
+
+.parent-container {
+    padding: 1rem;
+    border-radius: 3px;
+}
+
+.header-text {
+    color: #7fc0ba;
+}
+
+.custom-card {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    box-shadow: 1px 1px 1px #1f1f1f;
+    padding: 1rem;
+}
+
+.success-text {
+    padding: 0.2rem 0.7rem;
+    margin-top: 0.5rem;
+}
+
+.green-button:disabled {
+    color: #bdbdbd;
+    background-color: rgba(10, 86, 82, 0.4);
+}
+
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}

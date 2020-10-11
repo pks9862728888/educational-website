@@ -57,7 +57,8 @@ export class CommonLicenseCheckoutComponent implements OnInit, OnDestroy {
     this.instituteApiService.createCommonLicenseOrder(
       this.currentInstituteSlug,
       this.selectedLicensePlanId,
-      PAYMENT_PORTAL_REVERSE[paymentPortalName]).subscribe(
+      PAYMENT_PORTAL_REVERSE[paymentPortalName]
+      ).subscribe(
         (result: InstituteLicenseOrderCreatedResponse) => {
           this.initiatingPaymentIndicator = false;
           if (result.status === 'SUCCESS') {

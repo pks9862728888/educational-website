@@ -16,7 +16,7 @@
             <h2 class="header-text m-b-1">Order Details:</h2>
             <div class="row m-b-1">
                 <div class="col-8">
-                    Order receipt id
+                    Order receipt ID
                 </div>
                 <div class="col-4">
                     {{ orderCredentials.order_receipt }}
@@ -56,6 +56,7 @@
                     Rs. {{ orderCredentials.price | number }}
                 </div>
             </div>
+            <hr class="top-separator m-t-1 m-b-1" />
             <div class="row m-b-1">
                 <div class="col-8">
                     Amount (before Tax)
@@ -72,6 +73,7 @@
                     {{ orderCredentials.gst_percent }}%
                 </div>
             </div>
+            <hr class="top-separator m-t-1 m-b-1" />
             <div class="row m-b-1">
                 <div class="col-8">
                     Net payable amount

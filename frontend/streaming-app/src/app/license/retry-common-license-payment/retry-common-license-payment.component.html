@@ -1,1 +1,259 @@
-<p>retry-common-license-payment works!</p>
+<section class="parent-container">
+    <div class="d-flex justify-content-between align-center">
+        <h1>Retry Payment</h1>
+        <div class="d-flex align-center cursor-pointer back-icon" (click)="navigateToLicenseList()">
+            <mat-icon>arrow_back_ios</mat-icon>
+            <span *ngIf="!mq.matches">Back</span>
+        </div>
+    </div>
+    <hr class="top-separator m-t-05 m-b-1" />
+    <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading common license order details...'"></app-ui-loading>
+    <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
+    <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load common license data.'" (click)="getLicenseOrderDetails()"></app-ui-reload>
+    <div *ngIf="!loadingIndicator && !loadingError && !reloadIndicator">
+        <div class="custom-card m-b-1">
+            <h2 class="expansion-panel-header-color m-b-1">Product Type: LMS + CMS + Digital Exam</h2>
+            <h2 class="header-text m-b-1">Order Details:</h2>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Order receipt ID
+                </div>
+                <div class="col-4">
+                    {{ orderCredentials.order_receipt }}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Order created on
+                </div>
+                <div class="col-4">
+                    {{ getDateFromUnixTimeStamp(orderCredentials.order_created_on) | date: 'medium' }}
+                </div>
+            </div>
+            <h2 class="header-text m-b-1">License Details:</h2>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Type
+                </div>
+                <div class="col-4">
+                    {{ INSTITUTE_LICENSE_PLANS[orderCredentials.type] | titlecase }}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Billing
+                </div>
+                <div class="col-4">
+                    {{ BILLING_TERM[orderCredentials.billing] | titlecase }}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    No of admin
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.no_of_admin !== UNLIMITED">{{ orderCredentials.no_of_admin }}</span>
+                    <span *ngIf="orderCredentials.no_of_admin === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    No of staffs
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.no_of_staff !== UNLIMITED">{{ orderCredentials.no_of_staff }}</span>
+                    <span *ngIf="orderCredentials.no_of_staff === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    No of faculties
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.no_of_faculty !== UNLIMITED">{{ orderCredentials.no_of_faculty }}</span>
+                    <span *ngIf="orderCredentials.no_of_faculty === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    No of board or members
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.no_of_board_of_members !== UNLIMITED">{{ orderCredentials.no_of_board_of_members }}</span>
+                    <span *ngIf="orderCredentials.no_of_board_of_members === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    No of students
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.no_of_student !== UNLIMITED">{{ orderCredentials.no_of_student }}<span *ngIf="orderCredentials.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC">*</span></span>
+                    <span *ngIf="orderCredentials.no_of_student === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1" *ngIf="isInstituteCollege()">
+                <div class="col-8">
+                    Department limit
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.department_limit !== UNLIMITED">{{ orderCredentials.department_limit }}</span>
+                    <span *ngIf="orderCredentials.department_limit === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Classroom limit
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.classroom_limit !== UNLIMITED">{{ orderCredentials.classroom_limit }}</span>
+                    <span *ngIf="orderCredentials.classroom_limit === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Subject limit
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.subject_limit !== UNLIMITED">{{ orderCredentials.subject_limit }}</span>
+                    <span *ngIf="orderCredentials.subject_limit === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    LMS
+                </div>
+                <div class="col-4">
+                    Available
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    CMS
+                </div>
+                <div class="col-4">
+                    Available
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Digital Test
+                </div>
+                <div class="col-4">
+                    Available
+                </div>
+            </div>
+            <div class="row m-b-1" [hidden]="true">
+                <div class="col-8">
+                    Live Attendees
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.video_call_max_attendees !== UNLIMITED">{{ orderCredentials.video_call_max_attendees }}</span>
+                    <span *ngIf="orderCredentials.video_call_max_attendees === UNLIMITED">Unlimited</span>
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Discussion Forum
+                </div>
+                <div class="col-4">
+                    Available
+                </div>
+            </div>
+            <h2 class="header-text m-b-1">Billing Details:</h2>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Price
+                </div>
+                <div class="col-4">
+                    Rs. {{ orderCredentials.price | number }}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Discount %
+                </div>
+                <div class="col-4">
+                    {{ orderCredentials.discount_percent }} %
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Discount coupon
+                </div>
+                <div class="col-4">
+                    {{ orderCredentials.discount_coupon_code }}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Discount coupon worth
+                </div>
+                <div class="col-4">
+                    <span *ngIf="orderCredentials.discount_rs">Rs. {{ orderCredentials.discount_rs | number}}</span>
+                    <span *ngIf="!orderCredentials.discount_rs">Rs. 0</span>
+                </div>
+            </div>
+            <hr class="top-separator m-t-1 m-b-1" />
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Amount (without Tax)
+                </div>
+                <div class="col-4">
+                    Rs. {{ calculateAmountWithoutTax() | number }}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    GST
+                </div>
+                <div class="col-4">
+                    {{ orderCredentials.gst_percent }} %
+                </div>
+            </div>
+            <hr class="top-separator m-t-1 m-b-1" />
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Net payable amount
+                </div>
+                <div class="col-4">
+                    Rs. {{ orderCredentials.amount | number }}
+                </div>
+            </div>
+        </div>
+        <div class="custom-card" *ngIf="!paymentComplete">
+            <h2 class="header-text m-b-1">Choose payment portal:</h2>
+            <h3 class="m-b-1">Choose payment portal to make payment of Rs. {{ orderCredentials.amount | number }}</h3>
+            <div *ngIf="paymentError" class="m-b-1">
+                <app-ui-error-text [errorText]="paymentError" (closeErrorTextEvent)="paymentError = null"></app-ui-error-text>
+            </div>
+            <button mat-flat-button [disabled]="payWithRazorpayIndicator" class="green-button" [ngClass]="{'w-100': mq.matches}" (click)="createOrder('RAZORPAY')" aria-label="Pay with Razorpay (recommended)">
+              <div class="d-flex justify-content-center align-center">
+                <mat-progress-spinner *ngIf="payWithRazorpayIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>
+                <div>
+                  <span>Pay With Razorpay&nbsp;</span><span *ngIf="!mq.matches">Payment Portal (recommended)</span>
+                </div>
+              </div>
+            </button>
+        </div>
+        <div class="custom-card" *ngIf="paymentComplete">
+            <h2 class="header-text m-b-1">Verify payment:</h2>
+            <div *ngIf="verifyPaymentIndicator" class="d-flex align-center">
+                <mat-spinner mode="indeterminate" [diameter]="25" class="m-r-05"></mat-spinner>
+                <h3>Verifying payment. Please wait...</h3>&nbsp;
+            </div>
+            <div *ngIf="verificationErrorText" class="m-b-1">
+                <app-ui-error-text [errorText]="verificationErrorText" [hideCloseButton]="true"></app-ui-error-text>
+            </div>
+            <div *ngIf="retryVerification" class="d-flex">
+                <button mat-flat-button class="green-button" [class.w-100]="mq.matches" (click)="retryVerificationClicked()">Retry Verification</button>
+            </div>
+            <div *ngIf="verificationSuccessText" class="d-flex success-text">
+                <h3 class="d-flex align-center">
+                    <mat-spinner mode="indeterminate" [diameter]="25" class="m-r-05"></mat-spinner>
+                    {{ verificationSuccessText }}
+                </h3>
+            </div>
+        </div>
+    </div>
+</section>

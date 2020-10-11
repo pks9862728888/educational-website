@@ -142,3 +142,30 @@ export interface StorageLicenseOrderCredentialsForRetryPayment {
   order_created_on: number;
   order_receipt: number;
 }
+
+export interface CommonLicenseOrderCredentialsForRetryPayment {
+  id: number;
+  CMS_exists: boolean;
+  LMS_exists: boolean;
+  amount: number;
+  billing: string;
+  classroom_limit: number;
+  department_limit: number;
+  discount_percent: number;
+  discussion_forum: boolean;
+  gst_percent: number;
+  no_of_admin: number;
+  no_of_staff: number;
+  no_of_student: number;
+  no_of_faculty: number;
+  no_of_board_of_members: number;
+  order_created_on: number;
+  order_receipt: string;
+  price: number;
+  subject_limit: number;
+  type: string;
+  video_call_max_attendees: number;
+  discount_coupon_code?: string;
+  discount_rs?: number;
+  selected_license_id: number;
+}
