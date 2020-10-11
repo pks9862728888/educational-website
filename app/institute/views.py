@@ -1377,7 +1377,8 @@ class CommonLicenseCredentialsForRetryPaymentView(APIView):
             'subject_limit': order.selected_license.subject_limit,
             'LMS_exists': order.selected_license.LMS_exists,
             'CMS_exists': order.selected_license.CMS_exists,
-            'discussion_forum': order.selected_license.discussion_forum
+            'discussion_forum': order.selected_license.discussion_forum,
+            'selected_license_id': order.selected_license.pk
         }
         
         if order.selected_license.discount_coupon:
