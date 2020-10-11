@@ -15,6 +15,8 @@ import { ChooseProductTypeComponent } from '../license/choose-product-type/choos
 import { PurchaseStorageComponent } from '../license/purchase-storage/purchase-storage.component';
 import { PurchaseLiveClassLicenseComponent } from '../license/purchase-live-class-license/purchase-live-class-license.component';
 import { PurchaseDigitalAdaptiveExamLicenseComponent } from '../license/purchase-digital-adaptive-exam-license/purchase-digital-adaptive-exam-license.component';
+import { RetryStorageLicensePaymentComponent } from '../license/retry-storage-license-payment/retry-storage-license-payment.component';
+import { RetryCommonLicensePaymentComponent } from '../license/retry-common-license-payment/retry-common-license-payment.component';
 
 const routes: Routes = [
   {
@@ -25,6 +27,8 @@ const routes: Routes = [
       { path: ':name/permissions', component: PermissionsComponent, canActivate: [InstituteRoutingGuard]},
       { path: ':name/classes', component: ClassComponent, canActivate: [InstituteRoutingGuard]},
       { path: ':name/license', component: LicenseComponent },
+      { path: ':name/license/retry-storage-license-payment/:order_id', component: RetryStorageLicensePaymentComponent },
+      { path: ':name/license/retry-common-license-payment/:order_id', component: RetryCommonLicensePaymentComponent },
       { path: ':name/license/choose-product-type', component: ChooseProductTypeComponent },
       { path: ':name/license/purchase-common-license', component: PurchaseCommonLicenseComponent},
       { path: ':name/license/purchase-storage-license', component: PurchaseStorageComponent},

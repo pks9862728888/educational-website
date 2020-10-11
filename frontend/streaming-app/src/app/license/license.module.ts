@@ -12,6 +12,8 @@ import { ChooseProductTypeComponent } from './choose-product-type/choose-product
 import { PurchaseStorageComponent } from './purchase-storage/purchase-storage.component';
 import { PurchaseLiveClassLicenseComponent } from './purchase-live-class-license/purchase-live-class-license.component';
 import { PurchaseDigitalAdaptiveExamLicenseComponent } from './purchase-digital-adaptive-exam-license/purchase-digital-adaptive-exam-license.component';
+import { RetryStorageLicensePaymentComponent } from './retry-storage-license-payment/retry-storage-license-payment.component';
+import { RetryCommonLicensePaymentComponent } from './retry-common-license-payment/retry-common-license-payment.component';
 
 
 @NgModule({
@@ -23,7 +25,9 @@ import { PurchaseDigitalAdaptiveExamLicenseComponent } from './purchase-digital-
     ChooseProductTypeComponent,
     PurchaseStorageComponent,
     PurchaseLiveClassLicenseComponent,
-    PurchaseDigitalAdaptiveExamLicenseComponent
+    PurchaseDigitalAdaptiveExamLicenseComponent,
+    RetryStorageLicensePaymentComponent,
+    RetryCommonLicensePaymentComponent
   ],
   imports: [
     CommonModule,
@@ -39,7 +43,9 @@ import { PurchaseDigitalAdaptiveExamLicenseComponent } from './purchase-digital-
     ChooseProductTypeComponent,
     PurchaseStorageComponent,
     PurchaseLiveClassLicenseComponent,
-    PurchaseDigitalAdaptiveExamLicenseComponent
+    PurchaseDigitalAdaptiveExamLicenseComponent,
+    RetryStorageLicensePaymentComponent,
+    RetryCommonLicensePaymentComponent
   ],
   providers: [WindowRefService]
 })

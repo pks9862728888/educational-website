@@ -64,6 +64,18 @@ export class InstituteApiService {
   // Institute section related urls
   addSectionInchargeUrl = `${this.instituteBaseUrl}add-section-permission`;
 
+  getDeleteUnpaidCommonLicenseUrl(instituteSlug: string, licenseOrderId: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${licenseOrderId}/delete-unpaid-common-license`;
+  }
+
+  getStorageLicenseCredentialsForRetryPaymentUrl(instituteSlug: string, licenseOrderId: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${licenseOrderId}/storage-license-credentials-for-retry-payment`;
+  }
+
+  getDeleteUnpaidStorageLicenseUrl(instituteSlug: string, licenseOrderId: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${licenseOrderId}/delete-unpaid-storage-license`;
+  }
+
   getStorageLicenseCredentialsUrl(instituteSlug: string) {
     return `${this.instituteBaseUrl}${instituteSlug}/institute-storage-license-cost`;
   }
@@ -532,6 +544,27 @@ export class InstituteApiService {
         razorpay_signature: data.razorpay_signature,
         order_details_id: orderDetailsId
       },
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteUnpaidCommonLicense(instituteSlug: string, orderPk: string) {
+    return this.httpClient.delete(
+      this.getDeleteUnpaidCommonLicenseUrl(instituteSlug, orderPk),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteUnpaidStorageLicense(instituteSlug: string, orderPk: string) {
+    return this.httpClient.delete(
+      this.getDeleteUnpaidStorageLicenseUrl(instituteSlug, orderPk),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getStorageLicenseCredentialsForRetryPayment(instituteSlug: string, orderPk: string) {
+    return this.httpClient.get(
+      this.getStorageLicenseCredentialsForRetryPaymentUrl(instituteSlug, orderPk),
       { headers: this.getAuthHeader() }
     );
   }

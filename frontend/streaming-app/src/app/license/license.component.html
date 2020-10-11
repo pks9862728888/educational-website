@@ -435,7 +435,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-between align-center license-type-header m-t-1" [class.cursor-pointer]="licenseData.expired_license.length > 0" (click)="setOpenedLicenseTypeStep(2)">
+                <div class="d-flex justify-content-between align-center license-type-header m-t-1" [class.cursor-pointer]="licenseData.pending_payment_license.length > 0" (click)="setOpenedLicenseTypeStep(2)">
                     <h3>Payment Pending Licenses: <span *ngIf="licenseData.pending_payment_license.length === 0">None</span><span *ngIf="licenseData.pending_payment_license.length !== 0">({{ licenseData.pending_payment_license.length }})</span></h3>
                     <mat-icon *ngIf="licenseData.pending_payment_license.length > 0">
                         <span *ngIf="openedLicenseTypeStep !== 2">keyboard_arrow_down</span>
@@ -444,7 +444,7 @@
                 </div>
                 <div *ngIf="openedLicenseTypeStep === 2" class="m-t-1 m-b-1">
                     <div *ngFor="let lic of licenseData.pending_payment_license; let lic_step = index" class="m-b-1">
-                        <div class="d-flex justify-content-between align-center license-order-header cursor-pointer" (click)="setOpenedLicensePlanStep(lic_step)" [class.no-box-shadow]="openedLicensePlanStep === lic_step">
+                        <div class="d-flex justify-content-between align-center license-order-header" (click)="setOpenedLicensePlanStep(lic_step)" [class.no-box-shadow]="openedLicensePlanStep === lic_step">
                             <div class="d-flex align-center">
                                 <div class="icon-circle m-r-05">
                                     <mat-icon *ngIf="lic.type === INSTITUTE_LICENSE_PLANS_REVERSE.BASIC" class="plan-icon">laptop_mac</mat-icon>
@@ -679,18 +679,23 @@
                             </ul>
                             <hr class="top-separator m-t-1 m-b-1" />
                             <div class="d-flex justify-content-end m-b-05">
-                                <button mat-stroked-button class="button-border m-r-05">
+                                <button mat-stroked-button [disabled]="deleteIndicator" class="button-controls m-r-05">
                                   <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">pan_tool</mat-icon>
                                   <span *ngIf="!mq.matches">Raise</span><span> Issue</span>
                                 </button>
-                                <button mat-stroked-button class="button-border m-r-05" [hidden]="durationMoreThanThreeDays(lic.order_created_on)">
+                                <button mat-stroked-button [disabled]="deleteIndicator" class="button-controls m-r-05" [hidden]="durationMoreThanThreeDays(lic.order_created_on)" (click)="retryPayment(lic, productIndex)">
                                   <mat-icon class="add-icon" [class.m-r-05]="!mq.matches">refresh</mat-icon>
                                   <span *ngIf="!mq.matches">Retry Payment</span>
                                   <span *ngIf="mq.matches">Pay</span>
                                 </button>
-                                <button mat-stroked-button class="button-border">
-                                  <mat-icon class="delete-icon" [class.m-r-05]="!mq.matches">delete</mat-icon>
-                                  <span *ngIf="!mq.matches">Delete</span><span> Order</span>
+                                <button mat-stroked-button class="button-controls" [disabled]="deleteIndicator" (click)="confirmDeleteUnpaidLicense(lic, productIndex)">
+                                  <div class="d-flex align-center">
+                                    <mat-icon class="delete-icon" [class.m-r-05]="!mq.matches">
+                                      <span *ngIf="!deleteIndicator">delete</span>
+                                      <mat-progress-spinner *ngIf="deleteIndicator" class="m-r-05" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                                    </mat-icon>
+                                    <span *ngIf="!mq.matches">Delete</span><span>&nbsp;Order</span>
+                                  </div>
                                 </button>
                             </div>
                         </div>

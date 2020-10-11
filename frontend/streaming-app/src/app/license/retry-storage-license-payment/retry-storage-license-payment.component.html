@@ -1,0 +1,119 @@
+<section class="parent-container">
+    <div class="d-flex justify-content-between align-center">
+        <h1>Retry Payment</h1>
+        <div class="d-flex align-center cursor-pointer back-icon" (click)="navigateToLicenseList()">
+            <mat-icon>arrow_back_ios</mat-icon>
+            <span *ngIf="!mq.matches">Back</span>
+        </div>
+    </div>
+    <hr class="top-separator m-t-05 m-b-1" />
+    <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading storage license order details...'"></app-ui-loading>
+    <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
+    <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load storage license data.'" (click)="getLicenseOrderDetails()"></app-ui-reload>
+    <div *ngIf="!loadingIndicator && !loadingError && !reloadIndicator">
+        <div class="custom-card m-b-1">
+            <h2 class="expansion-panel-header-color m-b-1">Product Type: Storage License</h2>
+            <h2 class="header-text m-b-1">Order Details:</h2>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Order receipt id
+                </div>
+                <div class="col-4">
+                    {{ orderCredentials.order_receipt }}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Order created on
+                </div>
+                <div class="col-4">
+                    {{ getDateFromUnixTimeStamp(orderCredentials.order_created_on) | date: 'medium' }}
+                </div>
+            </div>
+            <h2 class="header-text m-b-1">License Details:</h2>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Storage
+                </div>
+                <div class="col-4">
+                    {{ orderCredentials.no_of_gb }} GB
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    License duration
+                </div>
+                <div class="col-4">
+                    {{ orderCredentials.months }} months
+                </div>
+            </div>
+            <h2 class="header-text m-b-1">Billing Details:</h2>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Cost per GB per day
+                </div>
+                <div class="col-4">
+                    Rs. {{ orderCredentials.price | number }}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Amount (before Tax)
+                </div>
+                <div class="col-4">
+                    Rs. {{ orderCredentials.price * orderCredentials.no_of_gb * orderCredentials.months * 30 | number}}
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    GST
+                </div>
+                <div class="col-4">
+                    {{ orderCredentials.gst_percent }}%
+                </div>
+            </div>
+            <div class="row m-b-1">
+                <div class="col-8">
+                    Net payable amount
+                </div>
+                <div class="col-4">
+                    Rs. {{ orderCredentials.amount | number }}
+                </div>
+            </div>
+        </div>
+        <div class="custom-card" *ngIf="!paymentComplete">
+            <h2 class="header-text m-b-1">Choose payment portal:</h2>
+            <h3 class="m-b-1">Choose payment portal to make payment of Rs. {{ orderCredentials.amount | number }}</h3>
+            <div *ngIf="paymentError" class="m-b-1">
+                <app-ui-error-text [errorText]="paymentError" (closeErrorTextEvent)="paymentError = null"></app-ui-error-text>
+            </div>
+            <button mat-flat-button [disabled]="payWithRazorpayIndicator" class="green-button" [ngClass]="{'w-100': mq.matches}" (click)="createOrder('RAZORPAY')" aria-label="Pay with Razorpay (recommended)">
+              <div class="d-flex justify-content-center align-center">
+                <mat-progress-spinner *ngIf="payWithRazorpayIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>
+                <div>
+                  <span>Pay With Razorpay&nbsp;</span><span *ngIf="!mq.matches">Payment Portal (recommended)</span>
+                </div>
+              </div>
+            </button>
+        </div>
+        <div class="custom-card" *ngIf="paymentComplete">
+            <h2 class="header-text m-b-1">Verify payment:</h2>
+            <div *ngIf="verifyPaymentIndicator" class="d-flex align-center">
+                <mat-spinner mode="indeterminate" [diameter]="25" class="m-r-05"></mat-spinner>
+                <h3>Verifying payment. Please wait...</h3>&nbsp;
+            </div>
+            <div *ngIf="verificationErrorText" class="m-b-1">
+                <app-ui-error-text [errorText]="verificationErrorText" [hideCloseButton]="true"></app-ui-error-text>
+            </div>
+            <div *ngIf="retryVerification" class="d-flex">
+                <button mat-flat-button class="green-button" [class.w-100]="mq.matches" (click)="retryVerificationClicked()">Retry Verification</button>
+            </div>
+            <div *ngIf="verificationSuccessText" class="d-flex success-text">
+                <h3 class="d-flex align-center">
+                    <mat-spinner mode="indeterminate" [diameter]="25" class="m-r-05"></mat-spinner>
+                    {{ verificationSuccessText }}
+                </h3>
+            </div>
+        </div>
+    </div>
+</section>

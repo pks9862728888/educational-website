@@ -1,45 +1,43 @@
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, NgZone, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { postiveIntegerValidator } from 'src/app/custom.validator';
+import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
 import { InstituteStorageLicenseOrderCreatedResponse,
-  PaymentSuccessCallbackResponse,
+         PaymentSuccessCallbackResponse,
          PaymentVerificatonResponse,
-         StorageLicenseCredentials } from 'src/app/models/license.model';
+         StorageLicenseOrderCredentialsForRetryPayment } from 'src/app/models/license.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
+import { UiService } from 'src/app/services/ui.service';
 import { WindowRefService } from 'src/app/services/window-ref.service';
-import { currentInstituteSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, PAYMENT_PORTAL, PAYMENT_PORTAL_REVERSE } from 'src/constants';
+import { currentInstituteSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, PAYMENT_PORTAL_REVERSE } from 'src/constants';
 
 @Component({
-  selector: 'app-purchase-storage',
-  templateUrl: './purchase-storage.component.html',
-  styleUrls: ['./purchase-storage.component.css']
+  selector: 'app-retry-storage-license-payment',
+  templateUrl: './retry-storage-license-payment.component.html',
+  styleUrls: ['./retry-storage-license-payment.component.css']
 })
-export class PurchaseStorageComponent implements OnInit {
+export class RetryStorageLicensePaymentComponent implements OnInit {
 
   mq: MediaQueryList;
-  ref = this;
   currentInstituteSlug: string;
   currentInstituteType: string;
-  pathPrefix: string;
+  ref = this;
 
   loadingIndicator: boolean;
   loadingError: string;
   reloadIndicator: boolean;
-  payWithRazorpayIndicator: boolean;
   paymentError: string;
+  payWithRazorpayIndicator: boolean;
   paymentComplete: boolean;
   verifyPaymentIndicator: boolean;
   verificationErrorText: string;
   verificationSuccessText: string;
   retryVerification: boolean;
 
-  purchaseForm: FormGroup;
-  paymentPortalShown = false;
+  getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
 
-  storageLicenseCredentials: StorageLicenseCredentials;
-  netPayableAmount: number;
+  orderId: string;
+  orderCredentials: StorageLicenseOrderCredentialsForRetryPayment;
   orderDetailsId: number;
   paymentPortalName: string;
   paymentSuccessCallbackResponse: PaymentSuccessCallbackResponse;
@@ -47,36 +45,33 @@ export class PurchaseStorageComponent implements OnInit {
   constructor(
     private media: MediaMatcher,
     private router: Router,
-    private formBuilder: FormBuilder,
     private instituteApiService: InstituteApiService,
     private windowRefService: WindowRefService,
+    private uiService: UiService,
     private ngZone: NgZone
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentInstituteType = sessionStorage.getItem(currentInstituteType);
-    this.pathPrefix = window.location.pathname.slice(0, window.location.pathname.length - 'purchase-storage-license'.length);
+    const paths = window.location.pathname.split('/');
+    this.orderId = paths[paths.length - 1];
   }
 
   ngOnInit(): void {
-    this.getStorageLicenseCredentials();
-    this.purchaseForm = this.formBuilder.group({
-      no_of_gb: [null, [Validators.required]],
-      months: [1, [Validators.required, postiveIntegerValidator]]
-    });
+    this.getLicenseOrderDetails();
   }
 
-  getStorageLicenseCredentials() {
+  getLicenseOrderDetails() {
     this.loadingIndicator = true;
     this.loadingError = null;
     this.reloadIndicator = false;
-    this.instituteApiService.getStorageLicenseCredentials(
-      this.currentInstituteSlug
+    this.instituteApiService.getStorageLicenseCredentialsForRetryPayment(
+      this.currentInstituteSlug,
+      this.orderId
     ).subscribe(
-      (result: StorageLicenseCredentials) => {
-        this.storageLicenseCredentials = result;
-        this.updatePurchaseForm();
+      (result: StorageLicenseOrderCredentialsForRetryPayment) => {
         this.loadingIndicator = false;
+        this.orderCredentials = result;
       },
       errors => {
         this.loadingIndicator = false;
@@ -93,21 +88,12 @@ export class PurchaseStorageComponent implements OnInit {
     );
   }
 
-  updatePurchaseForm() {
-    this.purchaseForm.patchValue({
-      no_of_gb: this.storageLicenseCredentials.min_storage,
-      months: 1
-    });
-  }
-
-  showPaymentPortal() {
-    this.purchaseForm.disable();
-    this.paymentPortalShown = true;
-  }
-
   createOrder(paymentGatewayName: string) {
-    const data = this.purchaseForm.value;
-    data.payment_gateway = PAYMENT_PORTAL_REVERSE[paymentGatewayName];
+    const data = {
+      no_of_gb: this.orderCredentials.no_of_gb,
+      months: this.orderCredentials.months,
+      payment_gateway: PAYMENT_PORTAL_REVERSE[paymentGatewayName]
+    };
     this.payWithRazorpayIndicator = true;
     this.paymentError = null;
     this.instituteApiService.createStorageLicenseOrder(
@@ -221,20 +207,9 @@ export class PurchaseStorageComponent implements OnInit {
     }
   }
 
-  calculateCostBeforeTax() {
-    const data = this.purchaseForm.value;
-    return (this.storageLicenseCredentials.price * data.no_of_gb * data.months * 30).toFixed(3);
+  navigateToLicenseList() {
+    const pathUrl = window.location.pathname;
+    const lengthToSubtract = '/retry-storage-license-payment/'.length + this.orderId.length;
+    this.router.navigate([ pathUrl.slice(0, pathUrl.length - lengthToSubtract ) ]);
   }
-
-  calculateNetPayableAmount() {
-    const data = this.purchaseForm.value;
-    this.netPayableAmount = this.storageLicenseCredentials.price * data.no_of_gb * data.months * 30 * (1 +
-      this.storageLicenseCredentials.gst_percent / 100);
-    return this.netPayableAmount.toFixed(3);
-  }
-
-  navigateToChooseProductType() {
-    this.router.navigate([ this.pathPrefix + 'choose-product-type']);
-  }
-
 }

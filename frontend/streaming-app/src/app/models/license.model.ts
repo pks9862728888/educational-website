@@ -75,6 +75,7 @@ export interface PaymentVerificatonResponse {
 }
 
 export interface ActiveLicenseDetails {
+  order_pk: number;
   amount: number;
   order_receipt: string;
   payment_date: number;
@@ -129,4 +130,15 @@ export interface StorageLicenseCredentials {
   price: number;
   gst_percent: number;
   min_storage: number;
+}
+
+export interface StorageLicenseOrderCredentialsForRetryPayment {
+  id: number;
+  amount: number;
+  price: number;
+  gst_percent: number;
+  no_of_gb: number;
+  months: number;
+  order_created_on: number;
+  order_receipt: number;
 }

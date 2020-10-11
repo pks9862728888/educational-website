@@ -100,46 +100,17 @@ p {
     border: 1px solid rgba(108, 117, 125, 0.7);
 }
 
-.button-border {
+.button-controls {
     border: 1px solid rgba(108, 117, 125, 0.7);
 }
 
-.button-border:hover {
+.button-controls:hover {
     background-color: rgba(255, 255, 255, 0.03);
 }
 
-
-/* Styling expansion panel */
-
-.mat-expansion-panel {
-    background-color: rgba(255, 255, 255, 0.05);
-    box-shadow: 1px 1px 1px #1f1f1f;
-    margin-bottom: 0.7rem;
-}
-
-.mat-expansion-panel-header {
-    border-radius: 5px;
-    padding: 0 1rem;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.mat-expansion-panel:not(.mat-expanded):not([aria-disabled=true]) .mat-expansion-panel-header:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.mat-expansion-panel-header:hover {
-    background-color: rgba(255, 255, 255, 0.03) !important;
-}
-
-:host ::ng-deep .mat-expansion-indicator::after {
-    color: #f2aa4cff;
-}
-
-:host ::ng-deep .mat-expansion-panel-body {
-    padding: 0 1rem 1rem;
-    background-color: rgba(255, 255, 255, 0.05) !important;
+.button-controls:disabled {
+    color: #bdbdbd;
+    opacity: 0.7;
 }
 
 .no-box-shadow {
