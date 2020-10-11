@@ -591,7 +591,7 @@ def generate_student_test_password(instance):
 def create_order_receipt(instance):
     """Generates unique receipt id for institute"""
     while True:
-        order_receipt = 'order_receiptid' + random_string_generator(size=10)
+        order_receipt = 'order-receipt-' + random_string_generator(size=10)
         k_class = instance.__class__
         qs_exists = k_class.objects.filter(order_receipt=order_receipt).exists()
 
