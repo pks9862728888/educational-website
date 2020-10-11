@@ -1388,21 +1388,21 @@ class CommonLicenseCredentialsForRetryPaymentView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-class InstituteUnexpiredPaidLicenseExistsView(APIView):
-    """View for checking whether unexpired license exists"""
+class InstituteMinLicenseStatisticsView(APIView):
+    """View for returning minimum license statistics of the institute"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get(self, *args, **kwargs):
         """
-        Returns true if unexpired license exists else false.
-        Only institute permitted user can make call to this api.
+        If common license was purchased ever then it returns true for common license
         """
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
-        ).first()
+        ).only('institute_slug').first()
+
         if not institute:
-            return Response({'error': 'Institute not found.'},
+            return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if not models.InstitutePermission.objects.filter(
@@ -1410,17 +1410,19 @@ class InstituteUnexpiredPaidLicenseExistsView(APIView):
             invitee=self.request.user,
             active=True
         ).exists():
-            return Response({'error': 'Permission denied.'},
+            return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        order = models.InstituteCommonLicenseOrderDetails.objects.filter(
+        response = {
+            'purchased_common_license': False
+        }
+        if models.InstituteCommonLicenseOrderDetails.objects.filter(
             institute=institute,
             paid=True
-        ).order_by('-payment_date').first()
-        if not order or (order.active and order.end_date < int(time.time()) * 1000):
-            return Response({'status': False}, status=status.HTTP_200_OK)
-        else:
-            return Response({'status': True}, status=status.HTTP_200_OK)
+        ).exists():
+            response['purchased_common_license'] = True
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class InstituteMinDetailsStudentView(ListAPIView):

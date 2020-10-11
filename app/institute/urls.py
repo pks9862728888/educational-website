@@ -13,7 +13,7 @@ urlpatterns = [
          views.InstituteOrderedLicenseOrderDetailsView.as_view(),
          name='get-ordered-license-orders'),
     path('<slug:institute_slug>/check-license-exists',
-         views.InstituteUnexpiredPaidLicenseExistsView.as_view(),
+         views.InstituteMinLicenseStatisticsView.as_view(),
          name='check-license-exists'),
 
     # For storage license
