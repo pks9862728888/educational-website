@@ -15,7 +15,7 @@
         <section *ngIf="!showLoadingIndicator && !showReload && !errorText">
             <div class="m-b-1" *ngFor="let view of viewOrder; let i=index">
                 <div *ngIf="viewDetails[view].type === SUBJECT_VIEW_TYPE.TEST_VIEW">
-                    <div class="test-container d-flex align-center">
+                    <div class="test-container d-flex align-center" (click)="openTestView(testDetails[view])">
                         <mat-icon class="m-r-05 test-icon">assistant_photo</mat-icon>
                         <div>
                             <h3 *ngIf="!mq.matches" class="expansion-panel-header-color">{{ testDetails[view].name }}</h3>
@@ -23,7 +23,8 @@
                             <small>
                               <span *ngIf="testDetails[view].test_schedule_type === TEST_SCHEDULE_TYPES.SPECIFIC_DATE_AND_TIME">{{ getDateFromUnixTimeStamp(testDetails[view].test_schedule) | date : 'medium' }}</span>
                               <span *ngIf="testDetails[view].test_schedule_type === TEST_SCHEDULE_TYPES.SPECIFIC_DATE">{{ getOnlyDateFromUnixTimeStamp(testDetails[view].test_schedule) | date }}</span>
-                              <span *ngIf="testDetails[view].test_schedule_type === TEST_SCHEDULE_TYPES.UNSCHEDULED">Unscheduled Test</span> | {{ getSubjectTestType(testDetails[view].test_type) }}</small>
+                              <span *ngIf="testDetails[view].test_schedule_type === TEST_SCHEDULE_TYPES.UNSCHEDULED">Unscheduled Test</span> | {{ getSubjectTestType(testDetails[view].test_type) }}
+                            </small>
                         </div>
                     </div>
                     <mat-icon class="delete-icon test-delete-icon" (click)="confirmDeleteTest(testDetails[view])">delete</mat-icon>

@@ -4,6 +4,7 @@
 .col-sm-8,
 .col-md-6,
 .col-lg-4,
+h1,
 h3,
 h4,
 hr,
@@ -12,18 +13,11 @@ p {
     margin: 0px;
 }
 
-.component-body {
-    user-select: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
-.mat-card {
-    padding: 0px 16px 0px;
+.parent-container {
     background-color: rgba(255, 255, 255, 0.06);
     color: #bdbdbd;
+    padding: 1rem;
+    border-radius: 0.3rem;
 }
 
 
@@ -58,24 +52,6 @@ p {
 :host ::ng-deep .mat-expansion-panel-body {
     padding: 0 1rem 1rem;
     background-color: rgba(255, 255, 255, 0.03) !important;
-}
-
-.header {
-    padding-top: 1rem;
-    padding-bottom: 0.5rem;
-}
-
-.header-mb {
-    padding-top: 0.5rem;
-}
-
-.header-text {
-    line-height: 36px;
-    transform: translateY(40%);
-}
-
-.top-separator {
-    margin-bottom: 1rem;
 }
 
 .add-class {
@@ -184,23 +160,27 @@ p {
 
 /* Margins and padding */
 
-.padding-bottom-07 {
+.p-b-07 {
     padding-bottom: 0.7rem;
 }
 
-.margin-bottom-05 {
-    margin-bottom: 0.5rem;
+.m-t-05 {
+    margin-top: 0.5rem;
 }
 
-.margin-top-1 {
+.m-t-1 {
     margin-top: 1rem;
 }
 
-.margin-bottom-1 {
+.m-b-05 {
+    margin-bottom: 0.5rem;
+}
+
+.m-b-1 {
     margin-bottom: 1rem;
 }
 
-.margin-right-05 {
+.m-r-05 {
     margin-right: 0.5rem;
 }
 

@@ -1,0 +1,47 @@
+<section *ngIf="loadingIndicator || loadingError || reloadIndicator" class="full-body-container sidenav-container">
+    <div *ngIf="loadingIndicator" class="center-loading">
+        <app-ui-loading [actionText]="'Loading...'"></app-ui-loading>
+    </div>
+    <div *ngIf="loadingError || reloadIndicator" class="p-2rem">
+        <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
+        <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load test.'" (retryEvent)="loadTestMinDetails()"></app-ui-reload>
+    </div>
+</section>
+<section *ngIf="!loadingIndicator && !loadingError && !reloadIndicator" class="full-body-container" [ngClass]="{'is-mobile': mq.matches}">
+    <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav #snav [mode]="mq.matches ? 'over' : 'side'" [fixedInViewport]="mq.matches" [ngClass]="{'sidenav-container-20': mq.matches === false,
+                                 'sidenav-container-75': mq.matches}" fixedTopGap="46px" [(opened)]="opened" autoFocus="false" class="sidenav-background-color">
+            <mat-nav-list>
+                <h1 *ngIf="mq.matches" class="website-name">{{ webAppName }}</h1>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'DASHBOARD'" (click)="navigate('DASHBOARD')">Test Dashboard</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" (click)="navigate('CURRENT_SUBJECT')">Current Subject</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" (click)="navigate('CURRENT_INSTITUTE')">Current Institute</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" (click)="navigate('INSTITUTES')">All Institutes</div>
+            </mat-nav-list>
+        </mat-sidenav>
+        <mat-sidenav-content>
+            <section [ngClass]="{'toggle-icon-mobile': mq.matches, 'toggle-icon-desktop': !mq.matches}" (click)="snav.toggle()">
+                <mat-icon *ngIf="opened === false" class="icon" aria-hidden="false" aria-label="Show navigaion pane icon">keyboard_arrow_right</mat-icon>
+                <mat-icon *ngIf="opened" class="icon" aria-hidden="false" aria-label="Hide navigaion Pane icon">
+                    keyboard_arrow_left</mat-icon>
+            </section>
+            <div class="padding-main-content">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item" [ngClass]="{'clickable-link': true}"><a (click)="navigate('HOME')">Home</a></li>
+                        <li class="breadcrumb-item clickable-link"><a (click)="navigate('CURRENT_INSTITUTE')">Institute</a></li>
+                        <li class="breadcrumb-item clickable-link"><a (click)="navigate('CURRENT_SUBJECT')">Subject</a></li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'DASHBOARD'">Dashboard</li>
+                    </ol>
+                </nav>
+                <div class="no-scrollbar">
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+</section>

@@ -25,7 +25,6 @@ export class ClassSubjectsComponent implements OnInit {
   subjectStep: number;
   subjectList: InstituteSubjectDetails[];
   errorText: string;
-  successText: string;
   showCreateSubjectFormMb: boolean;
   createSubjectIndicator: boolean;
   createSubjectForm: FormGroup;
@@ -53,7 +52,7 @@ export class ClassSubjectsComponent implements OnInit {
     this.createSubjectForm = this.formBuilder.group({
       name: [null, [Validators.required, Validators.maxLength(40)]],
       type: [false]
-    })
+    });
   }
 
   getSubjectList() {
@@ -77,23 +76,22 @@ export class ClassSubjectsComponent implements OnInit {
           this.showReloadError = true;
         }
       }
-    )
+    );
   }
 
   createSubject() {
     this.createSubjectForm.patchValue({
       name: this.createSubjectForm.value.name.trim()
-    })
+    });
     this.createSubjectIndicator = true;
     this.errorText = null;
-    this.successText = null;
     if (this.createSubjectForm.value.name.length > 0) {
       this.createSubjectForm.disable();
       let type: string;
       if (!this.createSubjectForm.value.type) {
-        type = SUBJECT_TYPE_REVERSE['MANDATORY'];
+        type = SUBJECT_TYPE_REVERSE.MANDATORY;
       } else {
-        type = SUBJECT_TYPE_REVERSE['OPTIONAL'];
+        type = SUBJECT_TYPE_REVERSE.OPTIONAL;
       }
       this.instituteApiService.createSubject(
         this.currentClassSlug,
@@ -103,7 +101,6 @@ export class ClassSubjectsComponent implements OnInit {
         (result: InstituteSubjectDetails) => {
           this.createSubjectIndicator = false;
           this.showReloadError = false;
-          this.successText = 'Subject created successfully!';
           this.createSubjectForm.enable();
           this.createSubjectForm.reset();
           this.showCreateSubjectFormMb = false;
@@ -111,6 +108,10 @@ export class ClassSubjectsComponent implements OnInit {
             this.subjectList = [];
           }
           this.subjectList.push(result);
+          this.uiService.showSnackBar(
+            'Subject created successfully!',
+            2000
+          );
         },
         errors => {
           this.createSubjectIndicator = false;
@@ -125,13 +126,13 @@ export class ClassSubjectsComponent implements OnInit {
             this.errorText = 'Subject creation failed.';
           }
         }
-      )
+      );
     }
   }
 
-  openSubject(subjectSlug: string, hasSubjectPerm_: boolean) {
+  openSubject(subjectSlug: string, hasSubjectPermission: boolean) {
     sessionStorage.setItem(currentSubjectSlug, subjectSlug);
-    if (hasSubjectPerm_) {
+    if (hasSubjectPermission) {
       sessionStorage.setItem(hasSubjectPerm, 'true');
     } else {
       sessionStorage.setItem(hasSubjectPerm, 'false');
@@ -151,7 +152,6 @@ export class ClassSubjectsComponent implements OnInit {
 
   clearAllStatusText() {
     this.errorText = null;
-    this.successText = null;
   }
 
 
@@ -172,10 +172,6 @@ export class ClassSubjectsComponent implements OnInit {
     this.errorText = null;
   }
 
-  closeSuccessText() {
-    this.successText = null;
-  }
-
   deleteSubjectClicked(subjectObject: InstituteSubjectDetails) {
     this.subscribedDialogData = this.uiService.dialogData$.subscribe(
       result => {
@@ -184,8 +180,9 @@ export class ClassSubjectsComponent implements OnInit {
         }
         this.unsubscribeDialogData();
       }
-    )
-    const header = 'Are you sure you want to delete ' + subjectObject.name.charAt(0).toUpperCase() + subjectObject.name.substr(1).toLowerCase() + ' ?';
+    );
+    const subjectName = subjectObject.name.charAt(0).toUpperCase() + subjectObject.name.substr(1).toLowerCase();
+    const header = 'Are you sure you want to delete ' + subjectName + ' ?';
     this.uiService.openDialog(header, 'Cancel', 'Delete');
   }
 
@@ -195,7 +192,7 @@ export class ClassSubjectsComponent implements OnInit {
         this.uiService.showSnackBar('Deleted class ' + subjectObject.name.toUpperCase() + ' successfully!', 2000);
         this.subjectList.splice(this.subjectList.indexOf(subjectObject), 1);
       }
-    )
+    );
   }
 
   unsubscribeDialogData() {
@@ -208,8 +205,8 @@ export class ClassSubjectsComponent implements OnInit {
     return SUBJECT_TYPE[key];
   }
 
-  hasSubjectIncharge(list_: any) {
-    if (list_.length > 0) {
+  hasSubjectIncharge(inchargeList: any) {
+    if (inchargeList.length > 0) {
       return true;
     } else {
       return false;
@@ -225,7 +222,7 @@ export class ClassSubjectsComponent implements OnInit {
   }
 
   userIsAdmin() {
-    if (sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE['Admin']) {
+    if (sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE.Admin) {
       return true;
     } else {
       return false;

@@ -31,6 +31,7 @@ import { currentSubjectSlug,
 import { MatDialog } from '@angular/material/dialog';
 import { UiActionControlsComponent } from 'src/app/shared/ui-action-controls/ui-action-controls.component';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -158,7 +159,8 @@ export class CreateCourseComponent implements OnInit {
     private uiService: UiService,
     private instituteApiService: InstituteApiService,
     private formBuilder: FormBuilder,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private router: Router
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
@@ -2135,6 +2137,11 @@ export class CreateCourseComponent implements OnInit {
         }
       }
     }
+  }
+
+  openTestView(testDetails) {
+    console.log(testDetails);
+    this.router.navigate([ 'test-workspace/' + this.currentSubjectSlug + '/' + testDetails.test_slug ]);
   }
 
   closeViewContent(event) {

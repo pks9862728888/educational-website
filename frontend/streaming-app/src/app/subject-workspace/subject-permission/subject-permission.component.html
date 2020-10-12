@@ -1,19 +1,12 @@
-<mat-card>
-    <div class="d-flex justify-content-between">
-        <div>
-            <h3 [ngClass]="{'header-text': !mq.matches && (hasClassPerm || userIsAdmin())}">Subject Incharges:</h3>
-        </div>
-        <div *ngIf="hasClassPerm || userIsAdmin()">
-            <app-ui-inline-invite-form [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [showInviteFormMb]="showInviteFormMb" [hasPerm]="hasClassPerm" [formEvent]="formEvent.asObservable()" (showInviteFormMobile)="showInviteFormMobile()"
-                (hideInviteFormMobile)="hideInviteFormMobile()" (inviteeEmail)="invite($event)"></app-ui-inline-invite-form>
-        </div>
+<section class="parent-container">
+    <div class="d-flex justify-content-between align-center">
+        <h1>Subject Incharges:</h1>
+        <app-ui-inline-invite-form *ngIf="hasClassPerm || userIsAdmin()" [inputPlaceholder]="inputPlaceholder" [buttonText]="inviteButtonText" [createInviteIndicator]="createInviteIndicator" [showInviteFormMb]="showInviteFormMb" [hasPerm]="hasClassPerm" [formEvent]="formEvent.asObservable()"
+            (showInviteFormMobile)="showInviteFormMobile()" (hideInviteFormMobile)="hideInviteFormMobile()" (inviteeEmail)="invite($event)"></app-ui-inline-invite-form>
     </div>
     <hr class="separator m-t-05 m-b-1" />
     <div class="m-b-1" *ngIf="errorText">
         <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
-    </div>
-    <div class="m-b-1" *ngIf="successText">
-        <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
     </div>
     <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
     <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getInchargeList()"></app-ui-reload>
@@ -96,4 +89,4 @@
             </mat-expansion-panel>
         </mat-accordion>
     </section>
-</mat-card>
+</section>

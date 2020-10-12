@@ -1,106 +1,99 @@
-<mat-card class="component-body">
-    <section class="padding-bottom-07 text-color">
-        <div class="d-flex justify-content-between" [ngClass]="{'header-mb': mq.matches, 'header': !mq.matches}">
-            <div>
-                <h3 [ngClass]="{'header-text': !mq.matches && (hasClassPerm || userIsAdmin())}">Subjects:</h3>
-            </div>
-            <div *ngIf="hasClassPerm || userIsAdmin()">
-                <form class="form-inline" *ngIf="!mq.matches" [formGroup]="createSubjectForm">
-                    <div class="form-group mx-sm-3 mb-2">
-                        <label for="name" class="sr-only">Subject Name</label>
-                        <input type="text" formControlName="name" class="form-control" id="name" maxlength="40" placeholder="Subject Name" required/>
-                    </div>
-                    <div class="form-group mx-sm-3 mb-2">
-                        <mat-slide-toggle formControlName="type">Optional Subject</mat-slide-toggle>
-                    </div>
-                    <button type="submit" *ngIf="!createSubjectIndicator" [disabled]="createSubjectForm.invalid" mat-flat-button class="green-button mb-2" (click)="createSubject()">Create Subject</button>
-                    <mat-progress-spinner *ngIf="createSubjectIndicator" [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
-                </form>
-                <mat-icon *ngIf="mq.matches" [ngClass]="{'add-class': mq.matches}">
-                    <span *ngIf="!showCreateSubjectFormMb" (click)="showCreateSubjectFormMobile()">add_box</span>
-                    <span *ngIf="showCreateSubjectFormMb" (click)="hideCreateSubjectFormMobile()">clear</span>
-                </mat-icon>
-            </div>
-        </div>
-        <hr class="top-separator" />
-        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
-        <div class="margin-bottom-1" *ngIf="errorText">
-            <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
-        </div>
-        <div class="margin-bottom-1" *ngIf="successText">
-            <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
-        </div>
-        <section *ngIf="mq.matches && showCreateSubjectFormMb && hasClassPerm" class="margin-bottom-1">
-            <form class="form-group" [formGroup]="createSubjectForm">
-                <div class="row">
-                    <div class="col-12">
-                        <input type="text" formControlName="name" maxlength="40" class="form-control search-color" placeholder="Enter Subject Name" aria-label="Create subject">
-                    </div>
-                    <div class="col-12 margin-top-1">
-                        <mat-slide-toggle formControlName="type">Optional Subject</mat-slide-toggle>
-                    </div>
-                    <div class="col-12 margin-top-1">
-                        <button mat-flat-button [disabled]="createSubjectForm.invalid || createSubjectIndicator" (click)="this.createSubject()" class="btn create-button-mb" type="submit">Create</button>
-                    </div>
+<section class="p-b-07 parent-container">
+    <div class="d-flex justify-content-between align-center">
+        <h1>Subjects:</h1>
+        <div *ngIf="hasClassPerm || userIsAdmin()">
+            <form class="form-inline" *ngIf="!mq.matches" [formGroup]="createSubjectForm">
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="name" class="sr-only">Subject Name</label>
+                    <input type="text" formControlName="name" class="form-control" id="name" maxlength="40" placeholder="Subject Name" required/>
                 </div>
+                <div class="form-group mx-sm-3 mb-2">
+                    <mat-slide-toggle formControlName="type">Optional Subject</mat-slide-toggle>
+                </div>
+                <button type="submit" *ngIf="!createSubjectIndicator" [disabled]="createSubjectForm.invalid" mat-flat-button class="green-button mb-2" (click)="createSubject()">Create Subject</button>
+                <mat-progress-spinner *ngIf="createSubjectIndicator" [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
             </form>
-            <div class="create-class-spinner-mb" *ngIf="createSubjectIndicator">
-                <mat-progress-spinner [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
-                <p class="line-height">Creating subject...</p>
-            </div>
-        </section>
-        <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getSubjectList()"></app-ui-reload>
-        <div *ngIf="!showLoadingIndicator && !showReloadError && isSubjectListEmpty()" class="margin-bottom-05">
-            <h3 *ngIf="!mq.matches">No subjects created yet.</h3>
-            <p *ngIf="mq.matches">No subjects created yet.</p>
+            <mat-icon *ngIf="mq.matches" [ngClass]="{'add-class': mq.matches}">
+                <span *ngIf="!showCreateSubjectFormMb" (click)="showCreateSubjectFormMobile()">add_box</span>
+                <span *ngIf="showCreateSubjectFormMb" (click)="hideCreateSubjectFormMobile()">clear</span>
+            </mat-icon>
         </div>
-        <mat-accordion *ngIf="!showLoadingIndicator && !showReloadError && !isSubjectListEmpty()">
-            <mat-expansion-panel class="text-color" *ngFor="let subject of subjectList" [expanded]="subjectStep === subject.id" (opened)="setSubjectStep(subject.id)">
-                <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
-                    <mat-panel-title>
-                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
-                            <h3 *ngIf="!mq.matches">{{ subject.name | titlecase}}</h3>
-                            <p *ngIf="mq.matches">{{ subject.name | titlecase}}</p>
-                        </div>
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <hr class="invite-top-separator" />
-                <div class="row invite-body">
-                    <div class="col-12 margin-bottom-05">
-                        <h4 *ngIf="!mq.matches">{{ getSubjectType(subject.type) | titlecase }} Subject</h4>
-                        <p *ngIf="mq.matches">{{ getSubjectType(subject.type) | titlecase }} Subject</p>
-                    </div>
-                    <div class="col-12 margin-bottom-05">
-                        <h3 *ngIf="!mq.matches">Instructors: <span *ngIf="!hasSubjectIncharge(subject.subject_incharges)">Not assigned.</span></h3>
-                        <p *ngIf="mq.matches">Instructors: <span *ngIf="!hasSubjectIncharge(subject.subject_incharges)">Not assigned.</span></p>
-                    </div>
-                    <div class="col-12" *ngIf="hasSubjectIncharge(subject.subject_incharges)">
-                        <div class="d-flex justify-content-between" *ngFor="let incharge of subject.subject_incharges; let i=index;">
-                            <div>
-                                <h3 *ngIf="!mq.matches">{{ i + 1 }}.
-                                    <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
-                                    <span *ngIf="incharge.name === ' '">{{ incharge.email | lowercase }}</span>
-                                </h3>
-                                <p *ngIf="mq.matches">{{ i + 1 }}.
-                                    <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
-                                    <span *ngIf="incharge.name === ' '">{{ incharge.email | lowercase }}</span>
-                                </p>
-                            </div>
-                            <div>
-                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="userIsNotSelf(incharge.id)">message</mat-icon>
-                                <mat-icon class="incharge-icon green-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
-                            </div>
-                        </div>
-                    </div>
+    </div>
+    <hr class="separator m-t-05 m-b-1" />
+    <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
+    <div class="m-b-1" *ngIf="errorText">
+        <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+    </div>
+    <section *ngIf="mq.matches && showCreateSubjectFormMb && hasClassPerm" class="m-b-1">
+        <form class="form-group" [formGroup]="createSubjectForm">
+            <div class="row">
+                <div class="col-12">
+                    <input type="text" formControlName="name" maxlength="40" class="form-control search-color" placeholder="Enter Subject Name" aria-label="Create subject">
                 </div>
-                <hr class="invite-bottom-separator" *ngIf="hasClassPerm || subject.has_subject_perm" />
-                <div class="col">
-                    <div class="action-row">
-                        <button mat-raised-button class="red-button margin-right-1" *ngIf="hasClassPerm" (click)="deleteSubjectClicked(subject)">Delete</button>
-                        <button mat-flat-button class="green-button" *ngIf="subject.has_subject_perm || userIsAdmin()" (click)="openSubject(subject.subject_slug, subject.has_subject_perm)">Open</button>
-                    </div>
+                <div class="col-12 m-t-1">
+                    <mat-slide-toggle formControlName="type">Optional Subject</mat-slide-toggle>
                 </div>
-            </mat-expansion-panel>
-        </mat-accordion>
+                <div class="col-12 m-t-1">
+                    <button mat-flat-button [disabled]="createSubjectForm.invalid || createSubjectIndicator" (click)="this.createSubject()" class="btn create-button-mb" type="submit">Create</button>
+                </div>
+            </div>
+        </form>
+        <div class="create-class-spinner-mb" *ngIf="createSubjectIndicator">
+            <mat-progress-spinner [diameter]="30" mode="indeterminate" class="create-class-spinner"></mat-progress-spinner>
+            <p class="line-height">Creating subject...</p>
+        </div>
     </section>
-</mat-card>
+    <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getSubjectList()"></app-ui-reload>
+    <div *ngIf="!showLoadingIndicator && !showReloadError && isSubjectListEmpty()" class="m-b-05">
+        <h3 *ngIf="!mq.matches">No subjects created yet.</h3>
+        <p *ngIf="mq.matches">No subjects created yet.</p>
+    </div>
+    <mat-accordion *ngIf="!showLoadingIndicator && !showReloadError && !isSubjectListEmpty()">
+        <mat-expansion-panel class="text-color" *ngFor="let subject of subjectList" [expanded]="subjectStep === subject.id" (opened)="setSubjectStep(subject.id)">
+            <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
+                <mat-panel-title>
+                    <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                        <h3 *ngIf="!mq.matches">{{ subject.name | titlecase}}</h3>
+                        <p *ngIf="mq.matches">{{ subject.name | titlecase}}</p>
+                    </div>
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <hr class="invite-top-separator" />
+            <div class="row invite-body">
+                <div class="col-12 m-b-05">
+                    <h4 *ngIf="!mq.matches">{{ getSubjectType(subject.type) | titlecase }} Subject</h4>
+                    <p *ngIf="mq.matches">{{ getSubjectType(subject.type) | titlecase }} Subject</p>
+                </div>
+                <div class="col-12 m-b-05">
+                    <h3 *ngIf="!mq.matches">Instructors: <span *ngIf="!hasSubjectIncharge(subject.subject_incharges)">Not assigned.</span></h3>
+                    <p *ngIf="mq.matches">Instructors: <span *ngIf="!hasSubjectIncharge(subject.subject_incharges)">Not assigned.</span></p>
+                </div>
+                <div class="col-12" *ngIf="hasSubjectIncharge(subject.subject_incharges)">
+                    <div class="d-flex justify-content-between" *ngFor="let incharge of subject.subject_incharges; let i=index;">
+                        <div>
+                            <h3 *ngIf="!mq.matches">{{ i + 1 }}.
+                                <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
+                                <span *ngIf="incharge.name === ' '">{{ incharge.email | lowercase }}</span>
+                            </h3>
+                            <p *ngIf="mq.matches">{{ i + 1 }}.
+                                <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span>
+                                <span *ngIf="incharge.name === ' '">{{ incharge.email | lowercase }}</span>
+                            </p>
+                        </div>
+                        <div>
+                            <mat-icon class="incharge-icon m-r-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="userIsNotSelf(incharge.id)">message</mat-icon>
+                            <mat-icon class="incharge-icon green-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="invite-bottom-separator" *ngIf="hasClassPerm || subject.has_subject_perm" />
+            <div class="col">
+                <div class="action-row">
+                    <button mat-raised-button class="red-button margin-right-1" *ngIf="hasClassPerm" (click)="deleteSubjectClicked(subject)">Delete</button>
+                    <button mat-flat-button class="green-button" *ngIf="subject.has_subject_perm || userIsAdmin()" (click)="openSubject(subject.subject_slug, subject.has_subject_perm)">Open</button>
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+</section>

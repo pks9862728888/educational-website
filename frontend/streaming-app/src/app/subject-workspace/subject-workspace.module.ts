@@ -11,6 +11,7 @@ import { MaterialSubjectWorkspaceModule } from './material-subject-workspace';
 import { ViewVideoComponent } from './view-video/view-video.component';
 import { ViewPdfComponent } from './view-pdf/view-pdf.component';
 import { ViewImageComponent } from './view-image/view-image.component';
+import { UiService } from '../services/ui.service';
 
 import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
@@ -34,6 +35,7 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
   ],
   providers: [
     InstituteApiService,
+    UiService,
     InAppDataTransferService,
     DownloadService
   ]

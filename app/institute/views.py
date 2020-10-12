@@ -1051,7 +1051,7 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
             for order in models.InstituteCommonLicenseOrderDetails.objects.filter(
                     institute=institute,
                     paid=False,
-                    active=False
+                    ac
             ).only('order_created_on', 'selected_license'):
                 if int(time.time()) * 1000 - order.order_created_on > 86400 * 1000 * 14:
                     models.InstituteSelectedCommonLicense.objects.filter(
