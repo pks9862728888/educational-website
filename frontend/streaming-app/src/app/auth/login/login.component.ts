@@ -47,11 +47,12 @@ export class LoginComponent implements OnInit {
   login() {
     this.authService.login(this.loginForm.value).subscribe(
       (result: ServerResponse) => {
-        let expiryDate = new Date();
+        const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 1);
         this.cookieService.set(authTokenName,
           result.token, expiryDate, '/', frontendBaseUrl, false, 'Strict');
         sessionStorage.setItem('user_id', result.id);
+
         if (result.is_teacher) {
           this.userType = 'TEACHER';
           sessionStorage.setItem(is_teacher, result.is_teacher);
@@ -82,7 +83,6 @@ export class LoginComponent implements OnInit {
     if (this.userType === 'STUDENT') {
       this.router.navigate(['/student-workspace']);
     } else if (this.userType === 'TEACHER') {
-      console.log("here");
       this.router.navigate(['/teacher-workspace']);
     } else if (this.userType === 'STAFF') {
       this.router.navigate(['/staff-workspace']);

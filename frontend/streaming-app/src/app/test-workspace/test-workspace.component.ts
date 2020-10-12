@@ -3,8 +3,13 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { currentClassSlug, currentInstituteSlug, currentInstituteType, INSTITUTE_TYPE_REVERSE, webAppName } from 'src/constants';
-import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
+import { currentInstituteSlug,
+         currentInstituteType,
+         INSTITUTE_TYPE_REVERSE,
+         QUESTION_MODE,
+         testMinDetails,
+         webAppName } from 'src/constants';
+import { TestMinDetailsResponse } from '../models/test.model';
 import { InstituteApiService } from '../services/institute-api.service';
 
 @Component({
@@ -32,6 +37,9 @@ export class TestWorkspaceComponent implements OnInit, OnDestroy {
   loadingError: string;
   reloadIndicator: boolean;
 
+  QUESTION_MODE = QUESTION_MODE;
+  testMinDetails: TestMinDetailsResponse;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -44,13 +52,19 @@ export class TestWorkspaceComponent implements OnInit, OnDestroy {
       if (val instanceof NavigationEnd) {
         if (val.url.includes('dashboard')) {
           this.activeLink = 'DASHBOARD';
+        } else if (val.url.includes('create-question-paper/file-mode')) {
+          this.activeLink = 'CREATE-QUESTION-PAPER/FILE-MODE';
+        } else if (val.url.includes('create-question-paper/image-mode')) {
+          this.activeLink = 'CREATE-QUESTION-PAPER/IMAGE-MODE';
+        } else if (val.url.includes('create-question-paper/typed-mode')) {
+          this.activeLink = 'CREATE-QUESTION-PAPER/TYPED-MODE';
         }
       }
     });
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
     this.currentSubjectSlug = activatedRoute.snapshot.params.subjectSlug;
     this.currentTestSlug = activatedRoute.snapshot.params.testSlug;
-    this.baseUrl = window.location.pathname;
+    this.baseUrl = '/test-workspace/' + this.currentSubjectSlug + '/' + this.currentTestSlug;
     this.currentInstituteType = sessionStorage.getItem(currentInstituteType);
   }
 
@@ -65,9 +79,32 @@ export class TestWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   loadTestMinDetails() {
-    // this.loadingIndicator = true;
-    // this.loadingError = null;
-    this.reloadIndicator = true;
+    this.loadingIndicator = true;
+    this.loadingError = null;
+    this.reloadIndicator = false;
+    this.instituteApiService.getMinTestDetails(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug
+    ).subscribe(
+      (result: TestMinDetailsResponse) => {
+        this.loadingIndicator = false;
+        this.testMinDetails = result;
+        sessionStorage.setItem(testMinDetails, JSON.stringify(this.testMinDetails));
+      },
+      errors => {
+        this.loadingIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.loadingError = errors.error.error;
+          } else {
+            this.reloadIndicator = true;
+          }
+        } else {
+          this.reloadIndicator = true;
+        }
+      }
+    );
   }
 
   navigateToAppropriateInstituteWorkspace(path: string) {
@@ -115,5 +152,4 @@ export class TestWorkspaceComponent implements OnInit, OnDestroy {
       this.showTempNamesSubscription.unsubscribe();
     }
   }
-
 }

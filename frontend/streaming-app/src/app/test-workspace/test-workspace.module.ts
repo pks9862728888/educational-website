@@ -14,7 +14,7 @@ import { NgxExtendedPdfViewerModule } from 'ngx-extended-pdf-viewer';
 
 @NgModule({
   declarations: [
-    testWorkspaceRoutingComponents
+    testWorkspaceRoutingComponents,
   ],
   imports: [
     CommonModule,

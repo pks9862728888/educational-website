@@ -38,6 +38,14 @@ export const selectedLicenseId = 'selectedLicenseId';
 // For Course
 export const courseContent = 'courseContent';
 
+// For test
+export const testMinDetails = 'testMinDetails';
+
+export const TEST_PERM_TYPE_REVERSE = {
+  VIEW_ONLY: 'V',
+  ROLE_BASED: 'R'
+};
+
 export const COUNTRY = {
     IN: 'India',
     US: 'USA'

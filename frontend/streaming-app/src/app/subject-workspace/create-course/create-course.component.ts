@@ -2141,7 +2141,7 @@ export class CreateCourseComponent implements OnInit {
 
   openTestView(testDetails) {
     console.log(testDetails);
-    this.router.navigate([ 'test-workspace/' + this.currentSubjectSlug + '/' + testDetails.test_slug ]);
+    this.router.navigate([ 'test-workspace/' + this.currentSubjectSlug + '/' + testDetails.test_slug]);
   }
 
   closeViewContent(event) {
