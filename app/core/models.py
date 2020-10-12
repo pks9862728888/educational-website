@@ -54,6 +54,11 @@ class Languages:
     ]
 
 
+class PermissionType:
+    VIEW_ONLY = 'V'
+    ROLE_BASED = 'R'
+
+
 # Gender available as options in Gender Field
 class Gender:
     MALE = 'M'

@@ -1051,7 +1051,7 @@ class InstituteOrderedLicenseOrderDetailsView(APIView):
             for order in models.InstituteCommonLicenseOrderDetails.objects.filter(
                     institute=institute,
                     paid=False,
-                    ac
+                    active=False
             ).only('order_created_on', 'selected_license'):
                 if int(time.time()) * 1000 - order.order_created_on > 86400 * 1000 * 14:
                     models.InstituteSelectedCommonLicense.objects.filter(
@@ -6577,7 +6577,65 @@ class InstituteSubjectAddTestView(APIView):
                 test.delete()
             return Response({'error': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            print(e)
+        except Exception:
             return Response({'error': _('Unknown internal server error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteTestMinDetailsView(APIView):
+    """View for getting min details of test"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """Only subject, class incharge and admin can view."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        perm_type = None
+        # Checking permission
+        if models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            perm_type = models.PermissionType.ROLE_BASED
+        else:
+            if models.InstituteClassPermission.objects.filter(
+                to__pk=subject.subject_class.pk,
+                invitee=self.request.user
+            ).exists():
+                perm_type = models.PermissionType.VIEW_ONLY
+            else:
+                institute = models.Institute.objects.filter(
+                    institute_slug=kwargs.get('institute_slug')
+                ).only('institute_slug').first()
+
+                if not institute:
+                    return Response({'error': _('Institute not found.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                if models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    invitee=self.request.user,
+                    role=models.InstituteRole.ADMIN,
+                    active=True
+                ).exists():
+                    perm_type = models.PermissionType.VIEW_ONLY
+                else:
+                    return Response({'error': _('Permission denied.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+        # Getting test details
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug')
+        ).only('question_mode').first()
+
+        return Response({
+            'question_mode': test.question_mode,
+            'perm_type': perm_type
+        }, status=status.HTTP_200_OK)
