@@ -127,11 +127,11 @@ class InstituteMinDetailsSerializer(CountryFieldMixin,
     class Meta:
         model = models.Institute
         fields = ('id', 'name', 'country', 'role',
-                  'institute_category', 'type', 'created_date',
+                  'institute_category', 'type', 'created_on',
                   'institute_slug', 'institute_profile',
                   'institute_logo', 'institute_statistics')
         read_only_fields = ('name', 'country', 'institute_category',
-                            'type', 'created_date', 'institute_slug', 'role',
+                            'type', 'created_on', 'institute_slug', 'role',
                             'institute_profile', 'institute_logo',
                             'institute_statistics')
 
@@ -390,10 +390,10 @@ class InstituteFullDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Institute
         fields = ('user', 'name', 'country', 'institute_category', 'type',
-                  'role', 'institute_slug', 'created_date', 'institute_profile',
+                  'role', 'institute_slug', 'created_on', 'institute_profile',
                   'institute_statistics', 'institute_logo', 'institute_banner')
         read_only_fields = ('user', 'name', 'country', 'institute_category',
-                            'type', 'institute_slug', 'created_date', 'role',
+                            'type', 'institute_slug', 'created_on', 'role',
                             'institute_profile', 'institute_statistics',
                             'institute_logo', 'institute_banner')
 

@@ -34,9 +34,9 @@ urlpatterns = [
          name='storage-license-credentials-for-retry-payment'),
 
     # For common license
-    path('institute-license-list',
+    path('institute-common-license-list',
          views.InstituteCommonLicenseListView.as_view(),
-         name="institute-license-list"),
+         name="institute-common-license-list"),
     path('<slug:institute_slug>/institute-common-license-detail',
          views.InstituteCommonLicenseDetailView.as_view(),
          name="institute-common-license-detail"),
