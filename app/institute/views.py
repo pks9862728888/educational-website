@@ -32,35 +32,13 @@ from app.settings import client, MEDIA_URL, MEDIA_ROOT
 from core import models
 
 
-def get_unexpired_license(institute):
-    """
-    Returns order if institute has unexpired institute license,
-    else returns None
-    """
-    order = models.InstituteCommonLicenseOrderDetails.objects.filter(
-        institute=institute,
-        paid=True
-    ).order_by('-end_date')
-
-    if order.filter(active=True).exists():
-        order = order.filter(active=True).first()
-    else:
-        order = order.order_by('-order_created_on').first()
-
-    if not order or (order.active and order.end_date < int(time.time()) * 1000) or \
-            not order.active and order.end_date and order.end_date < int(time.time()) * 1000:
-        return None
-    else:
-        return order
-
-
-def get_active_license(institute):
+def get_active_common_license(institute):
     """Returns license order if institute has active license else returns None"""
     order = models.InstituteCommonLicenseOrderDetails.objects.filter(
         institute=institute,
         paid=True,
         active=True
-    ).order_by('-order_created_on').first()
+    ).order_by('order_created_on').first()
 
     if not order or (int(time.time()) * 1000 > order.end_date):
         return None
@@ -73,7 +51,7 @@ def get_institute_stats_and_validate(institute, size=None):
     Returns institute statistics if validation success else return error response
     """
     stats = models.InstituteStatistics.objects.filter(institute=institute).first()
-    order = get_unexpired_license(institute)
+    order = get_active_common_license(institute)
     if not order:
         return Response({'error': _('License not found.')},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -375,7 +353,7 @@ class InstituteLicenseCostView(ListAPIView):
         lic = models.InstituteStorageLicense.objects.all().first()
 
         if not lic:
-            return Response({'error': _('Storage license costing not set up.')},
+            return Response({'error': _('This product is currently not available.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
@@ -656,6 +634,10 @@ class InstituteCommonLicenseListView(ListAPIView):
         for _license in yearly_license:
             ser = self.serializer_class(_license)
             yearly_license_list.append(ser.data)
+
+        if not len(monthly_license_list) and not len(yearly_license_list):
+            return Response({'error': _('This product is currently not available.')},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
             'monthly_license': monthly_license_list,
@@ -1571,7 +1553,7 @@ class AddStudentToInstituteView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        order = get_unexpired_license(institute)
+        order = get_active_common_license(institute)
         if not order:
             return Response({'error': _('License not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -1722,7 +1704,7 @@ class InstituteStudentListView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        order = get_unexpired_license(institute)
+        order = get_active_common_license(institute)
         if not order:
             return Response({'error': _('License not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -1831,7 +1813,7 @@ class AddStudentToClassView(APIView):
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-        order = get_unexpired_license(institute)
+        order = get_active_common_license(institute)
         if not order:
             return Response({'error': _('License not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -1940,7 +1922,7 @@ class InstituteClassStudentListView(APIView):
         ).exists():
             has_class_perm = True
 
-        order = get_unexpired_license(institute)
+        order = get_active_common_license(institute)
         if not order:
             return Response({'error': _('License not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -2060,7 +2042,7 @@ class AddStudentToSubjectView(APIView):
                     return Response({'error': _('Permission denied.')},
                                     status=status.HTTP_400_BAD_REQUEST)
 
-        order = get_unexpired_license(institute)
+        order = get_active_common_license(institute)
         if not order:
             return Response({'error': _('License not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -2201,7 +2183,7 @@ class InstituteSubjectStudentListView(APIView):
         ).exists():
             has_subject_perm = True
 
-        order = get_unexpired_license(institute)
+        order = get_active_common_license(institute)
         if not order:
             return Response({'error': _('License not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -2375,7 +2357,7 @@ class InstituteProvidePermissionView(APIView):
             invitee=inviter,
             active=True
         ).first()
-        license_ = get_unexpired_license(institute)
+        license_ = get_active_common_license(institute)
 
         if not license_:
             return Response({'error': _('License expired or not found.')},
@@ -2808,12 +2790,9 @@ class CreateClassView(CreateAPIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = models.InstituteCommonLicenseOrderDetails.objects.filter(
-            institute=institute,
-            paid=True
-        ).order_by('-payment_date').first()
+        license_ = get_active_common_license(institute)
 
-        if not license_ or (license_.active and license_.end_date < timezone.now()):
+        if not license_:
             return Response({'error': _('License expired or not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -2941,7 +2920,7 @@ class ListAllClassView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not get_unexpired_license(institute):
+        if not get_active_common_license(institute):
             return Response({'error': _('License expired or not purchased.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -3768,7 +3747,7 @@ class InstituteSubjectMinStatisticsView(APIView):
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-        order = get_unexpired_license(institute)
+        order = get_active_common_license(institute)
 
         if not order:
             return Response({'error': _('License expired or not found.')},
@@ -4264,7 +4243,7 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
         institute = models.Institute.objects.filter(
             pk=subject.subject_class.class_institute.pk
         ).only('institute_slug').first()
-        license_ = get_unexpired_license(institute)
+        license_ = get_active_common_license(institute)
 
         if not license_:
             return Response({'error': _('License not found.')},
@@ -4489,7 +4468,7 @@ class InstituteSubjectAddLectureMaterials(APIView):
         institute = models.Institute.objects.filter(
             pk=subject.subject_class.class_institute.pk
         ).only('institute_slug').first()
-        license_ = get_unexpired_license(institute)
+        license_ = get_active_common_license(institute)
 
         if not license_:
             return Response({'error': _('License not found.')},
@@ -5255,7 +5234,7 @@ class ListSubjectPeers(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not get_active_license(institute):
+        if not get_active_common_license(institute):
             return Response({'error': _('Active license not found or expired. Contact your institute.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -5344,7 +5323,7 @@ class InstituteSubjectCoursePreviewMinDetails(APIView):
                     return Response({'error': _('Permission denied.')},
                                     status=status.HTTP_400_BAD_REQUEST)
 
-        order = get_unexpired_license(institute)
+        order = get_active_common_license(institute)
 
         if not order:
             return Response({'error': _('Institute license expired or not found.')},
@@ -5473,7 +5452,7 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            if not get_active_license(institute):
+            if not get_active_common_license(institute):
                 return Response({'error': _('Institute has no active license. Contact institute.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
@@ -5491,7 +5470,7 @@ class PreviewInstituteSubjectSpecificViewContents(APIView):
                     return Response({'error': _('Permission denied.')},
                                     status=status.HTTP_400_BAD_REQUEST)
 
-            if not get_unexpired_license(institute):
+            if not get_active_common_license(institute):
                 return Response({'error': _('Institute license expired or not found.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
@@ -5577,7 +5556,7 @@ class InstituteSubjectCourseContentAskQuestionView(APIView):
             return Response({'error': _('Course content not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not get_active_license(institute):
+        if not get_active_common_license(institute):
             return Response({'error': _('Active license not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -5676,7 +5655,7 @@ class InstituteSubjectCourseContentAnswerQuestionView(APIView):
             return Response({'error': _('Question may have been deleted or not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        if not get_active_license(institute):
+        if not get_active_common_license(institute):
             return Response({'error': _('Active license not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -6193,7 +6172,7 @@ class InstituteSubjectCourseQuestionListAnswerView(APIView):
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-        if not get_active_license(institute):
+        if not get_active_common_license(institute):
             return Response({'error': _('Active license not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -6307,7 +6286,7 @@ class InstituteSubjectCourseListQuestionView(APIView):
                 return Response({'error': _('Permission denied.')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-        if not get_active_license(institute):
+        if not get_active_common_license(institute):
             return Response({'error': _('Active license not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -6508,7 +6487,7 @@ class InstituteSubjectAddTestView(APIView):
             return Response({'error': _('Permission denied.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        license_ = get_unexpired_license(institute)
+        license_ = get_active_common_license(institute)
 
         if not license_:
             return Response({'error': _('Institute license not found.')},
