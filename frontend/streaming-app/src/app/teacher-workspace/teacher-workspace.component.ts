@@ -12,9 +12,8 @@ import { Subscription } from 'rxjs';
 })
 export class TeacherWorkspaceComponent implements OnInit, OnDestroy {
 
-  // For showing sidenav toolbar
   mq: MediaQueryList;
-  title = webAppName;
+  webAppName = webAppName;
   opened: boolean;
   activeLink: string;
   showTempNamesSubscription: Subscription;

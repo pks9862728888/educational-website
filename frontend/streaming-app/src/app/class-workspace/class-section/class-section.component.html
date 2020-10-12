@@ -1,5 +1,5 @@
 <mat-card class="component-body">
-    <section class="padding-bottom-07 text-color">
+    <section class="p-b-07 text-color">
         <div class="d-flex justify-content-between" [ngClass]="{'header-mb': mq.matches, 'header': !mq.matches}">
             <div>
                 <h3 [ngClass]="{'header-text': !mq.matches && (hasClassPerm || userIsAdmin())}">Sections:</h3>
@@ -9,20 +9,20 @@
                     (showFormMobile)="showCreateSectionFormMobile()" (hideFormMobile)="hideCreateSectionFormMobile()" (createEvent)="createSection($event)"></app-ui-inline-create-form>
             </div>
         </div>
-        <hr class="top-separator" />
+        <hr class="separator m-t-05 m-b-1" />
         <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
         <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getSectionList()"></app-ui-reload>
-        <div class="margin-bottom-1" *ngIf="errorText">
+        <div class="m-b-1" *ngIf="errorText">
             <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
         </div>
-        <div class="margin-bottom-1" *ngIf="successText">
+        <div class="m-b-1" *ngIf="successText">
             <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
         </div>
-        <section *ngIf="mq.matches && showCreateSectionFormMb" class="margin-bottom-1">
+        <section *ngIf="mq.matches && showCreateSectionFormMb" class="m-b-1">
             <app-ui-mb-create-form [maxLength]="maxSectionNameLength" [createIndicator]="createSectionIndicator" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [progressSpinnerText]="createProgressSpinnerText" [formEvent]="formEvent.asObservable()"
                 (createEvent)="createSection($event)"></app-ui-mb-create-form>
         </section>
-        <div *ngIf="!showLoadingIndicator && !showReloadError && isSectionListEmpty()" class="margin-bottom-05">
+        <div *ngIf="!showLoadingIndicator && !showReloadError && isSectionListEmpty()" class="m-b-05">
             <h3 *ngIf="!mq.matches">No section created yet.</h3>
             <p *ngIf="mq.matches">No section created yet.</p>
         </div>
@@ -36,9 +36,9 @@
                         </div>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <hr class="invite-top-separator" />
+                <hr class="separator m-b-05" />
                 <div class="row invite-body">
-                    <div class="col-12 margin-bottom-05">
+                    <div class="col-12 m-b-05">
                         <h3 *ngIf="!mq.matches">Section Incharges: <span *ngIf="!sectionHasIncharge(section.section_incharges)">Not assigned.</span></h3>
                         <p *ngIf="mq.matches">Section Incharges: <span *ngIf="!sectionHasIncharge(section.section_incharges)">Not assigned.</span></p>
                     </div>
@@ -53,16 +53,16 @@
                                 </p>
                             </div>
                             <div>
-                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="!userIsSelf(incharge.id)">message</mat-icon>
+                                <mat-icon class="incharge-icon m-r-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="!userIsSelf(incharge.id)">message</mat-icon>
                                 <mat-icon class="incharge-icon green-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
                             </div>
                         </div>
                     </div>
                 </div>
-                <hr class="invite-bottom-separator" />
+                <hr class="separator m-t-05" />
                 <div class="col">
                     <div class="action-row">
-                        <button mat-raised-button class="red-button margin-right-1" (click)="deleteSectionClicked(section)">Delete</button>
+                        <button mat-raised-button class="red-button m-r-1" (click)="deleteSectionClicked(section)">Delete</button>
                         <button mat-flat-button class="green-button" (click)="openSection(section.section_slug, section.has_section_perm)">Open</button>
                     </div>
                 </div>

@@ -101,14 +101,10 @@ hr {
 
 /* Adding padding and margins */
 
-.margin-right-06 {
+.m-tbr-06 {
     margin-right: 0.6rem;
     margin-top: 0.6rem;
     margin-bottom: 0.6rem;
-}
-
-.flex-display {
-    display: flex;
 }
 
 .padding-left-star {

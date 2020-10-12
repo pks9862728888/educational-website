@@ -12,9 +12,8 @@ import { InAppDataTransferService } from '../services/in-app-data-transfer.servi
 })
 export class StudentWorkspaceComponent implements OnInit {
 
-  // For showing sidenav toolbar
   mq: MediaQueryList;
-  title = webAppName;
+  webAppName = webAppName;
   opened: boolean;
   activeLink: string;
   showTempNamesSubscription: Subscription;

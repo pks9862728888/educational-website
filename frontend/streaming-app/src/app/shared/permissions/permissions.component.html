@@ -21,7 +21,7 @@
                         </form>
                     </div>
                 </section>
-                <hr class="top-separator" *ngIf="this.currentInstituteRole === 'A'" />
+                <hr class="separator" *ngIf="this.currentInstituteRole === 'A'" />
                 <section [ngClass]="{'p-t-1': this.currentInstituteRole === 'A'}">
                     <h3>Admin:</h3>
                     <mat-accordion *ngIf="!this.isActiveAdminListEmpty()">
@@ -44,7 +44,7 @@
                                     </div>
                                 </mat-panel-title>
                             </mat-expansion-panel-header>
-                            <hr class="invite-top-separator" />
+                            <hr class="separator m-b-05" />
                             <div class="row invite-body" *ngIf="mq.matches ">
                                 <div class="col-12">
                                     <div class="row invite-details">
@@ -139,7 +139,7 @@
                                     </div>
                                 </mat-panel-title>
                             </mat-expansion-panel-header>
-                            <hr class="invite-top-separator" />
+                            <hr class="separator m-b-05" />
                             <div class="row invite-body" *ngIf="mq.matches ">
                                 <div class="col-12">
                                     <div class="row invite-details">
@@ -238,7 +238,7 @@
                         </form>
                     </div>
                 </section>
-                <hr class="top-separator" *ngIf="userNotFaculty()" />
+                <hr class="separator" *ngIf="userNotFaculty()" />
                 <section [ngClass]="{'p-t-1': userNotFaculty()}">
                     <h3>Staffs:</h3>
                     <mat-accordion *ngIf="!isActiveStaffListEmpty()">
@@ -261,7 +261,7 @@
                                     </div>
                                 </mat-panel-title>
                             </mat-expansion-panel-header>
-                            <hr class="invite-top-separator" />
+                            <hr class="separator m-b-05" />
                             <div class="row invite-body" *ngIf="mq.matches ">
                                 <div class="col-12">
                                     <div class="row invite-details">
@@ -354,7 +354,7 @@
                                     </div>
                                 </mat-panel-title>
                             </mat-expansion-panel-header>
-                            <hr class="invite-top-separator" />
+                            <hr class="separator m-b-05" />
                             <div class="row invite-body" *ngIf="mq.matches ">
                                 <div class="col-12">
                                     <div class="row invite-details">
@@ -451,7 +451,7 @@
                         </form>
                     </div>
                 </div>
-                <hr class="top-separator" *ngIf="userNotFaculty()" />
+                <hr class="separator" *ngIf="userNotFaculty()" />
                 <section [ngClass]="{'p-t-1': userNotFaculty()}">
                     <h3>Faculties:</h3>
                     <mat-accordion *ngIf="!isActiveFacultyListEmpty()">
@@ -474,7 +474,7 @@
                                     </div>
                                 </mat-panel-title>
                             </mat-expansion-panel-header>
-                            <hr class="invite-top-separator" />
+                            <hr class="separator m-b-05" />
                             <div class="row invite-body" *ngIf="mq.matches ">
                                 <div class="col-12">
                                     <div class="row invite-details">
@@ -567,7 +567,7 @@
                                     </div>
                                 </mat-panel-title>
                             </mat-expansion-panel-header>
-                            <hr class="invite-top-separator" />
+                            <hr class="separator m-b-05" />
                             <div class="row invite-body" *ngIf="mq.matches ">
                                 <div class="col-12">
                                     <div class="row invite-details">

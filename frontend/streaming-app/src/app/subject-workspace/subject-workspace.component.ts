@@ -4,15 +4,13 @@ import { Router, NavigationEnd } from '@angular/router';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { currentSubjectSlug,
-  currentInstituteSlug,
-  currentInstituteType,
-  paymentComplete,
-  purchasedLicenseExists,
-  currentClassSlug,
-  hasClassPerm,
-  hasSubjectPerm,
-  INSTITUTE_TYPE_REVERSE,
-  webAppName } from './../../constants';
+         currentInstituteSlug,
+         currentInstituteType,
+         currentClassSlug,
+         hasClassPerm,
+         hasSubjectPerm,
+         INSTITUTE_TYPE_REVERSE,
+         webAppName } from './../../constants';
 
 @Component({
   selector: 'app-subject-workspace',
@@ -22,7 +20,7 @@ import { currentSubjectSlug,
 export class SubjectWorkspaceComponent implements OnInit, OnDestroy {
 
   mq: MediaQueryList;
-  title = webAppName;
+  webAppName = webAppName;
   currentInstituteSlug: string;
   currentSubjectSlug: string;
   currentInstituteType: string;

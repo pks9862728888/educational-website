@@ -1,10 +1,10 @@
-import { currentSectionSlug, INSTITUTE_TYPE_REVERSE, currentClassSlug } from './../../constants';
+import { currentSectionSlug, INSTITUTE_TYPE_REVERSE, currentClassSlug, webAppName } from './../../constants';
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Router, NavigationEnd } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { InAppDataTransferService } from '../services/in-app-data-transfer.service';
-import { currentInstituteSlug, currentSubjectSlug, currentInstituteType } from '../../constants';
+import { currentInstituteSlug, currentInstituteType } from '../../constants';
 
 @Component({
   selector: 'app-section-workspace',
@@ -14,6 +14,7 @@ import { currentInstituteSlug, currentSubjectSlug, currentInstituteType } from '
 export class SectionWorkspaceComponent implements OnInit {
 
   mq: MediaQueryList;
+  webAppName = webAppName;
   currentInstituteSlug: string;
   currentSectionSlug: string;
   currentInstituteType: string;
@@ -60,11 +61,11 @@ export class SectionWorkspaceComponent implements OnInit {
   }
 
   navigateToAppropriateInstituteWorkspace(path: string) {
-    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['School']) {
+    if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.School) {
       this.router.navigate(['/school-workspace/' + this.currentInstituteSlug + path]);
-    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['Coaching']) {
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.Coaching) {
       this.router.navigate(['/coaching-workspace/' + this.currentInstituteSlug + path]);
-    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE['College']) {
+    } else if (this.currentInstituteType === INSTITUTE_TYPE_REVERSE.College) {
       this.router.navigate(['/college-workspace/' + this.currentInstituteSlug + path]);
     }
   }

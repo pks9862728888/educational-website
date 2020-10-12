@@ -11,7 +11,7 @@
           <span class="m-r-05">Question</span>
         </button>
     </div>
-    <hr class="top-separator m-b-1" />
+    <hr class="separator m-b-1" />
     <div class="m-t-1 m-b-1" *ngIf="showAskQuestionForm">
         <div class="m-b-1" *ngIf="submitQuestionError">
             <app-ui-error-text [errorText]="submitQuestionError" (closeErrorTextEvent)="closeSubmitQuestionError()"></app-ui-error-text>
@@ -39,7 +39,7 @@
               </div>
             </button>
         </div>
-        <hr class="top-separator m-t-1" />
+        <hr class="separator m-t-1" />
     </div>
     <p *ngIf="!questionExists()">No questions found.</p>
     <div *ngIf="questionExists()">

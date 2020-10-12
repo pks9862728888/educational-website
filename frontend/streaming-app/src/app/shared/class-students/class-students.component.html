@@ -73,7 +73,7 @@
                                 </div>
                             </mat-panel-title>
                         </mat-expansion-panel-header>
-                        <hr class="top-separator m-b-1" />
+                        <hr class="separator m-b-1" />
                         <div class="text-color">
                             <div class="row details" *ngIf="mq.matches && student.class_name">
                                 <div class="col-6">
@@ -164,7 +164,7 @@
                                 </div>
                             </div>
                         </div>
-                        <hr class="top-separator m-t-1 m-b-1" />
+                        <hr class="separator m-t-1 m-b-1" />
                         <div class="text-color edit-form-background m-b-1" *ngIf="student['edit'] && hasClassPerm()">
                             <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="!userIsAdmin()" (hideEditFormEvent)="hideInvitedStudentEditForm()" (editedStudentDetails)="updateInvitedStudentData($event)"></app-edit-student-details-form>
                         </div>
@@ -227,7 +227,7 @@
                                 </div>
                             </mat-panel-title>
                         </mat-expansion-panel-header>
-                        <hr class="top-separator m-b-1" />
+                        <hr class="separator m-b-1" />
                         <div class="text-color">
                             <div class="row details" *ngIf="mq.matches && student.class_name">
                                 <div class="col-6">
@@ -328,7 +328,7 @@
                                 </div>
                             </div>
                         </div>
-                        <hr class="top-separator m-t-1 m-b-1" />
+                        <hr class="separator m-t-1 m-b-1" />
                         <div class="text-color edit-form-background m-b-1" *ngIf="student['edit'] && hasClassPerm()">
                             <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="!userIsAdmin()" (hideEditFormEvent)="hideActiveStudentEditForm()" (editedStudentDetails)="updateActiveStudentData($event)"></app-edit-student-details-form>
                         </div>
@@ -391,7 +391,7 @@
                                 </div>
                             </mat-panel-title>
                         </mat-expansion-panel-header>
-                        <hr class="top-separator m-b-1" />
+                        <hr class="separator m-b-1" />
                         <div class="text-color">
                             <div class="row details" *ngIf="mq.matches && student.class_name">
                                 <div class="col-6">
@@ -544,7 +544,7 @@
                                 </div>
                             </div>
                         </div>
-                        <hr class="top-separator m-t-1 m-b-1" />
+                        <hr class="separator m-t-1 m-b-1" />
                         <div class="text-color edit-form-background m-b-1" *ngIf="student['edit'] && hasClassPerm()">
                             <app-edit-student-details-form [student]="student" [hideRegistrationNumber]="!userIsAdmin()" (hideEditFormEvent)="hideBannedStudentEditForm()" (editedStudentDetails)="updateBannedStudentData($event)"></app-edit-student-details-form>
                         </div>

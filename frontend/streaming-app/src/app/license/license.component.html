@@ -10,7 +10,7 @@
             <mat-icon class="purchase-icon translate-purchase-icon-mb m-l-05" *ngIf="mq.matches" (click)="purchaseLicense()">shopping_cart</mat-icon>
         </div>
     </div>
-    <hr class="top-separator m-t-05 m-b-1" />
+    <hr class="separator m-t-05 m-b-1" />
     <div *ngFor="let product of productTypes; let productIndex=index" class="m-b-1">
         <div class="product-header d-flex justify-content-between align-center cursor-pointer expansion-panel-header-color" (click)="setOpenedProductStep(productIndex)">
             <h2 *ngIf="!mq.matches">{{ product }}</h2>
@@ -667,7 +667,7 @@
                                     <span class="link">Hide License Plan Details</span>
                                 </p>
                             </div>
-                            <hr class="top-separator m-t-1 m-b-1" />
+                            <hr class="separator m-t-1 m-b-1" />
                             <h3 class="link-color">Instructions:</h3>
                             <ul>
                                 <li>Please do not pay again if money was deducted.</li>
@@ -677,7 +677,7 @@
                                 <li>You can retry payment within 3 days after the order creation date.</li>
                                 <li>This unpaid order will be automatically deleted after 14 days from the order creation date.</li>
                             </ul>
-                            <hr class="top-separator m-t-1 m-b-1" />
+                            <hr class="separator m-t-1 m-b-1" />
                             <div class="d-flex justify-content-end m-b-05">
                                 <button mat-stroked-button [disabled]="deleteIndicator" class="button-controls m-r-05">
                                   <mat-icon class="preview-icon" [class.m-r-05]="!mq.matches">pan_tool</mat-icon>

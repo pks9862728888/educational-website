@@ -35,7 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
   routerEventsSubscription: Subscription;
 
   // For tracking whether device is mobile
-  mobileQuery: MediaQueryList;
+  mq: MediaQueryList;
 
   // Duration for showing snackbar
   durationInSeconds = 4;
@@ -55,10 +55,10 @@ export class AppComponent implements OnInit, OnDestroy {
                private authService: AuthService,
                private router: Router,
                private snackBar: MatSnackBar ) {
-    this.mobileQuery = this.media.matchMedia('(max-width: 600px)');
+    this.mq = this.media.matchMedia('(max-width: 600px)');
     this.routerEventsSubscription = router.events.subscribe(val => {
       if (val instanceof NavigationEnd) {
-        if(val.url.includes('preview-course-workspace')) {
+        if (val.url.includes('preview-course-workspace')) {
           this.hideNavbar = true;
         } else {
           this.hideNavbar = false;

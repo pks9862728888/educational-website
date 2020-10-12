@@ -4,7 +4,7 @@
     </div>
     <mat-card class="m-b-1">
         <h2>Course Instructors:</h2>
-        <hr class="top-separator m-b-1 m-t-03" />
+        <hr class="separator m-b-1 m-t-03" />
         <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Instructors...'"></app-ui-loading>
         <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load instructors.'" (retryEvent)="loadMinPreviewDetails()"></app-ui-reload>
         <h3 *ngIf="errorLoading && !mq.matches">Error occured!</h3>
@@ -33,7 +33,7 @@
     </mat-card>
     <mat-card>
         <h2>Course Content:</h2>
-        <hr class="top-separator m-b-1 m-t-03" />
+        <hr class="separator m-b-1 m-t-03" />
         <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Course Content...'"></app-ui-loading>
         <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load contents.'" (retryEvent)="loadMinPreviewDetails()"></app-ui-reload>
         <h3 *ngIf="errorLoading && !mq.matches">Error occured!</h3>
@@ -57,7 +57,7 @@
                         </mat-icon>
                     </div>
                     <div *ngIf="openedPanelStep === i">
-                        <hr class="top-separator m-b-1">
+                        <hr class="separator m-b-1">
                         <div *ngIf="mq.matches" class="m-d-container d-flex">
                             <mat-icon class="content-type-icon m-r-05">title</mat-icon>
                             <p class="text-justify">In this module we will study how to do the maximum use of time which is required for us.</p>

@@ -79,10 +79,6 @@ p {
     margin-bottom: 0.7rem;
 }
 
-.top-separator {
-    margin-top: 0.2rem;
-}
-
 
 /* For displaying people list */
 
@@ -248,6 +244,10 @@ p {
 
 .m-r-1 {
     margin-right: 1rem;
+}
+
+.m-b-05 {
+    margin-bottom: 0.5rem;
 }
 
 .break-word {

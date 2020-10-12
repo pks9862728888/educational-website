@@ -5,7 +5,7 @@
         </div>
         <mat-icon *ngIf="selectedLecture" (click)="closeLecture()" class="cancel-icon cursor-pointer">close</mat-icon>
     </div>
-    <hr class="top-separator m-t-03 m-b-1" />
+    <hr class="separator m-t-03 m-b-1" />
     <div [hidden]="selectedLecture || viewContent">
         <div *ngIf="errorText" class="m-b-1">
             <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
@@ -39,7 +39,7 @@
                                     </div>
                                 </mat-panel-title>
                             </mat-expansion-panel-header>
-                            <hr class="top-separator m-b-1" />
+                            <hr class="separator m-b-1" />
                             <app-ui-loading *ngIf="loadingViewContentIndicator" [actionText]="'Loading Contents...'"></app-ui-loading>
                             <div class="m-b-1">
                                 <app-ui-error-text *ngIf="loadingContentError" [errorText]="loadingContentError" [hideCloseButton]="true"></app-ui-error-text>
@@ -297,7 +297,7 @@
             <h3>Lecture {{ selectedLecture['lecture_no'] + 1 }}:</h3>
             <h3>{{ selectedLecture.name }}</h3>
         </div>
-        <hr class="top-separator m-t-03 m-b-15" />
+        <hr class="separator m-t-03 m-b-15" />
         <app-ui-loading *ngIf="loadingLectureContentIndicator" [actionText]="'Loading lecture contents...'"></app-ui-loading>
         <app-ui-reload *ngIf="reloadLectureContent" [errorText]="'Unable to load lecture contents.'" (retryEvent)="loadLectureContent()"></app-ui-reload>
         <div class="m-b-1">
@@ -416,7 +416,7 @@
                 <div *ngIf="showaddEditLectureContentForm" class="m-b-15">
                     <div class="row upload-container">
                         <div class="col-12 m-b-1">
-                            <hr class="top-separator">
+                            <hr class="separator">
                         </div>
                         <div class="col-3" *ngIf="!mq.matches">
                             <ul class="nav upload-sidenav">

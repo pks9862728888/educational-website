@@ -3,25 +3,25 @@
     <app-ui-reload *ngIf="showReloadIndicator" [errorText]="'Unable to load profile data.'" (retryEvent)="fetchUserData()"></app-ui-reload>
     <div *ngIf="!showLoadingIndicator && !showReloadIndicator">
         <div [ngClass]="{'d-flex justify-content-center': mq.matches, 'row': !mq.matches}">
-            <div *ngIf="(!this.editProfilePicture && mq.matches) || !mq.matches">
-                <img mat-card-image *ngIf="this.userProfileData.profile_pictures.image" [src]=this.userProfileData.profile_pictures.image alt="Profile picture">
-                <img mat-card-image *ngIf="!this.userProfileData.profile_pictures.image" src="../../../assets/imgs/cd6.png" alt="Profile picture">
+            <div *ngIf="(!editProfilePicture && mq.matches) || !mq.matches">
+                <img mat-card-image *ngIf="userProfileData.profile_pictures.image" [src]=userProfileData.profile_pictures.image alt="Profile picture">
+                <img mat-card-image *ngIf="!userProfileData.profile_pictures.image" src="../../../assets/imgs/cd6.png" alt="Profile picture">
                 <mat-card-subtitle class="profile-pic-edit-banner">
-                    <mat-icon aria-hidden="false" class="cursor-pointer edit-icon" *ngIf="!this.editProfilePicture" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
+                    <mat-icon aria-hidden="false" class="cursor-pointer edit-icon" *ngIf="!editProfilePicture" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
                         edit
                     </mat-icon>
-                    <mat-icon aria-hidden="false" class="cursor-pointer cancel-icon" *ngIf="this.editProfilePicture && !mq.matches" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
+                    <mat-icon aria-hidden="false" class="cursor-pointer cancel-icon" *ngIf="editProfilePicture && !mq.matches" aria-label="Edit profile picture icon" (click)="openEditProfilePictureDialog()">
                         cancel
                     </mat-icon>
                 </mat-card-subtitle>
             </div>
-            <div class="col-sm-4" *ngIf="this.editProfilePicture" [ngClass]="{'p-l-1': !mq.matches}">
+            <div class="col-sm-4" *ngIf="editProfilePicture" [ngClass]="{'p-l-1': !mq.matches}">
                 <mat-card class="edit-profile-picture-card">
                     <mat-list role="list">
                         <mat-list-item role="listitem" (click)="openUploadPictureDialog()">Upload A Photo</mat-list-item>
-                        <mat-list-item role="listitem" *ngIf="this.profilePictureCount > 1 || (profilePictureCount === 1 && !userProfileData.profile_pictures.image)" (click)="chooseFromExistingClicked()">Choose From Existing</mat-list-item>
-                        <mat-list-item role="listitem" *ngIf="this.userProfileData.profile_pictures.image" (click)="deleteCurrentPicture()">Delete Current Picture</mat-list-item>
-                        <mat-list-item role="listitem" *ngIf="this.userProfileData.profile_pictures.image" (click)="removeCurrentPicture()">Remove Current Picture</mat-list-item>
+                        <mat-list-item role="listitem" *ngIf="profilePictureCount > 1 || (profilePictureCount === 1 && !userProfileData.profile_pictures.image)" (click)="chooseFromExistingClicked()">Choose From Existing</mat-list-item>
+                        <mat-list-item role="listitem" *ngIf="userProfileData.profile_pictures.image" (click)="deleteCurrentPicture()">Delete Current Picture</mat-list-item>
+                        <mat-list-item role="listitem" *ngIf="userProfileData.profile_pictures.image" (click)="removeCurrentPicture()">Remove Current Picture</mat-list-item>
                         <mat-list-item role="listitem" (click)="openEditProfilePictureDialog()">Cancel</mat-list-item>
                     </mat-list>
                 </mat-card>
@@ -35,19 +35,19 @@
                     <span>Account Details</span>
                     <span class="float-right-spacer"></span>
                     <button mat-flat-button class="green-button" (click)="editAccountClicked()">
-                        <span *ngIf="!this.editAccount">Edit</span>
-                        <span *ngIf="this.editAccount">Cancel</span>
+                        <span *ngIf="!editAccount">Edit</span>
+                        <span *ngIf="editAccount">Cancel</span>
                     </button>
                 </mat-toolbar-row>
             </mat-toolbar>
             <!-- For showing account details -->
-            <mat-card class="edit-canvas" *ngIf="!this.editAccount">
+            <mat-card class="edit-canvas" *ngIf="!editAccount">
                 <div class='row m-b-1'>
                     <div class="col-5">
                         <h4>Email:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ this.userProfileData.email }}</h4>
+                        <h4>{{ userProfileData.email }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -68,7 +68,7 @@
                 </div>
             </mat-card>
             <!-- For editing account details -->
-            <mat-card class="edit-canvas" *ngIf="this.editAccount">
+            <mat-card class="edit-canvas" *ngIf="editAccount">
                 <form>
                     <mat-form-field>
                         <mat-label>Email</mat-label>
@@ -93,19 +93,19 @@
                     <span>Profile Details</span>
                     <span class="float-right-spacer"></span>
                     <button mat-flat-button class="green-button" (click)="editProfileClicked()">
-                                    <span *ngIf="!this.editProfile">Edit</span>
-                                    <span *ngIf="this.editProfile">Cancel</span>
+                                    <span *ngIf="!editProfile">Edit</span>
+                                    <span *ngIf="editProfile">Cancel</span>
                                 </button>
                 </mat-toolbar-row>
             </mat-toolbar>
             <!-- For showing profile details -->
-            <mat-card class="edit-canvas" *ngIf="!this.editProfile">
+            <mat-card class="edit-canvas" *ngIf="!editProfile">
                 <div class='row m-tb-1'>
                     <div class="col-5">
                         <h4>Username:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ this.userProfileData.username }}</h4>
+                        <h4>{{ userProfileData.username }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -113,7 +113,7 @@
                         <h4>Name:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ this.userProfileData.user_profile.first_name | titlecase }} {{ this.userProfileData.user_profile.last_name | titlecase }}</h4>
+                        <h4>{{ userProfileData.user_profile.first_name | titlecase }} {{ userProfileData.user_profile.last_name | titlecase }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -121,8 +121,8 @@
                         <h4>Mobile No:</h4>
                     </div>
                     <div class="col-7">
-                        <h4><span *ngIf="this.userProfileData.user_profile.phone">{{ this.userProfileData.user_profile.phone }}</span>
-                            <span *ngIf="!this.userProfileData.user_profile.phone">None</span>
+                        <h4><span *ngIf="userProfileData.user_profile.phone">{{ userProfileData.user_profile.phone }}</span>
+                            <span *ngIf="!userProfileData.user_profile.phone">None</span>
                         </h4>
                     </div>
                 </div>
@@ -132,7 +132,7 @@
                     </div>
                     <div class="col-7">
                         <h4>
-                            <span *ngIf="this.userProfileData.user_profile.gender">{{ getGender(this.userProfileData.user_profile.gender) }}</span>
+                            <span *ngIf="userProfileData.user_profile.gender">{{ getGender(userProfileData.user_profile.gender) }}</span>
                         </h4>
                     </div>
                 </div>
@@ -141,7 +141,7 @@
                         <h4>Country:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ getCountry(this.userProfileData.user_profile.country) }}</h4>
+                        <h4>{{ getCountry(userProfileData.user_profile.country) }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -149,7 +149,7 @@
                         <h4>Birthday:</h4>
                     </div>
                     <div class="col-7">
-                        <h4><span *ngIf="this.userProfileData.user_profile.date_of_birth">{{ this.userProfileData.user_profile.date_of_birth | date }}</span></h4>
+                        <h4><span *ngIf="userProfileData.user_profile.date_of_birth">{{ userProfileData.user_profile.date_of_birth | date }}</span></h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -157,7 +157,7 @@
                         <h4>Primary Language:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ getLanguage(this.userProfileData.user_profile.primary_language) }}</h4>
+                        <h4>{{ getLanguage(userProfileData.user_profile.primary_language) }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -165,7 +165,7 @@
                         <h4>Secondary Language:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ getLanguage(this.userProfileData.user_profile.secondary_language) }}</h4>
+                        <h4>{{ getLanguage(userProfileData.user_profile.secondary_language) }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -173,7 +173,7 @@
                         <h4>Tertiary Language:</h4>
                     </div>
                     <div class="col-7">
-                        <h4>{{ getLanguage(this.userProfileData.user_profile.tertiary_language) }}</h4>
+                        <h4>{{ getLanguage(userProfileData.user_profile.tertiary_language) }}</h4>
                     </div>
                 </div>
                 <div class='row m-tb-1'>
@@ -188,7 +188,7 @@
 
             <!-- For editing profile details -->
             <mat-card class="edit-canvas" *ngIf="editProfile">
-                <form (submit)="profileDetailsSubmit()" [formGroup]="this.editProfileForm">
+                <form (submit)="profileDetailsSubmit()" [formGroup]="editProfileForm">
                     <mat-form-field>
                         <mat-label>Username *</mat-label>
                         <input matInput formControlName="username" placeholder="Your username">

@@ -68,10 +68,10 @@ export class CommonLicenseReviewComponent implements OnInit {
         this.selectedLicense = result;
         if (result.billing === BILLING_TERM_REVERSE.MONTHLY) {
           const amount = Math.max(0, result.price * (1 - result.discount_percent / 100));
-          this.netPayableAmount = Math.max(0, amount * (1 - result.gst_percent / 100));
+          this.netPayableAmount = Math.max(0, amount * (1 + result.gst_percent / 100));
         } else {
           const amount = Math.max(0, result.price * 12 * (1 - result.discount_percent / 100));
-          this.netPayableAmount = Math.max(0, amount * (1 - result.gst_percent / 100));
+          this.netPayableAmount = Math.max(0, amount * (1 + result.gst_percent / 100));
         }
       },
       errors => {

@@ -6,7 +6,7 @@
             <span *ngIf="!mq.matches">Back</span>
         </div>
     </div>
-    <hr class="top-separator m-t-05 m-b-1" />
+    <hr class="separator m-t-05 m-b-1" />
     <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading storage license...'"></app-ui-loading>
     <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
     <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load license data.'" (click)="getStorageLicenseCredentials()"></app-ui-reload>
@@ -30,7 +30,7 @@
             <div class="col-12 col-sm-8">
                 <div class="custom-card" [class.m-l-1]="!mq.matches">
                     <h3><strong>Billing Summary:</strong></h3>
-                    <hr class="top-separator m-b-07 m-t-05" />
+                    <hr class="separator m-b-07 m-t-05" />
                     <div class="row">
                         <div class="col-7">
                             <h3>Cost per GB per day:</h3>
@@ -51,7 +51,7 @@
                             <h3>{{ purchaseForm.value.months }} month</h3>
                         </div>
                     </div>
-                    <hr class="top-separator m-t-05 m-b-07" />
+                    <hr class="separator m-t-05 m-b-07" />
                     <div class="row">
                         <div class="col-7">
                             <h3>Amount:</h3>
@@ -68,7 +68,7 @@
                             {{ storageLicenseCredentials.gst_percent }} %
                         </div>
                     </div>
-                    <hr class="top-separator m-t-05 m-b-07" />
+                    <hr class="separator m-t-05 m-b-07" />
                     <div class="row">
                         <div class="col-7">
                             <h3>Net payable amount:</h3>
@@ -77,7 +77,7 @@
                             <h3>Rs. {{ calculateNetPayableAmount() | number }}</h3>
                         </div>
                     </div>
-                    <hr class="top-separator m-t-05 m-b-07" />
+                    <hr class="separator m-t-05 m-b-07" />
                     <div class="d-flex justify-content-end">
                         <button mat-stroked-button [disabled]="paymentPortalShown" class="green-button" (click)="showPaymentPortal()">Purchase</button>
                     </div>
@@ -86,7 +86,7 @@
             <div class="col-12 m-t-1" *ngIf="paymentPortalShown">
                 <div class="custom-card" *ngIf="!paymentComplete">
                     <h1>Choose payment portal</h1>
-                    <hr class="top-separator m-t-05 m-b-1" />
+                    <hr class="separator m-t-05 m-b-1" />
                     <h3 class="m-b-1">Choose payment option to make payment of Rs. {{ this.netPayableAmount | number }}</h3>
                     <div *ngIf="paymentError" class="m-b-1">
                         <app-ui-error-text [errorText]="paymentError" (closeErrorTextEvent)="paymentError = null"></app-ui-error-text>
@@ -102,7 +102,7 @@
                 </div>
                 <div class="custom-card" *ngIf="paymentComplete">
                     <h1>Verify payment</h1>
-                    <hr class="top-separator m-t-05 m-b-1" />
+                    <hr class="separator m-t-05 m-b-1" />
                     <div *ngIf="verifyPaymentIndicator" class="d-flex align-center">
                         <mat-spinner mode="indeterminate" [diameter]="25" class="m-r-05"></mat-spinner>
                         <h3>Verifying payment. Please wait...</h3>&nbsp;

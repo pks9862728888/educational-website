@@ -5,7 +5,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
 import { InstituteLicenseExists } from '../models/license.model';
-import { currentInstituteSlug } from 'src/constants';
+import { currentInstituteSlug, webAppName } from 'src/constants';
 
 @Component({
   selector: 'app-coaching-workspace',
@@ -14,8 +14,8 @@ import { currentInstituteSlug } from 'src/constants';
 })
 export class CoachingWorkspaceComponent implements OnInit, OnDestroy {
 
-  // For showing sidenav toolbar
   mq: MediaQueryList;
+  webAppName = webAppName;
   currentInstituteSlug: string;
   baseUrl: string;
   opened: boolean;

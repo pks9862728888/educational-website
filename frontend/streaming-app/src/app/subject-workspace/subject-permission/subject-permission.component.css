@@ -38,11 +38,6 @@ p {
     stroke: #f2aa4cff !important;
 }
 
-.top-separator {
-    margin-top: 0.2rem;
-    margin-bottom: 1rem;
-}
-
 
 /* For displaying people list */
 
@@ -83,19 +78,6 @@ p {
 
 p {
     font-size: 13px;
-}
-
-.invite-top-separator,
-.invite-bottom-separator {
-    background-color: #6c757d;
-}
-
-.invite-top-separator {
-    margin-bottom: 0.5rem;
-}
-
-.invite-bottom-separator {
-    margin-top: 0.5rem;
 }
 
 .profile-pic-width {
@@ -188,26 +170,18 @@ p {
 
 /* Margins and padding */
 
-.padding-top-07 {
-    padding-top: 0.7rem;
+.m-t-05 {
+    margin-top: 0.5rem;
 }
 
-.padding-bottom-07 {
-    padding-bottom: 0.7rem;
-}
-
-.margin-right-1 {
+.m-r-1 {
     margin-right: 1rem;
 }
 
-.margin-bottom-1 {
+.m-b-05 {
+    margin-bottom: 0.5rem;
+}
+
+.m-b-1 {
     margin-bottom: 1rem;
-}
-
-.padding-left-1 {
-    padding-left: 1rem;
-}
-
-.break-word {
-    word-wrap: break-word;
 }

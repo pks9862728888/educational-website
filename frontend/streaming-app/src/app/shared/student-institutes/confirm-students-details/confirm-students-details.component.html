@@ -1,5 +1,5 @@
 <h2 class="expansion-panel-header-color">Profile Details:</h2>
-<hr class="top-separator m-b-1">
+<hr class="separator m-b-1">
 <p class="text-justify text-color">You can not change this later, so please check the details carefully.</p>
 <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="'Loading profile details...'"></app-ui-loading>
 <div class="reload-background-color">
@@ -41,7 +41,7 @@
     <div *ngIf="submitError" class="m-b-1">
         <app-ui-error-text [errorText]="submitError" (closeErrorTextEvent)="closeSubmitError()"></app-ui-error-text>
     </div>
-    <hr class="top-separator m-b-1" />
+    <hr class="separator m-b-1" />
     <div class="d-flex justify-content-end">
         <button mat-raised-button [disabled]="editForm.invalid" (click)="submit()" class="green-button m-r-05">
           <div class="d-flex align-center">

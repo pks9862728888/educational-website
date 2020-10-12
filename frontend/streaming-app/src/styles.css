@@ -210,7 +210,7 @@ button.active:focus {
     flex: 1 1 auto;
 }
 
-.top-separator {
+.separator {
     background-color: #6c757d;
 }
 

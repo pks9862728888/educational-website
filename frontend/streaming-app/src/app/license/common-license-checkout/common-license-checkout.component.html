@@ -4,7 +4,7 @@
             <span *ngIf="!paymentComplete">Choose Payment Portal:</span>
             <span *ngIf="paymentComplete">Verifying Payment:</span>
         </h1>
-        <hr class="top-separator m-t-05 m-b-1">
+        <hr class="separator m-t-05 m-b-1">
         <div *ngIf="verifyPaymentIndicator" class="progress-indicator">
             <mat-spinner mode="indeterminate" [diameter]="30" class="m-r-05"></mat-spinner>
             <h3 class="wait-line-height">Verifying payment. Please wait...</h3>&nbsp;

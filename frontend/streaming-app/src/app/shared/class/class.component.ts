@@ -24,7 +24,6 @@ export class ClassComponent implements OnInit {
   classStep: number;
   classList: ClassDetailsResponse[] = [];
   errorText: string;
-  successText: string;
   showCreateClassFormMb: boolean;
   createClassIndicator: boolean;
   subscribedDialogData: Subscription;
@@ -60,8 +59,8 @@ export class ClassComponent implements OnInit {
     this.instituteApiService.getInstituteClassList(this.currentInstituteSlug).subscribe(
       (result: ClassDetailsResponse[]) => {
         this.showLoadingIndicator = false;
-        for(const class_ of result) {
-          this.classList.push(class_);
+        for (const classDetails of result) {
+          this.classList.push(classDetails);
         }
       },
       errors => {
@@ -76,21 +75,23 @@ export class ClassComponent implements OnInit {
           this.showReloadError = true;
         }
       }
-    )
+    );
   }
 
   createClass(className: string) {
     this.createClassIndicator = true;
     this.errorText = null;
-    this.successText = null;
     this.formEvent.next('disable');
     this.instituteApiService.createInstituteClass(this.currentInstituteSlug, className).subscribe(
       (result: ClassDetailsResponse) => {
         this.createClassIndicator = false;
-        this.successText = 'Class created successfully!';
         this.showCreateClassFormMb = false;
         this.classList.push(result);
         this.formEvent.next('reset');
+        this.uiService.showSnackBar(
+          'Class created successfully!',
+          2000
+        );
       },
       errors => {
         this.createClassIndicator = false;
@@ -105,12 +106,12 @@ export class ClassComponent implements OnInit {
           this.errorText = 'Class creation failed.';
         }
       }
-    )
+    );
   }
 
-  openClass(classSlug: string, hasClassPerm_: boolean) {
+  openClass(classSlug: string, hasClassPermission: boolean) {
     sessionStorage.setItem(currentClassSlug, classSlug);
-    if (hasClassPerm_) {
+    if (hasClassPermission) {
       sessionStorage.setItem(hasClassPerm, 'true');
     } else {
       sessionStorage.setItem(hasClassPerm, 'false');
@@ -130,7 +131,6 @@ export class ClassComponent implements OnInit {
 
   clearAllStatusText() {
     this.errorText = null;
-    this.successText = null;
   }
 
 
@@ -147,12 +147,8 @@ export class ClassComponent implements OnInit {
     this.errorText = null;
   }
 
-  closeSuccessText() {
-    this.successText = null;
-  }
-
   userIsAdmin() {
-    if (sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE['Admin']) {
+    if (sessionStorage.getItem(currentInstituteRole) === INSTITUTE_ROLE_REVERSE.Admin) {
       return true;
     } else {
       return false;
@@ -167,8 +163,9 @@ export class ClassComponent implements OnInit {
         }
         this.unsubscribeDialogData();
       }
-    )
-    const header = 'Are you sure you want to delete ' + classObject.name.charAt(0).toUpperCase() + classObject.name.substr(1).toLowerCase() + ' ?';
+    );
+    const className = classObject.name.charAt(0).toUpperCase() + classObject.name.substr(1).toLowerCase();
+    const header = 'Are you sure you want to delete ' + className + ' ?';
     this.uiService.openDialog(header, 'Cancel', 'Delete');
   }
 
@@ -178,7 +175,7 @@ export class ClassComponent implements OnInit {
         this.uiService.showSnackBar('Deleted class ' + classObject.name.toUpperCase() + ' successfully!', 2000);
         this.classList.splice(this.classList.indexOf(classObject), 1);
       }
-    )
+    );
   }
 
   unsubscribeDialogData() {

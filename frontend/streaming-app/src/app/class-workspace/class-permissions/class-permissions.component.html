@@ -8,7 +8,7 @@
                 (hideInviteFormMobile)="hideInviteFormMobile()" (inviteeEmail)="invite($event)"></app-ui-inline-invite-form>
         </div>
     </div>
-    <hr class="top-separator" />
+    <hr class="separator m-t-05 m-b-1" />
     <div class="m-b-1" *ngIf="errorText">
         <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
     </div>
@@ -45,11 +45,11 @@
                         </div>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <hr class="invite-top-separator" />
+                <hr class="separator m-b-05" />
                 <div class="row invite-body text-color">
-                    <div class="col-12 ">
+                    <div class="col-12">
                         <div class="row invite-details ">
-                            <div class="col ">
+                            <div class="col">
                                 <h3 *ngIf="!mq.matches">Invited By:</h3>
                                 <p *ngIf="mq.matches">Invited By:</p>
                             </div>
@@ -76,7 +76,7 @@
                         </div>
                     </div>
                 </div>
-                <hr class="invite-bottom-separator" />
+                <hr class="separator m-t-05" />
                 <div class="col">
                     <div *ngIf="!mq.matches" class="action-row">
                         <div [ngClass]="{'m-r-1': userNotSelf(incharge.invitee_id)}" *ngIf="hasClassPerm">

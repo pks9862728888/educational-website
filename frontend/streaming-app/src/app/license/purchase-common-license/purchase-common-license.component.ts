@@ -50,9 +50,8 @@ export class PurchaseCommonLicenseComponent implements OnInit {
     this.showLoadingIndicator = true;
     this.loadingErrorText = null;
     this.showReload = false;
-    const instituteSlug = sessionStorage.getItem(currentInstituteSlug);
-    this.instituteApiService.getInstituteLicenseList(
-      instituteSlug
+    this.instituteApiService.getInstituteCommonLicenseList(
+      sessionStorage.getItem(currentInstituteSlug)
     ).subscribe(
       (result: InstituteLicenseList) => {
         this.showLoadingIndicator = false;

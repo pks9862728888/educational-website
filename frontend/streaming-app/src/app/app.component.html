@@ -1,12 +1,12 @@
 <!-- Menu bar -->
 <section *ngIf="!hideNavbar">
     <mat-toolbar>
-        <button *ngIf="mobileQuery.matches" data-toggle="collapse" aria-expanded="false" data-target="#showNavigationControlsMobile" mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+        <button *ngIf="mq.matches" data-toggle="collapse" aria-expanded="false" data-target="#showNavigationControlsMobile" mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
           <mat-icon class="menu-icon">menu</mat-icon>
         </button>
         <span class="link website-name" [routerLink]="['/home']">{{ title }}</span>
 
-        <span *ngIf="!mobileQuery.matches" class="desktop-view-navbar-contents">
+        <span *ngIf="!mq.matches" class="desktop-view-navbar-contents">
           <ul class="navbar-nav">
             <li><a class="nav-link active" [routerLink]="['/home']" routerLinkActive="is-active"> Home </a></li>
             <li><a class="nav-link active" [routerLink]="['/features']" routerLinkActive="is-active"> Features </a></li>
@@ -31,8 +31,8 @@
             <button mat-icon-button *ngIf="!showLoginSignUpButton" class="example-icon nav-link" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <mat-icon [matBadge]="this.newNotificationCount" matBadgePosition="after" matBadgeSize="small" matBadgeColor="warn" [matBadgeHidden]="this.newNotificationCount === 0">notifications</mat-icon>
             </button>
-            <div *ngIf="!showLoginSignUpButton" class="dropdown-menu" [ngClass]="{'mobile-dropdown-menu': mobileQuery.matches}"  aria-labelledby="dropdownMenuLink">
-                <div [ngClass]="{'arrow-up-desktop': !mobileQuery.matches, 'arrow-up-mobile': mobileQuery.matches}" ></div>
+            <div *ngIf="!showLoginSignUpButton" class="dropdown-menu" [ngClass]="{'mobile-dropdown-menu': mq.matches}"  aria-labelledby="dropdownMenuLink">
+                <div [ngClass]="{'arrow-up-desktop': !mq.matches, 'arrow-up-mobile': mq.matches}" ></div>
                 <div class="notifications-header">
                     <strong>Notifications</strong>
                 </div>
@@ -45,8 +45,8 @@
 
         <span *ngIf="showLogoutButton" class="dp-avatar">
             <img class="dp" role="button" id="logout-dp" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" src="../assets/imgs/cd6.png">
-            <div class="dropdown-menu" [ngClass]="{'mobile-logout-dropdown-menu': mobileQuery.matches, 'desktop-logout-dropdown-menu': !mobileQuery.matches}" aria-labelledby="logout-dp">
-              <div [ngClass]="{'arrow-up-logout-desktop': !mobileQuery.matches, 'arrow-up-logout-mobile': mobileQuery.matches}"></div>
+            <div class="dropdown-menu" [ngClass]="{'mobile-logout-dropdown-menu': mq.matches, 'desktop-logout-dropdown-menu': !mq.matches}" aria-labelledby="logout-dp">
+              <div [ngClass]="{'arrow-up-logout-desktop': !mq.matches, 'arrow-up-logout-mobile': mq.matches}"></div>
               <a class="dropdown-item" (click)="logout()">Log Out</a>
             </div>
         </span>

@@ -1,5 +1,5 @@
 <mat-card>
-    <section *ngIf="this.showInstituteListView" class="text-color">
+    <section *ngIf="showInstituteListView" class="text-color">
         <section class="d-flex justify-content-between">
             <h2 *ngIf="!mq.matches" class="translate-heading">Institutes</h2>
             <h3 *ngIf="mq.matches" class="translate-heading-mb">Institutes</h3>
@@ -8,7 +8,7 @@
             </button>
         </section>
 
-        <hr class="top-separator m-t-03 m-b-1" />
+        <hr class="separator m-t-03 m-b-1" />
         <app-ui-loading *ngIf="showCreateInstituteProgressSpinner" [actionText]="'Checking out the pre-requisites'"></app-ui-loading>
         <div class="col-12 m-b-1" *ngIf="createInstituteError">
             <app-ui-error-text [errorText]="createInstituteError" (closeErrorTextEvent)="closeCreateInstituteError()"></app-ui-error-text>
@@ -28,11 +28,11 @@
                                 <div class="expansion-panel-title flex-container">
                                     <span class="expansion-panel-header-color">{{ institute.name | uppercase }}</span>
                                     <span>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 0, 'star-icon-disabled': this.rating < 1}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 1, 'star-icon-disabled': this.rating < 2}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 2, 'star-icon-disabled': this.rating < 3}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 3, 'star-icon-disabled': this.rating < 4}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 4, 'star-icon-disabled': this.rating < 5}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 0, 'star-icon-disabled': rating < 1}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 1, 'star-icon-disabled': rating < 2}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 2, 'star-icon-disabled': rating < 3}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 3, 'star-icon-disabled': rating < 4}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 4, 'star-icon-disabled': rating < 5}" >star</mat-icon>
                                   <span class="rating-text">&nbsp;( <em>5 ratings</em> )</span>
                                     </span>
                                 </div>
@@ -223,11 +223,11 @@
                                 <div class="expansion-panel-title flex-container">
                                     <span class="expansion-panel-header-color">{{ institute.name | uppercase }}</span>
                                     <span>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 0, 'star-icon-disabled': this.rating < 1}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 1, 'star-icon-disabled': this.rating < 2}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 2, 'star-icon-disabled': this.rating < 3}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 3, 'star-icon-disabled': this.rating < 4}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 4, 'star-icon-disabled': this.rating < 5}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 0, 'star-icon-disabled': rating < 1}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 1, 'star-icon-disabled': rating < 2}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 2, 'star-icon-disabled': rating < 3}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 3, 'star-icon-disabled': rating < 4}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 4, 'star-icon-disabled': rating < 5}" >star</mat-icon>
                                   <span class="rating-text">&nbsp;( <em>5 ratings</em> )</span>
                                     </span>
                                 </div>
@@ -418,11 +418,11 @@
                                 <div class="expansion-panel-title flex-container">
                                     <span class="expansion-panel-header-color">{{ institute.name | uppercase }}</span>
                                     <span>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 0, 'star-icon-disabled': this.rating < 1}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 1, 'star-icon-disabled': this.rating < 2}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 2, 'star-icon-disabled': this.rating < 3}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 3, 'star-icon-disabled': this.rating < 4}" >star</mat-icon>
-                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': this.rating > 4, 'star-icon-disabled': this.rating < 5}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 0, 'star-icon-disabled': rating < 1}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 1, 'star-icon-disabled': rating < 2}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 2, 'star-icon-disabled': rating < 3}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 3, 'star-icon-disabled': rating < 4}" >star</mat-icon>
+                                  <mat-icon class="star-icon" [ngClass]="{'star-icon-active': rating > 4, 'star-icon-disabled': rating < 5}" >star</mat-icon>
                                   <span class="rating-text">&nbsp;( <em>5 ratings</em> )</span>
                                     </span>
                                 </div>

@@ -1,6 +1,6 @@
 <div class="body-container">
     <h2>My Courses:</h2>
-    <hr class="top-separator m-b-1 m-t-03" />
+    <hr class="separator m-b-1 m-t-03" />
     <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="'Loading Courses...'"></app-ui-loading>
     <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load course details.'" (retryEvent)="getCourses()"></app-ui-reload>
     <h3 *ngIf="isMyCourseEmpty()">No courses found.</h3>

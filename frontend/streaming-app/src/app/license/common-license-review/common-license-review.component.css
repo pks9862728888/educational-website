@@ -26,11 +26,6 @@ hr {
     -ms-user-select: none;
 }
 
-.top-separator {
-    background-color: #6c757d;
-    margin-bottom: 0.7rem;
-}
-
 .mid-separator {
     background-color: #6c757d;
     margin-bottom: 0.5rem;
@@ -222,6 +217,10 @@ hr {
 
 .m-t-1 {
     margin-top: 1rem;
+}
+
+.m-b-07 {
+    margin-bottom: 0.7rem;
 }
 
 .m-b-1 {

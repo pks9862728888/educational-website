@@ -2,7 +2,7 @@
     <section class="text-color">
         <h2 *ngIf="!mq.matches">Institutes</h2>
         <h3 *ngIf="mq.matches">Institutes</h3>
-        <hr class="top-separator m-t-03 m-b-1" />
+        <hr class="separator m-t-03 m-b-1" />
         <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Institutes...'"></app-ui-loading>
         <app-ui-reload *ngIf="showReload" [errorText]="'Unable to load institutes.'" (retryEvent)="getMinInstituteDetails()"></app-ui-reload>
         <div *ngIf="!loadingIndicator && !showReload">

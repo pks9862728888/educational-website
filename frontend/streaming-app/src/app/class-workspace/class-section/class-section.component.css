@@ -74,10 +74,6 @@ p {
     transform: translateY(40%);
 }
 
-.top-separator {
-    margin-bottom: 1rem;
-}
-
 .green-button:disabled {
     color: #fff;
     background-color: #0a5652;
@@ -95,19 +91,6 @@ p {
     color: #fff;
     background-color: #0a5652;
     opacity: 0.3;
-}
-
-.invite-top-separator,
-.invite-bottom-separator {
-    background-color: #6c757d;
-}
-
-.invite-top-separator {
-    margin-bottom: 0.5rem;
-}
-
-.invite-bottom-separator {
-    margin-top: 0.5rem;
 }
 
 .line-height {
@@ -150,23 +133,27 @@ p {
 
 /* Margins and padding */
 
-.padding-bottom-07 {
+.p-b-07 {
     padding-bottom: 0.7rem;
 }
 
-.margin-bottom-05 {
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-b-05 {
     margin-bottom: 0.5rem;
 }
 
-.margin-bottom-1 {
+.m-b-1 {
     margin-bottom: 1rem;
 }
 
-.margin-right-05 {
+.m-r-05 {
     margin-right: 0.5rem;
 }
 
-.margin-right-1 {
+.m-r-1 {
     margin-right: 1rem;
 }
 

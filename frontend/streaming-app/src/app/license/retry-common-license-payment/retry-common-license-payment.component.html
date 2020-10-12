@@ -6,7 +6,7 @@
             <span *ngIf="!mq.matches">Back</span>
         </div>
     </div>
-    <hr class="top-separator m-t-05 m-b-1" />
+    <hr class="separator m-t-05 m-b-1" />
     <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading common license order details...'"></app-ui-loading>
     <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
     <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load common license data.'" (click)="getLicenseOrderDetails()"></app-ui-reload>
@@ -194,7 +194,7 @@
                     <span *ngIf="!orderCredentials.discount_rs">Rs. 0</span>
                 </div>
             </div>
-            <hr class="top-separator m-t-1 m-b-1" />
+            <hr class="separator m-t-1 m-b-1" />
             <div class="row m-b-1">
                 <div class="col-8">
                     Amount (without Tax)
@@ -211,7 +211,7 @@
                     {{ orderCredentials.gst_percent }} %
                 </div>
             </div>
-            <hr class="top-separator m-t-1 m-b-1" />
+            <hr class="separator m-t-1 m-b-1" />
             <div class="row m-b-1">
                 <div class="col-8">
                     Net payable amount

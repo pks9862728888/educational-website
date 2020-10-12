@@ -34,8 +34,6 @@ export const hasSectionPerm = 'hasSectionPerm';
 
 // For license
 export const selectedLicenseId = 'selectedLicenseId';
-export const purchasedLicenseExists = 'purchasedLicenseExists';
-export const paymentComplete = 'paymentComplete';
 
 // For Course
 export const courseContent = 'courseContent';

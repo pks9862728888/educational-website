@@ -4,7 +4,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Subscription } from 'rxjs';
-import { currentInstituteSlug } from 'src/constants';
+import { currentInstituteSlug, webAppName } from 'src/constants';
 import { InstituteLicenseExists } from '../models/license.model';
 
 @Component({
@@ -13,7 +13,9 @@ import { InstituteLicenseExists } from '../models/license.model';
   styleUrls: ['./college-workspace.component.css']
 })
 export class CollegeWorkspaceComponent implements OnInit, OnDestroy {
+
   mq: MediaQueryList;
+  webAppName = webAppName;
   currentInstituteSlug: string;
   baseUrl: string;
   opened: boolean;

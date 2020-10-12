@@ -1,72 +1,63 @@
-<mat-card class="component-body">
-    <section class="padding-bottom-07 text-color">
-        <div class="d-flex justify-content-between" [ngClass]="{'header-mb': mq.matches, 'header': !mq.matches}">
-            <div>
-                <h3 [ngClass]="{'header-text': !mq.matches}">Classes:</h3>
-            </div>
-            <div *ngIf="userIsAdmin()">
-                <app-ui-inline-create-form [createIndicator]="createClassIndicator" [showFormMb]="showCreateClassFormMb" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [maxLength]="maxClassNameLength" (showFormMobile)="showCreateClassFormMobile()"
-                    (hideFormMobile)="hideCreateClassFormMobile()" (createEvent)="createClass($event)" [formEvent]="formEvent.asObservable()"></app-ui-inline-create-form>
-            </div>
-        </div>
-        <hr class="top-separator" />
-        <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
-        <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getClassList()"></app-ui-reload>
-        <div class="margin-bottom-1" *ngIf="errorText">
-            <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
-        </div>
-        <div class="margin-bottom-1" *ngIf="successText">
-            <app-ui-success-text [successText]="successText" (closeSuccessTextEvent)="closeSuccessText()"></app-ui-success-text>
-        </div>
-        <section *ngIf="mq.matches && showCreateClassFormMb" class="margin-bottom-1">
-            <app-ui-mb-create-form [maxLength]="maxClassNameLength" [createIndicator]="createClassIndicator" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [progressSpinnerText]="createProgressSpinnerText" [formEvent]="formEvent.asObservable()"
-                (createEvent)="createClass($event)"></app-ui-mb-create-form>
-        </section>
-        <div *ngIf="!showLoadingIndicator && !showReloadError && isClassesListEmpty()" class="margin-bottom-05">
-            <h3 *ngIf="!mq.matches">No classes created yet.</h3>
-            <p *ngIf="mq.matches">No classes created yet.</p>
-        </div>
-        <mat-accordion *ngIf="!showLoadingIndicator && !showReloadError && !isClassesListEmpty()">
-            <mat-expansion-panel class="text-color" *ngFor="let class of classList" [expanded]="classStep === class.id" (opened)="setClassStep(class.id)">
-                <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
-                    <mat-panel-title>
-                        <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
-                            <h3 *ngIf="!mq.matches">{{ class.name | titlecase}}</h3>
-                            <p *ngIf="mq.matches">{{ class.name | titlecase}}</p>
-                        </div>
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <hr class="top-separator" />
-                <div class="row invite-body">
-                    <div class="col-12 margin-bottom-05">
-                        <h3 *ngIf="!mq.matches">Class Incharges: <span *ngIf="!classHasIncharge(class.class_incharges)">Not assigned.</span></h3>
-                        <p *ngIf="mq.matches">Class Incharges: <span *ngIf="!classHasIncharge(class.class_incharges)">Not assigned.</span></p>
-                    </div>
-                    <div class="col-12" *ngIf="classHasIncharge(class.class_incharges)">
-                        <div class="d-flex justify-content-between" *ngFor="let incharge of class.class_incharges; let i=index">
-                            <div>
-                                <h3 *ngIf="!mq.matches">
-                                    {{ i + 1 }}. <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span><span *ngIf="incharge.name == ' '">{{ incharge.email }}</span>
-                                </h3>
-                                <p *ngIf="mq.matches">
-                                    {{ i + 1 }}. <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span><span *ngIf="incharge.name == ' '">{{ incharge.email }}</span>
-                                </p>
-                            </div>
-                            <div>
-                                <mat-icon class="incharge-icon margin-right-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="!userIsSelf(incharge.id)">message</mat-icon>
-                                <mat-icon class="incharge-icon green-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <hr class="bottom-separator" />
-                <div class="col">
-                    <div class="action-row">
-                        <button mat-raised-button class="red-button margin-right-1" *ngIf="userIsAdmin()" (click)="deleteClassClicked(class)">Delete</button>
-                        <button mat-flat-button class="green-button" (click)="openClass(class.class_slug, class.has_class_perm)">Open</button>
-                    </div>
-                </div>
-            </mat-expansion-panel>
-        </mat-accordion>
+<section class="p-b-07 text-color parent-container">
+    <div class="d-flex justify-content-between align-center">
+        <h1 [ngClass]="{'header-text': !mq.matches}">Classes:</h1>
+        <app-ui-inline-create-form *ngIf="userIsAdmin()" [createIndicator]="createClassIndicator" [showFormMb]="showCreateClassFormMb" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [maxLength]="maxClassNameLength" (showFormMobile)="showCreateClassFormMobile()"
+            (hideFormMobile)="hideCreateClassFormMobile()" (createEvent)="createClass($event)" [formEvent]="formEvent.asObservable()"></app-ui-inline-create-form>
+    </div>
+    <hr class="separator m-b-1 m-t-05" />
+    <app-ui-loading *ngIf="showLoadingIndicator" [actionText]="loadingText"></app-ui-loading>
+    <app-ui-reload *ngIf="showReloadError" [errorText]="showReloadText" (retryEvent)="getClassList()"></app-ui-reload>
+    <div class="m-b-1" *ngIf="errorText">
+        <app-ui-error-text [errorText]="errorText" (closeErrorTextEvent)="closeErrorText()"></app-ui-error-text>
+    </div>
+    <section *ngIf="mq.matches && showCreateClassFormMb" class="m-b-1">
+        <app-ui-mb-create-form [maxLength]="maxClassNameLength" [createIndicator]="createClassIndicator" [inputPlaceholder]="inputPlaceholder" [buttonText]="createButtonText" [progressSpinnerText]="createProgressSpinnerText" [formEvent]="formEvent.asObservable()"
+            (createEvent)="createClass($event)"></app-ui-mb-create-form>
     </section>
-</mat-card>
+    <div *ngIf="!showLoadingIndicator && !showReloadError && isClassesListEmpty()" class="m-b-05">
+        <h3 *ngIf="!mq.matches">No classes created yet.</h3>
+        <p *ngIf="mq.matches">No classes created yet.</p>
+    </div>
+    <mat-accordion *ngIf="!showLoadingIndicator && !showReloadError && !isClassesListEmpty()">
+        <mat-expansion-panel class="text-color" *ngFor="let class of classList" [expanded]="classStep === class.id" (opened)="setClassStep(class.id)">
+            <mat-expansion-panel-header [collapsedHeight]="'60px'" [expandedHeight]="'55px'">
+                <mat-panel-title>
+                    <div class="col-sm-8 col-md-6 col-lg-4 expansion-panel-header-color">
+                        <h3 *ngIf="!mq.matches">{{ class.name | titlecase}}</h3>
+                        <p *ngIf="mq.matches">{{ class.name | titlecase}}</p>
+                    </div>
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <hr class="separator m-b-1" />
+            <div class="row invite-body">
+                <div class="col-12 m-b-05">
+                    <h3 *ngIf="!mq.matches">Class Incharges: <span *ngIf="!classHasIncharge(class.class_incharges)">Not assigned.</span></h3>
+                    <p *ngIf="mq.matches">Class Incharges: <span *ngIf="!classHasIncharge(class.class_incharges)">Not assigned.</span></p>
+                </div>
+                <div class="col-12" *ngIf="classHasIncharge(class.class_incharges)">
+                    <div class="d-flex justify-content-between" *ngFor="let incharge of class.class_incharges; let i=index">
+                        <div>
+                            <h3 *ngIf="!mq.matches">
+                                {{ i + 1 }}. <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span><span *ngIf="incharge.name == ' '">{{ incharge.email }}</span>
+                            </h3>
+                            <p *ngIf="mq.matches">
+                                {{ i + 1 }}. <span *ngIf="incharge.name !== ' '">{{ incharge.name | titlecase }}</span><span *ngIf="incharge.name == ' '">{{ incharge.email }}</span>
+                            </p>
+                        </div>
+                        <div>
+                            <mat-icon class="cursor-pointer m-r-05 blue-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="Start Chatting" [matTooltipPosition]="'above'" *ngIf="!userIsSelf(incharge.id)">message</mat-icon>
+                            <mat-icon class="cursor-pointer green-icon" [ngClass]="{'cta-icon': !mq.matches, 'cta-icon-mb': mq.matches}" matTooltip="View Profile" [matTooltipPosition]="'above'">visibility</mat-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="separator m-t-05" />
+            <div class="col">
+                <div class="action-row">
+                    <button mat-raised-button class="red-button m-r-1" *ngIf="userIsAdmin()" (click)="deleteClassClicked(class)">Delete</button>
+                    <button mat-flat-button class="green-button" (click)="openClass(class.class_slug, class.has_class_perm)">Open</button>
+                </div>
+            </div>
+        </mat-expansion-panel>
+    </mat-accordion>
+</section>

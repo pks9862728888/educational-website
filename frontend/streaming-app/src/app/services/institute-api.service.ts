@@ -47,7 +47,7 @@ export class InstituteApiService {
   bookmarkCourseUrl = `${this.instituteBaseUrl}bookmark-course`;
 
   // Insitute license related urls
-  instituteLicenseListUrl = `${this.instituteBaseUrl}institute-license-list`;
+  instituteCommonLicenseListUrl = `${this.instituteBaseUrl}institute-common-license-list`;
   instituteDiscountCouponDetailUrl = `${this.instituteBaseUrl}get-discount-coupon`;
   commonLicenseSelectPlanUrl = `${this.instituteBaseUrl}select-common-license`;
   createCommmonLicenseOrderUrl = `${this.instituteBaseUrl}create-common-license-order`;
@@ -453,9 +453,9 @@ export class InstituteApiService {
   }
 
   // Get institute license list
-  getInstituteLicenseList(instituteSlug: string) {
+  getInstituteCommonLicenseList(instituteSlug: string) {
     return this.httpClient.get(
-      this.instituteLicenseListUrl,
+      this.instituteCommonLicenseListUrl,
       { headers: this.getAuthHeader() });
   }
 

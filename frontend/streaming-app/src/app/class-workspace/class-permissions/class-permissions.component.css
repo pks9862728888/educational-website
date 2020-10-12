@@ -38,11 +38,6 @@ p {
     stroke: #f2aa4cff !important;
 }
 
-.top-separator {
-    margin-top: 0.2rem;
-    margin-bottom: 1rem;
-}
-
 
 /* For displaying people list */
 
@@ -83,19 +78,6 @@ p {
 
 p {
     font-size: 13px;
-}
-
-.invite-top-separator,
-.invite-bottom-separator {
-    background-color: #6c757d;
-}
-
-.invite-top-separator {
-    margin-bottom: 0.5rem;
-}
-
-.invite-bottom-separator {
-    margin-top: 0.5rem;
 }
 
 .profile-pic-width {
@@ -166,8 +148,16 @@ p {
 
 /* Margins and padding */
 
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
 .m-r-1 {
     margin-right: 1rem;
+}
+
+.m-b-05 {
+    margin-bottom: 0.5rem;
 }
 
 .m-b-1 {

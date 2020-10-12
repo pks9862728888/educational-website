@@ -1,6 +1,6 @@
 <mat-card>
     <h2>Other Course Members:</h2>
-    <hr class="top-separator m-b-1 m-t-03">
+    <hr class="separator m-b-1 m-t-03">
     <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Course Members...'"></app-ui-loading>
     <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load course members.'" (retryEvent)="getCoursePeers()"></app-ui-reload>
     <app-ui-error-text *ngIf="errorText" [errorText]="errorText" [hideCloseButton]="true"></app-ui-error-text>

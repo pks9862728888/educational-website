@@ -1,191 +1,177 @@
-<section>
-    <div class="card-background text-color">
-        <div class="flex-display">
-            <mat-icon>school</mat-icon>
-            <h3 class="text-color"><strong>CREATE INSTITUTE</strong></h3>
-        </div>
-        <mat-hint class="required padding-left-star">Fields marked * are mandatory.</mat-hint>
-        <hr>
-
-        <form>
-            <ng-container [formGroup]="instituteForm">
-                <mat-form-field class="full-width" appearance="outline">
-                    <mat-label>Institute Name<span class="required">&nbsp;*</span></mat-label>
-                    <input matInput formControlName="name" placeholder="Name of institute">
-                    <mat-error *ngIf="instituteForm.controls['name'].errors?.required" class="yellow">
-                        This field is required.
-                    </mat-error>
-                    <mat-error *ngIf="!instituteForm.controls['name'].errors?.required &&
+<section class="card-background text-color">
+    <div class="d-flex">
+        <mat-icon>school</mat-icon>
+        <h3 class="text-color"><strong>CREATE INSTITUTE</strong></h3>
+    </div>
+    <mat-hint class="required padding-left-star">Fields marked * are mandatory.</mat-hint>
+    <hr>
+    <form>
+        <ng-container [formGroup]="instituteForm">
+            <mat-form-field class="full-width" appearance="outline">
+                <mat-label>Institute Name<span class="required">&nbsp;*</span></mat-label>
+                <input matInput formControlName="name" placeholder="Name of institute">
+                <mat-error *ngIf="instituteForm.controls['name'].errors?.required" class="yellow">
+                    This field is required.
+                </mat-error>
+                <mat-error *ngIf="!instituteForm.controls['name'].errors?.required &&
                                       instituteForm.controls['name'].errors?.minlength" class="yellow">
-                        Name should be at least 4 characters.
-                    </mat-error>
-                    <mat-error *ngIf="!instituteForm.controls['name'].errors?.required &&
+                    Name should be at least 4 characters.
+                </mat-error>
+                <mat-error *ngIf="!instituteForm.controls['name'].errors?.required &&
                                       instituteForm.controls['name'].errors?.maxlength" class="yellow">
-                        Name should not be greater than 150 characters.
-                    </mat-error>
-                    <mat-hint *ngIf="this.nameError" class="yellow">
-                        {{ this.nameError }}
-                    </mat-hint>
-                </mat-form-field>
+                    Name should not be greater than 150 characters.
+                </mat-error>
+                <mat-hint *ngIf="this.nameError" class="yellow">
+                    {{ this.nameError }}
+                </mat-hint>
+            </mat-form-field>
 
-                <div class="row">
-                    <div class="col-sm-6">
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Institute Category<span class="required">&nbsp;*</span></mat-label>
-                            <select matNativeControl formControlName="institute_category">
+            <div class="row">
+                <div class="col-sm-6">
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Institute Category<span class="required">&nbsp;*</span></mat-label>
+                        <select matNativeControl formControlName="institute_category">
                               <option *ngFor="let category of instituteCategories" [value]="category.value" class="options">{{ category.viewValue }}</option>
                             </select>
-                            <mat-error *ngIf="instituteForm.controls['institute_category'].errors?.required" class="yellow">
-                                This field is required.
-                            </mat-error>
-                        </mat-form-field>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Country<span class="required">&nbsp;*</span></mat-label>
-                            <select matNativeControl formControlName="country">
+                        <mat-error *ngIf="instituteForm.controls['institute_category'].errors?.required" class="yellow">
+                            This field is required.
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+                <div class="col-sm-6">
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Country<span class="required">&nbsp;*</span></mat-label>
+                        <select matNativeControl formControlName="country">
                               <option *ngFor="let country of countries" [value]="country.value" class="options">{{ country.viewValue }}</option>
                             </select>
-                            <mat-error *ngIf="instituteForm.controls['country'].errors?.required" class="yellow">
-                                This field is required.
-                            </mat-error>
-                        </mat-form-field>
-                    </div>
+                        <mat-error *ngIf="instituteForm.controls['country'].errors?.required" class="yellow">
+                            This field is required.
+                        </mat-error>
+                    </mat-form-field>
                 </div>
-
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Type<span class="required">&nbsp;*</span></mat-label>
+                        <select matNativeControl formControlName="type">
+                              <option *ngFor="let type of instituteTypes" [value]="type.value" class="options">{{ type.viewValue }}</option>
+                            </select>
+                        <mat-error *ngIf="instituteForm.controls['type'].errors?.required" class="yellow">
+                            This field is required.
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div formGroupName="institute_profile">
                 <div class="row">
                     <div class="col-12">
                         <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Type<span class="required">&nbsp;*</span></mat-label>
-                            <select matNativeControl formControlName="type">
-                              <option *ngFor="let type of instituteTypes" [value]="type.value" class="options">{{ type.viewValue }}</option>
-                            </select>
-                            <mat-error *ngIf="instituteForm.controls['type'].errors?.required" class="yellow">
-                                This field is required.
-                            </mat-error>
+                            <mat-label>Recognition</mat-label>
+                            <input matInput formControlName="recognition" placeholder="Registered board name like CBSE, ICSE etc.">
                         </mat-form-field>
                     </div>
                 </div>
-
-                <div formGroupName="institute_profile">
+                <fieldset>
+                    <label class="text-color">Contact Details:</label>
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-sm-6">
                             <mat-form-field class="full-width" appearance="outline">
-                                <mat-label>Recognition</mat-label>
-                                <input matInput formControlName="recognition" placeholder="Registered board name like CBSE, ICSE etc.">
+                                <mat-label>Email</mat-label>
+                                <input type="email" matInput formControlName="email" placeholder="Institute Email">
+                                <mat-error *ngIf="instituteForm.get('institute_profile.email').errors" class="yellow">
+                                    Enter a valid email.
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-sm-6">
+                            <mat-form-field class="full-width" appearance="outline">
+                                <mat-label>Phone number</mat-label>
+                                <input matInput formControlName="phone" placeholder="Valid format +919898989898">
+                                <mat-hint *ngIf="this.phoneNumberError" class="yellow">
+                                    {{ this.phoneNumberError }}
+                                </mat-hint>
                             </mat-form-field>
                         </div>
                     </div>
-
-
-                    <fieldset>
-                        <label class="text-color">Contact Details:</label>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <mat-form-field class="full-width" appearance="outline">
-                                    <mat-label>Email</mat-label>
-                                    <input type="email" matInput formControlName="email" placeholder="Institute Email">
-                                    <mat-error *ngIf="instituteForm.get('institute_profile.email').errors" class="yellow">
-                                        Enter a valid email.
-                                    </mat-error>
-                                </mat-form-field>
-                            </div>
-
-                            <div class="col-sm-6">
-                                <mat-form-field class="full-width" appearance="outline">
-                                    <mat-label>Phone number</mat-label>
-                                    <input matInput formControlName="phone" placeholder="Valid format +919898989898">
-                                    <mat-hint *ngIf="this.phoneNumberError" class="yellow">
-                                        {{ this.phoneNumberError }}
-                                    </mat-hint>
-                                </mat-form-field>
-                            </div>
-                        </div>
-
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Website Url</mat-label>
-                            <input matInput formControlName="website_url" placeholder="Valid format: https://www.eduweb.com">
-                            <mat-hint *ngIf="this.urlError" class="yellow">
-                                {{ this.urlError }}
-                            </mat-hint>
-                        </mat-form-field>
-                    </fieldset>
-
-                    <fieldset>
-                        <label class="text-color">Location Details:</label>
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <mat-form-field class="full-width" appearance="outline">
-                                    <mat-label>State</mat-label>
-                                    <select matNativeControl formControlName="state">
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Website Url</mat-label>
+                        <input matInput formControlName="website_url" placeholder="Valid format: https://www.eduweb.com">
+                        <mat-hint *ngIf="this.urlError" class="yellow">
+                            {{ this.urlError }}
+                        </mat-hint>
+                    </mat-form-field>
+                </fieldset>
+                <fieldset>
+                    <label class="text-color">Location Details:</label>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <mat-form-field class="full-width" appearance="outline">
+                                <mat-label>State</mat-label>
+                                <select matNativeControl formControlName="state">
                                       <option *ngFor="let state of states" [value]="state.value" class="options">{{state.viewValue}}</option>
                                     </select>
-                                </mat-form-field>
-                            </div>
-                            <div class="col-sm-6">
-                                <mat-form-field class="full-width" appearance="outline">
-                                    <mat-label>Pin Code</mat-label>
-                                    <input matInput formControlName="pin" placeholder="Pin code">
-                                    <mat-error *ngIf="instituteForm.get('institute_profile.pin').errors?.maxlength" class="yellow">
-                                        Max character limit is 10.
-                                    </mat-error>
-                                </mat-form-field>
-                            </div>
+                            </mat-form-field>
                         </div>
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Address</mat-label>
-                            <input matInput formControlName="address" placeholder="Full Address">
-                            <mat-error *ngIf="instituteForm.get('institute_profile.address').errors?.maxlength" class="yellow">
-                                Max character limit is 50.
-                            </mat-error>
-                        </mat-form-field>
-                    </fieldset>
-
-                    <fieldset>
-                        <label class="text-color">Additional Details:</label>
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Motto</mat-label>
-                            <textarea matInput formControlName="motto" placeholder="Motto of institute"></textarea>
-                            <mat-error *ngIf="instituteForm.get('institute_profile.motto').errors?.maxlength" class="yellow">
-                                Max character limit is 256.
-                            </mat-error>
-                        </mat-form-field>
-
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Primary Language<span class="required">&nbsp;*</span></mat-label>
-                            <select matNativeControl formControlName="primary_language">
+                        <div class="col-sm-6">
+                            <mat-form-field class="full-width" appearance="outline">
+                                <mat-label>Pin Code</mat-label>
+                                <input matInput formControlName="pin" placeholder="Pin code">
+                                <mat-error *ngIf="instituteForm.get('institute_profile.pin').errors?.maxlength" class="yellow">
+                                    Max character limit is 10.
+                                </mat-error>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Address</mat-label>
+                        <input matInput formControlName="address" placeholder="Full Address">
+                        <mat-error *ngIf="instituteForm.get('institute_profile.address').errors?.maxlength" class="yellow">
+                            Max character limit is 50.
+                        </mat-error>
+                    </mat-form-field>
+                </fieldset>
+                <fieldset>
+                    <label class="text-color">Additional Details:</label>
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Motto</mat-label>
+                        <textarea matInput formControlName="motto" placeholder="Motto of institute"></textarea>
+                        <mat-error *ngIf="instituteForm.get('institute_profile.motto').errors?.maxlength" class="yellow">
+                            Max character limit is 256.
+                        </mat-error>
+                    </mat-form-field>
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Primary Language<span class="required">&nbsp;*</span></mat-label>
+                        <select matNativeControl formControlName="primary_language">
                               <option *ngFor="let language of languages" [value]="language.value" class="options">{{ language.viewValue }}</option>
                             </select>
-                            <mat-error *ngIf="instituteForm.get('institute_profile.primary_language').errors?.required" class="yellow">
-                                This field is required.
-                            </mat-error>
-                        </mat-form-field>
-
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Secondary Language</mat-label>
-                            <select matNativeControl formControlName="secondary_language">
+                        <mat-error *ngIf="instituteForm.get('institute_profile.primary_language').errors?.required" class="yellow">
+                            This field is required.
+                        </mat-error>
+                    </mat-form-field>
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Secondary Language</mat-label>
+                        <select matNativeControl formControlName="secondary_language">
                               <option *ngFor="let language of languages" [value]="language.value" class="options">{{ language.viewValue }}</option>
                             </select>
-                        </mat-form-field>
-                        <mat-form-field class="full-width" appearance="outline">
-                            <mat-label>Tertiary Language</mat-label>
-                            <select matNativeControl formControlName="tertiary_language">
+                    </mat-form-field>
+                    <mat-form-field class="full-width" appearance="outline">
+                        <mat-label>Tertiary Language</mat-label>
+                        <select matNativeControl formControlName="tertiary_language">
                               <option *ngFor="let language of languages" [value]="language.value" class="options">{{ language.viewValue }}</option>
                             </select>
-                        </mat-form-field>
-                    </fieldset>
-                </div>
-            </ng-container>
-        </form>
-        <div class="error-response" *ngIf="this.errorOccurred">
-            Error occurred while creating institute. Fix the errors and try again.
-        </div>
-        <mat-divider></mat-divider>
-        <mat-card-actions align="end">
-            <button mat-flat-button [disabled]="instituteForm.invalid" class="float-right-end margin-right-06 green-button" (click)="instituteFormSubmit()">Create</button>
-            <button mat-flat-button class="float-right-end margin-right-06 blue-button" (click)="resetClicked()">Reset</button>
-            <button mat-flat-button class="float-right-end margin-right-06 red-button" (click)="cancelClicked()">Cancel</button>
-        </mat-card-actions>
+                    </mat-form-field>
+                </fieldset>
+            </div>
+        </ng-container>
+    </form>
+    <div class="error-response" *ngIf="this.errorOccurred">
+        Error occurred while creating institute. Fix the errors and try again.
     </div>
+    <mat-divider></mat-divider>
+    <mat-card-actions align="end">
+        <button mat-flat-button [disabled]="instituteForm.invalid" class="float-right-end m-tbr-06 green-button" (click)="instituteFormSubmit()">Create</button>
+        <button mat-flat-button class="float-right-end m-tbr-06 blue-button" (click)="resetClicked()">Reset</button>
+        <button mat-flat-button class="float-right-end m-tbr-06 red-button" (click)="cancelClicked()">Cancel</button>
+    </mat-card-actions>
 </section>
