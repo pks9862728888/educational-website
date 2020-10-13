@@ -2667,8 +2667,11 @@ class SubjectFileTestQuestion(models.Model):   # If question mode is file
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['test', 'set', 'file'], name='unique_key_for_single_question_paper')
+            models.UniqueConstraint(fields=['test', 'set'], name='unique_question_paper_for_single_question_set')
         ]
+
+    def __str__(self):
+        return str(self.set)
 
 
 class SubjectTestQuestionSection(models.Model):    # If question mode is typed / image

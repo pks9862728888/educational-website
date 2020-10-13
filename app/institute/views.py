@@ -6731,7 +6731,6 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                 else:
                     response['first_set_questions'] = None
 
-
         return Response(response, status=status.HTTP_200_OK)
 
 
@@ -6885,11 +6884,21 @@ class InstituteUploadFileQuestionPaperView(APIView):
                 models.InstituteSubjectStatistics.objects.filter(
                     statistics_subject=subject
                 ).update(storage=F('storage') + Decimal(file_size))
+                print(ser.data)
 
-                return Response(ser.data, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    'id': ser.data['id'],
+                    'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + ser.data['file']
+                }, status=status.HTTP_201_CREATED)
             else:
                 return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            print(e)
+        except IntegrityError as e:
+            if 'unique_question_paper_for_single_question_set' in str(e):
+                return Response({'error': _('Question paper for this question set already uploaded. Please refresh.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception:
             return Response({'error': _('Unhandled error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
