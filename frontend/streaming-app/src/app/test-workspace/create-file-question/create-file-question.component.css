@@ -1,0 +1,59 @@
+h1,
+h2,
+hr {
+    padding: 0;
+    margin: 0;
+}
+
+.parent-container {
+    padding: 1rem;
+    border-radius: 3px;
+}
+
+.stroked-button {
+    border: 1px solid rgba(108, 117, 125, 0.5);
+}
+
+.faded-blue-color {
+    color: #7fc0ba;
+}
+
+
+/* Styling form fields */
+
+::ng-deep.mat-form-field-label {
+    /*change color of label*/
+    color: #dadada !important;
+}
+
+::ng-deep .mat-input-element::placeholder {
+    color: #838383;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+    color: #4e5458;
+}
+
+.green-button:disabled {
+    background-color: #0a5652;
+    color: #bdbdbd;
+    opacity: 0.5;
+}
+
+.red-button:disabled {
+    background-color: #ff0000;
+    color: #bdbdbd;
+    opacity: 0.5;
+}
+
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}

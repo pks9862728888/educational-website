@@ -1,8 +1,6 @@
-<mat-card class="text-color">
-    <div class="d-flex justify-content-between">
-        <div>
-            <h2 class="header-text">Create Course:</h2>
-        </div>
+<section class="parent-container">
+    <div class="d-flex justify-content-between align-center">
+        <h1>Create Course:</h1>
         <mat-icon *ngIf="selectedLecture" (click)="closeLecture()" class="cancel-icon cursor-pointer">close</mat-icon>
     </div>
     <hr class="separator m-t-03 m-b-1" />
@@ -27,7 +25,9 @@
                             </small>
                         </div>
                     </div>
-                    <mat-icon class="delete-icon test-delete-icon" (click)="confirmDeleteTest(testDetails[view])">delete</mat-icon>
+                    <div class="test-delete-icon">
+                        <mat-icon class="delete-icon" (click)="confirmDeleteTest(testDetails[view])">delete</mat-icon>
+                    </div>
                 </div>
                 <div *ngIf="viewDetails[view].type === SUBJECT_VIEW_TYPE.MODULE_VIEW">
                     <mat-accordion>
@@ -181,7 +181,9 @@
                                                   <span *ngIf="content.test_schedule_type === TEST_SCHEDULE_TYPES.UNSCHEDULED">Unscheduled Test</span> | {{ getSubjectTestType(content.test_type) }}</small>
                                             </div>
                                         </div>
-                                        <mat-icon class="delete-icon test-delete-icon" (click)="confirmDeleteTest(content)">delete</mat-icon>
+                                        <div class="test-delete-icon">
+                                            <mat-icon class="delete-icon" (click)="confirmDeleteTest(content)">delete</mat-icon>
+                                        </div>
                                     </div>
                                 </div>
                                 <div *ngIf="hasSubjectPerm" class="m-t-1">
@@ -677,7 +679,9 @@
                               <span *ngIf="test.test_schedule_type === TEST_SCHEDULE_TYPES.UNSCHEDULED">Unscheduled Test</span> | {{ getSubjectTestType(test.test_type) }}</small>
                         </div>
                     </div>
-                    <mat-icon class="delete-icon test-delete-icon" (click)="confirmDeleteTest(test)">delete</mat-icon>
+                    <div class="test-delete-icon">
+                        <mat-icon class="delete-icon" (click)="confirmDeleteTest(test)">delete</mat-icon>
+                    </div>
                 </div>
                 <div *ngIf="showAddTestFormInLecture" class="m-b-1">
                     <app-add-subject-test [lectureId]="selectedLecture.lecture_id" (closeAddTestEvent)="toggleAddTestInLectureView()" (testCreatedData)="testCreatedInLectureView($event)"></app-add-subject-test>
@@ -698,4 +702,4 @@
     <div *ngIf="viewContent === 'VIEW_PDF'">
         <app-view-pdf (closeViewEvent)="closeViewContent($event)"></app-view-pdf>
     </div>
-</mat-card>
+</section>

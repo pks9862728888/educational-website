@@ -118,7 +118,7 @@ export class AddSubjectUnsheduledTestComponent implements OnInit {
         question_category: QUESTIONS_CATEGORY.FILE_UPLOAD_TYPE,
         no_of_optional_section_answer: 0
       });
-    } else if (questionMode === QUESTION_MODE.TYPED || questionMode === QUESTION_MODE.IMAGE) {
+    } else if (questionMode === QUESTION_MODE.TYPED) {
       this.addTestForm.patchValue({
         answer_mode: ANSWER_MODE.TYPED
       });
@@ -127,6 +127,11 @@ export class AddSubjectUnsheduledTestComponent implements OnInit {
           question_category: QUESTIONS_CATEGORY.ALL_TYPES
         });
       }
+    } else if (questionMode === QUESTION_MODE.IMAGE) {
+      this.addTestForm.patchValue({
+        answer_mode: ANSWER_MODE.TYPED,
+        question_category: QUESTIONS_CATEGORY.FILE_UPLOAD_TYPE
+      });
     }
   }
 
@@ -156,7 +161,6 @@ export class AddSubjectUnsheduledTestComponent implements OnInit {
   questionCategoryChanged() {
     const questionMode = this.addTestForm.value.question_mode;
     const questionCategory = this.addTestForm.value.question_category;
-    const peerCheck = this.addTestForm.value.enable_peer_check;
 
     if (questionCategory !== QUESTIONS_CATEGORY.FILE_UPLOAD_TYPE && questionMode === QUESTION_MODE.FILE) {
       this.addTestForm.patchValue({
@@ -167,12 +171,21 @@ export class AddSubjectUnsheduledTestComponent implements OnInit {
         3000
       );
     } else if (questionCategory === QUESTIONS_CATEGORY.FILE_UPLOAD_TYPE &&
-               (questionMode === QUESTION_MODE.TYPED || questionMode === QUESTION_MODE.IMAGE)) {
+               questionMode === QUESTION_MODE.TYPED) {
       this.addTestForm.patchValue({
         question_category: QUESTIONS_CATEGORY.ALL_TYPES
       });
       this.uiService.showSnackBar(
-        'Question category should not be FILE UPLOAD TYPE if Question mode is TYPED or IMAGE!',
+        'Question category should not be FILE UPLOAD TYPE if Question mode is TYPED!',
+        3000
+      );
+    } else if (questionCategory !== QUESTIONS_CATEGORY.FILE_UPLOAD_TYPE &&
+              questionMode === QUESTION_MODE.IMAGE) {
+      this.addTestForm.patchValue({
+        question_category: QUESTIONS_CATEGORY.FILE_UPLOAD_TYPE
+      });
+      this.uiService.showSnackBar(
+        'Question category should be FILE UPLOAD TYPE if Question mode is IMAGE!',
         3000
       );
     }

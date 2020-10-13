@@ -235,6 +235,9 @@ urlpatterns = [
     path('<slug:subject_slug>/<slug:test_slug>/get-test-details-for-question-paper-creation',
          views.InstituteTestMinDetailsForQuestionCreationView.as_view(),
          name='get-test-details-for-question-paper-creation'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/add-question-set',
+         views.InstituteAddQuestionSetView.as_view(),
+         name='add-question-set'),
 
     # Institute Subject preview course
     path('list-all-student-institute-courses',

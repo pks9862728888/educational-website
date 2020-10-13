@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { currentInstituteSlug,
          currentInstituteType,
          INSTITUTE_TYPE_REVERSE,
+         QUESTIONS_CATEGORY,
          QUESTION_MODE,
          testMinDetails,
          webAppName } from 'src/constants';
@@ -38,6 +39,7 @@ export class TestWorkspaceComponent implements OnInit, OnDestroy {
   reloadIndicator: boolean;
 
   QUESTION_MODE = QUESTION_MODE;
+  QUESTIONS_CATEGORY = QUESTIONS_CATEGORY;
   testMinDetails: TestMinDetailsResponse;
 
   constructor(
@@ -56,8 +58,10 @@ export class TestWorkspaceComponent implements OnInit, OnDestroy {
           this.activeLink = 'CREATE-QUESTION-PAPER/FILE-MODE';
         } else if (val.url.includes('create-question-paper/image-mode')) {
           this.activeLink = 'CREATE-QUESTION-PAPER/IMAGE-MODE';
-        } else if (val.url.includes('create-question-paper/typed-mode')) {
-          this.activeLink = 'CREATE-QUESTION-PAPER/TYPED-MODE';
+        } else if (val.url.includes('create-question-paper/autocheck-question-typed-mode')) {
+          this.activeLink = 'CREATE-QUESTION-PAPER/AUTOCHECK-QUESTION-TYPED-MODE';
+        } else if (val.url.includes('create-question-paper/all-question-typed-mode')) {
+          this.activeLink = 'CREATE-QUESTION-PAPER/ALL-QUESTION-TYPED-MODE';
         }
       }
     });

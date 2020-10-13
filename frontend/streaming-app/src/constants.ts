@@ -428,4 +428,4 @@ export const PRODUCT_TYPES = {
   DIGITAL_EXAM: 'D',
   LIVE_STREAM: 'L',
   STORAGE: 'S'
-}
+};

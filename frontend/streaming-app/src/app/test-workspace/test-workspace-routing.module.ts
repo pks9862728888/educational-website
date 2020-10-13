@@ -5,7 +5,8 @@ import { TestWorkspaceComponent } from './test-workspace.component';
 import { TestDashboardComponent } from './test-dashboard/test-dashboard.component';
 import { CreateFileQuestionComponent } from './create-file-question/create-file-question.component';
 import { CreateImageQuestionComponent } from './create-image-question/create-image-question.component';
-import { CreateTypedQuestionComponent } from './create-typed-question/create-typed-question.component';
+import { CreateTypedAllTypeQuestionComponent } from './create-typed-all-type-question/create-typed-all-type-question.component';
+import { CreateTypedAutocheckTypeQuestionComponent } from './create-typed-autocheck-type-question/create-typed-autocheck-type-question.component';
 
 
 const routes: Routes = [
@@ -17,7 +18,8 @@ const routes: Routes = [
       { path: 'dashboard', component: TestDashboardComponent },
       { path: 'create-question-paper/file-mode', component: CreateFileQuestionComponent },
       { path: 'create-question-paper/image-mode', component: CreateImageQuestionComponent },
-      { path: 'create-question-paper/typed-mode', component: CreateTypedQuestionComponent }
+      { path: 'create-question-paper/all-question-typed-mode', component: CreateTypedAllTypeQuestionComponent },
+      { path: 'create-question-paper/autocheck-question-typed-mode', component: CreateTypedAutocheckTypeQuestionComponent }
     ]
   }
 ];
@@ -34,5 +36,6 @@ export const testWorkspaceRoutingComponents = [
   TestDashboardComponent,
   CreateFileQuestionComponent,
   CreateImageQuestionComponent,
-  CreateTypedQuestionComponent
+  CreateTypedAllTypeQuestionComponent,
+  CreateTypedAutocheckTypeQuestionComponent
 ];

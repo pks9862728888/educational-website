@@ -214,6 +214,7 @@ button.active:focus {
     background-color: #6c757d;
 }
 
-.width-100 {
+.width-100,
+.w-100 {
     width: 100%;
 }

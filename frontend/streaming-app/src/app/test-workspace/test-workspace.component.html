@@ -20,7 +20,10 @@
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CREATE-QUESTION-PAPER/IMAGE-MODE'" (click)="navigate('CREATE-QUESTION-PAPER/IMAGE-MODE')" *ngIf="testMinDetails.question_mode === QUESTION_MODE.IMAGE">Create Question Paper</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
-                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CREATE-QUESTION-PAPER/TYPED-MODE'" (click)="navigate('CREATE-QUESTION-PAPER/TYPED-MODE')" *ngIf="testMinDetails.question_mode === QUESTION_MODE.TYPED">Create Question Paper</div>
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CREATE-QUESTION-PAPER/ALL-QUESTION-TYPED-MODE'" (click)="navigate('CREATE-QUESTION-PAPER/ALL-QUESTION-TYPED-MODE')" *ngIf="testMinDetails.question_mode === QUESTION_MODE.TYPED && testMinDetails.question_category === QUESTIONS_CATEGORY.ALL_TYPES">Create Question Paper</div>
+                <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
+                                'sidenav-content-more-padding': !mq.matches}" [class.selected-nav-option]="activeLink === 'CREATE-QUESTION-PAPER/AUTOCHECK-QUESTION-TYPED-MODE'" (click)="navigate('CREATE-QUESTION-PAPER/AUTOCHECK-QUESTION-TYPED-MODE')"
+                    *ngIf="testMinDetails.question_mode === QUESTION_MODE.TYPED && testMinDetails.question_category === QUESTIONS_CATEGORY.AUTOCHECK_TYPE">Create Question Paper</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
                                 'sidenav-content-more-padding': !mq.matches}" (click)="navigate('CURRENT_SUBJECT')">Current Subject</div>
                 <div [ngClass]="{'sidenav-content-less-padding': mq.matches,
@@ -42,10 +45,10 @@
                         <li class="breadcrumb-item clickable-link"><a (click)="navigate('CURRENT_INSTITUTE')">Institute</a></li>
                         <li class="breadcrumb-item clickable-link"><a (click)="navigate('CURRENT_SUBJECT')">Subject</a></li>
                         <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'DASHBOARD'">Dashboard</li>
-                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CREATE-QUESTION-PAPER/FILE-MODE' && activeLink !== 'CREATE-QUESTION-PAPER/IMAGE-MODE' && activeLink !== 'CREATE-QUESTION-PAPER/TYPED-MODE'">Create</li>
+                        <li class="breadcrumb-item mouse-pointer active" [hidden]="activeLink !== 'CREATE-QUESTION-PAPER/FILE-MODE' && activeLink !== 'CREATE-QUESTION-PAPER/IMAGE-MODE' && activeLink !== 'CREATE-QUESTION-PAPER/ALL-QUESTION-TYPED-MODE' && activeLink !== 'CREATE-QUESTION-PAPER/AUTOCHECK-QUESTION-TYPED-MODE'">Create</li>
                     </ol>
                 </nav>
-                <div class="no-scrollbar">
+                <div class="no-scrollbar ">
                     <router-outlet></router-outlet>
                 </div>
             </div>

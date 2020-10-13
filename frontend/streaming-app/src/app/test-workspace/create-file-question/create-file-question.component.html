@@ -1,1 +1,48 @@
-<p>create-file-question works!</p>
+<section class="parent-container">
+    <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading test details...'"></app-ui-loading>
+    <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
+    <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load test details.'" (retryEvent)="getTestDetails()"></app-ui-reload>
+    <div *ngIf="!loadingIndicator && !loadingError && !reloadIndicator">
+        <div class="text-center">
+            <h2 class="expansion-panel-header-color">{{ testDetails.name }}</h2>
+            <p class="faded-blue-color">{{ testDetails.subject_name }}, {{ testDetails.class_name }}</p>
+            <p>Instructions: {{ testDetails.instruction }}</p>
+            <div class="d-flex justify-content-between align-center faded-blue-color">
+                <p>{{ testDetails.total_duration }} minutes</p>
+                <p>{{ testDetails.total_marks }} Marks</p>
+            </div>
+        </div>
+        <hr class="separator m-t-05 m-b-1">
+        <div class="m-b-1" *ngIf="showAddQuestionSetForm">
+            <form [formGroup]="questionSetForm">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Enter question set name</mat-label>
+                    <input matInput placeholder="Name of Question set" formControlName="set_name" required>
+                    <mat-error *ngIf="questionSetForm.controls.set_name.errors?.required">
+                        Question set name is required.
+                    </mat-error>
+                </mat-form-field>
+            </form>
+            <div class="d-flex align-center">
+                <button mat-flat-button class="red-button m-r-05" [disabled]="submitIndicatorAddQuestionSet" (click)="toggleAddQuestionSetForm()">Cancel</button>
+                <button mat-flat-button class="green-button" [disabled]="submitIndicatorAddQuestionSet || questionSetForm.invalid" (click)="addQuestionSet()">
+                  <div class="d-flex align-center">
+                    <mat-progress-spinner *ngIf="submitIndicatorAddQuestionSet" [diameter]="20" mode="indeterminate" class="m-r-05"></mat-progress-spinner>
+                    Submit
+                  </div>
+                </button>
+            </div>
+        </div>
+        <button mat-stroked-button class="stroked-button" *ngIf="!showAddQuestionSetForm" (click)="toggleAddQuestionSetForm()">
+          <div class="d-flex align-center cursor-pointer">
+              <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon> Add Question Set
+          </div>
+        </button>
+        <!-- <div>
+        <form>
+            <input type="file" class="m-b-1">
+        </form>
+        <button mat-flat-button class="green-button">Upload</button>
+    </div> -->
+    </div>
+</section>

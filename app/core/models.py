@@ -2612,6 +2612,8 @@ class SubjectTestSets(models.Model):
         _('Set Verified'), default=False, blank=True)
     active = models.BooleanField(
         _('Set Active'), default=False, blank=True)
+    created_on = UnixTimeStampField(
+        _('Created timestamp in millisecond'), auto_now_add=True, use_numeric=True, blank=True)
 
 
 @receiver(pre_save, sender=SubjectTestSets)

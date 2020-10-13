@@ -1,4 +1,4 @@
-h2,
+h1,
 h3,
 h4,
 .col,
@@ -17,16 +17,9 @@ hr {
     padding: 0;
 }
 
-.mat-card {
-    background-color: rgba(255, 255, 255, 0.09);
-    z-index: 2;
-    color: #bdbdbd;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
-    user-select: none;
+.parent-container {
+    padding: 1rem;
+    border-radius: 3px;
 }
 
 :host ::ng-deep.mat-progress-spinner circle,
@@ -54,11 +47,10 @@ hr {
 }
 
 .test-delete-icon {
-    display: flex;
-    align-items: center;
-    right: 1.7rem;
+    transform: translateY(-180%);
     position: absolute;
-    transform: translateY(-230%);
+    right: 1.7rem;
+    margin-right: 0.7rem;
 }
 
 

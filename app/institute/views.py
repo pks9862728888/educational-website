@@ -6700,3 +6700,53 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
             response['question_category'] = test.question_category
 
         return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteAddQuestionSetView(APIView):
+    """View for adding question set"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Class in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Institute LMS CMS license expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug')
+        ).only('type').first()
+
+        test_set = models.SubjectTestSets.objects.create(
+            set_name=request.data.get('set_name'),
+            test=test)
+
+        return Response({
+            'id': test_set.test_set.pk,
+            'set_name': test_set.name,
+            'verified': test_set.verified,
+            'active': test_set.active
+        }, status=status.HTTP_201_CREATED)
