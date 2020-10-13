@@ -52,6 +52,9 @@
                 <div *ngIf="!setQuestions">
                     <h3 class="upload-container-header faded-blue-color">Upload question paper form:</h3>
                     <div class="upload-container">
+                        <div *ngIf="uploadError" class="m-b-1">
+                            <app-ui-error-text [errorText]="uploadError" (closeErrorTextEvent)="closeUploadError()"></app-ui-error-text>
+                        </div>
                         <form [formGroup]="uploadQuestionPaperForm">
                             <input type="file" id="pdf-file-upload" formControlName="file">
                         </form>
@@ -68,20 +71,23 @@
                         </div>
                     </div>
                 </div>
-                <div *ngIf="setQuestions">
-                    <button mat-stroked-button class="stroked-button justify-content-center" [class.m-b-1]="mq.matches" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches">
+                <div *ngIf="setQuestions" [class.d-flex]="!mq.matches">
+                    <button mat-stroked-button [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches">
                       <mat-icon class="preview-icon m-r-05">visibility</mat-icon>
                       Preview Question Paper
                     </button>
-                    <button mat-stroked-button class="stroked-button justify-content-center" [class.m-b-1]="mq.matches" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches">
-                      <mat-icon class="delete-icon m-r-05">delete</mat-icon>
-                      Delete Question Paper
+                    <button mat-stroked-button [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches" (click)="confirmDeleteQuestionPaper()">
+                      <div class="d-flex align-center">
+                        <mat-icon *ngIf="!setQuestions.delete" class="delete-icon m-r-05">delete</mat-icon>
+                        <mat-progress-spinner *ngIf="setQuestions.delete" [diameter]="20" class="m-r-05" mode="indeterminate"></mat-progress-spinner>
+                        Delete Question Paper
+                      </div>
                     </button>
-                    <button mat-stroked-button *ngIf="!selectedSet.verified" class="stroked-button justify-content-center" [class.m-b-1]="mq.matches" [class.d-flex]="mq.matches" [class.w-100]="mq.matches">
+                    <button mat-stroked-button *ngIf="!selectedSet.verified" [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches">
                       <mat-icon class="add-icon m-r-05">check</mat-icon>
                       Verify Question Paper
                     </button>
-                    <button mat-stroked-button *ngIf="selectedSet.verified" class="stroked-button justify-content-center" [class.m-b-1]="mq.matches" [class.d-flex]="mq.matches" [class.w-100]="mq.matches">
+                    <button mat-stroked-button *ngIf="selectedSet.verified" [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches">
                       <mat-icon class="edit-icon m-r-05">edit</mat-icon>
                       Edit Question Paper
                     </button>

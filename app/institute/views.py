@@ -6939,8 +6939,17 @@ class InstituteDeleteFileQuestionPaperView(APIView):
                 return Response({'error': _('Permission denied [Subject in-charge or Admin only]')},
                                 status=status.HTTP_400_BAD_REQUEST)
 
+        question_set = models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).first()
+
+        if not question_set:
+            return Response({'error': _('Question set not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         question_paper = models.SubjectFileTestQuestion.objects.filter(
-            set__pk=kwargs.get('set_id'),
+            set=question_set,
             test__test_slug=kwargs.get('test_slug')
         ).first()
 
@@ -6957,5 +6966,9 @@ class InstituteDeleteFileQuestionPaperView(APIView):
         models.InstituteStatistics.objects.filter(
             institute=institute
         ).update(storage=F('storage') - Decimal(file_size))
+
+        question_set.verified = False
+        question_set.active = False
+        question_set.mark_as_final = False
 
         return Response(status=status.HTTP_204_NO_CONTENT)

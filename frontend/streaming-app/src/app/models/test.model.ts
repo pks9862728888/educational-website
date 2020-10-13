@@ -38,4 +38,5 @@ export interface SetQuestionsInterface {
   // For file type question paper
   id: number;
   file: string;
+  delete: boolean;
 }

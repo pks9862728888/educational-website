@@ -1,11 +1,14 @@
 import { MediaMatcher } from '@angular/cdk/layout';
+import { HttpEventType } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { islengthWithin20Validator } from 'src/app/custom.validator';
 import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
 import { SetQuestionsInterface, TestMinDetailsResponseForQuestionCreation, TestQuestionSet } from 'src/app/models/test.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
+import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
 import { getFileSize } from 'src/app/shared/utilityFunctions';
 
 @Component({
@@ -31,6 +34,7 @@ export class CreateFileQuestionComponent implements OnInit {
   loadingSetQuestionErrorText: string;
   reloadSetQuestions: boolean;
   uploadQuestionPaperIndicator: boolean;
+  uploadError: string;
   progress = 0;
   loadedFileSize = 0;
   totalFileSize = 0;
@@ -48,7 +52,8 @@ export class CreateFileQuestionComponent implements OnInit {
     private media: MediaMatcher,
     private formBuilder: FormBuilder,
     private instituteApiService: InstituteApiService,
-    private uiService: UiService
+    private uiService: UiService,
+    private dialog: MatDialog
   ) {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     const splittedPathName = window.location.pathname.split('/');
@@ -153,7 +158,7 @@ export class CreateFileQuestionComponent implements OnInit {
     }
   }
 
-  getQuestionSetQuestions(questionSet: TestQuestionSet, retry=false) {
+  getQuestionSetQuestions(questionSet: TestQuestionSet, retry = false) {
     this.showAddQuestionSetForm = false;
 
     if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {
@@ -163,6 +168,7 @@ export class CreateFileQuestionComponent implements OnInit {
   }
 
   uploadQuestionPaper() {
+    this.loadedFileSize = 0;
     const file: File = (document.getElementById('pdf-file-upload') as HTMLInputElement).files[0];
 
     if (!file.type.includes('application/pdf') || !file.name.endsWith('.pdf') || file.name.includes('.exe') || file.name.includes('.sh')) {
@@ -175,7 +181,9 @@ export class CreateFileQuestionComponent implements OnInit {
       );
     } else {
       this.uploadQuestionPaperIndicator = true;
-      console.log(file);
+      this.uploadQuestionPaperForm.disable();
+      this.uploadError = null;
+
       this.instituteApiService.uploadFileQuestionPaper(
         this.currentInstituteSlug,
         this.currentSubjectSlug,
@@ -183,14 +191,114 @@ export class CreateFileQuestionComponent implements OnInit {
         this.selectedSet.id.toString(),
         { file }
       ).subscribe(
-        result => {
-          // this.uploadQuestionPaperIndicator = false;
-          console.log(result);
+        (result: {type: number; loaded: number; total: number; file: string; id: number; body: any; }) => {
+          if (result.type === HttpEventType.UploadProgress) {
+            this.progress = Math.round(100 * result.loaded / result.total);
+            this.loadedFileSize = result.loaded;
+            this.totalFileSize = result.total;
+          } else if (result.type === HttpEventType.Response) {
+            this.setQuestions = result.body;
+            this.uploadQuestionPaperIndicator = false;
+            this.uploadQuestionPaperForm.reset();
+            this.uploadQuestionPaperForm.enable();
+            this.uiService.showSnackBar(
+              'Question paper uploaded successfully.',
+              3000
+            );
+          }
         },
         errors => {
           this.uploadQuestionPaperIndicator = false;
+          this.uploadQuestionPaperForm.enable();
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uploadError = errors.error.error;
+            } else {
+              this.uiService.showSnackBar(
+                'Error! Unable to upload at the moment.',
+                3000
+              );
+            }
+          } else {
+            this.uiService.showSnackBar(
+              'Error! Unable to upload at the moment.',
+              3000
+            );
+          }
         }
       );
     }
+  }
+
+  confirmDeleteQuestionPaper() {
+    const dialogRef = this.dialog.open(UiDialogComponent, {
+      data: {
+        title: 'Are you sure you want to delete question paper?',
+        trueStringDisplay: 'Yes',
+        falseStringDisplay: 'No'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteQuestionPaper();
+      }
+    });
+  }
+
+  findIndexInArray(array, id) {
+    for (const idx in array) {
+      if (array[idx].id === id) {
+        return idx;
+      }
+    }
+    return -1;
+  }
+
+  deleteQuestionPaper() {
+    this.setQuestions.delete = true;
+    this.instituteApiService.deleteTestFileUploadQuestionPaper(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      this.selectedSet.id.toString()
+    ).subscribe(
+      () => {
+        this.setQuestions = null;
+        this.uiService.showSnackBar(
+          'Question paper file delete successful!',
+          3000
+        );
+        this.selectedSet.active = false;
+        this.selectedSet.verified = false;
+        this.selectedSet.mark_as_final = false;
+        const index = +this.findIndexInArray(this.testDetails.test_sets, this.selectedSet.id);
+        this.testDetails.test_sets.splice(index, 1, this.selectedSet);
+      },
+      errors => {
+        this.setQuestions.delete = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(
+              errors.error.error,
+              3000
+            );
+          } else {
+            this.uiService.showSnackBar(
+              'Error! Unable to delete question paper at the moment. Try again',
+              3000
+            );
+          }
+        } else {
+          this.uiService.showSnackBar(
+            'Error! Unable to delete question paper at the moment. Try again.',
+            3000
+          );
+        }
+      }
+    );
+  }
+
+  closeUploadError() {
+    this.uploadError = null;
   }
 }
