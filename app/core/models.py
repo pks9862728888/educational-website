@@ -2616,7 +2616,20 @@ class SubjectTestSets(models.Model):
     mark_as_final = models.BooleanField(
         _('Mark Question Set as final'), default=False, blank=True)
     created_on = UnixTimeStampField(
-        _('Created timestamp in millisecond'), auto_now_add=True, use_numeric=True, blank=True)
+        _('Created timestamp in seconds'), use_numeric=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.created_on:
+            self.created_on = int(time.time()) * 1000
+        super(SubjectTestSets, self).save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['test', 'set_name'], name='same_set_name')
+        ]
+
+    def __str__(self):
+        return self.set_name + ' -> ' + str(self.test)
 
 
 @receiver(pre_save, sender=SubjectTestSets)
