@@ -40,6 +40,7 @@ export class CreateFileQuestionComponent implements OnInit {
   totalFileSize = 0;
 
   showAddQuestionSetForm = false;
+  previewQuestionPaper = false;
 
   getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
   getFileSize = getFileSize;
@@ -47,6 +48,7 @@ export class CreateFileQuestionComponent implements OnInit {
   testDetails: TestMinDetailsResponseForQuestionCreation;
   selectedSet: TestQuestionSet;
   setQuestions: SetQuestionsInterface;
+  filename: string;
 
   constructor(
     private media: MediaMatcher,
@@ -296,6 +298,15 @@ export class CreateFileQuestionComponent implements OnInit {
         }
       }
     );
+  }
+
+  showQuestionPaper() {
+    this.filename = this.selectedSet.set_name.replace(' ', '').toLowerCase() + '.pdf';
+    this.previewQuestionPaper = true;
+  }
+
+  closeQuestionPaperPreview() {
+    this.previewQuestionPaper = false;
   }
 
   closeUploadError() {

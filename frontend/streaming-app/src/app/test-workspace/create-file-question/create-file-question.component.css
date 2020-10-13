@@ -72,6 +72,11 @@ p {
     opacity: 0.4;
 }
 
+.preview-header {
+    background-color: #101d25;
+    padding: 1rem;
+}
+
 .w-100 {
     width: 100%;
 }
@@ -94,4 +99,8 @@ p {
 
 .m-b-1 {
     margin-bottom: 1rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
 }

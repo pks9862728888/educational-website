@@ -1,4 +1,4 @@
-<section class="parent-container">
+<section *ngIf="!previewQuestionPaper" class="parent-container">
     <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading test details...'"></app-ui-loading>
     <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
     <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load test details.'" (retryEvent)="getTestDetails()"></app-ui-reload>
@@ -72,7 +72,7 @@
                     </div>
                 </div>
                 <div *ngIf="setQuestions" [class.d-flex]="!mq.matches">
-                    <button mat-stroked-button [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches">
+                    <button mat-stroked-button [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches" (click)="showQuestionPaper()">
                       <mat-icon class="preview-icon m-r-05">visibility</mat-icon>
                       Preview Question Paper
                     </button>
@@ -95,4 +95,12 @@
             </div>
         </div>
     </div>
+</section>
+<section *ngIf="previewQuestionPaper" class="parent-container">
+    <div class="preview-header d-flex justify-content-between align-center">
+        <h1 *ngIf="!mq.matches" class="faded-blue-color">Question paper preview</h1>
+        <h3 *ngIf="mq.matches" class="faded-blue-color">Question paper preview</h3>
+        <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeQuestionPaperPreview()">close</mat-icon>
+    </div>
+    <ngx-extended-pdf-viewer id="pdf-viewer" [src]="setQuestions.file" [textLayer]="true" [showDownloadButton]="true" [showPrintButton]="true" [showBookmarkButton]="false" [filenameForDownload]="filename" useBrowserLocale="false" height="80vh"></ngx-extended-pdf-viewer>
 </section>
