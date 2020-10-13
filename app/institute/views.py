@@ -6884,7 +6884,6 @@ class InstituteUploadFileQuestionPaperView(APIView):
                 models.InstituteSubjectStatistics.objects.filter(
                     statistics_subject=subject
                 ).update(storage=F('storage') + Decimal(file_size))
-                print(ser.data)
 
                 return Response({
                     'id': ser.data['id'],
@@ -6902,3 +6901,61 @@ class InstituteUploadFileQuestionPaperView(APIView):
         except Exception:
             return Response({'error': _('Unhandled error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteDeleteFileQuestionPaperView(APIView):
+    """View for deleting file question paper"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        """Only subject in-charge or admin can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                role=models.InstituteRole.ADMIN,
+                active=True
+            ):
+                return Response({'error': _('Permission denied [Subject in-charge or Admin only]')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        question_paper = models.SubjectFileTestQuestion.objects.filter(
+            set__pk=kwargs.get('set_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).first()
+
+        if not question_paper:
+            return Response({'error': _('Question paper not found. Please refresh and try again.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        file_size = question_paper.file.size / 1000000000
+
+        question_paper.delete()
+        models.InstituteSubjectStatistics.objects.filter(
+            statistics_subject=subject
+        ).update(storage=F('storage') - Decimal(file_size))
+        models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).update(storage=F('storage') - Decimal(file_size))
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

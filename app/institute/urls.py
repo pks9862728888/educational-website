@@ -241,6 +241,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/upload-file-question-paper',
          views.InstituteUploadFileQuestionPaperView.as_view(),
          name='upload-file-question-paper'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/delete-file-question-paper',
+         views.InstituteDeleteFileQuestionPaperView.as_view(),
+         name='delete-file-question-paper'),
 
     # Institute Subject preview course
     path('list-all-student-institute-courses',
