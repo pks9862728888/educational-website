@@ -14,7 +14,7 @@
         </div>
         <hr class="separator m-t-05 m-b-1">
         <mat-chip-list aria-label="Question set selection">
-            <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="set.id === selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
+            <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="set.id !== selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
             <mat-chip color="primary" *ngIf="!showAddQuestionSetForm" selected (click)="toggleAddQuestionSetForm()">Add Question Set</mat-chip>
         </mat-chip-list>
         <hr class="separator m-t-1 m-b-1" [hidden]="showAddQuestionSetForm && testDetails.test_sets.length === 0">
@@ -45,7 +45,7 @@
             </p>
             <p>Created on: {{ getDateFromUnixTimeStamp(selectedSet.created_on) | date }}</p>
             <hr class="separator m-t-1 m-b-1">
-            <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Set questions...'"></app-ui-loading>
+            <app-ui-loading *ngIf="loadingSetQuestionsIndicator" [actionText]="'Loading set questions...'"></app-ui-loading>
             <app-ui-error-text *ngIf="loadingSetQuestionErrorText" [errorText]="loadingSetQuestionErrorText" [hideCloseButton]="true"></app-ui-error-text>
             <app-ui-reload *ngIf="reloadSetQuestions" [errorText]="'Unable to load questions.'" (retryEvent)="getQuestionSetQuestions(selectedSet, true)"></app-ui-reload>
             <div *ngIf="!loadingSetQuestionsIndicator && !loadingSetQuestionErrorText && !reloadSetQuestions">

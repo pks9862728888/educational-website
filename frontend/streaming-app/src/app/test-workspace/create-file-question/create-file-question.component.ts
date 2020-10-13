@@ -166,7 +166,33 @@ export class CreateFileQuestionComponent implements OnInit {
     if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {
       this.selectedSet = questionSet;
       this.setQuestions = null;
-      // Load Questions
+      this.loadingSetQuestionsIndicator = true;
+      this.loadingSetQuestionErrorText = null;
+      this.reloadSetQuestions = false;
+      this.instituteApiService.getTestSetQuestions(
+        this.currentInstituteSlug,
+        this.currentSubjectSlug,
+        this.currentTestSlug,
+        this.selectedSet.id.toString()
+      ).subscribe(
+        (result: SetQuestionsInterface) => {
+          this.loadingSetQuestionsIndicator = false;
+          this.setQuestions = result;
+          console.log(result);
+        },
+        errors => {
+          this.loadingSetQuestionsIndicator = false;
+          if (errors.error) {
+            if (errors.error.error) {
+              this.loadingSetQuestionErrorText = errors.error.error;
+            } else {
+              this.reloadSetQuestions = true;
+            }
+          } else {
+            this.reloadSetQuestions = true;
+          }
+        }
+      );
     }
   }
 
