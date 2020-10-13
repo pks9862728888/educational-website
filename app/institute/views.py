@@ -7050,7 +7050,7 @@ class InstituteDeleteFileQuestionPaperView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class InstituteDeleteQuestionSetView(APIView):
+class InstituteDeleteTestSetView(APIView):
     """View for deleting question set"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
@@ -7087,26 +7087,27 @@ class InstituteDeleteQuestionSetView(APIView):
                                 status=status.HTTP_400_BAD_REQUEST)
 
         test = models.SubjectTest.objects.filter(
-            pk=kwargs.get('set_id')
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
         ).only('question_mode', 'question_mode').first()
 
         if not test:
             return Response({'error': _('Test set not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        question_set = models.SubjectTestSets.objects.filter(
+        test_set = models.SubjectTestSets.objects.filter(
             pk=kwargs.get('set_id'),
             test=test
         ).first()
 
-        if not question_set:
+        if not test_set:
             return Response({'error': _('Question set not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         file_size = 0  # In kb initially
         if test.question_mode == models.QuestionMode.FILE:
             question_paper = models.SubjectFileTestQuestion.objects.filter(
-                set=question_set,
+                set=test_set,
                 test__test_slug=kwargs.get('test_slug')
             ).first()
 
@@ -7115,14 +7116,15 @@ class InstituteDeleteQuestionSetView(APIView):
 
         # Update the size due to freeing of memory due to deletion of file answers (if any)
 
-        question_set.delete()
-
+        test_set.delete()
         file_size = file_size / 1000000000
-        models.InstituteSubjectStatistics.objects.filter(
-            statistics_subject=subject
-        ).update(storage=F('storage') - Decimal(file_size))
-        models.InstituteStatistics.objects.filter(
-            institute=institute
-        ).update(storage=F('storage') - Decimal(file_size))
+
+        if file_size > 0:
+            models.InstituteSubjectStatistics.objects.filter(
+                statistics_subject=subject
+            ).update(storage=F('storage') - Decimal(file_size))
+            models.InstituteStatistics.objects.filter(
+                institute=institute
+            ).update(storage=F('storage') - Decimal(file_size))
 
         return Response(status=status.HTTP_204_NO_CONTENT)
