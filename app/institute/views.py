@@ -32,6 +32,19 @@ from app.settings import client, MEDIA_URL, MEDIA_ROOT
 from core import models
 
 
+def get_active_or_expired_common_license(institute):
+    """Returns common license order if order is active or expired"""
+    order = models.InstituteCommonLicenseOrderDetails.objects.filter(
+        institute=institute,
+        paid=True
+    ).order_by('-order_created_on').first()
+
+    if not order:
+        return None
+    else:
+        return order
+
+
 def get_active_common_license(institute):
     """Returns license order if institute has active license else returns None"""
     order = models.InstituteCommonLicenseOrderDetails.objects.filter(
@@ -6633,9 +6646,57 @@ class InstituteTestMinDetailsView(APIView):
         # Getting test details
         test = models.SubjectTest.objects.filter(
             test_slug=kwargs.get('test_slug')
-        ).only('question_mode').first()
+        ).only('question_mode', 'question_category').first()
 
         return Response({
             'question_mode': test.question_mode,
-            'perm_type': perm_type
+            'perm_type': perm_type,
+            'question_category': test.question_category
         }, status=status.HTTP_200_OK)
+
+
+class InstituteTestMinDetailsForQuestionCreationView(APIView):
+    """View for getting min details of test for question paper creation"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """Only subject incharge can view."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Class in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Getting test details
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug')
+        ).only('question_mode').first()
+
+        response = {
+            'name': test.name,
+            'type': test.type,
+            'total_marks': test.type,
+            'total_duration': test.type,
+            'test_schedule_type': test.test_schedule_type,
+            'instruction': test.instruction,
+            'test_live': test.test_live
+        }
+
+        if test.test_schedule_type != models.TestScheduleType.UNSCHEDULED:
+            response['test_schedule'] = test.test_schedule
+
+        if test.question_mode != models.QuestionMode.FILE:
+            response['no_of_optional_section_answer'] = test.no_of_optional_section_answer
+            response['question_category'] = test.question_category
+
+        return Response(response, status=status.HTTP_200_OK)

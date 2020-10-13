@@ -2516,7 +2516,8 @@ class SubjectTest(models.Model):
         max_length=2,
         choices=TestScheduleType.TYPE_IN_TEST_SCHEDULE_TYPES)
     test_schedule = UnixTimeStampField(
-        _('Test schedule in UNIX timestamp in millisecond'), use_numeric=True, blank=True, null=True)
+        _('Test schedule in UNIX timestamp in millisecond'), use_numeric=True,
+        blank=True, null=True)
     instruction = models.CharField(
         _('Instruction'), max_length=200, blank=True, default='')
     no_of_optional_section_answer = models.PositiveSmallIntegerField(
