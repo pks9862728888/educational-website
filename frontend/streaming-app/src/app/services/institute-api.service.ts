@@ -249,6 +249,19 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${testSlug}/get-test-details-for-question-paper-creation`;
   }
 
+  getAddTestQuestionSetUrl(instituteSlug: string, subjectSlug: string, testSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/add-question-set`;
+  }
+
+  getUploadFileQuestionPaperUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string
+    ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/upload-file-question-paper`;
+  }
+
   getClassStudentsListUrl(
     instituteSlug: string,
     classSlug: string,
@@ -959,6 +972,35 @@ export class InstituteApiService {
     return this.httpClient.get(
       this.getTestMinDetailsForQuestionCreationUrl(subjectSlug, testSlug),
       { headers: this.getAuthHeader() }
+    );
+  }
+
+  addTestQuestionSet(instituteSlug: string, subjectSlug: string, testSlug: string, data: any) {
+    return this.httpClient.post(
+      this.getAddTestQuestionSetUrl(instituteSlug, subjectSlug, testSlug),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  uploadFileQuestionPaper(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    data: any
+    ) {
+    const formData = new FormData();
+    formData.append('file', data.file);
+
+    return this.httpClient.post(
+      this.getUploadFileQuestionPaperUrl(instituteSlug, subjectSlug, testSlug, setId),
+      data,
+      {
+        headers: this.getAuthTokenHeader(),
+        reportProgress: true,
+        observe: 'events'
+      },
     );
   }
 

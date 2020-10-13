@@ -27,7 +27,7 @@ import { currentSubjectSlug,
          SUBJECT_ADD_TEST_PLACE,
          SUBJECT_VIEW_TYPE,
          STUDY_MODULE_VIEW_TYPES,
-         TEST_SCHEDULE_TYPES } from './../../../constants';
+         TEST_SCHEDULE_TYPES, currentInstituteRole } from './../../../constants';
 import { MatDialog } from '@angular/material/dialog';
 import { UiActionControlsComponent } from 'src/app/shared/ui-action-controls/ui-action-controls.component';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
@@ -49,6 +49,7 @@ export class CreateCourseComponent implements OnInit {
   viewContent: string;
 
   currentSubjectSlug: string;
+  currentInstituteRole: string;
   currentInstituteSlug: string;
 
   openedPanelStep: number;
@@ -165,6 +166,7 @@ export class CreateCourseComponent implements OnInit {
     this.mq = this.media.matchMedia('(max-width: 600px)');
     this.currentSubjectSlug = sessionStorage.getItem(currentSubjectSlug);
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
+    this.currentInstituteRole = sessionStorage.getItem(currentInstituteRole);
     this.date = new Date();
   }
 
@@ -2140,8 +2142,7 @@ export class CreateCourseComponent implements OnInit {
   }
 
   openTestView(testDetails) {
-    console.log(testDetails);
-    this.router.navigate([ 'test-workspace/' + this.currentSubjectSlug + '/' + testDetails.test_slug]);
+    this.router.navigate([ 'test-workspace/' + this.currentInstituteSlug + '/' + this.currentInstituteRole + '/' + this.currentSubjectSlug + '/' + testDetails.test_slug]);
   }
 
   closeViewContent(event) {

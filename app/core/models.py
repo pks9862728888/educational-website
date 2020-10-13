@@ -2613,6 +2613,8 @@ class SubjectTestSets(models.Model):
         _('Set Verified'), default=False, blank=True)
     active = models.BooleanField(
         _('Set Active'), default=False, blank=True)
+    mark_as_final = models.BooleanField(
+        _('Mark Question Set as final'), default=False, blank=True)
     created_on = UnixTimeStampField(
         _('Created timestamp in millisecond'), auto_now_add=True, use_numeric=True, blank=True)
 
@@ -2649,6 +2651,11 @@ class SubjectFileTestQuestion(models.Model):   # If question mode is file
         null=True,
         blank=True,
         max_length=1024)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['test', 'set', 'file'], name='unique_key_for_single_question_paper')
+        ]
 
 
 class SubjectTestQuestionSection(models.Model):    # If question mode is typed / image

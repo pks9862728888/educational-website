@@ -14,6 +14,8 @@ export interface TestMinDetailsResponseForQuestionCreation {
   test_live: boolean;
   subject_name: string;
   class_name: string;
+  test_sets: TestQuestionSet[];
+  first_set_questions: SetQuestionsInterface;
 
   // For unscheduled test
   test_schedule?: number;
@@ -21,4 +23,19 @@ export interface TestMinDetailsResponseForQuestionCreation {
   // For other tests
   no_of_optional_section_answer: number;
   question_category: string;
+}
+
+export interface TestQuestionSet {
+  id: number;
+  set_name: string;
+  verified: boolean;
+  active: boolean;
+  mark_as_final: boolean;
+  created_on: number;
+}
+
+export interface SetQuestionsInterface {
+  // For file type question paper
+  id: number;
+  file: string;
 }

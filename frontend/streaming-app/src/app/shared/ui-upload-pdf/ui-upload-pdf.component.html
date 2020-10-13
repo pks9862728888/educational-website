@@ -27,7 +27,7 @@
                 <p *ngIf="mq.matches" class="m-b-02">Uploading...</p>
                 <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
                 <div class="d-flex justify-content-end m-t-02">
-                    {{ getFileSize_(loadedFileSize) }} / {{ getFileSize_(totalFileSize) }}
+                    {{ getFileSize(loadedFileSize) }} / {{ getFileSize(totalFileSize) }}
                 </div>
             </div>
         </div>

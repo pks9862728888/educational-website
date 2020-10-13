@@ -495,10 +495,20 @@ class SubjectLectureImageSerializer(serializers.ModelSerializer):
 
 
 class SubjectLecturePdfSerializer(serializers.ModelSerializer):
-    """Serializer for creating image study material"""
+    """Serializer for creating pdf study material"""
     file = serializers.FileField(allow_null=False, use_url=True)
 
     class Meta:
         model = models.SubjectLecturePdfMaterial
         fields = ('id', 'lecture_material', 'file', 'can_download')
+        read_only_fields = ('id',)
+
+
+class SubjectTestFileQuestionPaperUploadSerializer(serializers.ModelSerializer):
+    """Serializer for creating pdf question paper"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = models.SubjectFileTestQuestion
+        fields = ('id', 'test', 'file', 'set')
         read_only_fields = ('id',)

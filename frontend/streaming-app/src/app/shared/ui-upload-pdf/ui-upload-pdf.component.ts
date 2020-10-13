@@ -20,12 +20,14 @@ export class UiUploadPdfComponent implements OnInit {
   @Input() showTargetDate: boolean;
   @Output() formData = new EventEmitter<any>();
   @Output() fileError = new EventEmitter<string>();
-  @Input() formEvent: Observable<String>;
+  @Input() formEvent: Observable<string>;
   private formEventSubscription: Subscription;
   @Input() uploadProgressEvent: Observable<{loaded: number, total: number}>;
   private progressEventSubscription: Subscription;
   totalFileSize: number;
   loadedFileSize: number;
+
+  getFileSize = getFileSize;
 
   constructor(
     private media: MediaMatcher,
@@ -69,7 +71,7 @@ export class UiUploadPdfComponent implements OnInit {
   }
 
   upload() {
-    const file: File = (<HTMLInputElement>document.getElementById('pdf-file')).files[0];
+    const file: File = (document.getElementById('pdf-file') as HTMLInputElement).files[0];
 
     if (!file.type.includes('application/pdf') || !file.name.endsWith('.pdf') || file.name.includes('.exe') || file.name.includes('.sh')) {
       this.fileError.emit('Only .pdf file formats are supported.');
@@ -77,22 +79,20 @@ export class UiUploadPdfComponent implements OnInit {
         file: null
       });
     } else {
-      let data = {};
-      data['name'] = this.uploadForm.value.name;
-      data['file'] = file;
-      data['can_download'] = this.uploadForm.value.can_download;
+      const data = {
+        name: this.uploadForm.value.name,
+        file,
+        can_download: this.uploadForm.value.can_download
+      };
       if (this.uploadForm.value.target_date) {
         data['target_date'] = formatDate(this.uploadForm.value.target_date);
       }
-      data['content_type'] = SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['PDF'];
+      data['content_type'] = SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE.PDF;
       this.formData.emit(data);
     }
   }
 
-  getFileSize_(size: number) {
-    return getFileSize(size);
-  }
-
+  // tslint:disable-next-line: use-lifecycle-interface
   ngOnDestroy() {
     if (this.formEventSubscription) {
       this.formEventSubscription.unsubscribe();

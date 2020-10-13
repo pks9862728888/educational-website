@@ -4,23 +4,27 @@
     <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load test details.'" (retryEvent)="getTestDetails()"></app-ui-reload>
     <div *ngIf="!loadingIndicator && !loadingError && !reloadIndicator">
         <div class="text-center">
-            <h2 class="expansion-panel-header-color">{{ testDetails.name }}</h2>
-            <p class="faded-blue-color">{{ testDetails.subject_name }}, {{ testDetails.class_name }}</p>
-            <p>Instructions: {{ testDetails.instruction }}</p>
+            <h1 class="expansion-panel-header-color">{{ testDetails.name }}</h1>
+            <h3 class="faded-blue-color m-b-1">{{ testDetails.subject_name }}, {{ testDetails.class_name }}</h3>
+            <p class="m-b-1">Instructions: <span *ngIf="testDetails.instruction">{{ testDetails.instruction }}</span><span *ngIf="!testDetails.instruction">None</span></p>
             <div class="d-flex justify-content-between align-center faded-blue-color">
                 <p>{{ testDetails.total_duration }} minutes</p>
                 <p>{{ testDetails.total_marks }} Marks</p>
             </div>
         </div>
         <hr class="separator m-t-05 m-b-1">
+        <mat-chip-list aria-label="Question set selection">
+            <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="set.id === selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
+            <mat-chip color="primary" *ngIf="!showAddQuestionSetForm" selected (click)="toggleAddQuestionSetForm()">Add Question Set</mat-chip>
+        </mat-chip-list>
+        <hr class="separator m-t-1 m-b-1" [hidden]="showAddQuestionSetForm && testDetails.test_sets.length === 0">
         <div class="m-b-1" *ngIf="showAddQuestionSetForm">
             <form [formGroup]="questionSetForm">
                 <mat-form-field appearance="outline" class="w-100">
                     <mat-label>Enter question set name</mat-label>
                     <input matInput placeholder="Name of Question set" formControlName="set_name" required>
-                    <mat-error *ngIf="questionSetForm.controls.set_name.errors?.required">
-                        Question set name is required.
-                    </mat-error>
+                    <mat-error *ngIf="questionSetForm.controls.set_name.errors?.required">Question set name is required.</mat-error>
+                    <mat-error *ngIf="questionSetForm.controls.set_name.errors?.islengthWithin20Validator">Question set name can not be more than 20 characters.</mat-error>
                 </mat-form-field>
             </form>
             <div class="d-flex align-center">
@@ -33,16 +37,56 @@
                 </button>
             </div>
         </div>
-        <button mat-stroked-button class="stroked-button" *ngIf="!showAddQuestionSetForm" (click)="toggleAddQuestionSetForm()">
-          <div class="d-flex align-center cursor-pointer">
-              <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon> Add Question Set
-          </div>
-        </button>
-        <!-- <div>
-        <form>
-            <input type="file" class="m-b-1">
-        </form>
-        <button mat-flat-button class="green-button">Upload</button>
-    </div> -->
+        <p *ngIf="testDetails.test_sets.length === 0 && !showAddQuestionSetForm">No Question Set Found</p>
+        <div *ngIf="selectedSet && !showAddQuestionSetForm">
+            <h2 class="faded-blue-color m-b-05">{{ selectedSet.set_name }}</h2>
+            <p class="m-b-05"><span *ngIf="!selectedSet.verified">Not Verified</span><span *ngIf="selectedSet.verified">Verified</span> | <span *ngIf="!selectedSet.active">Not active</span><span *ngIf="selectedSet.active">Active</span> | <span *ngIf="!selectedSet.mark_as_final">Editable</span>
+                <span *ngIf="selectedSet.mark_as_final">Un-editable</span>
+            </p>
+            <p>Created on: {{ getDateFromUnixTimeStamp(selectedSet.created_on) | date }}</p>
+            <hr class="separator m-t-1 m-b-1">
+            <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading Set questions...'"></app-ui-loading>
+            <app-ui-error-text *ngIf="loadingSetQuestionErrorText" [errorText]="loadingSetQuestionErrorText" [hideCloseButton]="true"></app-ui-error-text>
+            <app-ui-reload *ngIf="reloadSetQuestions" [errorText]="'Unable to load questions.'" (retryEvent)="getQuestionSetQuestions(selectedSet, true)"></app-ui-reload>
+            <div *ngIf="!loadingSetQuestionsIndicator && !loadingSetQuestionErrorText && !reloadSetQuestions">
+                <div *ngIf="!setQuestions">
+                    <h3 class="upload-container-header faded-blue-color">Upload question paper form:</h3>
+                    <div class="upload-container">
+                        <form [formGroup]="uploadQuestionPaperForm">
+                            <input type="file" id="pdf-file-upload" formControlName="file">
+                        </form>
+                        <div class="m-t-1">
+                            <button mat-flat-button class="green-button" [disabled]="uploadQuestionPaperForm.invalid || uploadQuestionPaperIndicator" (click)="uploadQuestionPaper()">
+                              <div class="d-flex align-center">
+                                <mat-progress-spinner *ngIf="uploadQuestionPaperIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Upload
+                              </div>
+                            </button>
+                        </div>
+                        <mat-progress-bar *ngIf="uploadQuestionPaperIndicator" mode="determinate" [value]="progress"></mat-progress-bar>
+                        <div class="d-flex justify-content-end m-t-02" *ngIf="uploadQuestionPaperIndicator">
+                            {{ getFileSize(loadedFileSize) }} / {{ getFileSize(totalFileSize) }}
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="setQuestions">
+                    <button mat-stroked-button class="stroked-button justify-content-center" [class.m-b-1]="mq.matches" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches">
+                      <mat-icon class="preview-icon m-r-05">visibility</mat-icon>
+                      Preview Question Paper
+                    </button>
+                    <button mat-stroked-button class="stroked-button justify-content-center" [class.m-b-1]="mq.matches" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches">
+                      <mat-icon class="delete-icon m-r-05">delete</mat-icon>
+                      Delete Question Paper
+                    </button>
+                    <button mat-stroked-button *ngIf="!selectedSet.verified" class="stroked-button justify-content-center" [class.m-b-1]="mq.matches" [class.d-flex]="mq.matches" [class.w-100]="mq.matches">
+                      <mat-icon class="add-icon m-r-05">check</mat-icon>
+                      Verify Question Paper
+                    </button>
+                    <button mat-stroked-button *ngIf="selectedSet.verified" class="stroked-button justify-content-center" [class.m-b-1]="mq.matches" [class.d-flex]="mq.matches" [class.w-100]="mq.matches">
+                      <mat-icon class="edit-icon m-r-05">edit</mat-icon>
+                      Edit Question Paper
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </section>

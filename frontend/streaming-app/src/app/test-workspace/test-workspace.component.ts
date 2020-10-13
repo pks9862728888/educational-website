@@ -66,9 +66,11 @@ export class TestWorkspaceComponent implements OnInit, OnDestroy {
       }
     });
     this.currentInstituteSlug = sessionStorage.getItem(currentInstituteSlug);
-    this.currentSubjectSlug = activatedRoute.snapshot.params.subjectSlug;
-    this.currentTestSlug = activatedRoute.snapshot.params.testSlug;
-    this.baseUrl = '/test-workspace/' + this.currentSubjectSlug + '/' + this.currentTestSlug;
+    const activatedRouteParams = activatedRoute.snapshot.params;
+    this.currentSubjectSlug = activatedRouteParams.subjectSlug;
+    this.currentTestSlug = activatedRouteParams.testSlug;
+    this.baseUrl = '/test-workspace/' + activatedRouteParams.instituteSlug + '/' +
+                   activatedRouteParams.institueRole + '/' + this.currentSubjectSlug + '/' + this.currentTestSlug;
     this.currentInstituteType = sessionStorage.getItem(currentInstituteType);
   }
 

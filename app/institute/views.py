@@ -4526,6 +4526,7 @@ class InstituteSubjectAddLectureMaterials(APIView):
 
                     institute_stats.storage = Decimal(float(institute_stats.storage) +
                                                       request.data.get('file').size / 1000000000)
+                    institute_stats.save()
                     models.InstituteSubjectStatistics.objects.filter(
                         statistics_subject=subject
                     ).update(storage=F('storage') + Decimal(request.data.get('file').size / 1000000000))
@@ -4550,6 +4551,7 @@ class InstituteSubjectAddLectureMaterials(APIView):
 
                     institute_stats.storage = Decimal(float(institute_stats.storage) +
                                                       request.data.get('file').size / 1000000000)
+                    institute_stats.save()
                     models.InstituteSubjectStatistics.objects.filter(
                         statistics_subject=subject
                     ).update(storage=F('storage') + Decimal(request.data.get('file').size / 1000000000))
@@ -6723,7 +6725,7 @@ class InstituteAddQuestionSetView(APIView):
             to=subject,
             invitee=self.request.user
         ).exists():
-            return Response({'error': _('Permission denied [Class in-charge only]')},
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         institute = models.Institute.objects.filter(
@@ -6752,3 +6754,104 @@ class InstituteAddQuestionSetView(APIView):
             'verified': test_set.verified,
             'active': test_set.active
         }, status=status.HTTP_201_CREATED)
+
+
+class InstituteUploadFileQuestionPaperView(APIView):
+    """View for adding file question paper"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Institute LMS CMS license expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute_license_stats = models.InstituteLicenseStat.objects.filter(
+            institute=institute
+        ).only('total_storage').first()
+
+        if not institute_license_stats.total_storage:
+            return Response({'error': _('Storage license expired or not found. Purchase storage to upload files.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        pdf_error = validate_pdf_file(request.data.get('file'), str(request.FILES['file']))
+
+        if pdf_error:
+            return pdf_error
+
+        institute_stats = models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).only('storage').first()
+
+        if request.data.get('file').size / 1000000000 +\
+                float(institute_stats.storage) > float(institute_license_stats.total_storage):
+            return Response({'error': _('File size too large. Purchase additional storage to upload files.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
+        ).only('pk').first()
+
+        if not test:
+            return Response({'error': _('Test not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        if not models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test=test,
+        ).exists():
+            return Response({'error': _('Question paper set not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        try:
+            ser = serializer.SubjectTestFileQuestionPaperUploadSerializer(
+                data={
+                    'file': request.data.get('file'),
+                    'test': test.pk,
+                    'set': kwargs.get('set_id')
+                }
+            )
+            if ser.is_valid():
+                ser.save()
+
+                file_size = request.data.get('file').size / 1000000000  # Size in GB
+
+                institute_stats.storage = Decimal(float(institute_stats.storage) + file_size)
+                institute_stats.save()
+
+                models.InstituteSubjectStatistics.objects.filter(
+                    statistics_subject=subject
+                ).update(storage=F('storage') + Decimal(file_size))
+
+                return Response(ser.data, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

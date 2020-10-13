@@ -11,7 +11,7 @@ import { CreateTypedAutocheckTypeQuestionComponent } from './create-typed-autoch
 
 const routes: Routes = [
   {
-    path: ':subjectSlug/:testSlug',
+    path: ':instituteSlug/:institueRole/:subjectSlug/:testSlug',
     component: TestWorkspaceComponent,
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full'},

@@ -36,3 +36,10 @@ export function isNumberValidator(control: AbstractControl): {[key: string]: boo
   }
   return { isNumberValidator: true };
 }
+
+export function islengthWithin20Validator(control: AbstractControl): {[key: string]: boolean} | null {
+  if (control.pristine || control.value.length <= 20) {
+    return null;
+  }
+  return { islengthWithin20Validator: true };
+}
