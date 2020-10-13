@@ -6713,6 +6713,23 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                 'created_on': ts.created_on
             })
 
+        if len(response['test_sets']) > 0:
+            # Find the questions of first set
+            if test.question_mode == models.QuestionMode.FILE:
+                question_set = models.SubjectFileTestQuestion.objects.filter(
+                    test=test,
+                    set__pk=response['test_sets'][0]['id']
+                ).first()
+
+                if question_set:
+                    response['first_set_questions'] = {
+                        'id': question_set.pk,
+                        'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(question_set.file)
+                    }
+                else:
+                    response['first_set_questions'] = None
+
+
         return Response(response, status=status.HTTP_200_OK)
 
 
