@@ -6685,11 +6685,13 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
         response = {
             'name': test.name,
             'type': test.type,
-            'total_marks': test.type,
-            'total_duration': test.type,
+            'total_marks': test.total_marks,
+            'total_duration': test.total_duration,
             'test_schedule_type': test.test_schedule_type,
             'instruction': test.instruction,
-            'test_live': test.test_live
+            'test_live': test.test_live,
+            'subject_name': test.subject.name,
+            'class_name': test.subject.subject_class.name
         }
 
         if test.test_schedule_type != models.TestScheduleType.UNSCHEDULED:

@@ -2562,8 +2562,9 @@ class SubjectTest(models.Model):
             if self.answer_mode == AnswerMode.FILE:
                 raise ValueError(_('Answer mode should be TYPED if question mode is TYPED or IMAGE.'))
 
+        if self.question_mode == QuestionMode.TYPED:
             if self.question_category == QuestionCategory.FILE_UPLOAD_TYPE:
-                raise ValueError(_('Question category can not be FILE UPLOAD TYPE if question mode is TYPED or IMAGE.'))
+                raise ValueError(_('Question category can not be FILE UPLOAD TYPE if question mode is TYPED.'))
 
         if self.question_category == QuestionCategory.AUTOCHECK_TYPE:
             if self.enable_peer_check:
