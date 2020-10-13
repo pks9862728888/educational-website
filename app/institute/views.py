@@ -6663,7 +6663,7 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get(self, *args, **kwargs):
-        """Only subject incharge can view."""
+        """Only subject, class incharge, admin can view."""
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')
         ).only('subject_slug').first()
@@ -6730,6 +6730,82 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                     }
                 else:
                     response['first_set_questions'] = None
+
+        return Response(response, status=status.HTTP_200_OK)
+
+
+class InstituteGetQuestionSetQuestionsView(APIView):
+    """View for getting question set questions"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """Subject incharge, class incharge, admin can view."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            if not models.InstituteClassPermission.objects.filter(
+                to__pk=subject.subject_class.pk,
+                invitee=self.request.user
+            ).exists():
+                if not models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    invitee=self.request.user,
+                    role=models.InstituteRole.Admin,
+                    active=True
+                ).exists():
+                    return Response({'error': _('Permission denied [Subject, Class in-charge, Admin, only]')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_or_expired_common_license(institute):
+            return Response({'error': _('LMS CMS license not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
+        ).only('question_mode').first()
+
+        set_ = models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test=test
+        ).only('set_name').first()
+
+        if not set_:
+            return Response({'error': _('Question set not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        response = dict()
+        if test.question_mode == models.QuestionMode.FILE:
+            question_set = models.SubjectFileTestQuestion.objects.filter(
+                test=test,
+                set=set_
+            ).first()
+
+            if question_set:
+                response.update({
+                    'id': question_set.pk,
+                    'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(question_set.file)
+                })
+            else:
+                response = None
 
         return Response(response, status=status.HTTP_200_OK)
 

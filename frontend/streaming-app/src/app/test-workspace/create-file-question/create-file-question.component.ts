@@ -165,6 +165,7 @@ export class CreateFileQuestionComponent implements OnInit {
 
     if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {
       this.selectedSet = questionSet;
+      this.setQuestions = null;
       // Load Questions
     }
   }
