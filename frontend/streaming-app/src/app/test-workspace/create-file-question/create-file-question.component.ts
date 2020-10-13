@@ -160,6 +160,53 @@ export class CreateFileQuestionComponent implements OnInit {
     }
   }
 
+  confirmDeleteSet() {
+    const dialogReference = this.dialog.open(UiDialogComponent, {
+      data: {
+        title: 'Are you sure you want to delete question set: ' + this.selectedSet.set_name + ' ?',
+        trueStringDisplay: 'Yes',
+        falseStringDisplay: 'No'
+      }
+    });
+    dialogReference.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteQuestionSet(this.selectedSet);
+      }
+    });
+  }
+
+  deleteQuestionSet(selectedSet: TestQuestionSet) {
+    this.selectedSet.delete = true;
+    this.instituteApiService.deleteQuestionSet(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      this.selectedSet.id.toString()
+    ).subscribe(
+      () => {
+        const index = +this.findIndexInArray(this.testDetails.test_sets, selectedSet.id);
+        if (this.selectedSet.id === selectedSet.id) {
+          this.selectedSet = null;
+          this.setQuestions = null;
+        }
+        this.testDetails.test_sets.splice(index, 1);
+        this.uiService.showSnackBar('Question set deleted successfully!', 2000);
+      },
+      errors => {
+        this.selectedSet.delete = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to delete test set.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to delete test set.', 3000);
+        }
+      }
+    );
+  }
+
   getQuestionSetQuestions(questionSet: TestQuestionSet, retry = false) {
     this.showAddQuestionSetForm = false;
 

@@ -32,6 +32,7 @@ export interface TestQuestionSet {
   active: boolean;
   mark_as_final: boolean;
   created_on: number;
+  delete?: boolean;
 }
 
 export interface SetQuestionsInterface {

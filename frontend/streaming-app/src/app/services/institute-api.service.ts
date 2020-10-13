@@ -271,6 +271,15 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/get-question-set-questions`;
   }
 
+  getDeleteQuestionSetUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string
+    ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/delete-test-set`;
+  }
+
   getUploadFileQuestionPaperUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1037,6 +1046,13 @@ export class InstituteApiService {
   getTestSetQuestions(instituteSlug: string, subjectSlug: string, testSlug: string, setId: string) {
     return this.httpClient.get(
       this.getTestSetQuestionsUrl(instituteSlug, subjectSlug, testSlug, setId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteQuestionSet(instituteSlug: string, subjectSlug: string, testSlug: string, setId: string) {
+    return this.httpClient.delete(
+      this.getDeleteQuestionSetUrl(instituteSlug, subjectSlug, testSlug, setId),
       { headers: this.getAuthHeader() }
     );
   }

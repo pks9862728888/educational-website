@@ -38,6 +38,7 @@
             </div>
         </div>
         <p *ngIf="testDetails.test_sets.length === 0 && !showAddQuestionSetForm">No Question Set Found</p>
+        <p *ngIf="testDetails.test_sets.length !== 0 && !showAddQuestionSetForm && !selectedSet">No Question Set Selected</p>
         <div *ngIf="selectedSet && !showAddQuestionSetForm">
             <h2 class="faded-blue-color m-b-05">{{ selectedSet.set_name }}</h2>
             <p class="m-b-05"><span *ngIf="!selectedSet.verified">Not Verified</span><span *ngIf="selectedSet.verified">Verified</span> | <span *ngIf="!selectedSet.active">Not active</span><span *ngIf="selectedSet.active">Active</span> | <span *ngIf="!selectedSet.mark_as_final">Editable</span>
@@ -70,26 +71,42 @@
                             {{ getFileSize(loadedFileSize) }} / {{ getFileSize(totalFileSize) }}
                         </div>
                     </div>
+                    <div class="m-t-1">
+                        <button mat-stroked-button class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" (click)="confirmDeleteSet()">
+                          <div class="d-flex align-center">
+                            <mat-icon *ngIf="!selectedSet.delete" class="delete-icon m-r-05">delete</mat-icon>
+                            <mat-progress-spinner *ngIf="selectedSet.delete" [diameter]="20" class="m-r-05" mode="indeterminate"></mat-progress-spinner>
+                            Delete Question Set
+                          </div>
+                        </button>
+                    </div>
                 </div>
                 <div *ngIf="setQuestions" [class.d-flex]="!mq.matches">
-                    <button mat-stroked-button [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches" (click)="showQuestionPaper()">
+                    <button mat-stroked-button [disabled]="setQuestions.delete || selectedSet.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches" (click)="showQuestionPaper()">
                       <mat-icon class="preview-icon m-r-05">visibility</mat-icon>
                       Preview Question Paper
                     </button>
-                    <button mat-stroked-button [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches" (click)="confirmDeleteQuestionPaper()">
+                    <button mat-stroked-button [disabled]="setQuestions.delete || selectedSet.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches" (click)="confirmDeleteQuestionPaper()">
                       <div class="d-flex align-center">
                         <mat-icon *ngIf="!setQuestions.delete" class="delete-icon m-r-05">delete</mat-icon>
                         <mat-progress-spinner *ngIf="setQuestions.delete" [diameter]="20" class="m-r-05" mode="indeterminate"></mat-progress-spinner>
                         Delete Question Paper
                       </div>
                     </button>
-                    <button mat-stroked-button *ngIf="!selectedSet.verified" [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches">
+                    <button mat-stroked-button *ngIf="!selectedSet.verified" [disabled]="setQuestions.delete || selectedSet.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches">
                       <mat-icon class="add-icon m-r-05">check</mat-icon>
                       Verify Question Paper
                     </button>
-                    <button mat-stroked-button *ngIf="selectedSet.verified" [disabled]="setQuestions.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches">
+                    <button mat-stroked-button *ngIf="selectedSet.verified" [disabled]="setQuestions.delete || selectedSet.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" [class.m-r-05]="!mq.matches">
                       <mat-icon class="edit-icon m-r-05">edit</mat-icon>
                       Edit Question Paper
+                    </button>
+                    <button mat-stroked-button [disabled]="setQuestions.delete || selectedSet.delete" class="stroked-button justify-content-center m-b-1" [class.d-flex]="mq.matches" [class.w-100]="mq.matches" (click)="confirmDeleteSet()">
+                      <div class="d-flex align-center">
+                        <mat-icon *ngIf="!selectedSet.delete" class="delete-icon m-r-05">delete</mat-icon>
+                        <mat-progress-spinner *ngIf="selectedSet.delete" [diameter]="20" class="m-r-05" mode="indeterminate"></mat-progress-spinner>
+                        Delete Question Set
+                      </div>
                     </button>
                 </div>
             </div>
