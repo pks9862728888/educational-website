@@ -6691,7 +6691,8 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
             'instruction': test.instruction,
             'test_live': test.test_live,
             'subject_name': test.subject.name,
-            'class_name': test.subject.subject_class.name
+            'class_name': test.subject.subject_class.name,
+            'test_sets': list()
         }
 
         if test.test_schedule_type != models.TestScheduleType.UNSCHEDULED:
@@ -6700,6 +6701,17 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
         if test.question_mode != models.QuestionMode.FILE:
             response['no_of_optional_section_answer'] = test.no_of_optional_section_answer
             response['question_category'] = test.question_category
+
+        for ts in models.SubjectTestSets.objects.filter(
+            test=test
+        ).order_by('created_on'):
+            response['test_sets'].append({
+                'id': ts.pk,
+                'set_name': ts.set_name,
+                'verified': ts.verified,
+                'active': ts.active,
+                'created_on': ts.created_on
+            })
 
         return Response(response, status=status.HTTP_200_OK)
 
@@ -6742,13 +6754,22 @@ class InstituteAddQuestionSetView(APIView):
             test_slug=kwargs.get('test_slug')
         ).only('type').first()
 
-        test_set = models.SubjectTestSets.objects.create(
-            set_name=request.data.get('set_name'),
-            test=test)
+        try:
+            test_set = models.SubjectTestSets.objects.create(
+                set_name=request.data.get('set_name'),
+                test=test)
+        except IntegrityError as e:
+            if 'same_set_name' in str(e):
+                return Response({'error': _('Error! Same question set exists for this test.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': _('Unhandled error occurred.')},
+                                status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
-            'id': test_set.test_set.pk,
-            'set_name': test_set.name,
+            'id': test_set.pk,
+            'set_name': test_set.set_name,
             'verified': test_set.verified,
-            'active': test_set.active
+            'active': test_set.active,
+            'created_on': test_set.created_on
         }, status=status.HTTP_201_CREATED)
