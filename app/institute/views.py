@@ -7119,7 +7119,7 @@ class InstituteAddTestConceptLabelView(APIView):
         try:
             label = models.SubjectTestConceptLabels.objects.create(
                 test=test,
-                name=self.request.get('name')
+                name=request.data.get('name')
             )
             return Response({'id': label.pk, 'name': label.name},
                             status=status.HTTP_201_CREATED)

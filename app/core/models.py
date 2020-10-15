@@ -2650,7 +2650,7 @@ class SubjectTestConceptLabels(models.Model):    # If answer mode is typed
             raise ValueError(_('Name of label is required.'))
         if self.name:
             self.name = self.name.strip()
-        if self.name > 30:
+        if len(self.name) > 30:
             raise ValueError(_('Name of label should be less than 30 characters.'))
         super(SubjectTestConceptLabels, self).save(*args, **kwargs)
 
