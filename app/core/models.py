@@ -2646,10 +2646,16 @@ class SubjectTestConceptLabels(models.Model):    # If answer mode is typed
         _('Name'), max_length=30, blank=False, null=False)
 
     def save(self, *args, **kwargs):
+        if not self.name:
+            raise ValueError(_('Name of label is required.'))
         if self.name:
             self.name = self.name.strip()
-
+        if self.name > 30:
+            raise ValueError(_('Name of label should be less than 30 characters.'))
         super(SubjectTestConceptLabels, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
 
 
 class SubjectFileTestQuestion(models.Model):   # If question mode is file
@@ -2695,8 +2701,8 @@ class SubjectTestQuestionSection(models.Model):    # If question mode is typed /
 
     def save(self, *args, **kwargs):
         if self.view == TestQuestionViewType.SINGLE_QUESTION:
-            if self.question_attempt_type != TestQuestionAttemptType.ALL:
-                raise ValueError(_('Question attempt type should be ALL since section group type is SINGLE QUESTION.'))
+            if not self.answer_all_questions:
+                raise ValueError(_('Answer all questions should be true since there is only one question.'))
         super(SubjectTestQuestionSection, self).save(*args, **kwargs)
 
 
