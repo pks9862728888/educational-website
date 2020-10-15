@@ -2719,12 +2719,17 @@ class SubjectPictureTestQuestion(models.Model):           # If question mode is 
         _('Order'), blank=True, null=True)
     marks = models.DecimalField(
         _('Marks'), decimal_places=2, max_digits=5)
+    text = models.CharField(
+        _('Question text'), max_length=500, blank=False, null=True)
     file = models.FileField(
         _('File'),
         upload_to=subject_image_test_question_file_path,
         null=True,
         blank=True,
         max_length=1024)
+
+    def __str__(self):
+        return str(self.test)
 
 
 @receiver(post_save, sender=SubjectPictureTestQuestion)
