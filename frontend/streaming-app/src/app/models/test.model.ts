@@ -4,7 +4,7 @@ export interface TestMinDetailsResponse {
   perm_type: string;
 }
 
-export interface TestMinDetailsResponseForQuestionCreation {
+export interface TestMinDetailsResponseForFileTestQuestionCreation {
   name: string;
   type: string;
   total_marks: number;
@@ -15,7 +15,28 @@ export interface TestMinDetailsResponseForQuestionCreation {
   subject_name: string;
   class_name: string;
   test_sets: TestQuestionSet[];
-  first_set_questions: SetQuestionsInterface;
+  first_set_questions: SetFileQuestionsInterface;
+
+  // For unscheduled test
+  test_schedule?: number;
+
+  // For other tests
+  no_of_optional_section_answer: number;
+  question_category: string;
+}
+
+export interface TestMinDetailsResponseForImageTestQuestionCreation {
+  name: string;
+  type: string;
+  total_marks: number;
+  total_duration: number;
+  test_schedule_type: string;
+  instruction: string;
+  test_live: boolean;
+  subject_name: string;
+  class_name: string;
+  test_sets: TestQuestionSet[];
+  first_set_questions: SetImageQuestionsInterface;
 
   // For unscheduled test
   test_schedule?: number;
@@ -35,9 +56,25 @@ export interface TestQuestionSet {
   delete?: boolean;
 }
 
-export interface SetQuestionsInterface {
-  // For file type question paper
+export interface SetFileQuestionsInterface {
   id: number;
   file: string;
+  delete?: boolean;
+}
+
+export interface SetImageQuestionsInterface {
+  id: number;
+  test_section: SubjectTestSection;
+  file: string;
+  marks: number;
   delete: boolean;
+}
+
+export interface SubjectTestSection {
+  id: number;
+  name: string;
+  view: string;
+  section_mandatory: boolean;
+  answer_all_questions: boolean;
+  no_of_question_to_attempt?: number;
 }

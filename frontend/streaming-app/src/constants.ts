@@ -429,3 +429,13 @@ export const PRODUCT_TYPES = {
   LIVE_STREAM: 'L',
   STORAGE: 'S'
 };
+
+export const QUESTION_SECTION_VIEW_TYPE = {
+  SINGLE_QUESTION: 'S',
+  MULTIPLE_QUESTION: 'M'
+};
+
+export const QUESTION_SECTION_VIEW_TYPE_FORM_FIELD_OPTIONS = [
+  {value: 'S', viewValue: 'Only one question'},
+  {value: 'M', viewValue: 'Multiple questions'}
+];

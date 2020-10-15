@@ -5,7 +5,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { islengthWithin20Validator } from 'src/app/custom.validator';
 import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
-import { SetQuestionsInterface, TestMinDetailsResponseForQuestionCreation, TestQuestionSet } from 'src/app/models/test.model';
+import { SetFileQuestionsInterface,
+         TestMinDetailsResponseForFileTestQuestionCreation,
+         TestQuestionSet } from 'src/app/models/test.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
@@ -45,9 +47,9 @@ export class CreateFileQuestionComponent implements OnInit {
   getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
   getFileSize = getFileSize;
 
-  testDetails: TestMinDetailsResponseForQuestionCreation;
+  testDetails: TestMinDetailsResponseForFileTestQuestionCreation;
   selectedSet: TestQuestionSet;
-  setQuestions: SetQuestionsInterface;
+  setQuestions: SetFileQuestionsInterface;
   filename: string;
 
   constructor(
@@ -83,7 +85,7 @@ export class CreateFileQuestionComponent implements OnInit {
       this.currentSubjectSlug,
       this.currentTestSlug
     ).subscribe(
-      (result: TestMinDetailsResponseForQuestionCreation) => {
+      (result: TestMinDetailsResponseForFileTestQuestionCreation) => {
         this.loadingIndicator = false;
         this.testDetails = result;
         if (result.test_sets.length > 0) {
@@ -222,7 +224,7 @@ export class CreateFileQuestionComponent implements OnInit {
         this.currentTestSlug,
         this.selectedSet.id.toString()
       ).subscribe(
-        (result: SetQuestionsInterface) => {
+        (result: SetFileQuestionsInterface) => {
           this.loadingSetQuestionsIndicator = false;
           this.setQuestions = result;
           console.log(result);

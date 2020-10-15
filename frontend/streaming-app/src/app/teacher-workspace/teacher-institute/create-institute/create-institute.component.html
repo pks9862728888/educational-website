@@ -32,7 +32,7 @@
                         <mat-label>Institute Category<span class="required">&nbsp;*</span></mat-label>
                         <select matNativeControl formControlName="institute_category">
                               <option *ngFor="let category of instituteCategories" [value]="category.value" class="options">{{ category.viewValue }}</option>
-                            </select>
+                          </select>
                         <mat-error *ngIf="instituteForm.controls['institute_category'].errors?.required" class="yellow">
                             This field is required.
                         </mat-error>

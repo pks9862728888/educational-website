@@ -390,13 +390,13 @@ class QuestionCategory:
     ]
 
 
-class TestQuestionSectionType:
-    OPTIONAL = 'O'
-    MANDATORY = 'M'
+class TestQuestionViewType:
+    SINGLE_QUESTION = 'S'
+    MULTIPLE_QUESTION = 'M'
 
-    TYPE_IN_SECTION_TYPES = [
-        (OPTIONAL, _(u'OPTIONAL')),
-        (MANDATORY, _(u'MANDATORY'))
+    TYPE_IN_VIEW_TYPES = [
+        (SINGLE_QUESTION, _(u'SINGLE_QUESTION')),
+        (MULTIPLE_QUESTION, _(u'MULTIPLE_QUESTION'))
     ]
 
 
@@ -2680,14 +2680,24 @@ class SubjectTestQuestionSection(models.Model):    # If question mode is typed /
         SubjectTest, on_delete=models.CASCADE, related_name='question_section_test')
     set = models.ForeignKey(
         SubjectTestSets, on_delete=models.CASCADE, related_name='question_section_set')
-    type = models.CharField(
-        _('Section Type'),
+    section_mandatory = models.BooleanField(_('Is answering this question section mandatory?'))
+    view = models.CharField(
+        _('Section question type view'),
         max_length=1,
-        choices=TestQuestionSectionType.TYPE_IN_SECTION_TYPES)
+        choices=TestQuestionViewType.TYPE_IN_VIEW_TYPES)
+    no_of_question_to_attempt = models.PositiveSmallIntegerField(
+        _('Number of questions to attempt'), blank=True, null=True)
+    answer_all_questions = models.BooleanField(_('Should all the questions be answered?'))
     name = models.CharField(
         _('Name of question section'), max_length=100, blank=True, default='')
     order = models.PositiveIntegerField(
         _('Order'), blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.view == TestQuestionViewType.SINGLE_QUESTION:
+            if self.question_attempt_type != TestQuestionAttemptType.ALL:
+                raise ValueError(_('Question attempt type should be ALL since section group type is SINGLE QUESTION.'))
+        super(SubjectTestQuestionSection, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=SubjectTestQuestionSection)

@@ -1,0 +1,138 @@
+h1,
+h2,
+h3,
+hr,
+p {
+    padding: 0;
+    margin: 0;
+}
+
+.parent-container {
+    padding: 1rem;
+    border-radius: 3px;
+}
+
+.stroked-button {
+    border: 1px solid rgba(108, 117, 125, 0.5);
+}
+
+.faded-blue-color {
+    color: #7fc0ba;
+}
+
+.mat-standard-chip {
+    cursor: pointer;
+}
+
+.selected {
+    background-color: #673ab7;
+    color: #fff;
+}
+
+.upload-container-header {
+    background-color: #101d25;
+    padding: 0.5rem;
+}
+
+.upload-container {
+    background-color: rgba(255, 255, 255, 0.11);
+    padding: 1rem;
+}
+
+
+/* Styling form fields */
+
+::ng-deep.mat-form-field-label {
+    /*change color of label*/
+    color: #dadada !important;
+}
+
+::ng-deep .mat-input-element::placeholder {
+    color: #838383;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+    color: #4e5458;
+}
+
+.green-button:disabled {
+    background-color: #0a5652;
+    color: #bdbdbd;
+    opacity: 0.5;
+}
+
+.red-button:disabled {
+    background-color: #ff0000;
+    color: #bdbdbd;
+    opacity: 0.5;
+}
+
+.reset-button:disabled {
+    background-color: #007694;
+    color: #bdbdbd;
+    opacity: 0.5;
+}
+
+.stroked-button:disabled {
+    color: #bdbdbd;
+    opacity: 0.4;
+}
+
+.preview-header {
+    background-color: #101d25;
+    padding: 1rem;
+}
+
+.yellow-text {
+    color: rgb(255, 208, 0);
+}
+
+.q-sets {
+    background-color: rgba(255, 255, 255, 0.04);
+    padding: 1.5rem 0.5rem;
+    border: 1px solid rgba(108, 117, 125, 0.5);
+    border-radius: 5px;
+}
+
+.selected-set-details {
+    background-color: rgba(255, 255, 255, 0.04);
+    padding: 1rem 0.5rem;
+    border: 1px solid rgba(108, 117, 125, 0.5);
+    border-radius: 5px;
+}
+
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-t-15 {
+    margin-top: 1.7rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-05 {
+    margin-bottom: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}
+
+.m-l-1 {
+    margin-left: 1rem;
+}
+
+.c-margin-b-tset {
+    margin-bottom: 1.5rem;
+}
