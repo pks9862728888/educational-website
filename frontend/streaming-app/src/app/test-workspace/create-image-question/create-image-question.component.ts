@@ -7,8 +7,9 @@ import { addQuestionFormValidator, islengthWithin20Validator } from 'src/app/cus
 import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
 import { SetFileQuestionsInterface,
          SetImageQuestionsInterface,
+         TestConceptLabelInterface,
          TestMinDetailsResponseForImageTestQuestionCreation,
-         TestQuestionSet } from 'src/app/models/test.model';
+         TestQuestionSetInterface } from 'src/app/models/test.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
@@ -44,6 +45,9 @@ export class CreateImageQuestionComponent implements OnInit {
 
   addQuestionSectionIndicator: boolean;
 
+  addConceptLabelIndicator: boolean;
+  deleteConceptLabelIndicator: boolean;
+
   progress = 0;
   loadedFileSize = 0;
   totalFileSize = 0;
@@ -57,13 +61,10 @@ export class CreateImageQuestionComponent implements OnInit {
   getFileSize = getFileSize;
   QUESTION_SECTION_VIEW_TYPE_FORM_FIELD_OPTIONS = QUESTION_SECTION_VIEW_TYPE_FORM_FIELD_OPTIONS;
 
-  questionLabels = [
-    {name: 'Label', id: 1}
-  ];
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
   testDetails: TestMinDetailsResponseForImageTestQuestionCreation;
-  selectedSet: TestQuestionSet;
+  selectedSet: TestQuestionSetInterface;
   setQuestions: SetFileQuestionsInterface;
   filename: string;
 
@@ -147,7 +148,7 @@ export class CreateImageQuestionComponent implements OnInit {
         this.currentTestSlug,
         this.questionSetForm.value
       ).subscribe(
-        (result: TestQuestionSet) => {
+        (result: TestQuestionSetInterface) => {
           this.submitIndicatorAddQuestionSet = false;
           this.testDetails.test_sets.push(result);
           this.selectedSet = result;
@@ -199,7 +200,7 @@ export class CreateImageQuestionComponent implements OnInit {
     });
   }
 
-  deleteQuestionSet(selectedSet: TestQuestionSet) {
+  deleteQuestionSet(selectedSet: TestQuestionSetInterface) {
     this.selectedSet.delete = true;
     this.instituteApiService.deleteQuestionSet(
       this.currentInstituteSlug,
@@ -231,7 +232,7 @@ export class CreateImageQuestionComponent implements OnInit {
     );
   }
 
-  getQuestionSetQuestions(questionSet: TestQuestionSet, retry = false) {
+  getQuestionSetQuestions(questionSet: TestQuestionSetInterface, retry = false) {
     this.showAddQuestionSetForm = false;
 
     if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {
@@ -304,32 +305,106 @@ export class CreateImageQuestionComponent implements OnInit {
     console.log(data);
   }
 
-  addQuestionLabelEvent(event: MatChipInputEvent): void {
+  addConceptLabelEvent(event: MatChipInputEvent): void {
     const input = event.input;
-    const value = event.value;
+    let value = event.value;
+
+    if (value) {
+      value = value.trim();
+    }
 
     if  (value.length > 30) {
       this.uiService.showSnackBar('Concept labels should not exceed 30 characters.', 3000);
     } else {
-      // Add our question label
-      if ((value || '').trim()) {
-        this.questionLabels.push({name: value.trim(), id: null});
-      }
 
-      // Reset the input value
-      if (input) {
-        input.value = '';
+      if (!value) {
+        this.uiService.showSnackBar('Concept label should not be blank.', 3000);
+      } else {
+        this.addConceptLabelIndicator = true;
+        this.instituteApiService.addTestConceptLabel(
+          this.currentInstituteSlug,
+          this.currentSubjectSlug,
+          this.currentTestSlug,
+          { name: value}
+        ).subscribe(
+          (result: TestConceptLabelInterface) => {
+            this.addConceptLabelIndicator = false;
+
+            // Add question label
+            this.testDetails.labels.push(result);
+
+            // Reset the input value
+            if (input) {
+              input.value = '';
+            }
+
+            this.uiService.showSnackBar('Concept label added successfully!', 2000);
+          },
+          errors => {
+            this.addConceptLabelIndicator = false;
+            if (errors.error) {
+              if (errors.error.error) {
+                this.uiService.showSnackBar(errors.error.error, 2000);
+              } else {
+                this.uiService.showSnackBar('Error! Unable to add concept label at this moment.', 2000);
+              }
+            } else {
+              this.uiService.showSnackBar('Error! Unable to add concept label at this moment.', 2000);
+            }
+          }
+        );
       }
     }
   }
 
-  removeQuestionLabel(label) {
-    console.log(label);
-    const index = this.questionLabels.indexOf(label);
+  removeConceptLabelConfirm(label) {
+    const dialogRef = this.dialog.open(UiDialogComponent, {
+      data: {
+        // tslint:disable-next-line: max-line-length
+        title: 'Deleting concept label will remove this label from all other questions of ALL THE QUESTION SETS of this test. Do you want to delete label "' + label.name + '"?',
+        trueStringDisplay: 'Yes',
+        falseStringDisplay: 'No'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.removeConceptLabel(label);
+      }
+    });
+  }
 
-    if (index >= 0) {
-      this.questionLabels.splice(index, 1);
-    }
+  removeConceptLabel(label) {
+    this.deleteConceptLabelIndicator = true;
+    this.instituteApiService.deleteConceptLabel(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      label.id.toString()
+    ).subscribe(
+      () => {
+        this.deleteConceptLabelIndicator = false;
+        const index = this.testDetails.labels.indexOf(label);
+
+        if (index >= 0) {
+          this.testDetails.labels.splice(index, 1);
+        }
+
+        // Remove concept label from the current selected question set
+
+        this.uiService.showSnackBar('Concept label deleted successfully', 3000);
+      },
+      errors => {
+        this.deleteConceptLabelIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to delete concept label at the moment.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to delete concept label at the moment.', 3000);
+        }
+      }
+    );
   }
 
   findIndexInArray(array, id: number) {

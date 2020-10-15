@@ -7,7 +7,7 @@ import { islengthWithin20Validator } from 'src/app/custom.validator';
 import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
 import { SetFileQuestionsInterface,
          TestMinDetailsResponseForFileTestQuestionCreation,
-         TestQuestionSet } from 'src/app/models/test.model';
+         TestQuestionSetInterface } from 'src/app/models/test.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
@@ -48,7 +48,7 @@ export class CreateFileQuestionComponent implements OnInit {
   getFileSize = getFileSize;
 
   testDetails: TestMinDetailsResponseForFileTestQuestionCreation;
-  selectedSet: TestQuestionSet;
+  selectedSet: TestQuestionSetInterface;
   setQuestions: SetFileQuestionsInterface;
   filename: string;
 
@@ -125,7 +125,7 @@ export class CreateFileQuestionComponent implements OnInit {
         this.currentTestSlug,
         this.questionSetForm.value
       ).subscribe(
-        (result: TestQuestionSet) => {
+        (result: TestQuestionSetInterface) => {
           this.submitIndicatorAddQuestionSet = false;
           this.testDetails.test_sets.push(result);
           this.selectedSet = result;
@@ -177,7 +177,7 @@ export class CreateFileQuestionComponent implements OnInit {
     });
   }
 
-  deleteQuestionSet(selectedSet: TestQuestionSet) {
+  deleteQuestionSet(selectedSet: TestQuestionSetInterface) {
     this.selectedSet.delete = true;
     this.instituteApiService.deleteQuestionSet(
       this.currentInstituteSlug,
@@ -209,7 +209,7 @@ export class CreateFileQuestionComponent implements OnInit {
     );
   }
 
-  getQuestionSetQuestions(questionSet: TestQuestionSet, retry = false) {
+  getQuestionSetQuestions(questionSet: TestQuestionSetInterface, retry = false) {
     this.showAddQuestionSetForm = false;
 
     if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {

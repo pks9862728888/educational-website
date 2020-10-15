@@ -280,6 +280,22 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/delete-test-set`;
   }
 
+  addTestConceptLabelUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string
+    ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/add-test-concept-label`;
+  }
+
+  deleteTestConceptLabelUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    labelId: string
+    ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${labelId}/delete-test-concept-label`;
+  }
+
   getUploadFileQuestionPaperUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1053,6 +1069,21 @@ export class InstituteApiService {
   deleteQuestionSet(instituteSlug: string, subjectSlug: string, testSlug: string, setId: string) {
     return this.httpClient.delete(
       this.getDeleteQuestionSetUrl(instituteSlug, subjectSlug, testSlug, setId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addTestConceptLabel(instituteSlug: string, subjectSlug: string, testSlug: string, data: any) {
+    return this.httpClient.post(
+      this.addTestConceptLabelUrl(instituteSlug, subjectSlug, testSlug),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteConceptLabel(instituteSlug: string, subjectSlug: string, labelId: string) {
+    return this.httpClient.delete(
+      this.deleteTestConceptLabelUrl(instituteSlug, subjectSlug, labelId),
       { headers: this.getAuthHeader() }
     );
   }

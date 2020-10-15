@@ -16,13 +16,21 @@
         <h2 class="faded-blue-color m-b-05">Concept labels:</h2>
         <mat-form-field class="w-100" appearance="outline">
             <mat-chip-list #chipList aria-label="Question labels">
-                <mat-chip color="accent" selected *ngFor="let label of questionLabels" [selectable]="false" [removable]="!testDetails.test_live" (removed)="removeQuestionLabel(label)">
+                <mat-chip color="accent" selected *ngFor="let label of testDetails.labels" [selectable]="false" [removable]="!testDetails.test_live" (removed)="removeConceptLabelConfirm(label)">
                     {{label.name}}
                     <mat-icon matChipRemove *ngIf="!testDetails.test_live">cancel</mat-icon>
                 </mat-chip>
-                <input placeholder="Add concept label for question..." [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addQuestionLabelEvent($event)">
+                <input placeholder="Add concept label for question..." [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addConceptLabelEvent($event)">
             </mat-chip-list>
         </mat-form-field>
+        <div *ngIf="addConceptLabelIndicator" class="d-flex align-center m-b-1">
+            <mat-progress-spinner mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>
+            Adding concept label...
+        </div>
+        <div *ngIf="deleteConceptLabelIndicator" class="d-flex align-center m-b-1">
+            <mat-progress-spinner mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>
+            Deleting concept label...
+        </div>
         <h2 class="faded-blue-color m-b-05">Question sets:</h2>
         <div class="q-sets m-b-05" [hidden]="showAddQuestionSetForm && testDetails.test_sets.length === 0">
             <mat-chip-list aria-label="Question set selection">

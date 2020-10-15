@@ -14,7 +14,7 @@ export interface TestMinDetailsResponseForFileTestQuestionCreation {
   test_live: boolean;
   subject_name: string;
   class_name: string;
-  test_sets: TestQuestionSet[];
+  test_sets: TestQuestionSetInterface[];
   first_set_questions: SetFileQuestionsInterface;
 
   // For unscheduled test
@@ -35,8 +35,9 @@ export interface TestMinDetailsResponseForImageTestQuestionCreation {
   test_live: boolean;
   subject_name: string;
   class_name: string;
-  test_sets: TestQuestionSet[];
+  test_sets: TestQuestionSetInterface[];
   first_set_questions: SetImageQuestionsInterface;
+  labels?: TestConceptLabelInterface[];
 
   // For unscheduled test
   test_schedule?: number;
@@ -46,7 +47,12 @@ export interface TestMinDetailsResponseForImageTestQuestionCreation {
   question_category: string;
 }
 
-export interface TestQuestionSet {
+export interface TestConceptLabelInterface {
+  id: number;
+  name: string;
+}
+
+export interface TestQuestionSetInterface {
   id: number;
   set_name: string;
   verified: boolean;
