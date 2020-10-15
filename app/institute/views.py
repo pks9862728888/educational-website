@@ -6664,7 +6664,7 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get(self, *args, **kwargs):
-        """Only subject, class incharge, admin can view."""
+        """Only subject incharge can view."""
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')
         ).only('subject_slug').first()
@@ -6677,7 +6677,7 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
             to=subject,
             invitee=self.request.user
         ).exists():
-            return Response({'error': _('Permission denied [Class in-charge only]')},
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Getting test details
@@ -6705,6 +6705,18 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
             response['no_of_optional_section_answer'] = test.no_of_optional_section_answer
             response['question_category'] = test.question_category
 
+        # Getting test labels
+        if test.question_mode != models.QuestionMode.FILE:
+            response['labels'] = list()
+            for label in models.SubjectTestConceptLabels.objects.filter(
+                test=test
+            ):
+                response['labels'].append({
+                    'id': label.pk,
+                    'name': label.name
+                })
+
+        # Getting questions of first test set (if any)
         for ts in models.SubjectTestSets.objects.filter(
             test=test
         ).order_by('created_on'):
@@ -6713,11 +6725,13 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                 'set_name': ts.set_name,
                 'verified': ts.verified,
                 'active': ts.active,
+                'mark_as_final': ts.mark_as_final,
                 'created_on': ts.created_on
             })
 
         if len(response['test_sets']) > 0:
             # Find the questions of first set
+            # File type question paper
             if test.question_mode == models.QuestionMode.FILE:
                 question_set = models.SubjectFileTestQuestion.objects.filter(
                     test=test,
@@ -6731,6 +6745,13 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                     }
                 else:
                     response['first_set_questions'] = None
+
+            # Image mode question paper
+            elif test.question_mode == models.QuestionMode.IMAGE:
+                pass
+            # Typed question paper
+            else:
+                pass
 
         return Response(response, status=status.HTTP_200_OK)
 
@@ -6866,6 +6887,7 @@ class InstituteAddQuestionSetView(APIView):
             'set_name': test_set.set_name,
             'verified': test_set.verified,
             'active': test_set.active,
+            'mark_as_final': test_set.mark_as_final,
             'created_on': test_set.created_on
         }, status=status.HTTP_201_CREATED)
 
@@ -7049,6 +7071,60 @@ class InstituteDeleteFileQuestionPaperView(APIView):
         question_set.mark_as_final = False
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class InstituteAddTestConceptLabelView(APIView):
+    """View for adding test concept label"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Active LMS CMS license not found or expired')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
+        ).first()
+
+        if not test:
+            return Response({'error': _('Test not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            label = models.SubjectTestConceptLabels.objects.create(
+                test=test,
+                name=self.request.get('name')
+            )
+            return Response({'id': label.pk, 'name': label.name},
+                            status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class InstituteDeleteTestSetView(APIView):
