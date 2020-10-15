@@ -39,6 +39,11 @@ p {
     padding: 1rem;
 }
 
+.add-question-container {
+    background-color: rgba(255, 255, 255, 0.06);
+    padding: 1rem;
+}
+
 
 /* Styling form fields */
 
@@ -101,12 +106,93 @@ p {
     border-radius: 5px;
 }
 
+.section-no-container,
+.section-questions-container {
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.section-no {
+    height: 40px;
+    width: 40px;
+    background-color: rgba(255, 255, 255, 0.14);
+    border-radius: 50%;
+}
+
+.section-no:hover {
+    height: 41px;
+    width: 41px;
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+.added-label {
+    background-color: rgba(108, 117, 125, 0.05);
+    padding: 0.5rem;
+    border: 1px solid #6c757d;
+    color: #bb86fc;
+}
+
+
+/* Styling for images */
+
+.image {
+    max-width: 100%;
+    max-height: auto;
+}
+
+:host .mat-card {
+    overflow: hidden;
+    object-fit: contain;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    background-color: #000;
+    pointer-events: none;
+}
+
+.h-100 {
+    height: 100%;
+}
+
+.p-1rem {
+    padding: 1rem;
+}
+
+.p-05rem {
+    padding: 0.5rem;
+}
+
+.p-l-1 {
+    padding-left: 1rem;
+}
+
+.p-r-1 {
+    padding-right: 1rem;
+}
+
+.p-t-05 {
+    padding-top: 0.5rem;
+}
+
+.p-b-05 {
+    padding-bottom: 0.5rem;
+}
+
+.m-05rem {
+    margin: 0.5rem;
+}
+
 .m-t-05 {
     margin-top: 0.5rem;
 }
 
 .m-t-1 {
     margin-top: 1rem;
+}
+
+.m-t-2 {
+    margin-top: 2rem;
 }
 
 .m-t-15 {
@@ -125,6 +211,10 @@ p {
     margin-bottom: 1rem;
 }
 
+.m-b-2 {
+    margin-bottom: 2rem;
+}
+
 .m-l-05 {
     margin-left: 0.5rem;
 }
@@ -135,4 +225,8 @@ p {
 
 .c-margin-b-tset {
     margin-bottom: 1.5rem;
+}
+
+.m-b-05-nlc:not(:last-child) {
+    margin-bottom: 0.5rem;
 }

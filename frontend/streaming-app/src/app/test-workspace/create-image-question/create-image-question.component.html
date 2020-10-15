@@ -32,7 +32,7 @@
             Deleting concept label...
         </div>
         <h2 class="faded-blue-color m-b-05">Question sets:</h2>
-        <div class="q-sets m-b-05" [hidden]="showAddQuestionSetForm && testDetails.test_sets.length === 0">
+        <div class="q-sets m-b-1" [hidden]="showAddQuestionSetForm && testDetails.test_sets.length === 0">
             <mat-chip-list aria-label="Question set selection">
                 <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="set.id !== selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
                 <mat-chip color="primary" *ngIf="!showAddQuestionSetForm" selected (click)="toggleAddQuestionSetForm()">Add Question Set</mat-chip>
@@ -61,7 +61,7 @@
         <p *ngIf="testDetails.test_sets.length !== 0 && !showAddQuestionSetForm && !selectedSet">No Question Set Selected</p>
         <div *ngIf="selectedSet && !showAddQuestionSetForm">
             <div class="selected-set-details">
-                <h3 class="faded-blue-color m-b-05">{{ selectedSet.set_name }}</h3>
+                <h3 class="faded-blue-color m-b-05">Selected Set: {{ selectedSet.set_name }}</h3>
                 <p class="m-b-05"><span *ngIf="!selectedSet.verified">Not Verified</span><span *ngIf="selectedSet.verified">Verified</span> | <span *ngIf="!selectedSet.active">Not active</span><span *ngIf="selectedSet.active">Active</span> | <span *ngIf="!selectedSet.mark_as_final">Editable</span>
                     <span *ngIf="selectedSet.mark_as_final">Un-editable</span>
                 </p>
@@ -71,7 +71,131 @@
             <app-ui-error-text *ngIf="loadingSetQuestionErrorText" [errorText]="loadingSetQuestionErrorText" [hideCloseButton]="true"></app-ui-error-text>
             <app-ui-reload *ngIf="reloadSetQuestions" [errorText]="'Unable to load questions.'" (retryEvent)="getQuestionSetQuestions(selectedSet, true)"></app-ui-reload>
             <div *ngIf="!loadingSetQuestionsIndicator && !loadingSetQuestionErrorText && !reloadSetQuestions">
-                <h2 class="faded-blue-color m-t-1 m-b-1">Create question paper:</h2>
+                <div class="d-flex align-center justify-content-between">
+                    <h2 class="faded-blue-color m-t-2" [class.m-b-2]="!mq.matches" [class.m-b-1]="mq.matches">Create question paper -> {{ selectedSet.set_name }}:</h2>
+                    <button mat-flat-button class="green-button m-l-05" *ngIf="!mq.matches && selectedSectionData.questions.length > 0">
+                      <div class="d-flex align-center">
+                        <mat-icon class="cursor-pointer preview-icon m-r-05">visibility</mat-icon>View Question Set
+                      </div>
+                    </button>
+                </div>
+                <button mat-flat-button class="green-button m-b-2 w-100" *ngIf="mq.matches && selectedSectionData.questions.length > 0">
+                  <div class="d-flex justify-content-center align-center">
+                    <mat-icon class="cursor-pointer preview-icon m-r-05">visibility</mat-icon>View Question Set
+                  </div>
+                </button>
+                <div class="row m-b-1" *ngIf="mq.matches">
+                    <div class="col">
+                        <div class="section-no-container p-t-05 p-b-05 p-l-1 p-r-1">
+                            <div class="row">
+                                <div *ngFor="let section of setQuestions; let sectionIdx = index" (click)="selectSectionIdx(sectionIdx)" class="section-no cursor-pointer d-flex justify-content-center align-items-center m-05rem mat-elevation-z1">
+                                    <h3 class="expansion-panel-header-color">{{ sectionIdx + 1 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row m-b-1">
+                    <div class="m-l-1 section-no-container p-05rem h-100" *ngIf="!mq.matches">
+                        <div *ngFor="let section of setQuestions; let sectionIdx = index" (click)="selectSectionIdx(sectionIdx)" class="section-no cursor-pointer d-flex justify-content-center align-items-center mat-elevation-z1 m-b-05-nlc">
+                            <h3 class="expansion-panel-header-color">{{ sectionIdx + 1}}</h3>
+                        </div>
+                    </div>
+                    <div class="col h-100" [class.col-12]="mq.matches">
+                        <div class="section-questions-container p-1rem">
+                            <div class="d-flex justify-content-between align-center m-b-05">
+                                <h2 class="expansion-panel-header-color"><span *ngIf="!mq.matches">Question&nbsp;</span>Group {{ selectedSectionIdx + 1 }}</h2>
+                                <div class="d-flex align-center m-l-05">
+                                    <h2 class="expansion-panel-header-color" [class.m-r-05]="!mq.matches">[ {{ findTotalMarksOfSelectedQuestionGroup() }} marks ]</h2>
+                                    <button mat-stroked-button *ngIf="!mq.matches" class="stroked-button m-r-05"><mat-icon class="edit-icon">edit</mat-icon></button>
+                                    <button mat-stroked-button *ngIf="!mq.matches" class="stroked-button"><mat-icon class="delete-icon">delete</mat-icon></button>
+                                </div>
+                            </div>
+                            <p class="expansion-panel-header-color m-b-05">
+                                <span *ngIf="selectedSectionData.answer_all_questions">Answer all questions</span>
+                                <span *ngIf="!selectedSectionData.answer_all_questions">Answer any {{ selectedSectionData.no_of_question_to_attempt }} questions</span>
+                            </p>
+                            <p class="faded-blue-color m-b-05">{{ selectedSectionData.questions.length }} questions added</p>
+                            <p class="faded-blue-color text-justify m-b-05" *ngIf="selectedSectionData.name">{{ selectedSectionData.name }}</p>
+                            <div class="d-flex align-center" *ngIf="mq.matches">
+                                <button mat-stroked-button class="stroked-button m-r-05"><mat-icon class="edit-icon">edit</mat-icon></button>
+                                <button mat-stroked-button class="stroked-button"><mat-icon class="delete-icon">delete</mat-icon></button>
+                            </div>
+                            <hr class="separator m-t-1 m-b-1" />
+                            <p *ngIf="selectedSectionData.questions.length === 0">No questions found.</p>
+                            <div *ngFor="let question of selectedSectionData.questions">
+                                <div class="d-flex justify-content-between align-center faded-blue-color m-b-05">
+                                    <h3>Question 1:</h3>
+                                    <h3>12 marks</h3>
+                                </div>
+                                <div class="m-b-1 m-t-1 added-label d-flex justify-content-between align-center">
+                                    <h3>Label 1</h3>
+                                    <mat-icon class="delete-icon cursor-pointer m-l-05">delete</mat-icon>
+                                </div>
+                                <p class="text-justify m-b-1">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptate eaque nulla cupiditate ipsa ex odio perspiciatis qui, autem aperiam obcaecati nihil harum nemo id consequuntur earum et nam maiores! Ipsum?</p>
+                                <mat-card>
+                                    <img class="image" src="../../../assets/imgs/background_1200x628.png" alt="question 1" onContextMenu="return false;">
+                                </mat-card>
+                                <div class="d-flex justify-content-end m-t-1">
+                                    <button mat-stroked-button class="stroked-button m-r-05">
+                                  <div class="d-flex align-center">
+                                    <mat-icon class="edit-icon m-r-05">edit</mat-icon>Question
+                                  </div>
+                                </button>
+                                    <button mat-stroked-button class="stroked-button">
+                                  <div class="d-flex align-center">
+                                    <mat-icon class="delete-icon m-r-05">delete</mat-icon>Question
+                                  </div>
+                                </button>
+                                </div>
+                            </div>
+                            <div *ngIf="showAddQuestionForm" class="m-t-1 mat-elevation-z1">
+                                <div class="d-flex justify-content-between align-center upload-container-header">
+                                    <h3 class="expansion-panel-header-color">Add question form:</h3>
+                                    <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="toggleAddQuestionInSection()" [hidden]="addQuestionIndicator">close</mat-icon>
+                                </div>
+                                <div class="add-question-container">
+                                    <form [formGroup]="addQuestionForm">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Question (optional)</mat-label>
+                                            <input matInput formControlName="text" placeholder="Question (optional)">
+                                        </mat-form-field>
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Mark *</mat-label>
+                                            <input matInput formControlName="marks" placeholder="Mark (required)">
+                                            <mat-error *ngIf="addQuestionForm.controls.marks.errors?.required">Mark is required.</mat-error>
+                                            <mat-error *ngIf="addQuestionForm.controls.marks.errors?.postiveIntegerValidator">Mark should be a positive number.</mat-error>
+                                        </mat-form-field>
+                                        <input type="file" formControlName="file" id="image-file" placeholder="Image file">
+                                        <div *ngIf="addQuestionForm.controls.file.errors?.required">
+                                            <mat-hint class="yellow-text">Image file of .png, .jpg, or .jpeg format is required.</mat-hint>
+                                        </div>
+                                    </form>
+                                    <hr class="separator m-t-1 m-b-1" />
+                                    <div class="d-flex align-center">
+                                        <button mat-flat-button class="reset-button m-r-05" [disabled]="addQuestionIndicator" (click)="resetAddQuestionForm()">Reset</button>
+                                        <button mat-flat-button class="green-button" [disabled]="addQuestionForm.invalid || addQuestionIndicator" (click)="addQuestion(selectedSectionData)">
+                                          <div class="d-flex align-center">
+                                            <mat-progress-spinner *ngIf="addQuestionIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Submit
+                                          </div>
+                                        </button>
+                                    </div>
+                                    <mat-progress-bar class="m-t-1" *ngIf="addQuestionIndicator" mode="determinate" [value]="progress"></mat-progress-bar>
+                                    <div class="d-flex justify-content-end m-t-02" *ngIf="addQuestionIndicator">
+                                        {{ getFileSize(loadedFileSize) }} / {{ getFileSize(totalFileSize) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <button mat-stroked-button class="stroked-button m-t-1 d-block" *ngIf="!showAddQuestionForm" (click)="toggleAddQuestionInSection()">
+                              <div class="d-flex align-center">
+                                <mat-icon class="add-icon m-r-05">add</mat-icon>Question
+                              </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- For adding question section -->
                 <div *ngIf="showAddSectionForm" class="m-t-1">
                     <div class="d-flex justify-content-between align-center upload-container-header">
                         <h3 class="expansion-panel-header-color">Add question group form:</h3>
@@ -92,7 +216,8 @@
                                 <mat-form-field appearance="outline" class="w-100" [hidden]="addQuestionSectionForm.value.answer_all_questions">
                                     <mat-label>Number of questions to answer:</mat-label>
                                     <input matInput formControlName="no_of_question_to_attempt" placeholder="Number of questions to attempt">
-                                    <mat-hint *ngIf="addQuestionSectionForm.errors?.numberOfQuestionToAnswerError" class="yellow-text">Should be a positive number</mat-hint>
+                                    <mat-hint *ngIf="addQuestionSectionForm.errors?.numberShouldBeInteger" class="yellow-text">Should be a positive integer</mat-hint>
+                                    <mat-hint *ngIf="addQuestionSectionForm.errors?.numberShouldBeGreaterThanZeroError" class="yellow-text">Should be a positive integer > 0</mat-hint>
                                 </mat-form-field>
                                 <mat-form-field appearance="outline" class="w-100">
                                     <mat-label>Title of question group (optional)</mat-label>
@@ -110,7 +235,7 @@
                               <div class="d-flex align-center">
                                 <mat-progress-spinner *ngIf="addQuestionSectionIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Submit
                               </div>
-                          </button>
+                            </button>
                         </div>
                     </div>
                 </div>

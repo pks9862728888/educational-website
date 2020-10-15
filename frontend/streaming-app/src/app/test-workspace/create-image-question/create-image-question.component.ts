@@ -3,13 +3,12 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { addQuestionFormValidator, islengthWithin20Validator } from 'src/app/custom.validator';
+import { addQuestionFormValidator, islengthWithin20Validator, postiveIntegerValidator } from 'src/app/custom.validator';
 import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
-import { SetFileQuestionsInterface,
-         SetImageQuestionsInterface,
-         TestConceptLabelInterface,
+import { TestConceptLabelInterface,
          TestMinDetailsResponseForImageTestQuestionCreation,
-         TestQuestionSetInterface } from 'src/app/models/test.model';
+         TestQuestionSetInterface,
+         ImageQuestionsSectionInterface } from 'src/app/models/test.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
@@ -31,7 +30,7 @@ export class CreateImageQuestionComponent implements OnInit {
   currentInstituteRole: string;
 
   questionSetForm: FormGroup;
-  uploadQuestionForm: FormGroup;
+  addQuestionForm: FormGroup;
   addQuestionSectionForm: FormGroup;
 
   loadingIndicator: boolean;
@@ -48,6 +47,8 @@ export class CreateImageQuestionComponent implements OnInit {
   addConceptLabelIndicator: boolean;
   deleteConceptLabelIndicator: boolean;
 
+  addQuestionIndicator: boolean;
+
   progress = 0;
   loadedFileSize = 0;
   totalFileSize = 0;
@@ -55,6 +56,7 @@ export class CreateImageQuestionComponent implements OnInit {
   showAddQuestionSetForm = false;
   showAddSectionForm = false;
   previewQuestionPaper = false;
+  showAddQuestionForm = false;
 
   QUESTION_SECTION_VIEW_TYPE = QUESTION_SECTION_VIEW_TYPE;
   getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
@@ -65,8 +67,11 @@ export class CreateImageQuestionComponent implements OnInit {
 
   testDetails: TestMinDetailsResponseForImageTestQuestionCreation;
   selectedSet: TestQuestionSetInterface;
-  setQuestions: SetFileQuestionsInterface;
+  setQuestions: ImageQuestionsSectionInterface[];
   filename: string;
+
+  selectedSectionIdx: number;
+  selectedSectionData: ImageQuestionsSectionInterface;
 
   constructor(
     private media: MediaMatcher,
@@ -85,9 +90,11 @@ export class CreateImageQuestionComponent implements OnInit {
 
   ngOnInit(): void {
     this.getTestDetails();
+
     this.questionSetForm = this.formBuilder.group({
       set_name: [null, [Validators.required, islengthWithin20Validator]]
     });
+
     this.addQuestionSectionForm = this.formBuilder.group({
       name: [null],
       section_mandatory: [null, [Validators.required]],
@@ -95,8 +102,11 @@ export class CreateImageQuestionComponent implements OnInit {
       answer_all_questions: [null, [Validators.required]],
       no_of_question_to_attempt: [null, [Validators.required]]
     }, { validator: [addQuestionFormValidator, ] });
-    this.uploadQuestionForm = this.formBuilder.group({
-      file: [null, [Validators.required]]
+
+    this.addQuestionForm = this.formBuilder.group({
+      file: [null, [Validators.required]],
+      text: [null],
+      marks: [null, [Validators.required, postiveIntegerValidator]]
     });
   }
 
@@ -115,6 +125,10 @@ export class CreateImageQuestionComponent implements OnInit {
           this.selectedSet = result.test_sets[0];
         }
         this.setQuestions = result.first_set_questions;
+        if (this.setQuestions) {
+          this.selectedSectionIdx = 0;
+          this.selectedSectionData = this.setQuestions[0];
+        }
         console.log(result);
       },
       errors => {
@@ -236,7 +250,8 @@ export class CreateImageQuestionComponent implements OnInit {
     this.showAddQuestionSetForm = false;
 
     if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {
-      this.selectedSet = questionSet;
+      this
+.selectedSet = questionSet;
       this.setQuestions = null;
       this.loadingSetQuestionsIndicator = true;
       this.loadingSetQuestionErrorText = null;
@@ -247,7 +262,7 @@ export class CreateImageQuestionComponent implements OnInit {
         this.currentTestSlug,
         this.selectedSet.id.toString()
       ).subscribe(
-        (result: SetImageQuestionsInterface) => {
+        (result: ImageQuestionsSectionInterface[]) => {
           this.loadingSetQuestionsIndicator = false;
           this.setQuestions = result;
           console.log(result);
@@ -295,6 +310,7 @@ export class CreateImageQuestionComponent implements OnInit {
 
   addQuestionSection() {
     const data = {...this.addQuestionSectionForm.value };
+    data.no_of_question_to_attempt = +data.no_of_question_to_attempt;
     if (data.answer_all_questions) {
       data.no_of_question_to_attempt = null;
     }
@@ -311,9 +327,12 @@ export class CreateImageQuestionComponent implements OnInit {
       this.selectedSet.id.toString(),
       data
     ).subscribe(
-      result => {
+      (result: ImageQuestionsSectionInterface) => {
         this.toggleAddQuestionSection();
         this.addQuestionSectionIndicator = false;
+        console.log(result);
+        this.setQuestions.push(result);
+        this.uiService.showSnackBar('Question group added successfully!', 2000);
       },
       errors => {
         this.addQuestionSectionIndicator = false;
@@ -431,6 +450,47 @@ export class CreateImageQuestionComponent implements OnInit {
         }
       }
     );
+  }
+
+  toggleAddQuestionInSection() {
+    this.resetAddQuestionForm();
+    this.addQuestionIndicator = false;
+    this.showAddQuestionForm = !this.showAddQuestionForm;
+  }
+
+  resetAddQuestionForm() {
+    this.addQuestionForm.reset();
+  }
+
+  addQuestion(selectedSectionData: ImageQuestionsSectionInterface) {
+    const file: File = (document.getElementById('image-file') as HTMLInputElement).files[0];
+
+    if (!file.type.includes('image/jpeg') && !file.type.includes('image/jpg') && !file.type.includes('image/png')) {
+      this.uiService.showSnackBar('Only .jpeg, .jpg, and .png formats are supported.', 3000);
+      this.addQuestionForm.patchValue({
+        file: null
+      });
+    } else {
+      this.addQuestionIndicator = true;
+      this.totalFileSize = file.size;
+      this.loadedFileSize = 0;
+      console.log(this.addQuestionForm.value);
+      this.addQuestionForm.disable();
+    }
+  }
+
+  selectSectionIdx(index: number) {
+    this.selectedSectionIdx = index;
+    this.showAddQuestionForm = false;
+    this.selectedSectionData = this.setQuestions[index];
+  }
+
+  findTotalMarksOfSelectedQuestionGroup() {
+    if (this.selectedSectionData && this.selectedSectionData.questions.length > 0) {
+      return 100;
+    } else {
+      return 0;
+    }
   }
 
   findIndexInArray(array, id: number) {

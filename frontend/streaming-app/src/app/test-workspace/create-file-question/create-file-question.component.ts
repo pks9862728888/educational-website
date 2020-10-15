@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { islengthWithin20Validator } from 'src/app/custom.validator';
 import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
-import { SetFileQuestionsInterface,
+import { FileQuestionsInterface,
          TestMinDetailsResponseForFileTestQuestionCreation,
          TestQuestionSetInterface } from 'src/app/models/test.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
@@ -49,7 +49,7 @@ export class CreateFileQuestionComponent implements OnInit {
 
   testDetails: TestMinDetailsResponseForFileTestQuestionCreation;
   selectedSet: TestQuestionSetInterface;
-  setQuestions: SetFileQuestionsInterface;
+  setQuestions: FileQuestionsInterface;
   filename: string;
 
   constructor(
@@ -224,7 +224,7 @@ export class CreateFileQuestionComponent implements OnInit {
         this.currentTestSlug,
         this.selectedSet.id.toString()
       ).subscribe(
-        (result: SetFileQuestionsInterface) => {
+        (result: FileQuestionsInterface) => {
           this.loadingSetQuestionsIndicator = false;
           this.setQuestions = result;
           console.log(result);
@@ -246,7 +246,6 @@ export class CreateFileQuestionComponent implements OnInit {
   }
 
   uploadQuestionPaper() {
-    this.loadedFileSize = 0;
     const file: File = (document.getElementById('pdf-file-upload') as HTMLInputElement).files[0];
 
     if (!file.type.includes('application/pdf') || !file.name.endsWith('.pdf') || file.name.includes('.exe') || file.name.includes('.sh')) {
@@ -258,6 +257,8 @@ export class CreateFileQuestionComponent implements OnInit {
         3000
       );
     } else {
+      this.loadedFileSize = 0;
+      this.totalFileSize = file.size;
       this.uploadQuestionPaperIndicator = true;
       this.uploadQuestionPaperForm.disable();
       this.uploadError = null;

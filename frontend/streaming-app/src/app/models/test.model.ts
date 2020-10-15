@@ -15,7 +15,7 @@ export interface TestMinDetailsResponseForFileTestQuestionCreation {
   subject_name: string;
   class_name: string;
   test_sets: TestQuestionSetInterface[];
-  first_set_questions: SetFileQuestionsInterface;
+  first_set_questions: FileQuestionsInterface;
 
   // For unscheduled test
   test_schedule?: number;
@@ -62,7 +62,7 @@ export interface TestQuestionSetInterface {
   delete?: boolean;
 }
 
-export interface SetFileQuestionsInterface {
+export interface FileQuestionsInterface {
   id: number;
   file: string;
   delete?: boolean;
