@@ -6505,7 +6505,7 @@ class InstituteSubjectAddTestView(APIView):
         license_ = get_active_common_license(institute)
 
         if not license_:
-            return Response({'error': _('Institute license not found.')},
+            return Response({'error': _('Institute license not found or expired.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         lecture = None
@@ -6592,8 +6592,9 @@ class InstituteSubjectAddTestView(APIView):
                 test.delete()
             return Response({'error': str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
-            return Response({'error': _('Unknown internal server error occurred.')},
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled internal server error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

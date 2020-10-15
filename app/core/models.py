@@ -2555,7 +2555,7 @@ class SubjectTest(models.Model):
         if float(self.total_marks) <= 0.0:
             raise ValueError(_('Total marks should be a > 0.'))
 
-        if self.no_of_optional_section_answer < 0:
+        if int(self.no_of_optional_section_answer) < 0:
             raise ValueError(_('No of optional section answer should be a positive integer.'))
 
         if self.question_mode == QuestionMode.TYPED or self.question_mode == QuestionMode.IMAGE:
