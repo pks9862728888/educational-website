@@ -6664,7 +6664,7 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
     permission_classes = (IsAuthenticated, IsTeacher)
 
     def get(self, *args, **kwargs):
-        """Only subject incharge can view."""
+        """Only subject in-charge can access."""
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')
         ).only('subject_slug').first()
@@ -6746,12 +6746,35 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                 else:
                     response['first_set_questions'] = None
 
-            # Image mode question paper
-            elif test.question_mode == models.QuestionMode.IMAGE:
-                pass
-            # Typed question paper
-            else:
-                pass
+            # Image mode or typed question paper
+            elif test.question_mode == models.QuestionMode.IMAGE or test.question_mode == models.QuestionMode.TYPED:
+                response['first_set_questions'] = {
+                    'question_sections': list()
+                }
+
+                for qs in models.SubjectTestQuestionSection.objects.filter(
+                    test=test,
+                    set__pk=response['test_sets'][0]['id']
+                ).order_by('order'):
+                    res = {
+                        'section_id': qs.pk,
+                        'name': qs.name,
+                        'order': qs.order,
+                        'view': qs.view,
+                        'no_of_question_to_attempt': qs.no_of_question_to_attempt,
+                        'answer_all_questions': qs.answer_all_questions
+                    }
+                    questions = list()
+
+                    if test.question_mode == models.QuestionMode.IMAGE:
+                        # Find image test questions
+                        pass
+                    else:
+                        # Find typed test questions
+                        pass
+
+                    res['questions'] = questions
+                    response['first_set_questions']['question_sections'].push(questions)
 
         return Response(response, status=status.HTTP_200_OK)
 
@@ -7178,6 +7201,85 @@ class InstituteDeleteTestConceptLabelView(APIView):
             return Response(status.HTTP_204_NO_CONTENT)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteAddTestQuestionSectionView(APIView):
+    """View for adding test question section"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Active LMS CMS license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
+        ).only('id').first()
+
+        if not test:
+            return Response({'error': _('Test not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question_set = models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test=test
+        ).only('pk').first()
+
+        if not question_set:
+            return Response({'error': _('Question set not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+        print(request.data)
+
+        try:
+            question_section = models.SubjectTestQuestionSection.objects.create(
+                test=test,
+                set=question_set,
+                section_mandatory=request.data.get('section_mandatory'),
+                view=request.data.get('view'),
+                no_of_question_to_attempt=request.data.get('no_of_question_to_attempt'),
+                answer_all_questions=request.data.get('answer_all_questions'),
+                name=request.data.get('name'),
+            )
+            return Response({
+                'section_id': question_section.id,
+                'section_mandatory': question_section.section_mandatory,
+                'view': question_section.view,
+                'no_of_question_to_attempt': question_section.no_of_question_to_attempt,
+                'answer_all_questions': question_section.answer_all_questions,
+                'name': question_section.name,
+            }, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Server Error! Unhandled error occurred.')},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class InstituteDeleteTestSetView(APIView):
