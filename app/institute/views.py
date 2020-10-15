@@ -6772,7 +6772,7 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                         pass
 
                     res['questions'] = questions
-                    response['first_set_questions'].push(questions)
+                    response['first_set_questions'].append(res)
 
         return Response(response, status=status.HTTP_200_OK)
 
