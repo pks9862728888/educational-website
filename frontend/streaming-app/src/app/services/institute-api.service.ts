@@ -296,6 +296,15 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${labelId}/delete-test-concept-label`;
   }
 
+  addTestQuestionSectionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/add-test-question-section`;
+  }
+
   getUploadFileQuestionPaperUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1084,6 +1093,20 @@ export class InstituteApiService {
   deleteConceptLabel(instituteSlug: string, subjectSlug: string, labelId: string) {
     return this.httpClient.delete(
       this.deleteTestConceptLabelUrl(instituteSlug, subjectSlug, labelId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addTestQuestionSection(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    data: any
+    ) {
+    return this.httpClient.post(
+      this.addTestQuestionSectionUrl(instituteSlug, subjectSlug, testSlug, setId),
+      data,
       { headers: this.getAuthHeader() }
     );
   }

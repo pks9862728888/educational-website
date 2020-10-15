@@ -36,7 +36,7 @@ export interface TestMinDetailsResponseForImageTestQuestionCreation {
   subject_name: string;
   class_name: string;
   test_sets: TestQuestionSetInterface[];
-  first_set_questions: SetImageQuestionsInterface;
+  first_set_questions: ImageQuestionsSectionInterface[];
   labels?: TestConceptLabelInterface[];
 
   // For unscheduled test
@@ -68,12 +68,18 @@ export interface SetFileQuestionsInterface {
   delete?: boolean;
 }
 
-export interface SetImageQuestionsInterface {
+export interface ImageQuestionsSectionInterface {
+  section_id: number;
+  name?: string;
+  order: number;
+  view: string;
+  no_of_question_to_attempt: number;
+  answer_all_questions: boolean;
+  questions: SubjectImageTestQuestions[];
+}
+
+export interface SubjectImageTestQuestions {
   id: number;
-  test_section: SubjectTestSection;
-  file: string;
-  marks: number;
-  delete: boolean;
 }
 
 export interface SubjectTestSection {

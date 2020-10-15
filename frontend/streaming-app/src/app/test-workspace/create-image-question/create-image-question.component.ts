@@ -294,7 +294,6 @@ export class CreateImageQuestionComponent implements OnInit {
   }
 
   addQuestionSection() {
-    this.addQuestionSectionIndicator = true;
     const data = {...this.addQuestionSectionForm.value };
     if (data.answer_all_questions) {
       data.no_of_question_to_attempt = null;
@@ -303,6 +302,33 @@ export class CreateImageQuestionComponent implements OnInit {
       data.name = '';
     }
     console.log(data);
+    this.addQuestionSectionIndicator = true;
+    this.addQuestionSectionForm.disable();
+    this.instituteApiService.addTestQuestionSection(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      this.selectedSet.id.toString(),
+      data
+    ).subscribe(
+      result => {
+        this.toggleAddQuestionSection();
+        this.addQuestionSectionIndicator = false;
+      },
+      errors => {
+        this.addQuestionSectionIndicator = false;
+        this.addQuestionSectionForm.enable();
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 2000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to question group at this moment.', 2000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to add question group at this moment.', 2000);
+        }
+      }
+    );
   }
 
   addConceptLabelEvent(event: MatChipInputEvent): void {
@@ -388,7 +414,7 @@ export class CreateImageQuestionComponent implements OnInit {
           this.testDetails.labels.splice(index, 1);
         }
 
-        // Remove concept label from the current selected question set
+        // Remove concept label from the questions of current selected question set
 
         this.uiService.showSnackBar('Concept label deleted successfully', 3000);
       },

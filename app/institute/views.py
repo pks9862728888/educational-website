@@ -6748,9 +6748,7 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
 
             # Image mode or typed question paper
             elif test.question_mode == models.QuestionMode.IMAGE or test.question_mode == models.QuestionMode.TYPED:
-                response['first_set_questions'] = {
-                    'question_sections': list()
-                }
+                response['first_set_questions'] = list()
 
                 for qs in models.SubjectTestQuestionSection.objects.filter(
                     test=test,
@@ -6774,7 +6772,7 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                         pass
 
                     res['questions'] = questions
-                    response['first_set_questions']['question_sections'].push(questions)
+                    response['first_set_questions'].push(questions)
 
         return Response(response, status=status.HTTP_200_OK)
 
@@ -7273,6 +7271,7 @@ class InstituteAddTestQuestionSectionView(APIView):
                 'no_of_question_to_attempt': question_section.no_of_question_to_attempt,
                 'answer_all_questions': question_section.answer_all_questions,
                 'name': question_section.name,
+                'questions': list()
             }, status=status.HTTP_201_CREATED)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
