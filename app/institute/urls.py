@@ -253,6 +253,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/add-test-concept-label',
          views.InstituteAddTestConceptLabelView.as_view(),
          name='add-test-concept-label'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<int:label_id>/delete-test-concept-label',
+         views.InstituteDeleteTestConceptLabelView.as_view(),
+         name='delete-test-concept-label'),
 
     # Institute Subject preview course
     path('list-all-student-institute-courses',

@@ -7110,7 +7110,7 @@ class InstituteAddTestConceptLabelView(APIView):
         test = models.SubjectTest.objects.filter(
             test_slug=kwargs.get('test_slug'),
             subject=subject
-        ).first()
+        ).only('question_mode').first()
 
         if not test:
             return Response({'error': _('Test not found.')},
@@ -7123,6 +7123,59 @@ class InstituteAddTestConceptLabelView(APIView):
             )
             return Response({'id': label.pk, 'name': label.name},
                             status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteDeleteTestConceptLabelView(APIView):
+    """View for deleting test concept label"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        """Only subject in-charge, admin can access."""
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                role=models.InstituteRole.ADMIN,
+                active=True
+            ).exists():
+                return Response({'error': _('Permission denied [Subject in-charge or Admin only]')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            label = models.SubjectTestConceptLabels.objects.filter(
+                pk=kwargs.get('label_id'),
+                test__subject=subject
+            ).first()
+
+            if not label:
+                return Response({'error': _('Concept label not found.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            label.delete()
+
+            return Response(status.HTTP_204_NO_CONTENT)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
