@@ -32,15 +32,17 @@ button.active:focus {
     outline-style: none !important;
 }
 
+.reset-button,
 .green-button,
 .red-button,
 .blue-button,
 .lightblue-button,
 .cancel-button {
-    color: #ffffff;
+    color: #fff;
     box-shadow: 1px 1px 1px #131313;
 }
 
+.reset-button:hover,
 .green-button:hover,
 .red-button:hover,
 .blue-button:hover,
@@ -87,6 +89,14 @@ button.active:focus {
 
 .cancel-button:hover:not([disabled]) {
     background-color: #BF360C;
+}
+
+.reset-button {
+    background-color: #007694;
+}
+
+.reset-button:hover:not([disabled]) {
+    background-color: #016a85;
 }
 
 .expansion-panel-header-color {
@@ -217,4 +227,8 @@ button.active:focus {
 .width-100,
 .w-100 {
     width: 100%;
+}
+
+.options {
+    background-color: #101D25;
 }

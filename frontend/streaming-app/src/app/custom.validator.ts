@@ -1,4 +1,5 @@
 import { FormGroup, ValidatorFn, ValidationErrors, FormControl, AbstractControl } from '@angular/forms';
+import { QUESTION_SECTION_VIEW_TYPE } from 'src/constants';
 
 // Generates error if passwords do not match.
 export const passwordMatchValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {
@@ -23,7 +24,7 @@ export const usernamePasswordValidator: ValidatorFn = (control: FormGroup): Vali
 
 
 export function postiveIntegerValidator(control: AbstractControl): {[key: string]: boolean} | null  {
-  if (control.pristine || control.value > 0) {
+  if (control.pristine || Number.isInteger(control.value) && control.value > 0) {
     return null;
   }
   return { postiveIntegerValidator: true };
@@ -31,7 +32,7 @@ export function postiveIntegerValidator(control: AbstractControl): {[key: string
 
 
 export function isNumberValidator(control: AbstractControl): {[key: string]: boolean} | null {
-  if (control.pristine || control.value >= 0) {
+  if (control.pristine || !Number.isNaN(control.value)) {
     return null;
   }
   return { isNumberValidator: true };
@@ -43,3 +44,22 @@ export function islengthWithin20Validator(control: AbstractControl): {[key: stri
   }
   return { islengthWithin20Validator: true };
 }
+
+export const addQuestionFormValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {
+  const noOfQuestionToAttempt = control.get('no_of_question_to_attempt').value;
+  const answerAllQuestions = control.get('answer_all_questions').value;
+  const view = control.get('view').value;
+
+  if (!Number.isInteger(noOfQuestionToAttempt)) {
+    return { numberOfQuestionToAnswerError: true };
+  }
+
+  if (view === QUESTION_SECTION_VIEW_TYPE.MULTIPLE_QUESTION) {
+    if (answerAllQuestions && noOfQuestionToAttempt === 0) {
+      return null;
+    } else {
+      return { numberOfQuestionToAnswerError: true };
+    }
+  }
+  return null;
+};

@@ -20,7 +20,7 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
   @Input() showTargetDate: boolean;
   @Output() formData = new EventEmitter<any>();
   @Output() fileError = new EventEmitter<string>();
-  @Input() formEvent: Observable<String>;
+  @Input() formEvent: Observable<string>;
   private formEventSubscription: Subscription;
   @Input() uploadProgressEvent: Observable<{loaded: number, total: number}>;
   private progressEventSubscription: Subscription;
@@ -70,7 +70,7 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
   }
 
   upload() {
-    const file: File = (<HTMLInputElement>document.getElementById('image-file')).files[0];
+    const file: File = (document.getElementById('image-file') as HTMLInputElement).files[0];
 
     if (!file.type.includes('image/jpeg') && !file.type.includes('image/jpg') && !file.type.includes('image/png')) {
       this.fileError.emit('Only .jpeg, .jpg, and .png formats are supported.');
@@ -78,14 +78,15 @@ export class UiUploadImageComponent implements OnInit, OnDestroy {
         file: null
       });
     } else {
-      let data = {};
-      data['name'] = this.uploadForm.value.name;
-      data['file'] = file;
-      data['can_download'] = this.uploadForm.value.can_download;
+      const data = {
+        name: this.uploadForm.value.name,
+        file,
+        can_download: this.uploadForm.value.can_download,
+        content_type: SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE.IMAGE
+      };
       if (this.uploadForm.value.target_date) {
         data['target_date'] = formatDate(this.uploadForm.value.target_date);
       }
-      data['content_type'] = SUBJECT_INTRODUCTION_CONTENT_TYPE_REVERSE['IMAGE'];
       this.formData.emit(data);
     }
   }
