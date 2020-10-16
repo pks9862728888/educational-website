@@ -2726,7 +2726,7 @@ class SubjectPictureTestQuestion(models.Model):           # If question mode is 
     marks = models.DecimalField(
         _('Marks'), decimal_places=2, max_digits=5)
     text = models.CharField(
-        _('Question text'), max_length=500, blank=False, null=True)
+        _('Question text'), max_length=2000, blank=False, null=True)
     file = models.FileField(
         _('File'),
         upload_to=subject_image_test_question_file_path,
@@ -2735,8 +2735,8 @@ class SubjectPictureTestQuestion(models.Model):           # If question mode is 
         max_length=1024)
 
     def save(self, *args, **kwargs):
-        if self.text and len(self.text) > 500:
-            raise ValueError(_('Question text should be less than 500 characters.'))
+        if self.text and len(self.text) > 2000:
+            raise ValueError(_('Question text should be less than 2000 characters.'))
         super(SubjectPictureTestQuestion, self).save(*args, **kwargs)
 
     def __str__(self):

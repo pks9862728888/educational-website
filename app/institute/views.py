@@ -6773,7 +6773,7 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                                 'order': q.order,
                                 'text': q.text,
                                 'marks': q.marks,
-                                'file': self.request.build_absolute_url('/').strip('/') + MEDIA_URL + '/' + q.file
+                                'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(q.file)
                             })
                         pass
                     else:
@@ -7045,6 +7045,7 @@ class InstituteUploadImageQuestionView(APIView):
 
     def post(self, request, *args, **kwargs):
         """Only subject in-charge can access."""
+        print(request.data)
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')
         ).only('subject_slug').first()
@@ -7107,7 +7108,7 @@ class InstituteUploadImageQuestionView(APIView):
             pk=kwargs.get('set_id'),
             test=test,
             mark_as_final=True
-        ).exists:
+        ).exists():
             return Response({'error': _('Question set is MARKED AS FINAL. Uploading question is not allowed.')},
                             status.HTTP_400_BAD_REQUEST)
 
@@ -7145,13 +7146,14 @@ class InstituteUploadImageQuestionView(APIView):
                     'file': ser.data['file'],
                     'text': ser.data['text'],
                     'marks': ser.data['marks'],
-                    'order': ser.data['order'],
+                    'order': ser.data['id'],
                 }, status=status.HTTP_201_CREATED)
             else:
                 return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Unhandled error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
