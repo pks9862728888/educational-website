@@ -2734,6 +2734,11 @@ class SubjectPictureTestQuestion(models.Model):           # If question mode is 
         blank=True,
         max_length=1024)
 
+    def save(self, *args, **kwargs):
+        if self.text and len(self.text) > 500:
+            raise ValueError(_('Question text should be less than 500 characters.'))
+        super(SubjectPictureTestQuestion, self).save(*args, **kwargs)
+
     def __str__(self):
         return str(self.test)
 
@@ -2743,6 +2748,16 @@ def set_picture_test_question_order(sender, instance, created, *args, **kwargs):
     if created:
         instance.order = instance.pk
         instance.save()
+
+
+@receiver(post_delete, sender=SubjectPictureTestQuestion)
+def auto_delete_image_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            try:
+                os.remove(instance.file.path)
+            except Exception as e:
+                print('Error: ' + e)
 
 
 class SubjectTypedTestQuestion(models.Model):

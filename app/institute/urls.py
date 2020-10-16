@@ -262,6 +262,20 @@ urlpatterns = [
          views.InstituteDeleteFileQuestionPaperView.as_view(),
          name='delete-file-question-paper'),
 
+    # Image question paper
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/<int:test_section_id>/upload-image'
+         '-test-question',
+         views.InstituteUploadImageQuestionView.as_view(),
+         name='upload-image-test-question'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/<int:question_id>/edit-image'
+         '-test-question',
+         views.InstituteEditImageQuestionView.as_view(),
+         name='edit-image-test-question'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/<int:question_id>/delete-image'
+         '-test-question',
+         views.InstituteDeleteImageQuestionView.as_view(),
+         name='delete-image-test-question'),
+
     # Institute Subject preview course
     path('list-all-student-institute-courses',
          views.InstituteStudentCourseListView.as_view(),

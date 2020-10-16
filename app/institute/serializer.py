@@ -512,3 +512,13 @@ class SubjectTestFileQuestionPaperUploadSerializer(serializers.ModelSerializer):
         model = models.SubjectFileTestQuestion
         fields = ('id', 'test', 'file', 'set')
         read_only_fields = ('id',)
+
+
+class SubjectTestImageQuestionUploadSerializer(serializers.ModelSerializer):
+    """Serializer for creating image question in Image type test"""
+    file = serializers.FileField(allow_null=False, use_url=True)
+
+    class Meta:
+        model = models.SubjectPictureTestQuestion
+        fields = ('id', 'test', 'file', 'test_section', 'text', 'marks')
+        read_only_fields = ('id', 'order', )

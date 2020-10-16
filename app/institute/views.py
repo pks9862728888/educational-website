@@ -6765,7 +6765,16 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                     questions = list()
 
                     if test.question_mode == models.QuestionMode.IMAGE:
-                        # Find image test questions
+                        for q in models.SubjectPictureTestQuestion.objects.filter(
+                            test_section__pk=qs.pk
+                        ).order_by('order'):
+                            questions.append({
+                                'question_id': q.pk,
+                                'order': q.order,
+                                'text': q.text,
+                                'marks': q.marks,
+                                'file': self.request.build_absolute_url('/').strip('/') + MEDIA_URL + '/' + q.file
+                            })
                         pass
                     else:
                         # Find typed test questions
@@ -6978,11 +6987,17 @@ class InstituteUploadFileQuestionPaperView(APIView):
             return Response({'error': _('Test not found.')},
                             status.HTTP_400_BAD_REQUEST)
 
-        if not models.SubjectTestSets.objects.filter(
+        test_set = models.SubjectTestSets.objects.filter(
             pk=kwargs.get('set_id'),
             test=test,
-        ).exists():
+        ).only('mark_as_final').first()
+
+        if not test_set:
             return Response({'error': _('Question paper set not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        if test_set.mark_as_final:
+            return Response({'error': _('Question set is MARKED AS FINAL. Uploading question is not allowed.')},
                             status.HTTP_400_BAD_REQUEST)
 
         try:
@@ -6990,8 +7005,8 @@ class InstituteUploadFileQuestionPaperView(APIView):
                 data={
                     'file': request.data.get('file'),
                     'test': test.pk,
-                    'set': kwargs.get('set_id')
-                }
+                    'set': test_set.pk
+                }, context={'request': request}
             )
             if ser.is_valid():
                 ser.save()
@@ -7007,7 +7022,7 @@ class InstituteUploadFileQuestionPaperView(APIView):
 
                 return Response({
                     'id': ser.data['id'],
-                    'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + ser.data['file']
+                    'file': ser.data['file']
                 }, status=status.HTTP_201_CREATED)
             else:
                 return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -7017,10 +7032,276 @@ class InstituteUploadFileQuestionPaperView(APIView):
                                 status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'error': _('Unhandled error occurred.')},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception:
             return Response({'error': _('Unhandled error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteUploadImageQuestionView(APIView):
+    """View for adding image question paper"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Institute LMS CMS license expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute_license_stats = models.InstituteLicenseStat.objects.filter(
+            institute=institute
+        ).only('total_storage').first()
+
+        if not institute_license_stats.total_storage:
+            return Response({'error': _('Storage license expired or not found. Purchase storage to upload files.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        image_error = validate_image_file(request.data.get('file'))
+
+        if image_error:
+            return image_error
+
+        institute_stats = models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).only('storage').first()
+
+        if request.data.get('file').size / 1000000000 +\
+                float(institute_stats.storage) > float(institute_license_stats.total_storage):
+            return Response({'error': _('File size too large. Purchase additional storage to upload files.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
+        ).only('pk').first()
+
+        if not test:
+            return Response({'error': _('Test not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        if models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test=test,
+            mark_as_final=True
+        ).exists:
+            return Response({'error': _('Question set is MARKED AS FINAL. Uploading question is not allowed.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        if not models.SubjectTestQuestionSection.objects.filter(
+            pk=kwargs.get('test_section_id'),
+            test=test,
+        ).exists():
+            return Response({'error': _('Question paper group not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        try:
+            ser = serializer.SubjectTestImageQuestionUploadSerializer(
+                data={
+                    'file': request.data.get('file'),
+                    'test': test.pk,
+                    'test_section': kwargs.get('test_section_id'),
+                    'text': request.data.get('text'),
+                    'marks': request.data.get('marks'),
+                }, context={'request': request})
+
+            if ser.is_valid():
+                ser.save()
+
+                file_size = request.data.get('file').size / 1000000000  # Size in GB
+
+                institute_stats.storage = Decimal(float(institute_stats.storage) + file_size)
+                institute_stats.save()
+
+                models.InstituteSubjectStatistics.objects.filter(
+                    statistics_subject=subject
+                ).update(storage=F('storage') + Decimal(file_size))
+
+                return Response({
+                    'question_id': ser.data['id'],
+                    'file': ser.data['file'],
+                    'text': ser.data['text'],
+                    'marks': ser.data['marks'],
+                    'order': ser.data['order'],
+                }, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteEditImageQuestionView(APIView):
+    """View for editing image question paper"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question_set = models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).first()
+
+        if not question_set:
+            return Response({'error': _('Question set not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if question_set.mark_as_final:
+            return Response({'error': _('Question set is MARKED AS FINAL. Editing question is not allowed.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectPictureTestQuestion.objects.filter(
+            pk=kwargs.get('question_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).first()
+
+        if not question:
+            return Response({'error': _('Question not found. Please refresh and try again.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question.text = request.data.get('text')
+            question.marks = request.data.get('marks')
+            question.save()
+
+            return Response({
+                'question_id': question.pk,
+                'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + question.file,
+                'text': question.text,
+                'marks': question.marks,
+                'order': question.order,
+            }, status=status.HTTP_200_OK)
+
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception:
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteDeleteImageQuestionView(APIView):
+    """View for deleting image question paper"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        """Only subject in-charge or admin can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                role=models.InstituteRole.ADMIN,
+                active=True
+            ):
+                return Response({'error': _('Permission denied [Subject in-charge or Admin only]')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        question_set = models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).first()
+
+        if not question_set:
+            return Response({'error': _('Question set not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if question_set.mark_as_final:
+            return Response({'error': _('Question set is MARKED AS FINAL. Uploading question is not allowed.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectPictureTestQuestion.objects.filter(
+            pk=kwargs.get('question_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).first()
+
+        if not question:
+            return Response({'error': _('Question not found. Please refresh and try again.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        file_size = question.file.size / 1000000000
+
+        question.delete()
+        models.InstituteSubjectStatistics.objects.filter(
+            statistics_subject=subject
+        ).update(storage=F('storage') - Decimal(file_size))
+        models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).update(storage=F('storage') - Decimal(file_size))
+
+        question_set.verified = False
+        question_set.active = False
+        question_set.mark_as_final = False
+        question_set.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class InstituteDeleteFileQuestionPaperView(APIView):
@@ -7090,6 +7371,7 @@ class InstituteDeleteFileQuestionPaperView(APIView):
         question_set.verified = False
         question_set.active = False
         question_set.mark_as_final = False
+        question_set.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
