@@ -7128,17 +7128,25 @@ class InstituteUploadImageQuestionView(APIView):
             ).exists():
                 return Response({'error': _('Concept label not found. Please refresh.')},
                                 status.HTTP_400_BAD_REQUEST)
+            data = {
+                'file': request.data.get('file'),
+                'test': test.pk,
+                'test_section': kwargs.get('test_section_id'),
+                'text': request.data.get('text'),
+                'marks': request.data.get('marks'),
+                'concept_label': request.data.get('concept_label')
+            }
+        else:
+            data = {
+                'file': request.data.get('file'),
+                'test': test.pk,
+                'test_section': kwargs.get('test_section_id'),
+                'text': request.data.get('text'),
+                'marks': request.data.get('marks'),
+            }
 
         try:
-            ser = serializer.SubjectTestImageQuestionUploadSerializer(
-                data={
-                    'file': request.data.get('file'),
-                    'test': test.pk,
-                    'test_section': kwargs.get('test_section_id'),
-                    'text': request.data.get('text'),
-                    'marks': request.data.get('marks'),
-                    'concept_label': request.data.get('concept_label')
-                }, context={'request': request})
+            ser = serializer.SubjectTestImageQuestionUploadSerializer(data=data, context={'request': request})
 
             if ser.is_valid():
                 ser.save()
@@ -7156,12 +7164,11 @@ class InstituteUploadImageQuestionView(APIView):
                     'question_id': ser.data['id'],
                     'file': ser.data['file'],
                     'text': ser.data['text'],
-                    'marks': ser.data['marks'],
+                    'marks': float(ser.data['marks']),
                     'order': ser.data['id']
                 }
                 if request.data.get('concept_label'):
                     response['concept_label_id'] = ser.data['concept_label']
-
                 return Response(response, status=status.HTTP_201_CREATED)
             else:
                 return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -7225,25 +7232,31 @@ class InstituteEditImageQuestionView(APIView):
             return Response({'error': _('Question not found. Please refresh and try again.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        concept_label = None
         if request.data.get('concept_label'):
-            concept_label = models.SubjectTestConceptLabels.object.filter(
+            concept_label = models.SubjectTestConceptLabels.objects.filter(
                 pk=request.data.get('concept_label')
             ).first()
 
-            if not concept_label:
+            if concept_label:
+                question.concept_label = concept_label
+            else:
                 return Response({'error': _('Concept label not found. Please refresh and try again.')},
                                 status=status.HTTP_400_BAD_REQUEST)
+        else:
+            question.concept_label = None
 
         try:
-            question.text = request.data.get('text')
+            if request.data.get('text'):
+                question.text = request.data.get('text')
+            else:
+                question.text = ''
+
             question.marks = request.data.get('marks')
-            question.concept_label = concept_label
             question.save()
 
             response = {
                 'question_id': question.pk,
-                'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + question.file,
+                'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(question.file),
                 'text': question.text,
                 'marks': question.marks,
                 'order': question.order,
@@ -7255,7 +7268,8 @@ class InstituteEditImageQuestionView(APIView):
 
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Unhandled error occurred.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
