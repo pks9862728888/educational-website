@@ -3,18 +3,22 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { addQuestionFormValidator, islengthWithin20Validator, postiveIntegerValidator } from 'src/app/custom.validator';
+import { addQuestionFormValidator,
+         characterLengthLessThanEqualTo,
+         postiveIntegerValidator } from 'src/app/custom.validator';
 import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
 import { TestConceptLabelInterface,
          TestMinDetailsResponseForImageTestQuestionCreation,
          TestQuestionSetInterface,
-         ImageQuestionsSectionInterface } from 'src/app/models/test.model';
+         ImageQuestionsSectionInterface,
+         SubjectImageTestQuestions } from 'src/app/models/test.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
 import { UiDialogComponent } from 'src/app/shared/ui-dialog/ui-dialog.component';
 import { getFileSize } from 'src/app/shared/utilityFunctions';
 import { QUESTION_SECTION_VIEW_TYPE, QUESTION_SECTION_VIEW_TYPE_FORM_FIELD_OPTIONS } from 'src/constants';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { HttpEventType, HttpRequest } from '@angular/common/http';
 
 @Component({
   selector: 'app-create-image-question',
@@ -31,6 +35,7 @@ export class CreateImageQuestionComponent implements OnInit {
 
   questionSetForm: FormGroup;
   addQuestionForm: FormGroup;
+  editQuestionForm: FormGroup;
   addQuestionSectionForm: FormGroup;
 
   loadingIndicator: boolean;
@@ -48,6 +53,7 @@ export class CreateImageQuestionComponent implements OnInit {
   deleteConceptLabelIndicator: boolean;
 
   addQuestionIndicator: boolean;
+  editQuestionIndicator: boolean;
 
   progress = 0;
   loadedFileSize = 0;
@@ -57,6 +63,8 @@ export class CreateImageQuestionComponent implements OnInit {
   showAddSectionForm = false;
   previewQuestionPaper = false;
   showAddQuestionForm = false;
+  showConceptLabelInfo = false;
+  showQuestionSetInfo = false;
 
   QUESTION_SECTION_VIEW_TYPE = QUESTION_SECTION_VIEW_TYPE;
   getDateFromUnixTimeStamp = getDateFromUnixTimeStamp;
@@ -92,7 +100,7 @@ export class CreateImageQuestionComponent implements OnInit {
     this.getTestDetails();
 
     this.questionSetForm = this.formBuilder.group({
-      set_name: [null, [Validators.required, islengthWithin20Validator]]
+      set_name: [null, [Validators.required, characterLengthLessThanEqualTo(20)]]
     });
 
     this.addQuestionSectionForm = this.formBuilder.group({
@@ -105,8 +113,15 @@ export class CreateImageQuestionComponent implements OnInit {
 
     this.addQuestionForm = this.formBuilder.group({
       file: [null, [Validators.required]],
-      text: [null],
-      marks: [null, [Validators.required, postiveIntegerValidator]]
+      text: [null, [characterLengthLessThanEqualTo(2000)]],
+      marks: [null, [Validators.required, postiveIntegerValidator]],
+      concept_label: [null]
+    });
+
+    this.editQuestionForm = this.formBuilder.group({
+      text: [null, [characterLengthLessThanEqualTo(2000)]],
+      marks: [null, [Validators.required, postiveIntegerValidator]],
+      concept_label: [null]
     });
   }
 
@@ -250,8 +265,7 @@ export class CreateImageQuestionComponent implements OnInit {
     this.showAddQuestionSetForm = false;
 
     if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {
-      this
-.selectedSet = questionSet;
+      this.selectedSet = questionSet;
       this.setQuestions = null;
       this.loadingSetQuestionsIndicator = true;
       this.loadingSetQuestionErrorText = null;
@@ -418,7 +432,7 @@ export class CreateImageQuestionComponent implements OnInit {
     });
   }
 
-  removeConceptLabel(label) {
+  removeConceptLabel(label: TestConceptLabelInterface) {
     this.deleteConceptLabelIndicator = true;
     this.instituteApiService.deleteConceptLabel(
       this.currentInstituteSlug,
@@ -434,6 +448,15 @@ export class CreateImageQuestionComponent implements OnInit {
         }
 
         // Remove concept label from the questions of current selected question set
+        this.setQuestions.map(
+          s => {
+            s.questions.map(q => {
+              if (q.concept_label_id === label.id) {
+                delete q.concept_label_id;
+              }
+            });
+          }
+        );
 
         this.uiService.showSnackBar('Concept label deleted successfully', 3000);
       },
@@ -460,6 +483,7 @@ export class CreateImageQuestionComponent implements OnInit {
 
   resetAddQuestionForm() {
     this.addQuestionForm.reset();
+    this.addQuestionForm.enable();
   }
 
   addQuestion(selectedSectionData: ImageQuestionsSectionInterface) {
@@ -474,9 +498,184 @@ export class CreateImageQuestionComponent implements OnInit {
       this.addQuestionIndicator = true;
       this.totalFileSize = file.size;
       this.loadedFileSize = 0;
-      console.log(this.addQuestionForm.value);
       this.addQuestionForm.disable();
+      const data = {...this.addQuestionForm.value};
+      data.file = file;
+
+      this.instituteApiService.addImageTestQuestion(
+        this.currentInstituteSlug,
+        this.currentSubjectSlug,
+        this.currentTestSlug,
+        this.selectedSet.id.toString(),
+        selectedSectionData.section_id.toString(),
+        data
+      ).subscribe(
+        (result: {type: number; loaded: number; total: number; file: string; id: number; body: any; }) => {
+          if (result.type === HttpEventType.UploadProgress) {
+            this.progress = Math.round(result.loaded / result.total * 100);
+            this.loadedFileSize = result.loaded;
+            this.totalFileSize = result.total;
+          } else if (result.type === HttpEventType.Response) {
+            this.addQuestionIndicator = false;
+            this.toggleAddQuestionInSection();
+
+            if (selectedSectionData.section_id === this.selectedSectionData.section_id) {
+              this.selectedSectionData.questions.push(result.body);
+            } else {
+              const idx = this.findIndexInArray(this.setQuestions, selectedSectionData.section_id, 'section_id');
+              if (idx >= 0) {
+                this.setQuestions[idx].questions.push(result.body);
+              }
+            }
+            this.uiService.showSnackBar('Question added successfully!', 2000);
+            console.log(this.setQuestions);
+          }
+        },
+        errors => {
+          this.addQuestionIndicator = false;
+          this.addQuestionForm.enable();
+          if (errors.error) {
+            if (errors.error.error) {
+              this.uiService.showSnackBar(errors.error.error, 3000);
+            } else {
+              this.uiService.showSnackBar('Error! Unable to add question at the moment.', 3000);
+            }
+          } else {
+            this.uiService.showSnackBar('Error! Unable to add question at the moment.', 3000);
+          }
+        }
+      );
     }
+  }
+
+  confirmDeleteQuestion(selectedSectionData: ImageQuestionsSectionInterface, question: SubjectImageTestQuestions) {
+    const dialogRef = this.dialog.open(UiDialogComponent, {
+      data: {
+        title: 'Delete question?', trueStringDisplay: 'Yes', falseStringDisplay: 'No'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteQuestion(selectedSectionData, question);
+      }
+    });
+  }
+
+  deleteQuestion(selectedSectionData: ImageQuestionsSectionInterface, question: SubjectImageTestQuestions) {
+    const questionIdx = this.findIndexInArray(selectedSectionData.questions, question.question_id, 'question_id');
+    if (questionIdx >= 0) {
+      this.selectedSectionData.questions[questionIdx].delete = true;
+    }
+    this.instituteApiService.deleteImageTestQuestion(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      this.selectedSet.id.toString(),
+      question.question_id.toString()
+    ).subscribe(
+      () => {
+        if (selectedSectionData.section_id === this.selectedSectionData.section_id) {
+          this.selectedSectionData.questions.splice(+questionIdx, 1);
+        } else {
+          const sectionIdx = this.findIndexInArray(this.setQuestions, selectedSectionData.section_id, 'section_id');
+          if (sectionIdx >= 0) {
+            this.setQuestions[sectionIdx].questions.splice(+questionIdx, 1);
+          }
+        }
+        this.uiService.showSnackBar('Question deleted successfully!', 2000);
+      },
+      errors => {
+        this.selectedSectionData.questions[questionIdx].delete = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 2000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to delete question at the moment.', 2000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to delete question at the moment.', 2000);
+        }
+      }
+    );
+  }
+
+  showEditQuestionFormInSection(question: SubjectImageTestQuestions) {
+    this.resetEditQuestionForm(question);
+    this.setQuestions.map(s => {
+      s.questions.map(
+        q => {
+          if (q.question_id !== question.question_id) {
+            q.edit = false;
+          } else {
+            q.edit = true;
+          }
+        }
+      );
+    });
+  }
+
+  closeEditQuestionFormInSection(question: SubjectImageTestQuestions) {
+    this.selectedSectionData.questions.map(q => {
+      if (q.question_id === question.question_id) {
+        q.edit = false;
+      }
+    });
+  }
+
+  resetEditQuestionForm(question) {
+    this.editQuestionForm.reset();
+    this.editQuestionForm.enable();
+    this.editQuestionForm.patchValue({
+      text: question.text,
+      marks: question.marks,
+      concept_label: question.concept_label_id
+    });
+  }
+
+  editQuestion(question: SubjectImageTestQuestions) {
+    this.editQuestionIndicator = true;
+    this.editQuestionForm.disable();
+    const data = {...this.editQuestionForm.value};
+    if (!data.text) {
+      delete data.text;
+    }
+    if (!data.concept_label) {
+      delete data.concept_label;
+    }
+    this.instituteApiService.editImageTestQuestion(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      this.selectedSet.id.toString(),
+      question.question_id.toString(),
+      data
+    ).subscribe(
+      (result: SubjectImageTestQuestions) => {
+        this.editQuestionIndicator = false;
+        this.selectedSectionData.questions.map(q => {
+          if (q.question_id === result.question_id) {
+            q.marks = result.marks;
+            q.concept_label_id = result.concept_label_id;
+            q.text = result.text;
+          }
+        });
+        this.closeEditQuestionFormInSection(result);
+        this.uiService.showSnackBar('Question edit successful!', 3000);
+      },
+      errors => {
+        this.editQuestionIndicator = false;
+        this.editQuestionForm.enable();
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to edit question at the moment.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to edit question at the moment.', 3000);
+        }
+      }
+    );
   }
 
   selectSectionIdx(index: number) {
@@ -485,17 +684,29 @@ export class CreateImageQuestionComponent implements OnInit {
     this.selectedSectionData = this.setQuestions[index];
   }
 
+  getConceptLabelName(conceptLabelId: number) {
+    return this.testDetails.labels.map(label => {
+      if (label.id === conceptLabelId) {
+        return label.name;
+      }
+    });
+  }
+
+  findTotalMarksOfSelectedQuestionSet() {
+    return this.setQuestions.map(s => s.questions.map(q => +q.marks).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0);
+  }
+
   findTotalMarksOfSelectedQuestionGroup() {
-    if (this.selectedSectionData && this.selectedSectionData.questions.length > 0) {
-      return 100;
+    if (this.selectedSectionData) {
+      return this.selectedSectionData.questions.map(q => +q.marks).reduce((a, b) => a + b, 0);
     } else {
       return 0;
     }
   }
 
-  findIndexInArray(array, id: number) {
+  findIndexInArray(array, key: number, searchField = 'id') {
     for (const idx in array) {
-      if (array[idx].id === id) {
+      if (array[idx][searchField] === key) {
         return idx;
       }
     }

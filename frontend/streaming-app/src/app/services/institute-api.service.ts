@@ -305,6 +305,36 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/add-test-question-section`;
   }
 
+  addImageTestQuestionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    testSectionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/${testSectionId}/upload-image-test-question`;
+  }
+
+  editImageTestQuestionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/${questionId}/edit-image-test-question`;
+  }
+
+  deleteImageTestQuestionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/${questionId}/delete-image-test-question`;
+  }
+
   getUploadFileQuestionPaperUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1106,6 +1136,65 @@ export class InstituteApiService {
     ) {
     return this.httpClient.post(
       this.addTestQuestionSectionUrl(instituteSlug, subjectSlug, testSlug, setId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addImageTestQuestion(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    setSectionId: string,
+    data: any
+    ) {
+    const formData = new FormData();
+    formData.append('file', data.file);
+    formData.append('marks', data.marks);
+
+    if (data.concept_label){
+      formData.append('concept_label', data.concept_label);
+    }
+
+    if (data.text) {
+      formData.append('text', data.text);
+    }
+
+    return this.httpClient.post(
+      this.addImageTestQuestionUrl(instituteSlug, subjectSlug, testSlug, setId, setSectionId),
+      formData,
+      {
+        headers: this.getAuthTokenHeader(),
+        reportProgress: true,
+        observe: 'events'
+      }
+    );
+  }
+
+  deleteImageTestQuestion(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    questionId: string,
+    ) {
+    return this.httpClient.delete(
+      this.deleteImageTestQuestionUrl(instituteSlug, subjectSlug, testSlug, setId, questionId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editImageTestQuestion(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    questionId: string,
+    data: any
+    ) {
+    return this.httpClient.patch(
+      this.editImageTestQuestionUrl(instituteSlug, subjectSlug, testSlug, setId, questionId),
       data,
       { headers: this.getAuthHeader() }
     );

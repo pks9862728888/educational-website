@@ -3,7 +3,7 @@ import { HttpEventType } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { islengthWithin20Validator } from 'src/app/custom.validator';
+import { characterLengthLessThanEqualTo } from 'src/app/custom.validator';
 import { getDateFromUnixTimeStamp } from 'src/app/format-datepicker';
 import { FileQuestionsInterface,
          TestMinDetailsResponseForFileTestQuestionCreation,
@@ -70,7 +70,7 @@ export class CreateFileQuestionComponent implements OnInit {
   ngOnInit(): void {
     this.getTestDetails();
     this.questionSetForm = this.formBuilder.group({
-      set_name: [null, [Validators.required, islengthWithin20Validator]]
+      set_name: [null, [Validators.required, characterLengthLessThanEqualTo(20)]]
     });
     this.uploadQuestionPaperForm = this.formBuilder.group({
       file: [null, [Validators.required]]

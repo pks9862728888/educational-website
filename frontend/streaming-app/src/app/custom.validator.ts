@@ -38,11 +38,13 @@ export function isNumberValidator(control: AbstractControl): {[key: string]: boo
   return { isNumberValidator: true };
 }
 
-export function islengthWithin20Validator(control: AbstractControl): {[key: string]: boolean} | null {
-  if (control.pristine || control.value.length <= 20) {
-    return null;
-  }
-  return { islengthWithin20Validator: true };
+export function characterLengthLessThanEqualTo(value: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (control.pristine || control.value.length <= 20) {
+      return null;
+    }
+    return { characterLengthLessThanEqualTo: true };
+  };
 }
 
 export const addQuestionFormValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {

@@ -24,7 +24,7 @@
                     <mat-label>Enter question set name</mat-label>
                     <input matInput placeholder="Name of Question set" formControlName="set_name" required>
                     <mat-error *ngIf="questionSetForm.controls.set_name.errors?.required">Question set name is required.</mat-error>
-                    <mat-error *ngIf="questionSetForm.controls.set_name.errors?.islengthWithin20Validator">Question set name can not be more than 20 characters.</mat-error>
+                    <mat-error *ngIf="!questionSetForm.controls.set_name.errors?.required && questionSetForm.controls.set_name.errors?.characterLengthLessThanEqualTo">Question set name can not be more than 20 characters.</mat-error>
                 </mat-form-field>
             </form>
             <div class="d-flex align-center">

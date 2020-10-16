@@ -79,7 +79,14 @@ export interface ImageQuestionsSectionInterface {
 }
 
 export interface SubjectImageTestQuestions {
-  id: number;
+  question_id: number;
+  marks: number;
+  order: number;
+  text: string;
+  file: string;
+  concept_label_id: number;
+  delete?: boolean;
+  edit?: boolean;
 }
 
 export interface SubjectTestSection {
