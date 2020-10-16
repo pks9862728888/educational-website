@@ -2721,6 +2721,12 @@ class SubjectPictureTestQuestion(models.Model):           # If question mode is 
         SubjectTestQuestionSection,
         on_delete=models.CASCADE,
         related_name='picture_question_section')
+    concept_label = models.ForeignKey(
+        SubjectTestConceptLabels,
+        on_delete=models.SET_NULL,
+        related_name='image_question_concept_labels',
+        blank=True,
+        null=True)
     order = models.PositiveIntegerField(
         _('Order'), blank=True, null=True)
     marks = models.DecimalField(

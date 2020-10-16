@@ -6768,13 +6768,16 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                         for q in models.SubjectPictureTestQuestion.objects.filter(
                             test_section__pk=qs.pk
                         ).order_by('order'):
-                            questions.append({
+                            question_data = {
                                 'question_id': q.pk,
                                 'order': q.order,
                                 'text': q.text,
                                 'marks': q.marks,
                                 'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(q.file)
-                            })
+                            }
+                            if q.concept_label:
+                                question_data['concept_label_id'] = q.concept_label.pk
+                            questions.append(question_data)
                         pass
                     else:
                         # Find typed test questions
@@ -7045,7 +7048,6 @@ class InstituteUploadImageQuestionView(APIView):
 
     def post(self, request, *args, **kwargs):
         """Only subject in-charge can access."""
-        print(request.data)
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')
         ).only('subject_slug').first()
@@ -7119,6 +7121,14 @@ class InstituteUploadImageQuestionView(APIView):
             return Response({'error': _('Question paper group not found.')},
                             status.HTTP_400_BAD_REQUEST)
 
+        if request.data.get('concept_label'):
+            if not models.SubjectTestConceptLabels.objects.filter(
+                pk=request.data.get('concept_label'),
+                test=test
+            ).exists():
+                return Response({'error': _('Concept label not found. Please refresh.')},
+                                status.HTTP_400_BAD_REQUEST)
+
         try:
             ser = serializer.SubjectTestImageQuestionUploadSerializer(
                 data={
@@ -7127,6 +7137,7 @@ class InstituteUploadImageQuestionView(APIView):
                     'test_section': kwargs.get('test_section_id'),
                     'text': request.data.get('text'),
                     'marks': request.data.get('marks'),
+                    'concept_label': request.data.get('concept_label')
                 }, context={'request': request})
 
             if ser.is_valid():
@@ -7140,14 +7151,18 @@ class InstituteUploadImageQuestionView(APIView):
                 models.InstituteSubjectStatistics.objects.filter(
                     statistics_subject=subject
                 ).update(storage=F('storage') + Decimal(file_size))
-
-                return Response({
+                
+                response = {
                     'question_id': ser.data['id'],
                     'file': ser.data['file'],
                     'text': ser.data['text'],
                     'marks': ser.data['marks'],
-                    'order': ser.data['id'],
-                }, status=status.HTTP_201_CREATED)
+                    'order': ser.data['id']
+                }
+                if request.data.get('concept_label'):
+                    response['concept_label_id'] = ser.data['concept_label']
+
+                return Response(response, status=status.HTTP_201_CREATED)
             else:
                 return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
         except ValueError as e:
@@ -7210,18 +7225,33 @@ class InstituteEditImageQuestionView(APIView):
             return Response({'error': _('Question not found. Please refresh and try again.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        concept_label = None
+        if request.data.get('concept_label'):
+            concept_label = models.SubjectTestConceptLabels.object.filter(
+                pk=request.data.get('concept_label')
+            ).first()
+
+            if not concept_label:
+                return Response({'error': _('Concept label not found. Please refresh and try again.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
         try:
             question.text = request.data.get('text')
             question.marks = request.data.get('marks')
+            question.concept_label = concept_label
             question.save()
 
-            return Response({
+            response = {
                 'question_id': question.pk,
                 'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + question.file,
                 'text': question.text,
                 'marks': question.marks,
                 'order': question.order,
-            }, status=status.HTTP_200_OK)
+            }
+            if question.concept_label:
+                response['concept_label_id'] = question.concept_label.pk
+
+            return Response(response, status=status.HTTP_200_OK)
 
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

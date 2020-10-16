@@ -520,5 +520,5 @@ class SubjectTestImageQuestionUploadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.SubjectPictureTestQuestion
-        fields = ('id', 'test', 'file', 'test_section', 'text', 'marks')
+        fields = ('id', 'test', 'file', 'test_section', 'text', 'marks', 'concept_label')
         read_only_fields = ('id', 'order', )
