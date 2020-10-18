@@ -253,6 +253,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/add-test-question-section',
          views.InstituteAddTestQuestionSectionView.as_view(),
          name='add-test-question-section'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/edit-question-set-name',
+         views.InstituteEditQuestionSetName.as_view(),
+         name='edit-question-set-name'),
 
     # File question paper
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/upload-file-question-paper',

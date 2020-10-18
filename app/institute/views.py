@@ -7580,7 +7580,6 @@ class InstituteAddTestQuestionSectionView(APIView):
         if not question_set:
             return Response({'error': _('Question set not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
-        print(request.data)
 
         try:
             question_section = models.SubjectTestQuestionSection.objects.create(
@@ -7601,6 +7600,74 @@ class InstituteAddTestQuestionSectionView(APIView):
                 'name': question_section.name,
                 'questions': list()
             }, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Server Error! Unhandled error occurred.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteEditQuestionSetName(APIView):
+    """View for editing test question set name"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Active LMS CMS license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
+        ).only('id').first()
+
+        if not test:
+            return Response({'error': _('Test not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question_set = models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test=test
+        ).only('pk').first()
+
+        if not question_set:
+            return Response({'error': _('Question set not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question_set.set_name = request.data.get('set_name')
+            question_set.save()
+
+            return Response({
+                'id': question_set.id,
+                'set_name': question_set.set_name
+            }, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
