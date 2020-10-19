@@ -7869,7 +7869,7 @@ class InstituteDeleteQuestionSection(APIView):
 
         if question_paper_section.test.question_mode == models.QuestionMode.IMAGE:
             # Find size of image questions in this section
-            for q in models.SubjectImageTestQuestions.objects.filter(
+            for q in models.SubjectPictureTestQuestion.objects.filter(
                 test_section=question_paper_section
             ).only('file'):
                 file_size += q.file.size
