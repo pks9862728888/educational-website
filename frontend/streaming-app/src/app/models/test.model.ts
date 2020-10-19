@@ -60,6 +60,8 @@ export interface TestQuestionSetInterface {
   mark_as_final: boolean;
   created_on: number;
   delete?: boolean;
+  edit?: boolean;
+  editingIndicator?: boolean;
 }
 
 export interface FileQuestionsInterface {
