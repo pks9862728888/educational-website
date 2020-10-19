@@ -7826,6 +7826,75 @@ class InstituteRemoveConceptLabelFromQuestion(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
+class InstituteDeleteQuestionSection(APIView):
+    """View for deleting question section"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question_paper_section = models.SubjectTestQuestionSection.objects.filter(
+            pk=kwargs.get('question_section_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).first()
+
+        if not question_paper_section:
+            return Response({'error': _('Question group not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        file_size = 0
+
+        if question_paper_section.test.question_mode == models.QuestionMode.IMAGE:
+            # Find size of image questions in this section
+            for q in models.SubjectImageTestQuestions.objects.filter(
+                test_section=question_paper_section
+            ).only('file'):
+                file_size += q.file.size
+
+        elif question_paper_section.test.question_mode == models.QuestionMode.TYPED:
+            # Find size of typed questions in this section
+            pass
+
+        try:
+            question_paper_section.delete()
+            file_size = file_size / 1000000000
+
+            models.InstituteSubjectStatistics.objects.filter(
+                statistics_subject=subject
+            ).update(storage=F('storage') - Decimal(file_size))
+            models.InstituteStatistics.objects.filter(
+                institute=institute
+            ).update(storage=F('storage') - Decimal(file_size))
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception:
+            return Response({'error': _('Unhandled exception occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class InstituteDeleteTestSetView(APIView):
     """View for deleting question set"""
     authentication_classes = (TokenAuthentication,)
