@@ -860,28 +860,123 @@ export class CreateImageQuestionComponent implements OnInit {
     );
   }
 
-  confirmRemoveConceptLabelFromQuestion(question: SubjectImageTestQuestions, selectedSectionId: number) {
+  confirmRemoveConceptLabelFromQuestion(question: SubjectImageTestQuestions) {
     const dialogRef = this.dialog.open(UiDialogComponent, {
       data: {
-        title: 'Are you sure you want to remove concept label "' + '"?',
+        title: 'Are you sure you want to remove this concept label from question?',
         trueStringDisplay: 'Yes',
         falseStringDisplay: 'No'
       }
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.removeConceptLabelFromQuestion(question, selectedSectionId);
+        this.removeConceptLabelFromQuestion(question);
       }
     });
   }
 
-  removeConceptLabelFromQuestion(question: SubjectImageTestQuestions, selectedSectionId: number) {
+  removeConceptLabelFromQuestion(question: SubjectImageTestQuestions) {
     this.selectedSectionData.questions.map(q => {
       if (q.question_id === question.question_id) {
         q.removingLabelIndicator = true;
       }
     });
-    console.log(question);
+    this.instituteApiService.removeQuestionConceptLabel(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      question.question_id.toString()
+    ).subscribe(
+      () => {
+        this.setQuestions.map(s => {
+          s.questions.map(q => {
+            if (q.question_id === question.question_id) {
+              q.removingLabelIndicator = false;
+              delete q.concept_label_id;
+            }
+          });
+        });
+        this.uiService.showSnackBar('Concept label removed.', 2000);
+      },
+      errors => {
+        this.setQuestions.map(s => {
+          s.questions.map(q => {
+            if (q.question_id === question.question_id) {
+              q.removingLabelIndicator = false;
+              delete q.concept_label_id;
+            }
+          });
+        });
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to remove concept label at the moment.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to remove concept label at the moment.', 3000);
+        }
+      }
+    );
+  }
+
+  confirmDeleteQuestionSection(questionSectionId: number) {
+    const dialogRef = this.dialog.open(UiDialogComponent, {
+      data: {
+        title: 'Are you sure you want to remove this question group?',
+        trueStringDisplay: 'Yes',
+        falseStringDisplay: 'No'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteQuestionSection(questionSectionId);
+      }
+    });
+  }
+
+  deleteQuestionSection(questionSectionId: number) {
+    this.selectedSectionData.deletingIndicator = true;
+    this.instituteApiService.deleteQuestionSection(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      questionSectionId.toString()
+    ).subscribe(
+      () => {
+        let index = -1;
+        for (const idx in this.setQuestions) {
+          if (this.setQuestions[idx].section_id === questionSectionId) {
+            index = +idx;
+          }
+        }
+        if (index > -1) {
+          if (this.setQuestions.length > index + 1) {
+            this.selectSectionIdx(index + 1);
+          } else if (this.setQuestions.length > 1) {
+            this.selectSectionIdx(index - 1);
+          }
+          this.setQuestions.splice(index, 1);
+        }
+        this.uiService.showSnackBar('Question section deleted.', 2000);
+      },
+      errors => {
+        this.setQuestions.map(s => {
+          if (s.section_id === questionSectionId) {
+            s.deletingIndicator = false;
+          }
+        });
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to delete question group at the moment.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to delete question group at the moment.', 3000);
+        }
+      }
+    );
   }
 
   getConceptLabelName(conceptLabelId: number) {

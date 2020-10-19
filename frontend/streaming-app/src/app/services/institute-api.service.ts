@@ -314,6 +314,24 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${questionSectionId}/edit-test-question-section`;
   }
 
+  removeQuestionConceptLabelUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${questionId}/remove-question-concept-label`;
+  }
+
+  deleteQuestionSectionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    questionSectionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${questionSectionId}/delete-question-section`;
+  }
+
   addImageTestQuestionUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1169,6 +1187,31 @@ export class InstituteApiService {
     return this.httpClient.patch(
       this.editTestQuestionSectionUrl(instituteSlug, subjectSlug, testSlug, questionSectionId),
       data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  removeQuestionConceptLabel(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    questionId: string
+    ) {
+    return this.httpClient.patch(
+      this.removeQuestionConceptLabelUrl(instituteSlug, subjectSlug, testSlug, questionId),
+      {},
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteQuestionSection(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    questionSectionId: string
+    ) {
+    return this.httpClient.delete(
+      this.deleteQuestionSectionUrl(instituteSlug, subjectSlug, testSlug, questionSectionId),
       { headers: this.getAuthHeader() }
     );
   }
