@@ -82,10 +82,10 @@
                     <h3 class="faded-blue-color m-b-05">Selected Set: {{ selectedSet.set_name }}</h3>
                     <div class="d-flex align-center" *ngIf="!mq.matches">
                         <h3 class="faded-blue-color m-r-05">{{ findTotalMarksOfSelectedQuestionSet() }} marks</h3>
-                        <button mat-stroked-button class="stroked-button m-r-05">
+                        <button mat-stroked-button [disabled]="selectedSet.edit" class="stroked-button m-r-05" (click)="editQuestionSetName()">
                           <mat-icon class="edit-icon">edit</mat-icon>
                         </button>
-                        <button mat-stroked-button class="stroked-button">
+                        <button mat-stroked-button [disabled]="selectedSet.edit" class="stroked-button">
                           <mat-icon class="delete-icon">delete</mat-icon>
                         </button>
                     </div>
@@ -95,6 +95,33 @@
                     <span *ngIf="selectedSet.mark_as_final">Un-editable</span>
                 </p>
                 <p>Created on: {{ getDateFromUnixTimeStamp(selectedSet.created_on) | date }}</p>
+                <div *ngIf="selectedSet.edit" class="m-t-1">
+                    <!-- For editing question set -->
+                    <div *ngIf="editQuestionSetForm" class="m-t-1">
+                        <div class="d-flex justify-content-between align-center upload-container-header">
+                            <h3 class="expansion-panel-header-color">Edit question set form:</h3>
+                            <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeQuestionSetEditForm()" [hidden]="selectedSet.editingIndicator">close</mat-icon>
+                        </div>
+                        <div class="upload-container-light-bg">
+                            <form [formGroup]="editQuestionSetForm">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Question set name:</mat-label>
+                                    <input matInput formControlName="set_name" placeholder="Question set name">
+                                    <mat-hint *ngIf="editQuestionSetForm.controls.set_name.errors?.required" class="yellow-text">This field is required.</mat-hint>
+                                    <mat-hint *ngIf="!editQuestionSetForm.controls.set_name.errors?.required && editQuestionSetForm.controls.set_name.errors?.characterLengthLessThanEqualTo" class="yellow-text">Question set name should be less than 20 characters.</mat-hint>
+                                </mat-form-field>
+                            </form>
+                            <div class="d-flex align-center">
+                                <button mat-flat-button class="reset-button m-r-05" [disabled]="selectedSet.editingIndicator" (click)="resetQuestionSetEditForm()">Reset</button>
+                                <button mat-flat-button class="green-button" [disabled]="editQuestionSetForm.invalid || selectedSet.editingIndicator" (click)="editQuestionSet(selectedSet.id)">
+                                  <div class="d-flex align-center">
+                                    <mat-progress-spinner *ngIf="selectedSet.editingIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Submit
+                                  </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="d-flex align-center m-t-05" *ngIf="mq.matches">
                     <button mat-stroked-button class="stroked-button m-r-05">
                       <mat-icon class="edit-icon">edit</mat-icon>
@@ -109,19 +136,19 @@
             <app-ui-reload *ngIf="reloadSetQuestions" [errorText]="'Unable to load questions.'" (retryEvent)="getQuestionSetQuestions(selectedSet, true)"></app-ui-reload>
             <div *ngIf="!loadingSetQuestionsIndicator && !loadingSetQuestionErrorText && !reloadSetQuestions">
                 <div class="d-flex align-center justify-content-between">
-                    <h2 class="faded-blue-color m-t-2" [class.m-b-2]="!mq.matches" [class.m-b-1]="mq.matches">Create question paper -> {{ selectedSet.set_name }}:</h2>
-                    <button mat-flat-button class="green-button m-l-05" *ngIf="!mq.matches && selectedSectionData.questions.length > 0">
+                    <h2 class="faded-blue-color m-t-1" [class.m-t-2]="setQuestions && setQuestions.length > 0" [class.m-b-2]="!mq.matches && setQuestions && setQuestions.length > 0" [class.m-b-1]="mq.matches && setQuestions && setQuestions.length > 0">Create question paper -> {{ selectedSet.set_name }}:</h2>
+                    <button mat-flat-button class="green-button m-l-05" *ngIf="!mq.matches && selectedSectionData && selectedSectionData.questions.length > 0">
                       <div class="d-flex align-center">
                         <mat-icon class="cursor-pointer preview-icon m-r-05">visibility</mat-icon>View Question Set
                       </div>
                     </button>
                 </div>
-                <button mat-flat-button class="green-button m-b-2 w-100" *ngIf="mq.matches && selectedSectionData.questions.length > 0">
+                <button mat-flat-button class="green-button m-b-2 w-100" *ngIf="mq.matches && selectedSectionData && selectedSectionData.questions.length > 0">
                   <div class="d-flex justify-content-center align-center">
                     <mat-icon class="cursor-pointer preview-icon m-r-05">visibility</mat-icon>View Question Set
                   </div>
                 </button>
-                <div class="row m-b-1" *ngIf="mq.matches">
+                <div class="row m-b-1" *ngIf="mq.matches && setQuestions && setQuestions.length > 0">
                     <div class="col">
                         <div class="section-no-container p-t-05 p-b-05 p-l-1 p-r-1">
                             <div class="row">
@@ -132,7 +159,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row m-b-1">
+                <div class="row m-b-1" *ngIf="setQuestions && setQuestions.length > 0">
                     <div class="m-l-1 section-no-container p-05rem h-100" *ngIf="!mq.matches">
                         <div *ngFor="let section of setQuestions; let sectionIdx = index" (click)="selectSectionIdx(sectionIdx)" class="section-no cursor-pointer d-flex justify-content-center align-items-center mat-elevation-z1 m-b-05-nlc" [class.selected-section-no]="section.section_id === selectedSectionData.section_id">
                             <h3 class="expansion-panel-header-color">{{ sectionIdx + 1}}</h3>
@@ -194,7 +221,7 @@
                                         <h3 class="expansion-panel-header-color">Edit question form:</h3>
                                         <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeEditQuestionFormInSection(question)" [hidden]="editQuestionIndicator">close</mat-icon>
                                     </div>
-                                    <div class="add-question-container">
+                                    <div class="upload-container-light-bg">
                                         <form [formGroup]="editQuestionForm">
                                             <mat-form-field appearance="outline" class="w-100">
                                                 <mat-label>Question (optional)</mat-label>
@@ -234,7 +261,7 @@
                                     <h3 class="expansion-panel-header-color">Add question form:</h3>
                                     <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="toggleAddQuestionInSection()" [hidden]="addQuestionIndicator">close</mat-icon>
                                 </div>
-                                <div class="add-question-container">
+                                <div class="upload-container-light-bg">
                                     <form [formGroup]="addQuestionForm">
                                         <mat-form-field appearance="outline" class="w-100">
                                             <mat-label>Question (optional)</mat-label>

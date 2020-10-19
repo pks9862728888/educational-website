@@ -34,6 +34,7 @@ export class CreateImageQuestionComponent implements OnInit {
   currentInstituteRole: string;
 
   questionSetForm: FormGroup;
+  editQuestionSetForm: FormGroup;
   addQuestionForm: FormGroup;
   editQuestionForm: FormGroup;
   addQuestionSectionForm: FormGroup;
@@ -123,6 +124,10 @@ export class CreateImageQuestionComponent implements OnInit {
       marks: [null, [Validators.required, postiveIntegerValidator]],
       concept_label: [null]
     });
+
+    this.editQuestionSetForm = this.formBuilder.group({
+      set_name: [null, [Validators.required, characterLengthLessThanEqualTo(20)]]
+    });
   }
 
   getTestDetails() {
@@ -140,11 +145,14 @@ export class CreateImageQuestionComponent implements OnInit {
           this.selectedSet = result.test_sets[0];
         }
         this.setQuestions = result.first_set_questions;
-        if (this.setQuestions) {
+        if (this.setQuestions && this.setQuestions.length > 0) {
           this.selectedSectionIdx = 0;
           this.selectedSectionData = this.setQuestions[0];
         }
         console.log(result);
+        console.log(this.setQuestions);
+        console.log(this.selectedSet);
+        console.log(this.selectedSectionData);
       },
       errors => {
         this.loadingIndicator = false;
@@ -181,6 +189,7 @@ export class CreateImageQuestionComponent implements OnInit {
           this.submitIndicatorAddQuestionSet = false;
           this.testDetails.test_sets.push(result);
           this.selectedSet = result;
+          this.selectedSectionData = null;
           console.log(result);
           this.toggleAddQuestionSetForm();
           this.uiService.showSnackBar(
@@ -345,7 +354,17 @@ export class CreateImageQuestionComponent implements OnInit {
         this.toggleAddQuestionSection();
         this.addQuestionSectionIndicator = false;
         console.log(result);
+        if (!this.setQuestions) {
+          this.setQuestions = [];
+        }
         this.setQuestions.push(result);
+        for (const idx in this.setQuestions) {
+          if (this.setQuestions[idx].section_id === result.section_id) {
+            this.selectSectionIdx(+idx);
+          }
+        }
+        console.log(this.setQuestions);
+        console.log(this.selectedSectionData);
         this.uiService.showSnackBar('Question group added successfully!', 2000);
       },
       errors => {
@@ -684,6 +703,68 @@ export class CreateImageQuestionComponent implements OnInit {
     this.selectedSectionData = this.setQuestions[index];
   }
 
+  editQuestionSetName() {
+    this.resetQuestionSetEditForm();
+    this.selectedSet.edit = true;
+    this.selectedSet.editingIndicator = false;
+    this.editQuestionSetForm.enable();
+  }
+
+  resetQuestionSetEditForm() {
+    this.editQuestionForm.reset();
+    this.editQuestionSetForm.patchValue({
+      set_name: this.selectedSet.set_name
+    });
+    this.editQuestionForm.enable();
+  }
+
+  closeQuestionSetEditForm() {
+    this.selectedSet.edit = false;
+  }
+
+  editQuestionSet(selectedSetId: number) {
+    this.selectedSet.editingIndicator = true;
+    this.editQuestionSetForm.disable();
+    this.instituteApiService.editQuestionSet(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      selectedSetId.toString(),
+      this.editQuestionSetForm.value
+    ).subscribe(
+      (result: {id: number; set_name: string}) => {
+        this.selectedSet.editingIndicator = false;
+        this.selectedSet.edit = false;
+        if (this.selectedSet.id === result.id) {
+          this.selectedSet.set_name = result.set_name;
+        } else {
+          this.testDetails.test_sets.map(s => {
+            if (s.id === result.id) {
+              s.set_name = result.set_name;
+            }
+          });
+        }
+        this.uiService.showSnackBar(
+          'Updated question set successfully!',
+          2000
+        );
+      },
+      errors => {
+        this.selectedSet.editingIndicator = false;
+        this.editQuestionSetForm.enable();
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to edit question set.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to edit question set.', 3000);
+        }
+      }
+    );
+  }
+
   getConceptLabelName(conceptLabelId: number) {
     return this.testDetails.labels.map(label => {
       if (label.id === conceptLabelId) {
@@ -693,7 +774,11 @@ export class CreateImageQuestionComponent implements OnInit {
   }
 
   findTotalMarksOfSelectedQuestionSet() {
-    return this.setQuestions.map(s => s.questions.map(q => +q.marks).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0);
+    if (this.setQuestions) {
+      return this.setQuestions.map(s => s.questions.map(q => +q.marks).reduce((a, b) => a + b, 0)).reduce((a, b) => a + b, 0);
+    } else {
+      return 0;
+    }
   }
 
   findTotalMarksOfSelectedQuestionGroup() {

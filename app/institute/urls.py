@@ -255,6 +255,10 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/add-test-question-section',
          views.InstituteAddTestQuestionSectionView.as_view(),
          name='add-test-question-section'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:question_section_id>/edit-test-question'
+         '-section',
+         views.InstituteEditTestQuestionSectionView.as_view(),
+         name='edit-test-question-section'),
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/edit-question-set',
          views.InstituteEditQuestionSetName.as_view(),
          name='edit-question-set'),
