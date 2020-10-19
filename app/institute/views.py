@@ -6762,7 +6762,8 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                         'order': qs.order,
                         'view': qs.view,
                         'no_of_question_to_attempt': qs.no_of_question_to_attempt,
-                        'answer_all_questions': qs.answer_all_questions
+                        'answer_all_questions': qs.answer_all_questions,
+                        'section_mandatory': qs.section_mandatory
                     }
                     questions = list()
 
