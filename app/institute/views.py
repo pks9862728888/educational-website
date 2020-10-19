@@ -462,7 +462,8 @@ class InstituteCreateStorageLicenseOrderView(APIView):
                     status=status.HTTP_201_CREATED)
             else:
                 pass  # Generate response
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -906,7 +907,8 @@ class InstituteCreateCommonLicenseOrderView(APIView):
                     status=status.HTTP_201_CREATED)
             else:
                 pass  # Generate response
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Internal server error.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -7613,7 +7615,7 @@ class InstituteEditQuestionSetName(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
-    def post(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         """Only subject in-charge can access."""
         institute = models.Institute.objects.filter(
             institute_slug=kwargs.get('institute_slug')
@@ -7654,7 +7656,7 @@ class InstituteEditQuestionSetName(APIView):
         question_set = models.SubjectTestSets.objects.filter(
             pk=kwargs.get('set_id'),
             test=test
-        ).only('pk').first()
+        ).only('pk', 'set_name').first()
 
         if not question_set:
             return Response({'error': _('Question set not found.')},
@@ -7665,7 +7667,7 @@ class InstituteEditQuestionSetName(APIView):
             question_set.save()
 
             return Response({
-                'id': question_set.id,
+                'id': question_set.pk,
                 'set_name': question_set.set_name
             }, status=status.HTTP_200_OK)
         except ValueError as e:

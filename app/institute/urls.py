@@ -4,6 +4,7 @@ from . import views
 
 app_name = 'institute'
 
+# noinspection PyPackageRequirements
 urlpatterns = [
     # Institute license related url
     path('get-discount-coupon',
@@ -152,6 +153,7 @@ urlpatterns = [
     path('<slug:subject_slug>/list-subject-instructors',
          views.ListSubjectInstructorsView.as_view(),
          name='list-subject-instructors'),
+
     # Institute Subject Student
     path('<slug:institute_slug>/<slug:class_slug>/<slug:subject_slug>/subject-student-list/<slug:student_type>',
          views.InstituteSubjectStudentListView.as_view(),
@@ -253,9 +255,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/add-test-question-section',
          views.InstituteAddTestQuestionSectionView.as_view(),
          name='add-test-question-section'),
-    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/edit-question-set-name',
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/edit-question-set',
          views.InstituteEditQuestionSetName.as_view(),
-         name='edit-question-set-name'),
+         name='edit-question-set'),
 
     # File question paper
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/upload-file-question-paper',

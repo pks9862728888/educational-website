@@ -183,4 +183,4 @@ CELERY_TASK_SERIALIZER = 'json'
 # For razorpay
 client = razorpay.Client(auth=(os.environ.get('RAZORPAY_TEST_KEY_ID'),
                                os.environ.get('RAZORPAY_TEST_KEY_PASSWORD')))
-client.set_app_details({"title": "Education webapp", "version": "1.0.0"})
+client.set_app_details({"title": "ScholarDiet", "version": "1.0.0"})
