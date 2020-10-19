@@ -7895,6 +7895,88 @@ class InstituteDeleteQuestionSection(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class InstituteDeleteQuestionSet(APIView):
+    """View for deleting question paper"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        """Only subject in-charge or admin can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            if not models.InstitutePermission.objects.filter(
+                institute=institute,
+                invitee=self.request.user,
+                role=models.InstituteRole.ADMIN,
+                active=True
+            ):
+                return Response({'error': _('Permission denied [Subject in-charge or Admin only]')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        question_set = models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).first()
+
+        if not question_set:
+            return Response({'error': _('Question set not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        file_size = 0.0
+
+        if question_set.test.question_mode == models.QuestionMode.FILE:
+            # Find size of file question paper
+            question_paper = models.SubjectFileTestQuestion.objects.filter(
+                set=question_set,
+                test__test_slug=kwargs.get('test_slug')
+            ).only('file').first()
+
+            if question_paper:
+                file_size += question_paper.file.size
+
+            # Find size due to student responses (if any)
+        elif question_set.test.question_mode == models.QuestionMode.IMAGE:
+            # Find size of image questions
+            for q in models.SubjectPictureTestQuestions.objects.filter(
+                test_section__set__pk=question_set.pk
+            ).only('file'):
+                file_size += q.file.size
+        elif question_set.test.question_mode == models.QuestionMode.TYPED:
+            # Find size of typed image questions
+            pass
+
+        question_set.delete()
+        file_size = file_size / 1000000000
+
+        if file_size > 0.0:
+            models.InstituteSubjectStatistics.objects.filter(
+                statistics_subject=subject
+            ).update(storage=F('storage') - Decimal(file_size))
+            models.InstituteStatistics.objects.filter(
+                institute=institute
+            ).update(storage=F('storage') - Decimal(file_size))
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class InstituteDeleteTestSetView(APIView):
     """View for deleting question set"""
     authentication_classes = (TokenAuthentication,)

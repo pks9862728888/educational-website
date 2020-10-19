@@ -171,8 +171,11 @@
                                 <h2 class="expansion-panel-header-color"><span *ngIf="!mq.matches">Question&nbsp;</span>Group {{ selectedSectionIdx + 1 }}</h2>
                                 <div class="d-flex align-center m-l-05">
                                     <h2 class="expansion-panel-header-color" [class.m-r-05]="!mq.matches">{{ findTotalMarksOfSelectedQuestionGroup() }} marks</h2>
-                                    <button mat-stroked-button *ngIf="!mq.matches" class="stroked-button m-r-05" [disabled]="selectedSectionData.edit || selectedSectionData.editingIndicator" (click)="showEditQuestionSectionForm()"><mat-icon class="edit-icon">edit</mat-icon></button>
-                                    <button mat-stroked-button *ngIf="!mq.matches" class="stroked-button" [disabled]="selectedSectionData.editingIndicator"><mat-icon class="delete-icon">delete</mat-icon></button>
+                                    <button mat-stroked-button *ngIf="!mq.matches" class="stroked-button m-r-05" [disabled]="selectedSectionData.edit || selectedSectionData.editingIndicator || selectedSectionData.deletingIndicator" (click)="showEditQuestionSectionForm()"><mat-icon class="edit-icon">edit</mat-icon></button>
+                                    <button mat-stroked-button *ngIf="!mq.matches" class="stroked-button" [disabled]="selectedSectionData.editingIndicator || selectedSectionData.deletingIndicator" (click)="confirmDeleteQuestionSection(selectedSectionData.section_id)">
+                                      <mat-icon *ngIf="!selectedSectionData.deletingIndicator" class="delete-icon">delete</mat-icon>
+                                      <mat-progress-spinner *ngIf="selectedSectionData.deletingIndicator" [diameter]="20" mode="indeterminate" class="m-04rem"></mat-progress-spinner>
+                                    </button>
                                 </div>
                             </div>
                             <p class="expansion-panel-header-color m-b-05">
@@ -185,7 +188,10 @@
                             <p class="faded-blue-color text-justify m-b-05" *ngIf="selectedSectionData.name">{{ selectedSectionData.name }}</p>
                             <div class="d-flex align-center" *ngIf="mq.matches">
                                 <button mat-stroked-button class="stroked-button m-r-05" [disabled]="selectedSectionData.edit || selectedSectionData.editingIndicator" (click)="showEditQuestionSectionForm()"><mat-icon class="edit-icon">edit</mat-icon></button>
-                                <button mat-stroked-button class="stroked-button" [disabled]="selectedSectionData.editingIndicator"><mat-icon class="delete-icon">delete</mat-icon></button>
+                                <button mat-stroked-button class="stroked-button" [disabled]="selectedSectionData.editingIndicator || selectedSectionData.deletingIndicator" (click)="confirmDeleteQuestionSection(selectedSectionData.section_id)">
+                                  <mat-icon *ngIf="!selectedSectionData.deletingIndicator" class="delete-icon">delete</mat-icon>
+                                  <mat-progress-spinner *ngIf="selectedSectionData.deletingIndicator" [diameter]="20" mode="indeterminate" class="m-04rem"></mat-progress-spinner>
+                                </button>
                             </div>
                             <hr class="separator m-t-1 m-b-1" />
                             <!-- For editing question section -->
@@ -242,7 +248,7 @@
                                     <div [hidden]="question.edit">
                                         <div *ngIf="question.concept_label_id" class="m-b-1 m-t-1 added-label d-flex justify-content-between align-center">
                                             <h3>{{ getConceptLabelName(question.concept_label_id) }}</h3>
-                                            <mat-icon class="delete-icon cursor-pointer m-l-05" [hidden]="question.delete || question.removingLabelIndicator" (click)="confirmRemoveConceptLabelFromQuestion(question, selectedSectionData.section_id)">delete</mat-icon>
+                                            <mat-icon class="delete-icon cursor-pointer m-l-05" [hidden]="question.delete || question.removingLabelIndicator" (click)="confirmRemoveConceptLabelFromQuestion(question)">delete</mat-icon>
                                             <mat-progress-spinner [diameter]="20" mode="indeterminate" *ngIf="question.removingLabelIndicator"></mat-progress-spinner>
                                         </div>
                                         <p class="text-justify m-b-1" *ngIf="question.text">{{ question.text }}</p>

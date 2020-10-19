@@ -81,6 +81,7 @@ export interface ImageQuestionsSectionInterface {
   questions: SubjectImageTestQuestions[];
   edit?: boolean;
   editingIndicator?: boolean;
+  deletingIndicator?: boolean;
 }
 
 export interface SubjectImageTestQuestions {

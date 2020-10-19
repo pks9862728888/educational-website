@@ -268,6 +268,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:question_section_id>/delete-question-section',
          views.InstituteDeleteQuestionSection.as_view(),
          name='delete-question-section'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/delete-question-set',
+         views.InstituteDeleteQuestionSet.as_view(),
+         name='delete-question-set'),
 
     # File question paper
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/upload-file-question-paper',
