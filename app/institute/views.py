@@ -7664,8 +7664,8 @@ class InstituteEditTestQuestionSectionView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            if request.data.get('no_of_section_to_attempt'):
-                question_section = request.data.get('no_of_section_to_attempt')
+            if request.data.get('no_of_question_to_attempt'):
+                question_section.no_of_question_to_attempt = request.data.get('no_of_question_to_attempt')
 
             question_section.answer_all_questions = request.data.get('answer_all_questions')
             question_section.section_mandatory = request.data.get('section_mandatory')
