@@ -6781,7 +6781,6 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                             if q.concept_label:
                                 question_data['concept_label_id'] = q.concept_label.pk
                             questions.append(question_data)
-                        pass
                     else:
                         # Find typed test questions
                         pass
@@ -6851,6 +6850,7 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         if test.question_mode == models.QuestionMode.FILE:
+            # Find file test questions
             response = dict()
             question_set = models.SubjectFileTestQuestion.objects.filter(
                 test=test,
@@ -6864,6 +6864,43 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                 })
             else:
                 response = None
+        elif test.question_mode == models.QuestionMode.IMAGE:
+            # Find image test questions
+            response = list()
+
+            for qs in models.SubjectTestQuestionSection.objects.filter(
+                test=test,
+                set=set_
+            ).order_by('order'):
+                res = {
+                    'section_id': qs.pk,
+                    'name': qs.name,
+                    'order': qs.order,
+                    'view': qs.view,
+                    'no_of_question_to_attempt': qs.no_of_question_to_attempt,
+                    'answer_all_questions': qs.answer_all_questions,
+                    'section_mandatory': qs.section_mandatory
+                }
+                questions = list()
+
+                for q in models.SubjectPictureTestQuestion.objects.filter(
+                        test_section__pk=qs.pk
+                ).order_by('order'):
+                    question_data = {
+                        'question_id': q.pk,
+                        'order': q.order,
+                        'text': q.text,
+                        'marks': q.marks,
+                        'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(q.file)
+                    }
+                    if q.concept_label:
+                        question_data['concept_label_id'] = q.concept_label.pk
+                    questions.append(question_data)
+
+                response.append(res)
+        else:
+            # Find typed test question
+            response = list()
 
         return Response(response, status=status.HTTP_200_OK)
 
