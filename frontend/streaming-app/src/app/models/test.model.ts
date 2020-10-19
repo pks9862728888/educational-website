@@ -77,7 +77,10 @@ export interface ImageQuestionsSectionInterface {
   view: string;
   no_of_question_to_attempt: number;
   answer_all_questions: boolean;
+  section_mandatory: boolean;
   questions: SubjectImageTestQuestions[];
+  edit?: boolean;
+  editingIndicator?: boolean;
 }
 
 export interface SubjectImageTestQuestions {
@@ -89,6 +92,7 @@ export interface SubjectImageTestQuestions {
   concept_label_id: number;
   delete?: boolean;
   edit?: boolean;
+  removingLabelIndicator?: boolean;
 }
 
 export interface SubjectTestSection {

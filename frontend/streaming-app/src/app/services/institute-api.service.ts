@@ -305,6 +305,15 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/add-test-question-section`;
   }
 
+  editTestQuestionSectionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    questionSectionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${questionSectionId}/edit-test-question-section`;
+  }
+
   addImageTestQuestionUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1145,6 +1154,20 @@ export class InstituteApiService {
     ) {
     return this.httpClient.post(
       this.addTestQuestionSectionUrl(instituteSlug, subjectSlug, testSlug, setId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  editTestQuestionSection(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    questionSectionId: string,
+    data: any
+    ) {
+    return this.httpClient.patch(
+      this.editTestQuestionSectionUrl(instituteSlug, subjectSlug, testSlug, questionSectionId),
       data,
       { headers: this.getAuthHeader() }
     );

@@ -7689,7 +7689,6 @@ class InstituteEditTestQuestionSectionView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class InstituteEditQuestionSetName(APIView):
     """View for editing test question set name"""
     authentication_classes = (TokenAuthentication,)
@@ -7752,6 +7751,75 @@ class InstituteEditQuestionSetName(APIView):
             }, status=status.HTTP_200_OK)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Server Error! Unhandled error occurred.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class InstituteRemoveConceptLabelFromQuestion(APIView):
+    """View for removing concept label from question"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Active LMS CMS license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
+        ).only('question_mode').first()
+
+        if not test:
+            return Response({'error': _('Test not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = None
+
+        if test.question_mode == models.QuestionMode.IMAGE:
+            question = models.SubjectPictureTestQuestion.objects.filter(
+                pk=kwargs.get('question_id'),
+                test=test
+            ).only('concept_label').first()
+        elif test.question_mode == models.QuestionMode.TYPED:
+            # Find the question of typed question
+            pass
+
+        if not question:
+            return Response({'error': _('Question not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question.concept_label = None
+            question.save()
+
+            return Response(status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response({'error': _('Server Error! Unhandled error occurred.')},

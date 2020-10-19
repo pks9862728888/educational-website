@@ -262,6 +262,9 @@ urlpatterns = [
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/edit-question-set',
          views.InstituteEditQuestionSetName.as_view(),
          name='edit-question-set'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:question_id>/remove-question-label',
+         views.InstituteRemoveConceptLabelFromQuestion.as_view(),
+         name='remove-question-label'),
 
     # File question paper
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/upload-file-question-paper',

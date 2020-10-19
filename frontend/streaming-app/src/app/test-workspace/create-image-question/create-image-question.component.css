@@ -157,6 +157,10 @@ span {
     pointer-events: none;
 }
 
+.disabled {
+    cursor: default;
+}
+
 .h-100 {
     height: 100%;
 }
