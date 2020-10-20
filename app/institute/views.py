@@ -6850,8 +6850,8 @@ class InstituteGetQuestionSetQuestionsView(APIView):
             return Response({'error': _('Question set not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        response = dict()
         if test.question_mode == models.QuestionMode.FILE:
+            response = dict()
             question_set = models.SubjectFileTestQuestion.objects.filter(
                 test=test,
                 set=set_
@@ -7954,7 +7954,7 @@ class InstituteDeleteQuestionSet(APIView):
             # Find size due to student responses (if any)
         elif question_set.test.question_mode == models.QuestionMode.IMAGE:
             # Find size of image questions
-            for q in models.SubjectPictureTestQuestions.objects.filter(
+            for q in models.SubjectPictureTestQuestion.objects.filter(
                 test_section__set__pk=question_set.pk
             ).only('file'):
                 file_size += q.file.size
