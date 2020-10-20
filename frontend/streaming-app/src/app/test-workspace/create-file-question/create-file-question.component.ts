@@ -27,6 +27,7 @@ export class CreateFileQuestionComponent implements OnInit {
   currentInstituteRole: string;
   questionSetForm: FormGroup;
   uploadQuestionPaperForm: FormGroup;
+  editQuestionSetForm: FormGroup;
 
   loadingIndicator: boolean;
   loadingError: string;
@@ -72,8 +73,13 @@ export class CreateFileQuestionComponent implements OnInit {
     this.questionSetForm = this.formBuilder.group({
       set_name: [null, [Validators.required, characterLengthLessThanEqualTo(20)]]
     });
+
     this.uploadQuestionPaperForm = this.formBuilder.group({
       file: [null, [Validators.required]]
+    });
+
+    this.editQuestionSetForm = this.formBuilder.group({
+      set_name: [null, [Validators.required, characterLengthLessThanEqualTo(20)]]
     });
   }
 
@@ -200,10 +206,10 @@ export class CreateFileQuestionComponent implements OnInit {
           if (errors.error.error) {
             this.uiService.showSnackBar(errors.error.error, 3000);
           } else {
-            this.uiService.showSnackBar('Error! Unable to delete test set.', 3000);
+            this.uiService.showSnackBar('Error! Unable to delete question set.', 3000);
           }
         } else {
-          this.uiService.showSnackBar('Error! Unable to delete test set.', 3000);
+          this.uiService.showSnackBar('Error! Unable to delete question set.', 3000);
         }
       }
     );
@@ -372,6 +378,68 @@ export class CreateFileQuestionComponent implements OnInit {
             'Error! Unable to delete question paper at the moment. Try again.',
             3000
           );
+        }
+      }
+    );
+  }
+
+  showEditQuestionSetForm() {
+    this.resetQuestionSetEditForm();
+    this.selectedSet.edit = true;
+    this.selectedSet.editingIndicator = false;
+    this.editQuestionSetForm.enable();
+  }
+
+  resetQuestionSetEditForm() {
+    this.editQuestionSetForm.reset();
+    this.editQuestionSetForm.patchValue({
+      set_name: this.selectedSet.set_name
+    });
+    this.editQuestionSetForm.enable();
+  }
+
+  closeQuestionSetEditForm() {
+    this.selectedSet.edit = false;
+  }
+
+  editQuestionSet(selectedSetId: number) {
+    this.selectedSet.editingIndicator = true;
+    this.editQuestionSetForm.disable();
+    this.instituteApiService.editQuestionSet(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      this.currentTestSlug,
+      selectedSetId.toString(),
+      this.editQuestionSetForm.value
+    ).subscribe(
+      (result: {id: number; set_name: string}) => {
+        this.selectedSet.editingIndicator = false;
+        this.selectedSet.edit = false;
+        if (this.selectedSet.id === result.id) {
+          this.selectedSet.set_name = result.set_name;
+        } else {
+          this.testDetails.test_sets.map(s => {
+            if (s.id === result.id) {
+              s.set_name = result.set_name;
+            }
+          });
+        }
+        this.uiService.showSnackBar(
+          'Updated question set successfully!',
+          2000
+        );
+      },
+      errors => {
+        this.selectedSet.editingIndicator = false;
+        this.editQuestionSetForm.enable();
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to edit question set.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to edit question set.', 3000);
         }
       }
     );

@@ -277,7 +277,7 @@ export class InstituteApiService {
     testSlug: string,
     setId: string
     ) {
-    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/delete-test-set`;
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/delete-question-set`;
   }
 
   addTestConceptLabelUrl(

@@ -62,7 +62,6 @@ export class CreateImageQuestionComponent implements OnInit {
   totalFileSize = 0;
 
   showAddQuestionSetForm = false;
-  showAddSectionForm = false;
   previewQuestionPaper = false;
   showAddQuestionForm = false;
   showConceptLabelInfo = false;
@@ -242,12 +241,12 @@ export class CreateImageQuestionComponent implements OnInit {
     });
     dialogReference.afterClosed().subscribe(result => {
       if (result) {
-        this.deleteQuestionSet(this.selectedSet);
+        this.deleteQuestionSet(this.selectedSet.id);
       }
     });
   }
 
-  deleteQuestionSet(selectedSet: TestQuestionSetInterface) {
+  deleteQuestionSet(selectedSetId: number) {
     this.selectedSet.delete = true;
     this.instituteApiService.deleteQuestionSet(
       this.currentInstituteSlug,
@@ -256,8 +255,8 @@ export class CreateImageQuestionComponent implements OnInit {
       this.selectedSet.id.toString()
     ).subscribe(
       () => {
-        const index = +this.findIndexInArray(this.testDetails.test_sets, selectedSet.id);
-        if (this.selectedSet.id === selectedSet.id) {
+        const index = +this.findIndexInArray(this.testDetails.test_sets, selectedSetId);
+        if (this.selectedSet.id === selectedSetId) {
           this.selectedSet = null;
           this.setQuestions = null;
         }
@@ -270,10 +269,10 @@ export class CreateImageQuestionComponent implements OnInit {
           if (errors.error.error) {
             this.uiService.showSnackBar(errors.error.error, 3000);
           } else {
-            this.uiService.showSnackBar('Error! Unable to delete test set.', 3000);
+            this.uiService.showSnackBar('Error! Unable to delete question set.', 3000);
           }
         } else {
-          this.uiService.showSnackBar('Error! Unable to delete test set.', 3000);
+          this.uiService.showSnackBar('Error! Unable to delete question set.', 3000);
         }
       }
     );
@@ -281,6 +280,7 @@ export class CreateImageQuestionComponent implements OnInit {
 
   getQuestionSetQuestions(questionSet: TestQuestionSetInterface, retry = false) {
     this.showAddQuestionSetForm = false;
+    this.selectedSet.showAddSectionForm = false;
 
     if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {
       this.selectedSet = questionSet;
@@ -298,6 +298,9 @@ export class CreateImageQuestionComponent implements OnInit {
           this.loadingSetQuestionsIndicator = false;
           this.setQuestions = result;
           console.log(result);
+          if (this.setQuestions.length > 0) {
+            this.selectSectionIdx(0);
+          }
         },
         errors => {
           this.loadingSetQuestionsIndicator = false;
@@ -315,11 +318,15 @@ export class CreateImageQuestionComponent implements OnInit {
     }
   }
 
-  toggleAddQuestionSection() {
+  showAddQuestionSectionForm() {
     this.resetAddQuestionSectionForm();
     this.addQuestionSectionForm.enable();
     this.addQuestionSectionIndicator = false;
-    this.showAddSectionForm = !this.showAddSectionForm;
+    this.selectedSet.showAddSectionForm = true;
+  }
+
+  hideAddQuestionSectionForm() {
+    this.selectedSet.showAddSectionForm = false;
   }
 
   resetAddQuestionSectionForm() {
@@ -362,7 +369,7 @@ export class CreateImageQuestionComponent implements OnInit {
       data
     ).subscribe(
       (result: ImageQuestionsSectionInterface) => {
-        this.toggleAddQuestionSection();
+        this.hideAddQuestionSectionForm();
         this.addQuestionSectionIndicator = false;
         console.log(result);
         if (!this.setQuestions) {
@@ -407,7 +414,7 @@ export class CreateImageQuestionComponent implements OnInit {
     } else {
 
       if (!value) {
-        this.uiService.showSnackBar('Concept label should not be blank.', 3000);
+        input.value = '';
       } else {
         this.addConceptLabelIndicator = true;
         this.instituteApiService.addTestConceptLabel(
@@ -722,11 +729,11 @@ export class CreateImageQuestionComponent implements OnInit {
   }
 
   resetQuestionSetEditForm() {
-    this.editQuestionForm.reset();
+    this.editQuestionSetForm.reset();
     this.editQuestionSetForm.patchValue({
       set_name: this.selectedSet.set_name
     });
-    this.editQuestionForm.enable();
+    this.editQuestionSetForm.enable();
   }
 
   closeQuestionSetEditForm() {

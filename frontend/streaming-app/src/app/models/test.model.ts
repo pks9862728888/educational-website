@@ -62,6 +62,7 @@ export interface TestQuestionSetInterface {
   delete?: boolean;
   edit?: boolean;
   editingIndicator?: boolean;
+  showAddSectionForm?: boolean;
 }
 
 export interface FileQuestionsInterface {
