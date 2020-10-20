@@ -4231,6 +4231,7 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
     parser_classes = (JSONParser, MultiPartParser)
 
     def post(self, request, *args, **kwargs):
+        """Subject incharge only"""
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')
         ).only('subject_slug').first()
@@ -4243,7 +4244,7 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
             to=subject,
             invitee=self.request.user
         ).exists():
-            return Response({'error': _('Permission denied.')},
+            return Response({'error': _('Permission denied [Subject in-charge only].')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         view = models.SubjectViewNames.objects.filter(
@@ -4258,16 +4259,28 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
         institute = models.Institute.objects.filter(
             pk=subject.subject_class.class_institute.pk
         ).only('institute_slug').first()
-        license_ = get_active_common_license(institute)
 
-        if not license_:
-            return Response({'error': _('License not found.')},
+        if not get_active_common_license(institute):
+            return Response({'error': _('LMS CMS license not found or expired.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        storage_lic = models.InstituteLicenseStat.objects.filter(
+            institute=institute
+        ).only('total_storage', 'storage_license_end_date').first()
+
+        if not storage_lic.total_storage:
+            return Response({'error': _('Storage license not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if int(time.time()) * 1000 > storage_lic.storage_license_end_date:
+            return Response({'error': _('Storage license expired. Please purchase storage license to continue.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
             response = dict()
             response['view'] = view.key
             response['content_type'] = request.data.get('content_type')
+
             if request.data.get('content_type') == models.SubjectIntroductionContentType.IMAGE:
                 res = validate_image_file(request.data.get('file'))
 
@@ -4306,9 +4319,10 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
                     institute=institute
                 ).only('storage').first()
 
-                if float(license_.selected_license.storage) <= float(institute_stats.storage) + \
+                if float(storage_lic.total_storage) <= float(institute_stats.storage) + \
                         request.data.get('file').size / 1000000000:
-                    return Response({'error': _('Institute storage exceeded. Please contact us to upgrade storage.')},
+                    return Response({'error': _('Storage limit exceeded. Please purchase additional storage to '
+                                                'continue.')},
                                     status=status.HTTP_400_BAD_REQUEST)
 
                 ser = serializer.SubjectIntroductoryFileMaterialSerializer(
@@ -4339,7 +4353,8 @@ class InstituteSubjectAddIntroductoryContentView(APIView):
 
             return Response(response, status=status.HTTP_201_CREATED)
 
-        except Exception:
+        except Exception as e:
+            print(e)
             return Response({'error': _('Internal server error. Please report us.')},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
