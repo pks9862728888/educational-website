@@ -6897,6 +6897,7 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                         question_data['concept_label_id'] = q.concept_label.pk
                     questions.append(question_data)
 
+                res['questions'] = questions
                 response.append(res)
         else:
             # Find typed test question
