@@ -6798,7 +6798,23 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                             questions.append(question_data)
                     else:
                         # Find typed test questions
-                        pass
+                        for q in models.SubjectTypedTestQuestion.objects.filter(
+                            test_section__pk=qs.pk
+                        ).order_by('order'):
+                            question_data = {
+                                'question_id': q.pk,
+                                'order': q.order,
+                                'question': q.question,
+                                'marks': q.marks,
+                                'has_picture': q.has_picture,
+                                'type': q.type
+                            }
+                            if q.concept_label:
+                                question_data['concept_label_id'] = q.concept_label.pk
+
+                            # Find data according to question type
+
+                            questions.append(question_data)
 
                     res['questions'] = questions
                     response['first_set_questions'].append(res)
@@ -6879,8 +6895,7 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                 })
             else:
                 response = None
-        elif test.question_mode == models.QuestionMode.IMAGE:
-            # Find image test questions
+        elif test.question_mode == models.QuestionMode.IMAGE or test.question_mode == models.QuestionMode.TYPED:
             response = list()
 
             for qs in models.SubjectTestQuestionSection.objects.filter(
@@ -6898,25 +6913,43 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                 }
                 questions = list()
 
-                for q in models.SubjectPictureTestQuestion.objects.filter(
-                        test_section__pk=qs.pk
-                ).order_by('order'):
-                    question_data = {
-                        'question_id': q.pk,
-                        'order': q.order,
-                        'text': q.text,
-                        'marks': q.marks,
-                        'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(q.file)
-                    }
-                    if q.concept_label:
-                        question_data['concept_label_id'] = q.concept_label.pk
-                    questions.append(question_data)
+                if test.question_mode == models.QuestionMode.IMAGE:
+                    # Find image test questions
+                    for q in models.SubjectPictureTestQuestion.objects.filter(
+                            test_section__pk=qs.pk
+                    ).order_by('order'):
+                        question_data = {
+                            'question_id': q.pk,
+                            'order': q.order,
+                            'text': q.text,
+                            'marks': q.marks,
+                            'file': self.request.build_absolute_uri('/').strip('/') + MEDIA_URL + '/' + str(q.file)
+                        }
+                        if q.concept_label:
+                            question_data['concept_label_id'] = q.concept_label.pk
+                        questions.append(question_data)
+                else:
+                    # Find typed test questions
+                    for q in models.SubjectTypedTestQuestion.objects.filter(
+                            test_section__pk=qs.pk
+                    ).order_by('order'):
+                        question_data = {
+                            'question_id': q.pk,
+                            'order': q.order,
+                            'question': q.question,
+                            'marks': q.marks,
+                            'type': q.type,
+                            'has_picture': q.has_picture
+                        }
+                        if q.concept_label:
+                            question_data['concept_label_id'] = q.concept_label.pk
+
+                        # Find appropriate options according to question
+
+                        questions.append(question_data)
 
                 res['questions'] = questions
                 response.append(res)
-        else:
-            # Find typed test question
-            response = list()
 
         return Response(response, status=status.HTTP_200_OK)
 
