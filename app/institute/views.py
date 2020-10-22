@@ -6813,6 +6813,13 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                                 question_data['concept_label_id'] = q.concept_label.pk
 
                             # Find data according to question type
+                            if q.type == models.QuestionType.TRUE_FALSE:
+                                true_false_correct_answer = models.SubjectTestTrueFalseCorrectAnswer.objects.filter(
+                                    question__pk=q.pk
+                                ).first()
+
+                                if true_false_correct_answer:
+                                    question_data['correct_answer'] = true_false_correct_answer.correct_answer
 
                             questions.append(question_data)
 
@@ -6945,6 +6952,13 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                             question_data['concept_label_id'] = q.concept_label.pk
 
                         # Find appropriate options according to question
+                        if q.type == models.QuestionType.TRUE_FALSE:
+                            true_false_correct_answer = models.SubjectTestTrueFalseCorrectAnswer.objects.filter(
+                                question__pk=q.pk
+                            ).first()
+
+                            if true_false_correct_answer:
+                                question_data['correct_answer'] = true_false_correct_answer.correct_answer
 
                         questions.append(question_data)
 
@@ -7269,8 +7283,8 @@ class InstituteUploadImageQuestionView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class InstituteTypedTestQuestionView(APIView):
-    """View for adding typed test question paper"""
+class InstituteTypedTestAddQuestionView(APIView):
+    """View for adding typed test question"""
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
@@ -7372,6 +7386,67 @@ class InstituteTypedTestQuestionView(APIView):
             return Response(response, status=status.HTTP_201_CREATED)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteTestAddTrueFalseCorrectAnswer(APIView):
+    """View for adding true false correct answer"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectTypedTestQuestion.objects.filter(
+            pk=kwargs.get('question_id')
+        ).only('pk').first()
+
+        if not question:
+            return Response({'error': _('Question not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        try:
+            answer = models.SubjectTestTrueFalseCorrectAnswer.objects.filter(
+                question=question
+            ).first()
+
+            if not answer:
+                answer = models.SubjectTestTrueFalseCorrectAnswer.objects.create(
+                    question=question,
+                    correct_answer=request.data.get('correct_answer')
+                )
+            else:
+                answer.correct_answer = request.data.get('correct_answer')
+                answer.save()
+
+            return Response({'correct_answer': answer.correct_answer},
+                            status=status.HTTP_201_CREATED)
+
+        except IntegrityError as e:
+            if 'unique_answer' in str(e):
+                return Response({'error': _('Correct answer already added.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                print(e)
+                return Response({'error': _('Unhandled error occurred.')},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             print(e)
             return Response({'error': _('Unhandled error occurred.')},
