@@ -2782,7 +2782,7 @@ class SubjectTypedTestQuestion(models.Model):
 
     def save(self, *args, **kwargs):
         if self.question:
-            self.question = self.question.trim()
+            self.question = self.question.strip()
         if not self.question:
             raise ValueError(_('Question is required.'))
         if not self.marks:
