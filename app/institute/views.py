@@ -7236,6 +7236,115 @@ class InstituteUploadImageQuestionView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class InstituteTypedTestQuestionView(APIView):
+    """View for adding typed test question paper"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Institute LMS CMS license expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug'),
+            subject=subject
+        ).only('question_category').first()
+
+        if not test:
+            return Response({'error': _('Test not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        if test.question_category == models.QuestionCategory.AUTOCHECK_TYPE:
+            if request.data.get('type') != models.QuestionType.MCQ and\
+                    request.data.get('type') != models.QuestionType.TRUE_FALSE and\
+                    request.data.get('type') != models.QuestionType.SELECT_MULTIPLE_CHOICE and\
+                    request.data.get('type') != models.QuestionType.NUMERIC_ANSWER:
+                return Response({'error': _('Question type not allowed [ PROGRAMMING ERROR ]')},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        if models.SubjectTestSets.objects.filter(
+                pk=kwargs.get('set_id'),
+                test=test,
+                mark_as_final=True
+        ).exists():
+            return Response({'error': _('Question set is MARKED AS FINAL. Uploading question is not allowed.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        question_section = models.SubjectTestQuestionSection.objects.filter(
+            pk=kwargs.get('test_section_id'),
+            test=test,
+        ).first()
+
+        if not question_section:
+            return Response({'error': _('Question paper group not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        concept_label = None
+
+        if request.data.get('concept_label'):
+            concept_label = models.SubjectTestConceptLabels.objects.filter(
+                pk=request.data.get('concept_label'),
+                test=test
+            ).only('pk').first()
+
+            if not concept_label:
+                return Response({'error': _('Concept label not found. Please refresh.')},
+                                status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = models.SubjectTypedTestQuestion.objects.create(
+                type=request.data.get('type'),
+                question=request.data.get('question'),
+                marks=request.data.get('marks'),
+                has_picture=request.data.get('has_picture'),
+                test_section=question_section,
+                concept_label=concept_label,
+            )
+
+            response = {
+                'question_id': question.pk,
+                'question': question.question,
+                'marks': question.marks,
+                'order': question.order,
+                'has_picture': question.has_picture,
+                'type': question.type
+            }
+            if request.data.get('concept_label'):
+                response['concept_label_id'] = question.concept_label.pk
+            return Response(response, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class InstituteEditImageQuestionView(APIView):
     """View for editing image question paper"""
     authentication_classes = (TokenAuthentication,)

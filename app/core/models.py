@@ -403,13 +403,12 @@ class TestQuestionViewType:
 class QuestionType:
     MCQ = 'M'
     TRUE_FALSE = 'T'
-    SELECT_MULTIPLE_CHOICE = 'M'
+    SELECT_MULTIPLE_CHOICE = 'C'
     FILL_IN_THE_BLANK = 'F'
     ASSERTION = 'A'
     SHORT_ANSWER = 'S'
     DESCRIPTIVE_ANSWER = 'D'
     NUMERIC_ANSWER = 'N'
-    PICTURE_TYPE_QUESTION = 'P'
 
     TYPE_IN_QUESTION_TYPES = [
         (MCQ, _(u'MCQ')),
@@ -419,8 +418,7 @@ class QuestionType:
         (ASSERTION, _(u'ASSERTION')),
         (SHORT_ANSWER, _(u'SHORT_ANSWER')),
         (DESCRIPTIVE_ANSWER, _(u'DESCRIPTIVE_ANSWER')),
-        (NUMERIC_ANSWER, _(u'NUMERIC_ANSWER')),
-        (PICTURE_TYPE_QUESTION, _(u'PICTURE_TYPE_QUESTION'))
+        (NUMERIC_ANSWER, _(u'NUMERIC_ANSWER'))
     ]
 
 
@@ -2777,12 +2775,21 @@ class SubjectTypedTestQuestion(models.Model):
         blank=False)
     concept_label = models.ForeignKey(
         SubjectTestConceptLabels, on_delete=models.SET_NULL, blank=True, null=True)
-    question = models.TextField(
-        'Question', blank=True, default='')
-    marks = models.DecimalField(
-        'Marks', max_digits=5, decimal_places=2)
-    order = models.PositiveIntegerField(
-        _('Order'), blank=True, null=True)
+    question = models.TextField('Question')
+    marks = models.DecimalField('Marks', max_digits=5, decimal_places=2)
+    has_picture = models.BooleanField(_('Question has picture'), default=False, blank=True)
+    order = models.PositiveIntegerField(_('Order'), blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.question:
+            self.question = self.question.trim()
+        if not self.question:
+            raise ValueError(_('Question is required.'))
+        if not self.marks:
+            raise ValueError(_('Marks is required.'))
+        if float(self.marks) <= 0.0:
+            raise ValueError(_('Marks should be a positive number'))
+        super(SubjectTypedTestQuestion, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=SubjectTypedTestQuestion)

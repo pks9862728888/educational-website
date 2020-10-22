@@ -291,6 +291,12 @@ urlpatterns = [
          views.InstituteDeleteImageQuestionView.as_view(),
          name='delete-image-test-question'),
 
+    # Typed test question paper
+    path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/<int:test_section_id>/add-typed'
+         '-test-question',
+         views.InstituteTypedTestQuestionView.as_view(),
+         name='add-typed-test-question'),
+
     # Institute Subject preview course
     path('list-all-student-institute-courses',
          views.InstituteStudentCourseListView.as_view(),
