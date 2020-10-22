@@ -2826,6 +2826,11 @@ class SubjectTestTrueFalseCorrectAnswer(models.Model):
         SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_true_false_question')
     correct_answer = models.BooleanField(_('True / False correct answer'))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['question', 'correct_answer'], name='unique_answer')
+        ]
+
 
 class SubjectTestSelectMultipleCorrectAnswer(models.Model):
     """Model for storing subject test select multiple correct answer"""

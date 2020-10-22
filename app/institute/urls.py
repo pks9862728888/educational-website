@@ -294,8 +294,11 @@ urlpatterns = [
     # Typed test question paper
     path('<slug:institute_slug>/<slug:subject_slug>/<slug:test_slug>/<int:set_id>/<int:test_section_id>/add-typed'
          '-test-question',
-         views.InstituteTypedTestQuestionView.as_view(),
+         views.InstituteTypedTestAddQuestionView.as_view(),
          name='add-typed-test-question'),
+    path('<slug:subject_slug>/<int:question_id>/add-true-false-correct-answer',
+         views.InstituteTestAddTrueFalseCorrectAnswer.as_view(),
+         name='add-true-false-correct-answer'),
 
     # Institute Subject preview course
     path('list-all-student-institute-courses',
