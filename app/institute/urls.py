@@ -296,9 +296,9 @@ urlpatterns = [
          '-test-question',
          views.InstituteTypedTestAddQuestionView.as_view(),
          name='add-typed-test-question'),
-    path('<slug:subject_slug>/<int:question_id>/add-true-false-correct-answer',
+    path('<slug:subject_slug>/<int:question_id>/add-update-true-false-correct-answer',
          views.InstituteTestAddTrueFalseCorrectAnswer.as_view(),
-         name='add-true-false-correct-answer'),
+         name='add-update-true-false-correct-answer'),
 
     # Institute Subject preview course
     path('list-all-student-institute-courses',
