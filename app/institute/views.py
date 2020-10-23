@@ -6824,6 +6824,18 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                                         'option': option.option,
                                         'correct_answer': option.correct_answer
                                     })
+
+                            elif q.type == models.QuestionType.SELECT_MULTIPLE_CHOICE:
+                                question_data['options'] = list()
+                                for option in models.SubjectTestSelectMultipleCorrectAnswer.objects.filter(
+                                        question__pk=q.pk
+                                ):
+                                    question_data['options'].append({
+                                        'option_id': option.pk,
+                                        'option': option.option,
+                                        'correct_answer': option.correct_answer
+                                    })
+
                             elif q.type == models.QuestionType.TRUE_FALSE:
                                 true_false_correct_answer = models.SubjectTestTrueFalseCorrectAnswer.objects.filter(
                                     question__pk=q.pk
@@ -6981,6 +6993,7 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                                     'option': option.option,
                                     'correct_answer': option.correct_answer
                                 })
+
                         elif q.type == models.QuestionType.TRUE_FALSE:
                             true_false_correct_answer = models.SubjectTestTrueFalseCorrectAnswer.objects.filter(
                                 question__pk=q.pk
@@ -6988,6 +7001,17 @@ class InstituteGetQuestionSetQuestionsView(APIView):
 
                             if true_false_correct_answer:
                                 question_data['correct_answer'] = true_false_correct_answer.correct_answer
+
+                        elif q.type == models.QuestionType.SELECT_MULTIPLE_CHOICE:
+                            question_data['options'] = list()
+                            for option in models.SubjectTestSelectMultipleCorrectAnswer.objects.filter(
+                                    question__pk=q.pk
+                            ):
+                                question_data['options'].append({
+                                    'option_id': option.pk,
+                                    'option': option.option,
+                                    'correct_answer': option.correct_answer
+                                })
 
                         elif q.type == models.QuestionType.NUMERIC_ANSWER:
                             numeric_correct_answer = models.SubjectTestNumericCorrectAnswer.objects.filter(
@@ -7665,6 +7689,76 @@ class InstituteTestDeleteMCQOption(APIView):
 
         option.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class InstituteTestAddUpdateSelectMultipleOption(APIView):
+    """View for adding or updating select multiple options"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectTypedTestQuestion.objects.filter(
+            pk=kwargs.get('question_id')
+        ).only('pk').first()
+
+        if not question:
+            return Response({'error': _('Question not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if request.data.get('option_id'):
+                option = models.SubjectTestSelectMultipleCorrectAnswer.objects.filter(
+                    pk=request.data.get('option_id')
+                ).first()
+
+                if not option:
+                    return Response({'error': _('Option not found!')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+                option.option = request.data.get('option')
+                option.correct_answer = request.data.get('correct_answer')
+                option.save()
+            else:
+                option = models.SubjectTestSelectMultipleCorrectAnswer.objects.create(
+                    question=question,
+                    option=request.data.get('option'),
+                    correct_answer=request.data.get('correct_answer')
+                )
+
+            return Response({
+                'option_id': option.pk,
+                'option': option.option,
+                'correct_answer': option.correct_answer
+            }, status=status.HTTP_201_CREATED)
+
+        except IntegrityError as e:
+            if 'unique_mcq_option' in str(e):
+                return Response({'error': _('Error! This option was already added.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                print(e)
+                return Response({'error': _('Unhandled error occurred.')},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class InstituteEditImageQuestionView(APIView):

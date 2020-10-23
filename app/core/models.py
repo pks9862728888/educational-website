@@ -2861,8 +2861,20 @@ class SubjectTestSelectMultipleCorrectAnswer(models.Model):
     question = models.ForeignKey(
         SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_select_multiple_question')
     option = models.CharField(
-        _('Option'), max_length=200, blank=False)
+        _('Option'), max_length=300, blank=False)
     correct_answer = models.BooleanField(_('Is Correct Answer'))
+
+    def save(self, *args, **kwargs):
+        self.option = self.option.strip()
+        super(SubjectTestSelectMultipleCorrectAnswer, self).save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['question', 'option'], name='unique_option')
+        ]
+
+    def __str__(self):
+        return str(self.question)
 
 
 class SubjectTestNumericCorrectAnswer(models.Model):
