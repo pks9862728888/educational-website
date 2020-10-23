@@ -7608,8 +7608,11 @@ class InstituteTestAddUpdateMCQOption(APIView):
             }, status=status.HTTP_201_CREATED)
 
         except IntegrityError as e:
-            if 'unique_mcq_answer' in str(e):
-                return Response({'error': _('Correct mcq option already added.')},
+            if 'unique_mcq_correct_answer' in str(e):
+                return Response({'error': _('Error! Can not have more than one correct option.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            elif 'unique_mcq_option' in str(e):
+                return Response({'error': _('Error! This option was already added.')},
                                 status=status.HTTP_400_BAD_REQUEST)
             else:
                 print(e)

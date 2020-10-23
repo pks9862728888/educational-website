@@ -2827,7 +2827,10 @@ class SubjectTestMcqOptions(models.Model):
             models.UniqueConstraint(
                 fields=['question', 'correct_answer'],
                 condition=Q(correct_answer=True),
-                name='unique_mcq_answer')
+                name='unique_mcq_correct_answer'),
+            models.UniqueConstraint(
+                fields=['question', 'option'],
+                name='unique_mcq_option')
         ]
 
     def __str__(self):
