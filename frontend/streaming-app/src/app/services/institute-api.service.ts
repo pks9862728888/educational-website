@@ -383,6 +383,13 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-mcq-option`;
   }
 
+  addUpdateSelectMultipleOptionUrl(
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-select-multiple-option`;
+  }
+
   deleteMcqOptionUrl(
     subjectSlug: string,
     questionId: string,
@@ -1372,6 +1379,18 @@ export class InstituteApiService {
     ) {
     return this.httpClient.delete(
       this.deleteMcqOptionUrl(subjectSlug, questionId, optionId),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addUpdateSelectMultipleOption(
+    subjectSlug: string,
+    questionId: string,
+    data: any
+    ) {
+    return this.httpClient.post(
+      this.addUpdateSelectMultipleOptionUrl(subjectSlug, questionId),
+      data,
       { headers: this.getAuthHeader() }
     );
   }

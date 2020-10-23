@@ -161,7 +161,7 @@ export interface SubjectTypedTestQuestions {
   removingLabelIndicator?: boolean;
   showAddAnswerForm?: boolean;
   showAddAnswerIndicator?: boolean;
-  selectedMcqOptionToEdit?: QuestionAnswerOptions;
+  selectedOptionToEdit?: QuestionAnswerOptions;
 }
 
 export interface QuestionAnswerOptions {

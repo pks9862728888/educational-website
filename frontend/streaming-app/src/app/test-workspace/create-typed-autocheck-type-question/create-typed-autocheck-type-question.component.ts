@@ -1036,7 +1036,7 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
   }
 
   editMcqOption(question: SubjectTypedTestQuestions, seletedOption: QuestionAnswerOptions) {
-    question.selectedMcqOptionToEdit = seletedOption;
+    question.selectedOptionToEdit = seletedOption;
     question.showAddAnswerForm = true;
   }
 
@@ -1073,10 +1073,69 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
         if (index > -1) {
           question.options.splice(index, 1);
         }
-        if (question.selectedMcqOptionToEdit && question.selectedMcqOptionToEdit.option_id === selectedOption.option_id) {
+        if (question.selectedOptionToEdit && question.selectedOptionToEdit.option_id === selectedOption.option_id) {
           question.showAddAnswerForm = false;
           question.showAddAnswerIndicator = false;
-          question.selectedMcqOptionToEdit = null;
+          question.selectedOptionToEdit = null;
+        }
+      },
+      errors => {
+        selectedOption.deletingIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to delete option at the moment.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to delete option at the moment.', 3000);
+        }
+      }
+    );
+  }
+
+  editMultipleChoiceOption(question: SubjectTypedTestQuestions, seletedOption: QuestionAnswerOptions) {
+    question.selectedOptionToEdit = seletedOption;
+    question.showAddAnswerForm = true;
+  }
+
+  confirmDeleteMultipleChoiceOption(question: SubjectTypedTestQuestions, selectedOption: QuestionAnswerOptions) {
+    const dialogRef = this.dialog.open(UiDialogComponent, {
+      data: {
+        title: 'Do you want to delete option: "' + selectedOption.option + '"?',
+        trueStringDisplay: 'Yes',
+        falseStringDisplay: 'No'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteMultipleChoiceOption(question, selectedOption);
+      }
+    });
+  }
+
+  deleteMultipleChoiceOption(question: SubjectTypedTestQuestions, selectedOption: QuestionAnswerOptions) {
+    selectedOption.deletingIndicator = true;
+    this.instituteApiService.deleteMcqOption(
+      this.currentSubjectSlug,
+      question.question_id.toString(),
+      selectedOption.option_id.toString()
+    ).subscribe(
+      () => {
+        let index = -1;
+        for (const idx in question.options) {
+          if (question.options[idx].option_id === selectedOption.option_id) {
+            index = +idx;
+            break;
+          }
+        }
+        if (index > -1) {
+          question.options.splice(index, 1);
+        }
+        if (question.selectedOptionToEdit && question.selectedOptionToEdit.option_id === selectedOption.option_id) {
+          question.showAddAnswerForm = false;
+          question.showAddAnswerIndicator = false;
+          question.selectedOptionToEdit = null;
         }
       },
       errors => {

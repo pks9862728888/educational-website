@@ -267,7 +267,7 @@
                                         <div *ngIf="question.type == AUTOCHECK_TYPE_QUESTIONS.TRUE_FALSE">
                                             <app-true-false-form [id]="question.question" [correctAnswer]="question.correct_answer" (correctAnswerChoice)="trueFalseAnswerChanged(question.question_id, $event)"></app-true-false-form>
                                         </div>
-                                        <!-- Numeric answer type question -->
+                                        <!-- Numeric answer question -->
                                         <div *ngIf="question.type == AUTOCHECK_TYPE_QUESTIONS.NUMERIC_ANSWER">
                                             <p class="m-b-1 d-flex justify-content-between align-center">
                                                 Correct answer: {{ question.correct_answer }}
@@ -280,7 +280,7 @@
                                                 Add correct answer
                                             </div>
                                         </div>
-                                        <!-- Multiple choice question upload form -->
+                                        <!-- Multiple choice question -->
                                         <div *ngIf="question.type == AUTOCHECK_TYPE_QUESTIONS.MCQ">
                                             <p *ngIf="question.options.length === 0" class="m-b-1">No choices added.</p>
                                             <ol>
@@ -291,14 +291,38 @@
                                                             <mat-icon class="preview-icon m-l-05 cursor-normal" *ngIf="option.correct_answer">check</mat-icon>
                                                         </div>
                                                         <div class="d-flex align-items-center">
-                                                            <mat-icon class="m-l-05 edit-icon icon-small" *ngIf="!question.selectedMcqOptionToEdit && !question.showAddAnswerForm && !option.deletingIndicator" (click)="editMcqOption(question, option)">edit</mat-icon>
-                                                            <mat-icon class="m-l-05 delete-icon icon-small" *ngIf="!(question.selectedMcqOptionToEdit && question.showAddAnswerIndicator && question.selectedMcqOptionToEdit.option_id === option.option_id) && !option.deletingIndicator" (click)="confirmDeleteMcqOption(question, option)">delete</mat-icon>
+                                                            <mat-icon class="m-l-05 edit-icon icon-small" *ngIf="!question.selectedOptionToEdit && !question.showAddAnswerForm && !option.deletingIndicator" (click)="editMcqOption(question, option)">edit</mat-icon>
+                                                            <mat-icon class="m-l-05 delete-icon icon-small" *ngIf="!(question.selectedOptionToEdit && question.showAddAnswerIndicator && question.selectedOptionToEdit.option_id === option.option_id) && !option.deletingIndicator" (click)="confirmDeleteMcqOption(question, option)">delete</mat-icon>
                                                             <mat-progress-spinner *ngIf="option.deletingIndicator" mode="indeterminate" [diameter]="19"></mat-progress-spinner>
                                                         </div>
                                                     </div>
                                                 </li>
                                             </ol>
                                             <app-mcq-form *ngIf="question.showAddAnswerForm" [question]="question" [currentSubjectSlug]="currentSubjectSlug"></app-mcq-form>
+                                            <div class="d-flex justify-content-center align-center cursor-pointer add-option-button" *ngIf="!question.showAddAnswerForm" (click)="question.showAddAnswerForm = true;">
+                                                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                                                Add choice
+                                            </div>
+                                        </div>
+                                        <!-- Select multiple question -->
+                                        <div *ngIf="question.type == AUTOCHECK_TYPE_QUESTIONS.SELECT_MULTIPLE_CHOICE">
+                                            <p *ngIf="question.options.length === 0" class="m-b-1">No choices added.</p>
+                                            <ol>
+                                                <li *ngFor="let option of question.options" class="m-b-05">
+                                                    <div class="d-flex justify-content-between align-center">
+                                                        <div class="d-flex align-center">
+                                                            {{ option.option }}
+                                                            <mat-icon class="preview-icon m-l-05 cursor-normal" *ngIf="option.correct_answer">check</mat-icon>
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            <mat-icon class="m-l-05 edit-icon icon-small" *ngIf="!question.selectedOptionToEdit && !question.showAddAnswerForm && !option.deletingIndicator" (click)="editMultipleChoiceOption(question, option)">edit</mat-icon>
+                                                            <mat-icon class="m-l-05 delete-icon icon-small" *ngIf="!(question.selectedOptionToEdit && question.showAddAnswerIndicator && question.selectedOptionToEdit.option_id === option.option_id) && !option.deletingIndicator" (click)="confirmDeleteMultipleChoiceOption(question, option)">delete</mat-icon>
+                                                            <mat-progress-spinner *ngIf="option.deletingIndicator" mode="indeterminate" [diameter]="19"></mat-progress-spinner>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ol>
+                                            <app-select-multiple-answer-form *ngIf="question.showAddAnswerForm" [question]="question" [currentSubjectSlug]="currentSubjectSlug"></app-select-multiple-answer-form>
                                             <div class="d-flex justify-content-center align-center cursor-pointer add-option-button" *ngIf="!question.showAddAnswerForm" (click)="question.showAddAnswerForm = true;">
                                                 <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
                                                 Add choice

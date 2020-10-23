@@ -29,10 +29,10 @@ export class McqFormComponent implements OnInit {
       correct_answer: [null, [Validators.required]]
     });
 
-    if (this.question.selectedMcqOptionToEdit) {
+    if (this.question.selectedOptionToEdit) {
       this.addOptionForm.patchValue({
-        option: this.question.selectedMcqOptionToEdit.option,
-        correct_answer: this.question.selectedMcqOptionToEdit.correct_answer
+        option: this.question.selectedOptionToEdit.option,
+        correct_answer: this.question.selectedOptionToEdit.correct_answer
       });
     } else {
       this.addOptionForm.patchValue({
@@ -47,8 +47,8 @@ export class McqFormComponent implements OnInit {
     const data = this.addOptionForm.value;
     data.option = data.option.trim();
 
-    if (this.question.selectedMcqOptionToEdit) {
-      data.option_id = this.question.selectedMcqOptionToEdit.option_id;
+    if (this.question.selectedOptionToEdit) {
+      data.option_id = this.question.selectedOptionToEdit.option_id;
     }
 
     this.instituteApiService.addUpdateMcqOption(
@@ -57,7 +57,7 @@ export class McqFormComponent implements OnInit {
       data
     ).subscribe(
       (result: QuestionAnswerOptions) => {
-        if (!this.question.selectedMcqOptionToEdit) {
+        if (!this.question.selectedOptionToEdit) {
           this.question.options.push(result);
           this.uiService.showSnackBar('Option added!', 2000);
         } else {
@@ -88,7 +88,7 @@ export class McqFormComponent implements OnInit {
   }
 
   closeMcqForm() {
-    this.question.selectedMcqOptionToEdit = null;
+    this.question.selectedOptionToEdit = null;
     this.question.showAddAnswerForm = false;
     this.question.showAddAnswerIndicator = false;
   }
