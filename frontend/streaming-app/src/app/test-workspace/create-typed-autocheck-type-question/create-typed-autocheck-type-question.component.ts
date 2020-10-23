@@ -1116,7 +1116,7 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
 
   deleteMultipleChoiceOption(question: SubjectTypedTestQuestions, selectedOption: QuestionAnswerOptions) {
     selectedOption.deletingIndicator = true;
-    this.instituteApiService.deleteMcqOption(
+    this.instituteApiService.deleteMultipleChoiceOption(
       this.currentSubjectSlug,
       question.question_id.toString(),
       selectedOption.option_id.toString()

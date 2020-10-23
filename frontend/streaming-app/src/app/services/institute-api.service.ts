@@ -398,6 +398,14 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/${optionId}/delete-mcq-option`;
   }
 
+  deleteMultipleChoiceOptionUrl(
+    subjectSlug: string,
+    questionId: string,
+    optionId: string
+  ) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/${optionId}/delete-multiple-choice-option`;
+  }
+
   editQuestionSetUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1391,6 +1399,17 @@ export class InstituteApiService {
     return this.httpClient.post(
       this.addUpdateSelectMultipleOptionUrl(subjectSlug, questionId),
       data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteMultipleChoiceOption(
+    subjectSlug: string,
+    questionId: string,
+    optionId: string
+    ) {
+    return this.httpClient.delete(
+      this.deleteMultipleChoiceOptionUrl(subjectSlug, questionId, optionId),
       { headers: this.getAuthHeader() }
     );
   }

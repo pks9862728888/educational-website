@@ -1,6 +1,6 @@
 <div class="d-flex justify-content-between align-center upload-container-header">
-    <h3 class="expansion-panel-header-color"><span *ngIf="!question.selectedOptionToEdit">Add</span><span *ngIf="question.selectedOptionToEdit">Edit</span> Choice Form:</h3>
-    <mat-icon class="cancel-icon m-l-05 cursor-pointer" *ngIf="!question.showAddAnswerIndicator" (click)="closeMcqForm()">close</mat-icon>
+    <h3 class="expansion-panel-header-color"><span *ngIf="!question.selectedOptionToEdit">Add</span><span *ngIf="question.selectedOptionToEdit">Edit</span> Option Form:</h3>
+    <mat-icon class="cancel-icon m-l-05 cursor-pointer" *ngIf="!question.showAddAnswerIndicator" (click)="closeForm()">close</mat-icon>
 </div>
 <div class="upload-container">
     <form [formGroup]="addOptionForm">
