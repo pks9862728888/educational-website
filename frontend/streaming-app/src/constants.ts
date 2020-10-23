@@ -439,3 +439,39 @@ export const QUESTION_SECTION_VIEW_TYPE_FORM_FIELD_OPTIONS = [
   {value: 'S', viewValue: 'Only one question'},
   {value: 'M', viewValue: 'Multiple questions'}
 ];
+
+export const AUTOCHECK_TYPE_QUESTIONS = {
+  MCQ: 'M',
+  TRUE_FALSE: 'T',
+  SELECT_MULTIPLE_CHOICE: 'C',
+  NUMERIC_ANSWER: 'N'
+};
+
+export const ALL_TYPE_QUESTIONS = {
+  MCQ: 'M',
+  TRUE_FALSE: 'T',
+  SELECT_MULTIPLE_CHOICE: 'C',
+  NUMERIC_ANSWER: 'N',
+  ASSERTION: 'A',
+  SHORT_ANSWER: 'S',
+  DESCRIPTIVE_ANSWER: 'D',
+  FILL_IN_THE_BLANK: 'F'
+};
+
+export const AUTOCHECK_TYPE_QUESTION_FORM_FIELD_OPTIONS = [
+  {value: 'M', viewValue: 'MCQ'},
+  {value: 'T', viewValue: 'True / False'},
+  {value: 'S', viewValue: 'Select Multiple Choice'},
+  {value: 'N', viewValue: 'Numeric Answer'},
+];
+
+export const ALL_TYPE_QUESTION_FORM_FIELD_OPTIONS = [
+  {value: 'M', viewValue: 'MCQ'},
+  {value: 'T', viewValue: 'True / False'},
+  {value: 'S', viewValue: 'Select Multiple Choice'},
+  {value: 'N', viewValue: 'Numeric Answer'},
+  {value: 'A', viewValue: 'Assertion'},
+  {value: 'S', viewValue: 'Short Answer'},
+  {value: 'D', viewValue: 'Descriptive Answer'},
+  {value: 'F', viewValue: 'Fill in the blank'},
+];

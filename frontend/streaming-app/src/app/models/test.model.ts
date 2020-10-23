@@ -105,3 +105,59 @@ export interface SubjectTestSection {
   answer_all_questions: boolean;
   no_of_question_to_attempt?: number;
 }
+
+
+export interface TestMinDetailsResponseForTypedTestQuestionCreation {
+  name: string;
+  type: string;
+  total_marks: number;
+  total_duration: number;
+  test_schedule_type: string;
+  instruction: string;
+  test_live: boolean;
+  subject_name: string;
+  class_name: string;
+  test_sets: TestQuestionSetInterface[];
+  first_set_questions: TypedQuestionsSectionInterface[];
+  labels?: TestConceptLabelInterface[];
+
+  // For unscheduled test
+  test_schedule?: number;
+
+  // For other tests
+  no_of_optional_section_answer: number;
+  question_category: string;
+}
+
+
+export interface TypedQuestionsSectionInterface {
+  section_id: number;
+  name?: string;
+  order: number;
+  view: string;
+  no_of_question_to_attempt: number;
+  answer_all_questions: boolean;
+  section_mandatory: boolean;
+  questions: SubjectTypedTestQuestions[];
+  edit?: boolean;
+  editingIndicator?: boolean;
+  deletingIndicator?: boolean;
+}
+
+export interface SubjectTypedTestQuestions {
+  question_id: number;
+  marks: number;
+  order: number;
+  question: string;
+  type: string;
+  has_image: boolean;
+  concept_label_id: number;
+
+  correct_answer?: string | boolean | number;
+
+  delete?: boolean;
+  edit?: boolean;
+  removingLabelIndicator?: boolean;
+  showAddAnswerForm?: boolean;
+  showAddAnswerIndicator?: boolean;
+}

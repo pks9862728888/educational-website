@@ -1,0 +1,33 @@
+.row,
+.col {
+    margin: 0;
+    padding: 0;
+}
+
+.green-button:disabled,
+.green-button:disabled:hover {
+    color: #fff;
+    background-color: #0a5652;
+    opacity: 0.5;
+}
+
+::ng-deep.mat-progress-spinner circle,
+.mat-spinner circle {
+    stroke: #f2aa4cff !important;
+}
+
+.form-control {
+    background-color: inherit;
+    color: #bdbdbd;
+    border-color: #6c757d;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: none;
+    outline: none;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}

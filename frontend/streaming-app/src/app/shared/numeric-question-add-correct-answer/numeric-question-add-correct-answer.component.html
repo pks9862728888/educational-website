@@ -1,0 +1,11 @@
+<form class="row" [formGroup]="addCorrectAnswerForm">
+    <div class="col m-r-05">
+        <input type="email" formControlName="correct_answer" class="form-control" placeholder="Add numeric answer" required/>
+        <small *ngIf="addCorrectAnswerForm.controls.correct_answer.errors?.isNumberValidator" class="yellow-text">Should be a number.</small>
+    </div>
+    <button type="submit" [disabled]="addCorrectAnswerForm.invalid || submittingIndicator" mat-flat-button class="green-button" (click)="addCorrectAnswer()">
+      <div class="d-flex align-center">
+        <mat-progress-spinner *ngIf="submittingIndicator" [diameter]="25" mode="indeterminate" class="m-r-05"></mat-progress-spinner>Submit
+      </div>
+    </button>
+</form>

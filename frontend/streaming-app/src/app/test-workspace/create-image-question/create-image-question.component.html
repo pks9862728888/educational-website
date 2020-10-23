@@ -414,11 +414,17 @@
                         </div>
                     </div>
                 </div>
-                <section class="m-t-1">
-                    <button mat-stroked-button class="stroked-button" *ngIf="!selectedSet.showAddSectionForm" (click)="showAddQuestionSectionForm()">
+                <section class="m-t-1" *ngIf="!selectedSet.showAddSectionForm">
+                    <button mat-stroked-button class="stroked-button" (click)="showAddQuestionSectionForm()">
                       <div class="d-flex align-center">
                         <mat-icon class="add-icon m-r-05">add_icon</mat-icon>
                         Add Question Group
+                      </div>
+                    </button>
+                    <button mat-stroked-button class="stroked-button m-l-05" *ngIf="setQuestions.length > 0">
+                      <div class="d-flex align-center">
+                        <mat-icon class="add-icon m-r-05">check</mat-icon>
+                        Verify Question Paper
                       </div>
                     </button>
                 </section>

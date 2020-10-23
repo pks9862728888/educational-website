@@ -14,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatRadioModule } from '@angular/material/radio';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { MatStepperModule } from '@angular/material/stepper';
     MatSlideToggleModule,
     MatDividerModule,
     MatCheckboxModule,
-    MatStepperModule
+    MatStepperModule,
+    MatRadioModule
   ],
   exports: [
     MatButtonModule,
@@ -49,7 +51,8 @@ import { MatStepperModule } from '@angular/material/stepper';
     MatSlideToggleModule,
     MatDividerModule,
     MatCheckboxModule,
-    MatStepperModule
+    MatStepperModule,
+    MatRadioModule
   ]
 })
 export class MaterialSharedModule {}

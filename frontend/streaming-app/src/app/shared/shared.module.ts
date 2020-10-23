@@ -43,6 +43,8 @@ import { AddSubjectTestComponent } from './add-subject-test/add-subject-test.com
 import { AddSubjectUnsheduledTestComponent } from './add-subject-unsheduled-test/add-subject-unsheduled-test.component';
 import { AddSubjectSpecificDateTimeTestComponent } from './add-subject-specific-date-time-test/add-subject-specific-date-time-test.component';
 import { AddSubjectSpecificDateTestComponent } from './add-subject-specific-date-test/add-subject-specific-date-test.component';
+import { TrueFalseFormComponent } from './true-false-form/true-false-form.component';
+import { NumericQuestionAddCorrectAnswerComponent } from './numeric-question-add-correct-answer/numeric-question-add-correct-answer.component';
 
 @NgModule({
   declarations: [
@@ -80,7 +82,9 @@ import { AddSubjectSpecificDateTestComponent } from './add-subject-specific-date
     AddSubjectTestComponent,
     AddSubjectUnsheduledTestComponent,
     AddSubjectSpecificDateTimeTestComponent,
-    AddSubjectSpecificDateTestComponent
+    AddSubjectSpecificDateTestComponent,
+    TrueFalseFormComponent,
+    NumericQuestionAddCorrectAnswerComponent
   ],
   imports: [
     CommonModule,
@@ -124,7 +128,9 @@ import { AddSubjectSpecificDateTestComponent } from './add-subject-specific-date
     AddSubjectTestComponent,
     AddSubjectUnsheduledTestComponent,
     AddSubjectSpecificDateTimeTestComponent,
-    AddSubjectSpecificDateTestComponent
+    AddSubjectSpecificDateTestComponent,
+    TrueFalseFormComponent,
+    NumericQuestionAddCorrectAnswerComponent
   ],
   providers: [
     InstituteApiService,

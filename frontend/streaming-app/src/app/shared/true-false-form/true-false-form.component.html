@@ -1,0 +1,9 @@
+<div class="m-l-05">
+    <form [formGroup]="trueFalseForm">
+        <input type="radio" [id]="trueId" formControlName="correct_answer" [value]="true" class="m-r-1 cursor-pointer m-b-1" (change)="optionChanged()">
+        <label [for]="trueId" class="cursor-pointer">True</label>
+        <br />
+        <input type="radio" [id]="falseId" formControlName="correct_answer" [value]="false" class="m-r-1 cursor-pointer m-b-1" (change)="optionChanged()">
+        <label [for]="falseId" class="cursor-pointer">False</label>
+    </form>
+</div>

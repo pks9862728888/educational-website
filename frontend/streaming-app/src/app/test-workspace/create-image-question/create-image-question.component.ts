@@ -198,12 +198,15 @@ export class CreateImageQuestionComponent implements OnInit {
           this.testDetails.test_sets.push(result);
           this.selectedSet = result;
           this.selectedSectionData = null;
-          console.log(result);
+          this.setQuestions = [];
           this.toggleAddQuestionSetForm();
           this.uiService.showSnackBar(
             'Question set added successfully!',
             2000
           );
+          console.log(result);
+          console.log(this.setQuestions);
+          console.log(this.selectedSectionData);
         },
         errors => {
           this.submitIndicatorAddQuestionSet = false;

@@ -24,7 +24,7 @@ export const usernamePasswordValidator: ValidatorFn = (control: FormGroup): Vali
 
 
 export function postiveIntegerValidator(control: AbstractControl): {[key: string]: boolean} | null  {
-  if (control.pristine || Number.isInteger(+control.value) && control.value > 0) {
+  if (control.pristine || Number.isInteger(+control.value) && +control.value > 0) {
     return null;
   }
   return { postiveIntegerValidator: true };
@@ -32,7 +32,7 @@ export function postiveIntegerValidator(control: AbstractControl): {[key: string
 
 
 export function isNumberValidator(control: AbstractControl): {[key: string]: boolean} | null {
-  if (control.pristine || !Number.isNaN(control.value)) {
+  if (control.pristine || !Number.isNaN(+control.value)) {
     return null;
   }
   return { isNumberValidator: true };

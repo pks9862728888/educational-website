@@ -352,6 +352,30 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/${questionId}/edit-image-test-question`;
   }
 
+  addTypedTestQuestionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    testSectionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/${setId}/${testSectionId}/add-typed-test-question`;
+  }
+
+  addUpdateTrueFalseCorrectAnswerUrl(
+    subjectSlug: string,
+    questionId: string,
+  ) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-true-false-correct-answer`;
+  }
+
+  addUpdateNumericCorrectAnswerUrl(
+    subjectSlug: string,
+    questionId: string,
+  ) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-numeric-correct-answer`;
+  }
+
   editQuestionSetUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1270,6 +1294,45 @@ export class InstituteApiService {
     ) {
     return this.httpClient.patch(
       this.editImageTestQuestionUrl(instituteSlug, subjectSlug, testSlug, setId, questionId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addTypedTestQuestion(
+    instituteSlug: string,
+    subjectSlug: string,
+    testSlug: string,
+    setId: string,
+    setSectionId: string,
+    data: any
+    ) {
+    return this.httpClient.post(
+      this.addTypedTestQuestionUrl(instituteSlug, subjectSlug, testSlug, setId, setSectionId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addUpdateTrueFalseCorrectAnswer(
+    subjectSlug: string,
+    questionId: string,
+    data: any
+    ) {
+    return this.httpClient.post(
+      this.addUpdateTrueFalseCorrectAnswerUrl(subjectSlug, questionId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addUpdateNumericCorrectAnswer(
+    subjectSlug: string,
+    questionId: string,
+    data: any
+    ) {
+    return this.httpClient.post(
+      this.addUpdateNumericCorrectAnswerUrl(subjectSlug, questionId),
       data,
       { headers: this.getAuthHeader() }
     );
