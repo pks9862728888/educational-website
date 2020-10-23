@@ -7748,7 +7748,7 @@ class InstituteTestAddUpdateSelectMultipleOption(APIView):
             }, status=status.HTTP_201_CREATED)
 
         except IntegrityError as e:
-            if 'unique_mcq_option' in str(e):
+            if 'unique_option' in str(e):
                 return Response({'error': _('Error! This option was already added.')},
                                 status=status.HTTP_400_BAD_REQUEST)
             else:
