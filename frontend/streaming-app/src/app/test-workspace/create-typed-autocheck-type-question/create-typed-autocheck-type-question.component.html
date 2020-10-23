@@ -142,7 +142,7 @@
             <div *ngIf="!loadingSetQuestionsIndicator && !loadingSetQuestionErrorText && !reloadSetQuestions">
                 <div class="d-flex align-center justify-content-between">
                     <h2 class="faded-blue-color m-t-1" [class.m-t-2]="setQuestions && setQuestions.length > 0" [class.m-b-2]="!mq.matches && setQuestions && setQuestions.length > 0" [class.m-b-1]="mq.matches && setQuestions && setQuestions.length > 0">Create question paper -> {{ selectedSet.set_name }}:</h2>
-                    <button mat-flat-button class="green-button m-l-05" *ngIf="!mq.matches && selectedSectionData && selectedSectionData.questions.length > 0">
+                    <button mat-flat-button class="green-button m-l-05" *ngIf="!mq.matches && setQuestions && setQuestions.length > 0">
                       <div class="d-flex align-center">
                         <mat-icon class="cursor-pointer preview-icon m-r-05">visibility</mat-icon>View Question Set
                       </div>

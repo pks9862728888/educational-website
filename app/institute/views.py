@@ -8926,8 +8926,16 @@ class InstituteDeleteQuestionSet(APIView):
             ).only('file'):
                 file_size += q.file.size
         elif question_set.test.question_mode == models.QuestionMode.TYPED:
-            # Find size of typed image questions
-            pass
+            for q in models.SubjectTypedTestQuestion.objects.filter(
+                test_section__set__pk=question_set.pk,
+                has_picture=True
+            ):
+                pic = models.SubjectTestQuestionImage.objects.filter(
+                    question__pk=q.pk
+                ).first()
+
+                if pic:
+                    file_size += pic.file.size
 
         question_set.delete()
         file_size = file_size / 1000000000
