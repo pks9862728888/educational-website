@@ -7465,10 +7465,103 @@ class InstituteTypedTestAddQuestionView(APIView):
                 response['concept_label_id'] = question.concept_label.pk
 
             if question.type == models.QuestionType.SELECT_MULTIPLE_CHOICE or\
-                question.type == models.QuestionType.MCQ:
+                    question.type == models.QuestionType.MCQ:
                 response['options'] = list()
 
             return Response(response, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteEditTypedTestQuestionView(APIView):
+    """View for editing typed test question paper"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def patch(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question_set = models.SubjectTestSets.objects.filter(
+            pk=kwargs.get('set_id'),
+            test__test_slug=kwargs.get('test_slug')
+        ).only('mark_as_final').first()
+
+        if not question_set:
+            return Response({'error': _('Question set not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if question_set.mark_as_final:
+            return Response({'error': _('Question set is MARKED AS FINAL. Editing question is not allowed.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectTypedTestQuestion.objects.filter(
+            pk=kwargs.get('question_id')
+        ).first()
+
+        if not question:
+            return Response({'error': _('Question not found. Please refresh and try again.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if request.data.get('concept_label'):
+            concept_label = models.SubjectTestConceptLabels.objects.filter(
+                pk=request.data.get('concept_label')
+            ).first()
+
+            if concept_label:
+                question.concept_label = concept_label
+            else:
+                return Response({'error': _('Concept label not found. Please refresh and try again.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            question.concept_label = None
+
+        try:
+            if request.data.get('question'):
+                question.question = request.data.get('question')
+            else:
+                question.question = ''
+
+            question.marks = request.data.get('marks')
+            question.has_picture = request.data.get('has_picture')
+            question.save()
+
+            response = {
+                'question_id': question.pk,
+                'question': question.question,
+                'marks': question.marks,
+                'has_picture': question.has_picture,
+            }
+            if question.concept_label:
+                response['concept_label_id'] = question.concept_label.pk
+
+            return Response(response, status=status.HTTP_200_OK)
+
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
