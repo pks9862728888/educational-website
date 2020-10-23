@@ -133,9 +133,10 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
     });
 
     this.editQuestionForm = this.formBuilder.group({
-      text: [null, [characterLengthLessThanEqualTo(2000)]],
+      question: [null, [characterLengthLessThanEqualTo(2000)]],
       marks: [null, [Validators.required, postiveIntegerValidator]],
-      concept_label: [null]
+      concept_label: [null],
+      has_picture: [null, [Validators.required]]
     });
 
     this.editQuestionSetForm = this.formBuilder.group({
@@ -653,9 +654,10 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
     this.editQuestionForm.reset();
     this.editQuestionForm.enable();
     this.editQuestionForm.patchValue({
-      text: question.text,
+      question: question.question,
       marks: question.marks,
-      concept_label: question.concept_label_id
+      concept_label: question.concept_label_id,
+      has_picture: question.has_picture
     });
   }
 
@@ -669,7 +671,7 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
     if (!data.concept_label) {
       delete data.concept_label;
     }
-    this.instituteApiService.editImageTestQuestion(
+    this.instituteApiService.editTypedTestQuestion(
       this.currentInstituteSlug,
       this.currentSubjectSlug,
       this.currentTestSlug,
@@ -684,6 +686,7 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
             q.marks = result.marks;
             q.concept_label_id = result.concept_label_id;
             q.question = result.question;
+            q.has_picture = result.has_picture;
           }
         });
         this.closeEditQuestionFormInSection(result);

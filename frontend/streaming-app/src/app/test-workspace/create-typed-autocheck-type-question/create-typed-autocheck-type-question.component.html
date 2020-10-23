@@ -368,8 +368,8 @@
                                             <form [formGroup]="editQuestionForm">
                                                 <mat-form-field appearance="outline" class="w-100">
                                                     <mat-label>Question (optional)</mat-label>
-                                                    <input matInput formControlName="text" placeholder="Question (optional)">
-                                                    <mat-error *ngIf="editQuestionForm.controls.text.errors?.characterLengthLessThanEqualTo">Question can not be greater than 2000 characters.</mat-error>
+                                                    <input matInput formControlName="question" placeholder="Question (optional)">
+                                                    <mat-error *ngIf="editQuestionForm.controls.question.errors?.characterLengthLessThanEqualTo">Question can not be greater than 2000 characters.</mat-error>
                                                 </mat-form-field>
                                                 <mat-form-field appearance="outline" class="w-100">
                                                     <mat-label>Concept label</mat-label>
@@ -384,6 +384,7 @@
                                                     <mat-error *ngIf="editQuestionForm.controls.marks.errors?.required">Mark is required.</mat-error>
                                                     <mat-error *ngIf="!editQuestionForm.controls.marks.errors?.required && editQuestionForm.controls.marks.errors?.postiveIntegerValidator">Mark should be a positive number.</mat-error>
                                                 </mat-form-field>
+                                                <mat-slide-toggle *ngIf="!question.image" formControlName="has_picture">Question has picture</mat-slide-toggle>
                                             </form>
                                             <hr class="separator m-t-1 m-b-1" />
                                             <div class="d-flex align-center">
