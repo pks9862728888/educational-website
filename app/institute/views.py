@@ -7444,6 +7444,11 @@ class InstituteTypedTestAddQuestionView(APIView):
             }
             if request.data.get('concept_label'):
                 response['concept_label_id'] = question.concept_label.pk
+
+            if question.type == models.QuestionType.SELECT_MULTIPLE_CHOICE or\
+                question.type == models.QuestionType.MCQ:
+                response['options'] = list()
+
             return Response(response, status=status.HTTP_201_CREATED)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
