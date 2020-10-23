@@ -2791,6 +2791,9 @@ class SubjectTypedTestQuestion(models.Model):
             raise ValueError(_('Marks should be a positive number'))
         super(SubjectTypedTestQuestion, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return self.question
+
 
 @receiver(post_save, sender=SubjectTypedTestQuestion)
 def set_typed_test_question_order(sender, instance, created, *args, **kwargs):
