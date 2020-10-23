@@ -305,6 +305,9 @@ urlpatterns = [
     path('<slug:subject_slug>/<int:question_id>/add-update-mcq-option',
          views.InstituteTestAddUpdateMCQOption.as_view(),
          name='add-update-mcq-option'),
+    path('<slug:subject_slug>/<int:question_id>/<int:option_id>/delete-mcq-option',
+         views.InstituteTestDeleteMCQOption.as_view(),
+         name='delete-mcq-option'),
 
     # Institute Subject preview course
     path('list-all-student-institute-courses',

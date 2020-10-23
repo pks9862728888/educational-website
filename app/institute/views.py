@@ -7621,6 +7621,49 @@ class InstituteTestAddUpdateMCQOption(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class InstituteTestDeleteMCQOption(APIView):
+    """View for deleting mcq options"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def delete(self, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectTypedTestQuestion.objects.filter(
+            pk=kwargs.get('question_id')
+        ).only('pk').first()
+
+        if not question:
+            return Response({'error': _('Question not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        option = models.SubjectTestMcqOptions.objects.filter(
+            pk=kwargs.get('option_id'),
+            question=kwargs.get('question_id')
+        ).first()
+
+        if not option:
+            return Response({'error': _('Mcq option not found!')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        option.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class InstituteEditImageQuestionView(APIView):
     """View for editing image question paper"""
     authentication_classes = (TokenAuthentication,)
