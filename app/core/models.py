@@ -2822,6 +2822,10 @@ class SubjectTestMcqOptions(models.Model):
         _('Option'), max_length=300, blank=False)
     correct_answer = models.BooleanField(_('Is Correct Answer'))
 
+    def save(self, *args, **kwargs):
+        self.option = self.option.trim()
+        super(SubjectTestMcqOptions, self).save(*args, **kwargs)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
