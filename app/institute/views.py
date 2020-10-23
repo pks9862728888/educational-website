@@ -8820,7 +8820,7 @@ class InstituteDeleteQuestionSection(APIView):
             return Response({'error': _('Question group not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        file_size = 0
+        file_size = 0.0
 
         if question_paper_section.test.question_mode == models.QuestionMode.IMAGE:
             # Find size of image questions in this section
@@ -8831,18 +8831,29 @@ class InstituteDeleteQuestionSection(APIView):
 
         elif question_paper_section.test.question_mode == models.QuestionMode.TYPED:
             # Find size of typed questions in this section
-            pass
+            for q in models.SubjectTypedTestQuestion.objects.filter(
+                test_section=question_paper_section,
+                has_picture=True
+            ):
+                pic = models.SubjectTestQuestionImage.objects.filter(
+                    question__pk=q.pk
+                ).first()
+
+                if pic:
+                    file_size += pic.file.size
 
         try:
             question_paper_section.delete()
-            file_size = file_size / 1000000000
 
-            models.InstituteSubjectStatistics.objects.filter(
-                statistics_subject=subject
-            ).update(storage=F('storage') - Decimal(file_size))
-            models.InstituteStatistics.objects.filter(
-                institute=institute
-            ).update(storage=F('storage') - Decimal(file_size))
+            if file_size > 0.0:
+                file_size = file_size / 1000000000
+
+                models.InstituteSubjectStatistics.objects.filter(
+                    statistics_subject=subject
+                ).update(storage=F('storage') - Decimal(file_size))
+                models.InstituteStatistics.objects.filter(
+                    institute=institute
+                ).update(storage=F('storage') - Decimal(file_size))
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception:

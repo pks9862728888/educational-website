@@ -594,11 +594,9 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
     if (questionIdx >= 0) {
       this.selectedSectionData.questions[questionIdx].delete = true;
     }
-    this.instituteApiService.deleteImageTestQuestion(
+    this.instituteApiService.deleteTypedTestQuestion(
       this.currentInstituteSlug,
       this.currentSubjectSlug,
-      this.currentTestSlug,
-      this.selectedSet.id.toString(),
       question.question_id.toString()
     ).subscribe(
       () => {
