@@ -51,7 +51,7 @@
         </div>
         <div class="q-sets m-b-1" [hidden]="showAddQuestionSetForm && testDetails.test_sets.length === 0">
             <mat-chip-list aria-label="Question set selection">
-                <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="selectedSet && set.id !== selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
+                <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="!selectedSet || selectedSet && set.id !== selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
                 <mat-chip color="primary" *ngIf="!showAddQuestionSetForm && !loadingSetQuestionErrorText && !loadingSetQuestionsIndicator && !reloadSetQuestions" selected (click)="toggleAddQuestionSetForm()">Add Question Set</mat-chip>
             </mat-chip-list>
         </div>

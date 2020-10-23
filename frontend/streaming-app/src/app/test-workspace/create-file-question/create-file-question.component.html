@@ -14,7 +14,7 @@
         </div>
         <hr class="separator m-t-05 m-b-1">
         <mat-chip-list aria-label="Question set selection">
-            <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="set.id !== selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
+            <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="!selectedSet || set.id !== selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
             <mat-chip color="primary" *ngIf="!showAddQuestionSetForm" selected (click)="toggleAddQuestionSetForm()">Add Question Set</mat-chip>
         </mat-chip-list>
         <hr class="separator m-t-1 m-b-1" [hidden]="showAddQuestionSetForm && testDetails.test_sets.length === 0">

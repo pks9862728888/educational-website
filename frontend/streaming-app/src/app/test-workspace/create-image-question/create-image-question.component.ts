@@ -283,9 +283,12 @@ export class CreateImageQuestionComponent implements OnInit {
 
   getQuestionSetQuestions(questionSet: TestQuestionSetInterface, retry = false) {
     this.showAddQuestionSetForm = false;
-    this.selectedSet.showAddSectionForm = false;
 
-    if (retry || this.selectedSet && questionSet.id !== this.selectedSet.id) {
+    if (this.selectedSet) {
+      this.selectedSet.showAddSectionForm = false;
+    }
+
+    if (retry || !this.selectedSet || this.selectedSet && questionSet.id !== this.selectedSet.id) {
       this.selectedSet = questionSet;
       this.setQuestions = null;
       this.loadingSetQuestionsIndicator = true;
