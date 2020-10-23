@@ -415,14 +415,14 @@
                     </div>
                 </div>
                 <section class="m-t-1" *ngIf="!selectedSet.showAddSectionForm">
-                    <button mat-stroked-button class="stroked-button" (click)="showAddQuestionSectionForm()">
-                      <div class="d-flex align-center">
+                    <button mat-stroked-button class="stroked-button" [class.m-b-1]="mq.matches" [class.w-100]="mq.matches" (click)="showAddQuestionSectionForm()">
+                      <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
                         <mat-icon class="add-icon m-r-05">add_icon</mat-icon>
                         Add Question Group
                       </div>
                     </button>
-                    <button mat-stroked-button class="stroked-button m-l-05" *ngIf="setQuestions.length > 0">
-                      <div class="d-flex align-center">
+                    <button mat-stroked-button class="stroked-button" [class.m-l-05]="!mq.matches" [class.w-100]="mq.matches" *ngIf="setQuestions.length > 0">
+                      <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
                         <mat-icon class="add-icon m-r-05">check</mat-icon>
                         Verify Question Paper
                       </div>
