@@ -7929,6 +7929,62 @@ class InstituteTypedTestAddTestQuestionImage(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class InstituteTypedTestDeleteTestQuestionImage(APIView):
+    """View for deleting typed test question image"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question_image = models.SubjectTestQuesitonImage.objects.filter(
+            question__pk=kwargs.get('question_id')
+        ).first()
+
+        if not question_image:
+            return Response({'error': _('Image not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            file_size = question_image.file.size / 1000000000  # In GB
+            question_image.delete()
+
+            models.InstituteSubjectStatistics.objects.filter(
+                statistics_subject=subject
+            ).update(storage=F('storage') - Decimal(file_size))
+            models.InstituteStatistics.objects.filter(
+                institute=institute
+            ).update(storage=F('storage') - Decimal(file_size))
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class InstituteEditImageQuestionView(APIView):
     """View for editing image question paper"""
     authentication_classes = (TokenAuthentication,)

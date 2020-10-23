@@ -2817,6 +2817,16 @@ class SubjectTestQuestionImage(models.Model):
         return str(self.question)
 
 
+@receiver(post_delete, sender=SubjectTestQuestionImage)
+def auto_delete_image_on_delete(sender, instance, **kwargs):
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            try:
+                os.remove(instance.file.path)
+            except Exception as e:
+                print('Error: ' + e)
+
+
 class SubjectTestMcqOptions(models.Model):
     """Model for storing subject test mcq options and correct answer"""
     question = models.ForeignKey(
