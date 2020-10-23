@@ -2819,8 +2819,19 @@ class SubjectTestMcqOptions(models.Model):
     question = models.ForeignKey(
         SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_mcq_question')
     option = models.CharField(
-        _('Option'), max_length=200, blank=False)
+        _('Option'), max_length=300, blank=False)
     correct_answer = models.BooleanField(_('Is Correct Answer'))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['question', 'correct_answer'],
+                condition=Q(correct_answer=True),
+                name='unique_mcq_answer')
+        ]
+
+    def __str__(self):
+        return self.option
 
 
 class SubjectTestTrueFalseCorrectAnswer(models.Model):
@@ -2833,6 +2844,9 @@ class SubjectTestTrueFalseCorrectAnswer(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['question', 'correct_answer'], name='unique_answer')
         ]
+
+    def __str__(self):
+        return str(self.question)
 
 
 class SubjectTestSelectMultipleCorrectAnswer(models.Model):

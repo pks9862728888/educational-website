@@ -297,11 +297,14 @@ urlpatterns = [
          views.InstituteTypedTestAddQuestionView.as_view(),
          name='add-typed-test-question'),
     path('<slug:subject_slug>/<int:question_id>/add-update-true-false-correct-answer',
-         views.InstituteTestAddTrueFalseCorrectAnswer.as_view(),
+         views.InstituteTestAddUpdateTrueFalseCorrectAnswer.as_view(),
          name='add-update-true-false-correct-answer'),
     path('<slug:subject_slug>/<int:question_id>/add-update-numeric-correct-answer',
-         views.InstituteTestAddNumericCorrectAnswer.as_view(),
+         views.InstituteTestAddUpdateNumericCorrectAnswer.as_view(),
          name='add-update-numeric-correct-answer'),
+    path('<slug:subject_slug>/<int:question_id>/add-update-mcq-option',
+         views.InstituteTestAddUpdateMCQOption.as_view(),
+         name='add-update-mcq-option'),
 
     # Institute Subject preview course
     path('list-all-student-institute-courses',
