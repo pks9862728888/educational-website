@@ -2804,7 +2804,7 @@ def set_typed_test_question_order(sender, instance, created, *args, **kwargs):
 
 class SubjectTestQuestionImage(models.Model):
     """Model for storing test question image"""
-    question = models.ForeignKey(
+    question = models.OneToOneField(
         SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='image_typed_test_question')
     file = models.FileField(
         _('File'),
@@ -2812,6 +2812,9 @@ class SubjectTestQuestionImage(models.Model):
         null=True,
         blank=True,
         max_length=1024)
+
+    def __str__(self):
+        return str(self.question)
 
 
 class SubjectTestMcqOptions(models.Model):
