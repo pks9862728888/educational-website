@@ -2823,7 +2823,7 @@ class SubjectTestMcqOptions(models.Model):
     correct_answer = models.BooleanField(_('Is Correct Answer'))
 
     def save(self, *args, **kwargs):
-        self.option = self.option.trim()
+        self.option = self.option.strip()
         super(SubjectTestMcqOptions, self).save(*args, **kwargs)
 
     class Meta:
