@@ -2848,6 +2848,11 @@ class SubjectTestNumericCorrectAnswer(models.Model):
     correct_answer = models.DecimalField(
         _('Correct Answer'), max_digits=20, decimal_places=6)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['question', 'correct_answer'], name='unique_numeric_answer')
+        ]
+
 
 class SubjectTestAssertionCorrectAnswer(models.Model):
     """Model for storing subject test assertion correct answer"""
