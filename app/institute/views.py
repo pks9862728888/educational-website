@@ -7934,7 +7934,7 @@ class InstituteTypedTestDeleteTestQuestionImage(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated, IsTeacher)
 
-    def post(self, request, *args, **kwargs):
+    def delete(self, *args, **kwargs):
         """Only subject in-charge can access."""
         subject = models.InstituteSubject.objects.filter(
             subject_slug=kwargs.get('subject_slug')
@@ -7959,7 +7959,7 @@ class InstituteTypedTestDeleteTestQuestionImage(APIView):
             return Response({'error': _('Institute not found.')},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        question_image = models.SubjectTestQuesitonImage.objects.filter(
+        question_image = models.SubjectTestQuestionImage.objects.filter(
             question__pk=kwargs.get('question_id')
         ).first()
 
