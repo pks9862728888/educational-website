@@ -314,6 +314,9 @@ urlpatterns = [
     path('<slug:subject_slug>/<int:question_id>/<int:option_id>/delete-multiple-choice-option',
          views.InstituteTestDeleteMultipleChoiceOption.as_view(),
          name='delete-multiple-choice-option'),
+    path('<slug:institute_slug>/<slug:subject_slug>/<int:question_id>/upload-test-question-image',
+         views.InstituteTypedTestAddTestQuestionImage.as_view(),
+         name='upload-test-question-image'),
 
     # Institute Subject preview course
     path('list-all-student-institute-courses',

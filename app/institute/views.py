@@ -6809,8 +6809,18 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                                 'has_picture': q.has_picture,
                                 'type': q.type
                             }
+
                             if q.concept_label:
                                 question_data['concept_label_id'] = q.concept_label.pk
+
+                            if q.has_picture:
+                                picture = models.SubjectTestQuestionImage.objects.filter(
+                                    question__pk=q.pk
+                                ).first()
+
+                                if picture:
+                                    question_data['image'] = self.request.build_absolute_uri(
+                                        '/').strip('/') + MEDIA_URL + '/' + str(picture.file)
 
                             # Find data according to question type
                             if q.type == models.QuestionType.MCQ:
@@ -6979,8 +6989,17 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                             'type': q.type,
                             'has_picture': q.has_picture
                         }
+
                         if q.concept_label:
                             question_data['concept_label_id'] = q.concept_label.pk
+
+                        if q.has_picture:
+                            picture = models.SubjectTestQuestionImage.objects.filter(
+                                question__pk=q.pk
+                            ).first()
+                            if picture:
+                                question_data['image'] = self.request.build_absolute_uri(
+                                    '/').strip('/') + MEDIA_URL + '/' + str(picture.file)
 
                         # Find appropriate options according to question
                         if q.type == models.QuestionType.MCQ:
@@ -7802,6 +7821,107 @@ class InstituteTestDeleteMultipleChoiceOption(APIView):
 
         option.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class InstituteTypedTestAddTestQuestionImage(APIView):
+    """View for adding typed test question image"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not get_active_common_license(institute):
+            return Response({'error': _('Institute LMS CMS license expired or not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute_license_stats = models.InstituteLicenseStat.objects.filter(
+            institute=institute
+        ).only('total_storage').first()
+
+        if not institute_license_stats.total_storage:
+            return Response({'error': _('Storage license expired or not found. Purchase storage to upload files.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        image_error = validate_image_file(request.data.get('file'))
+
+        if image_error:
+            return image_error
+
+        institute_stats = models.InstituteStatistics.objects.filter(
+            institute=institute
+        ).only('storage').first()
+
+        if request.data.get('file').size / 1000000000 + \
+                float(institute_stats.storage) > float(institute_license_stats.total_storage):
+            return Response({'error': _('File size too large. Purchase additional storage to upload files.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectTypedTestQuestion.objects.filter(
+            pk=kwargs.get('question_id')
+        ).only('pk').first()
+
+        if not question:
+            return Response({'error': _('Question not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not question.has_picture:
+            return Response({'error': _('Uploading picture to this question not allowed.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if models.SubjectTestQuestionImage.objects.filter(
+            question=question
+        ).exists():
+            return Response({'error': _('Image already uploaded for this question.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            ser = serializer.SubjectTypedTestQuestionImageUploadSerializer(data={
+                'file': request.data.get('file'),
+                'question': question.pk
+            }, context={'request': request})
+
+            if ser.is_valid():
+                ser.save()
+
+                file_size = request.data.get('file').size / 1000000000  # Size in GB
+
+                institute_stats.storage = Decimal(float(institute_stats.storage) + file_size)
+                institute_stats.save()
+
+                models.InstituteSubjectStatistics.objects.filter(
+                    statistics_subject=subject
+                ).update(storage=F('storage') + Decimal(file_size))
+
+                return Response({'image': ser.data['file']}, status=status.HTTP_201_CREATED)
+            else:
+                return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class InstituteEditImageQuestionView(APIView):
