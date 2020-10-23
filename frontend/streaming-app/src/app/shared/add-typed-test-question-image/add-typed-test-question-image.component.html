@@ -1,0 +1,18 @@
+<h3 class="upload-container-header faded-blue-color">Upload image form:</h3>
+<div class="upload-container">
+    <div *ngIf="uploadError" class="m-b-1">
+        <app-ui-error-text [errorText]="uploadError" (closeErrorTextEvent)="uploadError = null;"></app-ui-error-text>
+    </div>
+    <form [formGroup]="uploadImageForm">
+        <input type="file" [id]="question.question_id" formControlName="file" class="m-b-1">
+    </form>
+    <button mat-flat-button class="green-button m-b-1" [disabled]="uploadImageForm.invalid || uploadIndicator" (click)="uploadImage()">
+        <div class="d-flex align-center">
+          <mat-progress-spinner *ngIf="uploadIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Upload
+        </div>
+    </button>
+    <mat-progress-bar *ngIf="uploadIndicator" mode="determinate" [value]="progress"></mat-progress-bar>
+    <div class="d-flex justify-content-end m-t-02" *ngIf="uploadIndicator">
+        {{ getFileSize(loadedFileSize) }} / {{ getFileSize(totalFileSize) }}
+    </div>
+</div>

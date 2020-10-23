@@ -1153,6 +1153,48 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
     );
   }
 
+  confirmDeleteQuestionImage(question: SubjectTypedTestQuestions) {
+    const dialogRef = this.dialog.open(UiDialogComponent, {
+      data: {
+        title: 'Do you want to delete question image?',
+        trueStringDisplay: 'Yes',
+        falseStringDisplay: 'No'
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.deleteQuestionImage(question);
+      }
+    });
+  }
+
+  deleteQuestionImage(question: SubjectTypedTestQuestions) {
+    question.deletingImageIndicator = true;
+    this.instituteApiService.deleteTypedTestQuestionImage(
+      this.currentInstituteSlug,
+      this.currentSubjectSlug,
+      question.question_id.toString()
+    ).subscribe(
+      () => {
+        question.deletingImageIndicator = false;
+        question.image = null;
+        this.uiService.showSnackBar('Question image delete successful!', 2000);
+      },
+      errors => {
+        question.deletingImageIndicator = false;
+        if (errors.error) {
+          if (errors.error.error) {
+            this.uiService.showSnackBar(errors.error.error, 3000);
+          } else {
+            this.uiService.showSnackBar('Error! Unable to delete question image at the moment.', 3000);
+          }
+        } else {
+          this.uiService.showSnackBar('Error! Unable to delete question image at the moment.', 3000);
+        }
+      }
+    );
+  }
+
   getConceptLabelName(conceptLabelId: number) {
     return this.testDetails.labels.map(label => {
       if (label.id === conceptLabelId) {

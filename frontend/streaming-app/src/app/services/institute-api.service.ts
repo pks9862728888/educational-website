@@ -406,6 +406,22 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/${optionId}/delete-multiple-choice-option`;
   }
 
+  uploadImageInTypedTestQuestionUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${questionId}/upload-test-question-image`;
+  }
+
+  deleteTypedTestQuestionImageUrl(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${questionId}/delete-test-question-image`;
+  }
+
   editQuestionSetUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1412,6 +1428,37 @@ export class InstituteApiService {
       this.deleteMultipleChoiceOptionUrl(subjectSlug, questionId, optionId),
       { headers: this.getAuthHeader() }
     );
+  }
+
+  uploadImageInTypedTestQuestion(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string,
+    data: any
+    ) {
+      const formData = new FormData();
+      formData.append('file', data.file);
+
+      return this.httpClient.post(
+        this.uploadImageInTypedTestQuestionUrl(instituteSlug, subjectSlug, questionId),
+        formData,
+        {
+          headers: this.getAuthTokenHeader(),
+          reportProgress: true,
+          observe: 'events'
+        }
+      );
+  }
+
+  deleteTypedTestQuestionImage(
+    instituteSlug: string,
+    subjectSlug: string,
+    questionId: string,
+    ) {
+      return this.httpClient.delete(
+        this.deleteTypedTestQuestionImageUrl(instituteSlug, subjectSlug, questionId),
+        { headers: this.getAuthHeader() }
+      );
   }
 
   editQuestionSet(

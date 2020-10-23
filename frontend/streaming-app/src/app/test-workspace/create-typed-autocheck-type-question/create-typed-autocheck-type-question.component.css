@@ -155,6 +155,34 @@ span {
     pointer-events: none;
 }
 
+
+/* Styling for images */
+
+.image {
+    max-width: 100%;
+    max-height: auto;
+}
+
+:host .mat-card {
+    overflow: hidden;
+    object-fit: contain;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    background-color: #000;
+    pointer-events: none;
+}
+
+.delete-image {
+    position: absolute;
+    right: 2.5rem;
+    transform: translateY(-120%);
+}
+
+.white-button {
+    background-color: rgb(148, 148, 148);
+}
+
 .disabled {
     cursor: default;
 }

@@ -1,0 +1,46 @@
+h3 {
+    margin: 0;
+    padding: 0;
+}
+
+.upload-container-header {
+    background-color: #101d25;
+    padding: 0.5rem;
+}
+
+.upload-container {
+    background-color: rgba(255, 255, 255, 0.08);
+    padding: 1rem;
+}
+
+.file::-webkit-file-upload-button {
+    color: #fff;
+    display: inline-block;
+    background: #008697;
+    padding: 7px 15px;
+    border-radius: 5px;
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none !important;
+    outline-style: none !important;
+    border: none;
+}
+
+:host ::ng-deep .mat-progress-bar-fill::after {
+    background-color: #008697;
+}
+
+.green-button:disabled,
+.green-button:disabled:hover {
+    color: #fff;
+    background-color: #094d49;
+    opacity: 0.6;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}

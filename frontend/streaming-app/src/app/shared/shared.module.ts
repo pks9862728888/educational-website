@@ -47,6 +47,7 @@ import { TrueFalseFormComponent } from './true-false-form/true-false-form.compon
 import { NumericQuestionAddCorrectAnswerComponent } from './numeric-question-add-correct-answer/numeric-question-add-correct-answer.component';
 import { McqFormComponent } from './mcq-form/mcq-form.component';
 import { SelectMultipleAnswerFormComponent } from './select-multiple-answer-form/select-multiple-answer-form.component';
+import { AddTypedTestQuestionImageComponent } from './add-typed-test-question-image/add-typed-test-question-image.component';
 
 @NgModule({
   declarations: [
@@ -88,7 +89,8 @@ import { SelectMultipleAnswerFormComponent } from './select-multiple-answer-form
     TrueFalseFormComponent,
     NumericQuestionAddCorrectAnswerComponent,
     McqFormComponent,
-    SelectMultipleAnswerFormComponent
+    SelectMultipleAnswerFormComponent,
+    AddTypedTestQuestionImageComponent
   ],
   imports: [
     CommonModule,
@@ -136,7 +138,8 @@ import { SelectMultipleAnswerFormComponent } from './select-multiple-answer-form
     TrueFalseFormComponent,
     NumericQuestionAddCorrectAnswerComponent,
     McqFormComponent,
-    SelectMultipleAnswerFormComponent
+    SelectMultipleAnswerFormComponent,
+    AddTypedTestQuestionImageComponent
   ],
   providers: [
     InstituteApiService,

@@ -150,11 +150,12 @@ export interface SubjectTypedTestQuestions {
   order: number;
   question: string;
   type: string;
-  has_image: boolean;
+  has_picture: boolean;
   concept_label_id: number;
 
   correct_answer?: string | boolean | number;
   options?: QuestionAnswerOptions[];
+  image?: string;
 
   delete?: boolean;
   edit?: boolean;
@@ -162,6 +163,7 @@ export interface SubjectTypedTestQuestions {
   showAddAnswerForm?: boolean;
   showAddAnswerIndicator?: boolean;
   selectedOptionToEdit?: QuestionAnswerOptions;
+  deletingImageIndicator?: boolean;
 }
 
 export interface QuestionAnswerOptions {
