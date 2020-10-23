@@ -154,10 +154,20 @@ export interface SubjectTypedTestQuestions {
   concept_label_id: number;
 
   correct_answer?: string | boolean | number;
+  options?: QuestionAnswerOptions[];
 
   delete?: boolean;
   edit?: boolean;
   removingLabelIndicator?: boolean;
   showAddAnswerForm?: boolean;
   showAddAnswerIndicator?: boolean;
+  selectedMcqOptionToEdit?: QuestionAnswerOptions;
+}
+
+export interface QuestionAnswerOptions {
+  option_id: number;
+  option: string;
+  correct_answer?: boolean;
+
+  deletingIndicator?: boolean;
 }

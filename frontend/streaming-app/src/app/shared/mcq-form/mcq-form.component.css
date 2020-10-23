@@ -1,0 +1,49 @@
+h3,
+span {
+    margin: 0;
+    padding: 0;
+}
+
+.upload-container-header {
+    background-color: #101d25;
+    padding: 0.5rem;
+}
+
+.upload-container {
+    background-color: rgba(255, 255, 255, 0.06);
+    padding: 1rem;
+}
+
+
+/* Styling form fields */
+
+::ng-deep.mat-form-field-label {
+    /*change color of label*/
+    color: #dadada !important;
+}
+
+::ng-deep .mat-input-element::placeholder {
+    color: #838383;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {
+    color: #4e5458;
+}
+
+.green-button:disabled {
+    background-color: #0a5652;
+    color: #bdbdbd;
+    opacity: 0.5;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-l-05 {
+    margin-left: 0.5rem;
+}

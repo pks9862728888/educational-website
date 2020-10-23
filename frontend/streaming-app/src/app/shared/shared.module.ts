@@ -45,6 +45,7 @@ import { AddSubjectSpecificDateTimeTestComponent } from './add-subject-specific-
 import { AddSubjectSpecificDateTestComponent } from './add-subject-specific-date-test/add-subject-specific-date-test.component';
 import { TrueFalseFormComponent } from './true-false-form/true-false-form.component';
 import { NumericQuestionAddCorrectAnswerComponent } from './numeric-question-add-correct-answer/numeric-question-add-correct-answer.component';
+import { McqFormComponent } from './mcq-form/mcq-form.component';
 
 @NgModule({
   declarations: [
@@ -84,7 +85,8 @@ import { NumericQuestionAddCorrectAnswerComponent } from './numeric-question-add
     AddSubjectSpecificDateTimeTestComponent,
     AddSubjectSpecificDateTestComponent,
     TrueFalseFormComponent,
-    NumericQuestionAddCorrectAnswerComponent
+    NumericQuestionAddCorrectAnswerComponent,
+    McqFormComponent
   ],
   imports: [
     CommonModule,
@@ -130,7 +132,8 @@ import { NumericQuestionAddCorrectAnswerComponent } from './numeric-question-add
     AddSubjectSpecificDateTimeTestComponent,
     AddSubjectSpecificDateTestComponent,
     TrueFalseFormComponent,
-    NumericQuestionAddCorrectAnswerComponent
+    NumericQuestionAddCorrectAnswerComponent,
+    McqFormComponent
   ],
   providers: [
     InstituteApiService,

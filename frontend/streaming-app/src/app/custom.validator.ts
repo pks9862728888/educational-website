@@ -40,7 +40,7 @@ export function isNumberValidator(control: AbstractControl): {[key: string]: boo
 
 export function characterLengthLessThanEqualTo(value: number): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    if (control.pristine || control.value.length <= 20) {
+    if (control.pristine || control.value.length <= value) {
       return null;
     }
     return { characterLengthLessThanEqualTo: true };

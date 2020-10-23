@@ -1,0 +1,20 @@
+<div class="d-flex justify-content-between align-center upload-container-header">
+    <h3 class="expansion-panel-header-color"><span *ngIf="!question.selectedMcqOptionToEdit">Add</span><span *ngIf="question.selectedMcqOptionToEdit">Edit</span> Choice Form:</h3>
+    <mat-icon class="cancel-icon m-l-05 cursor-pointer" *ngIf="!question.showAddAnswerIndicator" (click)="closeMcqForm()">close</mat-icon>
+</div>
+<div class="upload-container">
+    <form [formGroup]="addOptionForm">
+        <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Option *</mat-label>
+            <input matInput formControlName="option" placeholder="Option">
+            <mat-error *ngIf="addOptionForm.controls.option.errors?.characterLengthLessThanEqualTo">Option should be less than 300 characters.</mat-error>
+        </mat-form-field>
+        <mat-slide-toggle formControlName="correct_answer" class="m-b-1">Correct answer</mat-slide-toggle>
+    </form>
+    <button mat-flat-button class="green-button" [disabled]="addOptionForm.invalid || question.showAddAnswerIndicator" (click)="submit()">
+      <div class="d-flex align-center">
+        <mat-progress-spinner *ngIf="question.showAddAnswerIndicator" mode="indeterminate" [diameter]="25" class="m-r-05"></mat-progress-spinner>
+        Submit
+      </div>
+    </button>
+</div>

@@ -376,6 +376,21 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-numeric-correct-answer`;
   }
 
+  addUpdateMcqOptionUrl(
+    subjectSlug: string,
+    questionId: string
+  ) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-mcq-option`;
+  }
+
+  deleteMcqOptionUrl(
+    subjectSlug: string,
+    questionId: string,
+    optionId: string
+  ) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/${optionId}/delete-mcq-option`;
+  }
+
   editQuestionSetUrl(
     instituteSlug: string,
     subjectSlug: string,
@@ -1334,6 +1349,29 @@ export class InstituteApiService {
     return this.httpClient.post(
       this.addUpdateNumericCorrectAnswerUrl(subjectSlug, questionId),
       data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addUpdateMcqOption(
+    subjectSlug: string,
+    questionId: string,
+    data: any
+    ) {
+    return this.httpClient.post(
+      this.addUpdateMcqOptionUrl(subjectSlug, questionId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  deleteMcqOption(
+    subjectSlug: string,
+    questionId: string,
+    optionId: string
+    ) {
+    return this.httpClient.delete(
+      this.deleteMcqOptionUrl(subjectSlug, questionId, optionId),
       { headers: this.getAuthHeader() }
     );
   }
