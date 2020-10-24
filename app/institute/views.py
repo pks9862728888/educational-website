@@ -6870,6 +6870,22 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                                 if numeric_correct_answer:
                                     question_data['correct_answer'] = numeric_correct_answer.correct_answer
 
+                            elif q.type == models.QuestionType.FILL_IN_THE_BLANK:
+                                fill_in_the_blank = models.SubjectTestFillInTheBlankCorrectAnswer.objects.filter(
+                                    question__pk=q.pk
+                                ).first()
+
+                                if fill_in_the_blank:
+                                    question_data['fill_in_the_blank_answer'] = {
+                                        'correct_answer': fill_in_the_blank.correct_answer,
+                                        'manual_checking': fill_in_the_blank.manual_checking,
+                                        'enable_strict_checking': fill_in_the_blank.enable_strict_checking,
+                                        'ignore_grammar': fill_in_the_blank.ignore_grammar,
+                                        'ignore_special_characters': fill_in_the_blank.ignore_special_characters
+                                    }
+                                else:
+                                    question_data['fill_in_the_blank_answer'] = list()
+
                             questions.append(question_data)
 
                     res['questions'] = questions
@@ -7055,6 +7071,22 @@ class InstituteGetQuestionSetQuestionsView(APIView):
 
                             if numeric_correct_answer:
                                 question_data['correct_answer'] = numeric_correct_answer.correct_answer
+
+                        elif q.type == models.QuestionType.FILL_IN_THE_BLANK:
+                            fill_in_the_blank = models.SubjectTestFillInTheBlankCorrectAnswer.objects.filter(
+                                question__pk=q.pk
+                            ).first()
+
+                            if fill_in_the_blank:
+                                question_data['fill_in_the_blank_answer'] = {
+                                    'correct_answer': fill_in_the_blank.correct_answer,
+                                    'manual_checking': fill_in_the_blank.manual_checking,
+                                    'enable_strict_checking': fill_in_the_blank.enable_strict_checking,
+                                    'ignore_grammar': fill_in_the_blank.ignore_grammar,
+                                    'ignore_special_characters': fill_in_the_blank.ignore_special_characters
+                                }
+                            else:
+                                question_data['fill_in_the_blank_answer'] = list()
 
                         questions.append(question_data)
 
@@ -7763,6 +7795,77 @@ class InstituteTestAddUpdateAssertTrueFalseCorrectAnswer(APIView):
                 print(e)
                 return Response({'error': _('Unhandled error occurred.')},
                                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteTestAddUpdateFillInTheBlankChecking(APIView):
+    """View for adding assert fill in the blank correct answer"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectTypedTestQuestion.objects.filter(
+            pk=kwargs.get('question_id')
+        ).only('pk').first()
+
+        if not question:
+            return Response({'error': _('Question not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        try:
+            answer = models.SubjectTestFillInTheBlankCorrectAnswer.objects.filter(
+                question=question
+            ).first()
+            status_response = status.HTTP_201_CREATED
+
+            if not answer:
+                answer = models.SubjectTestAssertionCorrectAnswer.objects.create(
+                    question=question,
+                    manual_checking=request.data.get('manual_checking'),
+                    enable_strict_checking=request.data.get('enable_strict_checking'),
+                    ignore_grammar=request.data.get('ignore_grammar'),
+                    ignore_special_characters=request.data.get('ignore_special_characters'),
+                    correct_answer=request.data.get('correct_answer'),
+                )
+            else:
+                answer.correct_answer = request.data.get('correct_answer')
+                answer.manual_checking = request.data.get('manual_checking')
+                answer.enable_strict_checking = request.data.get('enable_strict_checking')
+                answer.ignore_grammar = request.data.get('ignore_grammar')
+                answer.ignore_special_characters = request.data.get('ignore_special_characters')
+                answer.save()
+                status_response = status.HTTP_200_OK
+
+            return Response({
+                'correct_answer': answer.correct_answer,
+                'manual_checking': answer.manual_checking,
+                'enable_strict_checking': answer.enable_strict_checking,
+                'ignore_grammar': answer.ignore_grammar,
+                'ignore_special_characters': answer.ignore_special_characters
+            }, status=status_response)
+
+        except IntegrityError as e:
+                return Response({'error': _('Answer already added.')},
+                                status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
             return Response({'error': _('Unhandled error occurred.')},

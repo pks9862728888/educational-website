@@ -2892,7 +2892,7 @@ class SubjectTestSelectMultipleCorrectAnswer(models.Model):
 
 class SubjectTestNumericCorrectAnswer(models.Model):
     """Model for storing subject test numeric correct answer"""
-    question = models.ForeignKey(
+    question = models.OneToOneField(
         SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_numeric_question')
     correct_answer = models.DecimalField(
         _('Correct Answer'), max_digits=20, decimal_places=6)
@@ -2905,7 +2905,7 @@ class SubjectTestNumericCorrectAnswer(models.Model):
 
 class SubjectTestAssertionCorrectAnswer(models.Model):
     """Model for storing subject test assertion correct answer"""
-    question = models.ForeignKey(
+    question = models.OneToOneField(
         SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_assertion_answer')
     correct_answer = models.BooleanField(_('True / False correct answer'))
 
@@ -2920,8 +2920,9 @@ class SubjectTestAssertionCorrectAnswer(models.Model):
 
 class SubjectTestFillInTheBlankCorrectAnswer(models.Model):
     """Model for storing subject fill in the blank correct answer"""
-    question = models.ForeignKey(
+    question = models.OneToOneField(
         SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_fill_in_the_blank_answer')
+    manual_checking = models.BooleanField(_('Check manually'))
     correct_answer = models.CharField(
         _('Correct Answer'), max_length=100)
     enable_strict_checking = models.BooleanField(_('Enable strict checking.'), default=False)
@@ -2932,6 +2933,9 @@ class SubjectTestFillInTheBlankCorrectAnswer(models.Model):
         if self.enable_strict_checking and (self.ignore_grammar or self.ignore_special_characters):
             raise ValueError('Grammar and special characters can not be ignored if strict checking is enabled.')
         super(SubjectTestFillInTheBlankCorrectAnswer, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return str(self.question)
 
 
 #####################################################################
