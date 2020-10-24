@@ -328,6 +328,11 @@ urlpatterns = [
          views.InstituteTypedTestDeleteTestQuestionImage.as_view(),
          name='delete-test-question-image'),
 
+    # For all types typed test
+    path('<slug:subject_slug>/<int:question_id>/add-update-assert-true-false-correct-answer',
+         views.InstituteTestAddUpdateAssertTrueFalseCorrectAnswer.as_view(),
+         name='add-update-assert-true-false-correct-answer'),
+
     # Institute Subject preview course
     path('list-all-student-institute-courses',
          views.InstituteStudentCourseListView.as_view(),

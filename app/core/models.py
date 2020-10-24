@@ -2909,6 +2909,14 @@ class SubjectTestAssertionCorrectAnswer(models.Model):
         SubjectTypedTestQuestion, on_delete=models.CASCADE, related_name='typed_test_assertion_answer')
     correct_answer = models.BooleanField(_('True / False correct answer'))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['question', 'correct_answer'], name='unique_assertion_answer')
+        ]
+
+    def __str__(self):
+        return str(self.question)
+
 
 class SubjectTestFillInTheBlankCorrectAnswer(models.Model):
     """Model for storing subject fill in the blank correct answer"""

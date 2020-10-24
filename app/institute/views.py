@@ -6854,6 +6854,14 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                                 if true_false_correct_answer:
                                     question_data['correct_answer'] = true_false_correct_answer.correct_answer
 
+                            elif q.type == models.QuestionType.ASSERTION:
+                                assertion_correct_answer = models.SubjectTestAssertionCorrectAnswer.objects.filter(
+                                    question__pk=q.pk
+                                ).first()
+
+                                if assertion_correct_answer:
+                                    question_data['correct_answer'] = assertion_correct_answer.correct_answer
+
                             elif q.type == models.QuestionType.NUMERIC_ANSWER:
                                 numeric_correct_answer = models.SubjectTestNumericCorrectAnswer.objects.filter(
                                     question__pk=q.pk
@@ -7020,6 +7028,14 @@ class InstituteGetQuestionSetQuestionsView(APIView):
 
                             if true_false_correct_answer:
                                 question_data['correct_answer'] = true_false_correct_answer.correct_answer
+
+                        elif q.type == models.QuestionType.ASSERTION:
+                            assertion_correct_answer = models.SubjectTestAssertionCorrectAnswer.objects.filter(
+                                question__pk=q.pk
+                            ).first()
+
+                            if assertion_correct_answer:
+                                question_data['correct_answer'] = assertion_correct_answer.correct_answer
 
                         elif q.type == models.QuestionType.SELECT_MULTIPLE_CHOICE:
                             question_data['options'] = list()
@@ -7668,6 +7684,67 @@ class InstituteTestAddUpdateTrueFalseCorrectAnswer(APIView):
 
             if not answer:
                 answer = models.SubjectTestTrueFalseCorrectAnswer.objects.create(
+                    question=question,
+                    correct_answer=request.data.get('correct_answer')
+                )
+            else:
+                answer.correct_answer = request.data.get('correct_answer')
+                answer.save()
+
+            return Response({'correct_answer': answer.correct_answer},
+                            status=status.HTTP_201_CREATED)
+
+        except IntegrityError as e:
+            if 'unique_answer' in str(e):
+                return Response({'error': _('Correct answer already added.')},
+                                status=status.HTTP_400_BAD_REQUEST)
+            else:
+                print(e)
+                return Response({'error': _('Unhandled error occurred.')},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            print(e)
+            return Response({'error': _('Unhandled error occurred.')},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class InstituteTestAddUpdateAssertTrueFalseCorrectAnswer(APIView):
+    """View for adding assert true false correct answer"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def post(self, request, *args, **kwargs):
+        """Only subject in-charge can access."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not models.InstituteSubjectPermission.objects.filter(
+                to=subject,
+                invitee=self.request.user
+        ).exists():
+            return Response({'error': _('Permission denied [Subject in-charge only]')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        question = models.SubjectTypedTestQuestion.objects.filter(
+            pk=kwargs.get('question_id')
+        ).only('pk').first()
+
+        if not question:
+            return Response({'error': _('Question not found.')},
+                            status.HTTP_400_BAD_REQUEST)
+
+        try:
+            answer = models.SubjectTestAssertionCorrectAnswer.objects.filter(
+                question=question
+            ).first()
+
+            if not answer:
+                answer = models.SubjectTestAssertionCorrectAnswer.objects.create(
                     question=question,
                     correct_answer=request.data.get('correct_answer')
                 )
