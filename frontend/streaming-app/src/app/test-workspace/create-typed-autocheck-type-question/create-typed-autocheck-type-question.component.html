@@ -367,8 +367,8 @@
                                         <div class="upload-container">
                                             <form [formGroup]="editQuestionForm">
                                                 <mat-form-field appearance="outline" class="w-100">
-                                                    <mat-label>Question (optional)</mat-label>
-                                                    <input matInput formControlName="question" placeholder="Question (optional)">
+                                                    <mat-label>Question *</mat-label>
+                                                    <textarea matInput formControlName="question" placeholder="Question"></textarea>
                                                     <mat-error *ngIf="editQuestionForm.controls.question.errors?.characterLengthLessThanEqualTo">Question can not be greater than 2000 characters.</mat-error>
                                                 </mat-form-field>
                                                 <mat-form-field appearance="outline" class="w-100">
@@ -409,7 +409,7 @@
                                         <form [formGroup]="addQuestionForm">
                                             <mat-form-field appearance="outline" class="w-100">
                                                 <mat-label>Question *</mat-label>
-                                                <input matInput formControlName="question" placeholder="Question">
+                                                <textarea matInput formControlName="question" placeholder="Question"></textarea>
                                                 <mat-error *ngIf="addQuestionForm.controls.question.errors?.required">This field is required.</mat-error>
                                             </mat-form-field>
                                             <mat-form-field appearance="outline" class="w-100">

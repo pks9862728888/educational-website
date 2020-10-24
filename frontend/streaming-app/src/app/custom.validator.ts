@@ -63,3 +63,14 @@ export const addQuestionFormValidator: ValidatorFn = (control: FormGroup): Valid
   }
   return null;
 };
+
+export const fillInTheBlankFormValidator: ValidatorFn = (control: FormGroup): ValidationErrors | null => {
+  const manualChecking = control.get('manual_checking').value;
+  const correctAnswer = control.get('correct_answer').value;
+
+  if (!manualChecking && !correctAnswer) {
+    return { fillInTheBlankFormValidator: true };
+  }
+
+  return null;
+};

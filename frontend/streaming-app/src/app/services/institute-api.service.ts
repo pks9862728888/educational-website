@@ -387,6 +387,20 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-true-false-correct-answer`;
   }
 
+  addUpdateAssertionCorrectAnswerUrl(
+    subjectSlug: string,
+    questionId: string,
+  ) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-assert-true-false-correct-answer`;
+  }
+
+  addUpdateFillInTheBlankAnswerCheckUrl(
+    subjectSlug: string,
+    questionId: string,
+  ) {
+    return `${this.instituteBaseUrl}${subjectSlug}/${questionId}/add-update-fill-in-the-blank-checking`;
+  }
+
   addUpdateNumericCorrectAnswerUrl(
     subjectSlug: string,
     questionId: string,
@@ -1411,6 +1425,30 @@ export class InstituteApiService {
     ) {
     return this.httpClient.post(
       this.addUpdateTrueFalseCorrectAnswerUrl(subjectSlug, questionId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addUpdateAssertionCorrectAnswer(
+    subjectSlug: string,
+    questionId: string,
+    data: any
+    ) {
+    return this.httpClient.post(
+      this.addUpdateAssertionCorrectAnswerUrl(subjectSlug, questionId),
+      data,
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  addUpdateFillInTheBlankAnswerCheck(
+    subjectSlug: string,
+    questionId: string,
+    data: any
+    ) {
+    return this.httpClient.post(
+      this.addUpdateFillInTheBlankAnswerCheckUrl(subjectSlug, questionId),
       data,
       { headers: this.getAuthHeader() }
     );

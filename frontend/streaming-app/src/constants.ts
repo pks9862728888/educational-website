@@ -468,7 +468,7 @@ export const AUTOCHECK_TYPE_QUESTION_FORM_FIELD_OPTIONS = [
 export const ALL_TYPE_QUESTION_FORM_FIELD_OPTIONS = [
   {value: 'M', viewValue: 'MCQ'},
   {value: 'T', viewValue: 'True / False'},
-  {value: 'S', viewValue: 'Select Multiple Choice'},
+  {value: 'C', viewValue: 'Select Multiple Choice'},
   {value: 'N', viewValue: 'Numeric Answer'},
   {value: 'A', viewValue: 'Assertion'},
   {value: 'S', viewValue: 'Short Answer'},

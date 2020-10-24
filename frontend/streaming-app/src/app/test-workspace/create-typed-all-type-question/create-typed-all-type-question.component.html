@@ -1,1 +1,560 @@
-<p>create-typed-all-type-question works!</p>
+<section *ngIf="!previewQuestionPaper" class="parent-container">
+    <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading test details...'"></app-ui-loading>
+    <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
+    <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load test details.'" (retryEvent)="getTestDetails()"></app-ui-reload>
+    <div *ngIf="!loadingIndicator && !loadingError && !reloadIndicator">
+        <div class="text-center">
+            <h1 class="expansion-panel-header-color">{{ testDetails.name }}</h1>
+            <h3 class="faded-blue-color m-b-1">{{ testDetails.subject_name }}, {{ testDetails.class_name }}</h3>
+            <p class="m-b-1">Instructions: <span *ngIf="testDetails.instruction">{{ testDetails.instruction }}</span><span *ngIf="!testDetails.instruction">None</span></p>
+            <div class="d-flex justify-content-between align-center faded-blue-color">
+                <p>{{ testDetails.total_duration }} minutes</p>
+                <p>Total marks: {{ testDetails.total_marks }}</p>
+            </div>
+        </div>
+        <hr class="separator m-t-05 c-margin-b-tset">
+        <div class="m-b-05 d-flex justify-content-between align-center">
+            <h2 class="faded-blue-color">Concept labels:</h2>
+            <mat-icon class="m-l-05 cursor-pointer faded-blue-color" (click)="showConceptLabelInfo = !showConceptLabelInfo">
+                <span *ngIf="!showConceptLabelInfo">info</span>
+                <span *ngIf="showConceptLabelInfo">close</span>
+            </mat-icon>
+        </div>
+        <p *ngIf="showConceptLabelInfo" class="m-b-1 text-justify">Adding concept labels in questions helps in automatic topic wise evaluation of students result.</p>
+        <mat-form-field class="w-100" appearance="outline">
+            <mat-chip-list #chipList aria-label="Question labels">
+                <mat-chip color="accent" selected *ngFor="let label of testDetails.labels" [selectable]="false" [removable]="!testDetails.test_live" (removed)="removeConceptLabelConfirm(label)">
+                    {{label.name}}
+                    <mat-icon matChipRemove *ngIf="!testDetails.test_live">cancel</mat-icon>
+                </mat-chip>
+                <input placeholder="Add concept label for question..." [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="addConceptLabelEvent($event)">
+            </mat-chip-list>
+        </mat-form-field>
+        <div *ngIf="addConceptLabelIndicator" class="d-flex align-center m-b-1">
+            <mat-progress-spinner mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>
+            Adding concept label...
+        </div>
+        <div *ngIf="deleteConceptLabelIndicator" class="d-flex align-center m-b-1">
+            <mat-progress-spinner mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>
+            Deleting concept label...
+        </div>
+        <div class="d-flex justify-content-between align-center m-b-05">
+            <h2 class="faded-blue-color">Question sets:</h2>
+            <mat-icon class="m-l-05 cursor-pointer faded-blue-color" (click)="showQuestionSetInfo = !showQuestionSetInfo">
+                <span *ngIf="!showQuestionSetInfo">info</span>
+                <span *ngIf="showQuestionSetInfo">close</span>
+            </mat-icon>
+        </div>
+        <div *ngIf="showQuestionSetInfo">
+            <p class="m-b-1 text-justify">Multiple question sets can be created for same test. Only the verified & active question sets will be provided to students for test.</p>
+            <p class="m-b-1 text-justify">If multiple question sets are active, then question sets will be shuffled automatically and provided to student.</p>
+        </div>
+        <div class="q-sets m-b-1" [hidden]="showAddQuestionSetForm && testDetails.test_sets.length === 0">
+            <mat-chip-list aria-label="Question set selection">
+                <mat-chip color="primary" *ngFor="let set of testDetails.test_sets" [class.selected]="!selectedSet || selectedSet && set.id !== selectedSet.id" (click)="getQuestionSetQuestions(set)">{{ set.set_name }}</mat-chip>
+                <mat-chip color="primary" *ngIf="!showAddQuestionSetForm && !loadingSetQuestionErrorText && !loadingSetQuestionsIndicator && !reloadSetQuestions" selected (click)="toggleAddQuestionSetForm()">Add Question Set</mat-chip>
+            </mat-chip-list>
+        </div>
+        <app-ui-loading *ngIf="loadingSetQuestionsIndicator" [actionText]="'Loading question set...'"></app-ui-loading>
+        <app-ui-error-text *ngIf="loadingSetQuestionErrorText" [errorText]="loadingSetQuestionErrorText" [hideCloseButton]="true"></app-ui-error-text>
+        <app-ui-reload *ngIf="reloadSetQuestions" [errorText]="'Unable to load question set questions.'" (click)="getQuestionSetQuestions(selectedSet, true)"></app-ui-reload>
+        <div class="m-b-1" *ngIf="showAddQuestionSetForm">
+            <form [formGroup]="questionSetForm">
+                <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Enter question set name</mat-label>
+                    <input matInput placeholder="Name of Question set" formControlName="set_name" required>
+                    <mat-error *ngIf="questionSetForm.controls.set_name.errors?.required">Question set name is required.</mat-error>
+                    <mat-error *ngIf="!questionSetForm.controls.set_name.errors?.required && questionSetForm.controls.set_name.errors?.characterLengthLessThanEqualTo">Question set name can not be more than 20 characters.</mat-error>
+                </mat-form-field>
+            </form>
+            <div class="d-flex align-center">
+                <button mat-flat-button class="red-button m-r-05" [disabled]="submitIndicatorAddQuestionSet" (click)="toggleAddQuestionSetForm()">Cancel</button>
+                <button mat-flat-button class="green-button" [disabled]="submitIndicatorAddQuestionSet || questionSetForm.invalid" (click)="addQuestionSet()">
+                <div class="d-flex align-center">
+                  <mat-progress-spinner *ngIf="submitIndicatorAddQuestionSet" [diameter]="20" mode="indeterminate" class="m-r-05"></mat-progress-spinner>
+                  Submit
+                </div>
+              </button>
+            </div>
+        </div>
+        <p *ngIf="testDetails.test_sets.length === 0 && !showAddQuestionSetForm">No Question Set Found</p>
+        <p *ngIf="testDetails.test_sets.length !== 0 && !showAddQuestionSetForm && !selectedSet">No Question Set Selected</p>
+        <div *ngIf="selectedSet && !showAddQuestionSetForm && !loadingSetQuestionsIndicator && !loadingSetQuestionErrorText && !reloadSetQuestions">
+            <div class="selected-set-details">
+                <div class="d-flex justify-content-between align-center">
+                    <h3 class="faded-blue-color m-b-05">Selected Set: {{ selectedSet.set_name }}</h3>
+                    <div class="d-flex align-center" *ngIf="!mq.matches">
+                        <h3 class="faded-blue-color m-r-05">{{ findTotalMarksOfSelectedQuestionSet() }} marks</h3>
+                        <button mat-stroked-button [disabled]="selectedSet.edit || selectedSet.delete" class="stroked-button m-r-05" (click)="editQuestionSetName()">
+                        <mat-icon class="edit-icon" [class.disabled]="selectedSet.edit || selectedSet.delete">edit</mat-icon>
+                      </button>
+                        <button mat-stroked-button [disabled]="selectedSet.editingIndicator || selectedSet.delete" class="stroked-button" (click)="confirmDeleteSet()">
+                        <mat-icon class="delete-icon" *ngIf="!selectedSet.delete">delete</mat-icon>
+                        <mat-progress-spinner *ngIf="selectedSet.delete" [diameter]="20" mode="indeterminate" class="m-04rem"></mat-progress-spinner>
+                      </button>
+                    </div>
+                </div>
+                <p *ngIf="mq.matches" class="faded-blue-color m-b-05">Total marks: {{ findTotalMarksOfSelectedQuestionSet() }}</p>
+                <p class="m-b-05"><span *ngIf="!selectedSet.verified">Not Verified</span><span *ngIf="selectedSet.verified">Verified</span> | <span *ngIf="!selectedSet.active">Not active</span><span *ngIf="selectedSet.active">Active</span> | <span *ngIf="!selectedSet.mark_as_final">Editable</span>
+                    <span *ngIf="selectedSet.mark_as_final">Un-editable</span>
+                </p>
+                <p>Created on: {{ getDateFromUnixTimeStamp(selectedSet.created_on) | date }}</p>
+                <div *ngIf="selectedSet.edit" class="m-t-1">
+                    <!-- For editing question set -->
+                    <div *ngIf="editQuestionSetForm" class="m-t-1 m-b-1">
+                        <div class="d-flex justify-content-between align-center upload-container-header">
+                            <h3 class="expansion-panel-header-color">Edit question set form:</h3>
+                            <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeQuestionSetEditForm()" [hidden]="selectedSet.editingIndicator">close</mat-icon>
+                        </div>
+                        <div class="upload-container">
+                            <form [formGroup]="editQuestionSetForm">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Question set name:</mat-label>
+                                    <input matInput formControlName="set_name" placeholder="Question set name">
+                                    <mat-hint *ngIf="editQuestionSetForm.controls.set_name.errors?.required" class="yellow-text">This field is required.</mat-hint>
+                                    <mat-hint *ngIf="!editQuestionSetForm.controls.set_name.errors?.required && editQuestionSetForm.controls.set_name.errors?.characterLengthLessThanEqualTo" class="yellow-text">Question set name should be less than 20 characters.</mat-hint>
+                                </mat-form-field>
+                            </form>
+                            <div class="d-flex align-center">
+                                <button mat-flat-button class="reset-button m-r-05" [disabled]="selectedSet.editingIndicator" (click)="resetQuestionSetEditForm()">Reset</button>
+                                <button mat-flat-button class="green-button" [disabled]="editQuestionSetForm.invalid || selectedSet.editingIndicator" (click)="editQuestionSet(selectedSet.id)">
+                                <div class="d-flex align-center">
+                                  <mat-progress-spinner *ngIf="selectedSet.editingIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Submit
+                                </div>
+                              </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-center m-t-05" *ngIf="mq.matches">
+                    <button mat-stroked-button class="stroked-button m-r-05" [disabled]="selectedSet.edit || selectedSet.delete" (click)="editQuestionSetName()">
+                    <mat-icon class="edit-icon">edit</mat-icon>
+                  </button>
+                    <button mat-stroked-button class="stroked-button" [disabled]="selectedSet.editingIndicator || selectedSet.delete" (click)="confirmDeleteSet()">
+                    <mat-icon class="delete-icon" *ngIf="!selectedSet.delete">delete</mat-icon>
+                    <mat-progress-spinner *ngIf="selectedSet.delete" [diameter]="20" mode="indeterminate" class="m-04rem"></mat-progress-spinner>
+                  </button>
+                </div>
+            </div>
+            <app-ui-loading *ngIf="loadingSetQuestionsIndicator" [actionText]="'Loading set questions...'"></app-ui-loading>
+            <app-ui-error-text *ngIf="loadingSetQuestionErrorText" [errorText]="loadingSetQuestionErrorText" [hideCloseButton]="true"></app-ui-error-text>
+            <app-ui-reload *ngIf="reloadSetQuestions" [errorText]="'Unable to load questions.'" (retryEvent)="getQuestionSetQuestions(selectedSet, true)"></app-ui-reload>
+            <div *ngIf="!loadingSetQuestionsIndicator && !loadingSetQuestionErrorText && !reloadSetQuestions">
+                <div class="d-flex align-center justify-content-between">
+                    <h2 class="faded-blue-color m-t-1" [class.m-t-2]="setQuestions && setQuestions.length > 0" [class.m-b-2]="!mq.matches && setQuestions && setQuestions.length > 0" [class.m-b-1]="mq.matches && setQuestions && setQuestions.length > 0">Create question paper -> {{ selectedSet.set_name }}:</h2>
+                    <button mat-flat-button class="green-button m-l-05" *ngIf="!mq.matches && setQuestions && setQuestions.length > 0">
+                    <div class="d-flex align-center">
+                      <mat-icon class="cursor-pointer preview-icon m-r-05">visibility</mat-icon>View Question Set
+                    </div>
+                  </button>
+                </div>
+                <button mat-flat-button class="green-button m-b-2 w-100" *ngIf="mq.matches && selectedSectionData && selectedSectionData.questions.length > 0">
+                <div class="d-flex justify-content-center align-center">
+                  <mat-icon class="cursor-pointer preview-icon m-r-05">visibility</mat-icon>View Question Set
+                </div>
+              </button>
+                <div class="row m-b-1" *ngIf="mq.matches && setQuestions && setQuestions.length > 0">
+                    <div class="col">
+                        <div class="section-no-container p-t-05 p-b-05 p-l-1 p-r-1">
+                            <div class="row">
+                                <div *ngFor="let section of setQuestions; let sectionIdx = index" (click)="selectSectionIdx(sectionIdx)" class="section-no cursor-pointer d-flex justify-content-center align-items-center m-05rem mat-elevation-z1" [class.selected-section-no]="section.section_id === selectedSectionData.section_id">
+                                    <h3 class="expansion-panel-header-color">{{ sectionIdx + 1 }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row m-b-1" *ngIf="setQuestions && setQuestions.length > 0">
+                    <div class="m-l-1 section-no-container p-05rem h-100" *ngIf="!mq.matches">
+                        <div *ngFor="let section of setQuestions; let sectionIdx = index" (click)="selectSectionIdx(sectionIdx)" class="section-no cursor-pointer d-flex justify-content-center align-items-center mat-elevation-z1 m-b-05-nlc" [class.selected-section-no]="section.section_id === selectedSectionData.section_id">
+                            <h3 class="expansion-panel-header-color">{{ sectionIdx + 1}}</h3>
+                        </div>
+                    </div>
+                    <div class="col h-100" [class.col-12]="mq.matches">
+                        <div class="section-questions-container p-1rem">
+                            <div class="d-flex justify-content-between align-center m-b-05">
+                                <h2 class="expansion-panel-header-color"><span *ngIf="!mq.matches">Question&nbsp;</span>Group {{ selectedSectionIdx + 1 }}</h2>
+                                <div class="d-flex align-center m-l-05">
+                                    <h2 class="expansion-panel-header-color" [class.m-r-05]="!mq.matches">{{ findTotalMarksOfSelectedQuestionGroup() }} marks</h2>
+                                    <button mat-stroked-button *ngIf="!mq.matches" class="stroked-button m-r-05" [disabled]="selectedSectionData.edit || selectedSectionData.editingIndicator || selectedSectionData.deletingIndicator" (click)="showEditQuestionSectionForm()"><mat-icon class="edit-icon">edit</mat-icon></button>
+                                    <button mat-stroked-button *ngIf="!mq.matches" class="stroked-button" [disabled]="selectedSectionData.editingIndicator || selectedSectionData.deletingIndicator" (click)="confirmDeleteQuestionSection(selectedSectionData.section_id)">
+                                    <mat-icon *ngIf="!selectedSectionData.deletingIndicator" class="delete-icon">delete</mat-icon>
+                                    <mat-progress-spinner *ngIf="selectedSectionData.deletingIndicator" [diameter]="20" mode="indeterminate" class="m-04rem"></mat-progress-spinner>
+                                  </button>
+                                </div>
+                            </div>
+                            <p class="expansion-panel-header-color m-b-05">
+                                <span *ngIf="selectedSectionData.section_mandatory">Mandatory group</span>
+                                <span *ngIf="!selectedSectionData.section_mandatory">Optional group</span> |
+                                <span *ngIf="selectedSectionData.answer_all_questions">Answer all questions</span>
+                                <span *ngIf="!selectedSectionData.answer_all_questions">Answer any {{ selectedSectionData.no_of_question_to_attempt }} questions</span>
+                            </p>
+                            <p class="faded-blue-color m-b-05">{{ selectedSectionData.questions.length }} questions added</p>
+                            <p class="faded-blue-color text-justify m-b-05" *ngIf="selectedSectionData.name">{{ selectedSectionData.name }}</p>
+                            <div class="d-flex align-center" *ngIf="mq.matches">
+                                <button mat-stroked-button class="stroked-button m-r-05" [disabled]="selectedSectionData.edit || selectedSectionData.editingIndicator" (click)="showEditQuestionSectionForm()"><mat-icon class="edit-icon">edit</mat-icon></button>
+                                <button mat-stroked-button class="stroked-button" [disabled]="selectedSectionData.editingIndicator || selectedSectionData.deletingIndicator" (click)="confirmDeleteQuestionSection(selectedSectionData.section_id)">
+                                <mat-icon *ngIf="!selectedSectionData.deletingIndicator" class="delete-icon">delete</mat-icon>
+                                <mat-progress-spinner *ngIf="selectedSectionData.deletingIndicator" [diameter]="20" mode="indeterminate" class="m-04rem"></mat-progress-spinner>
+                              </button>
+                            </div>
+                            <hr class="separator m-t-1 m-b-1" />
+                            <!-- For editing question section -->
+                            <div *ngIf="selectedSectionData.edit" class="m-t-1">
+                                <div class="d-flex justify-content-between align-center upload-container-header">
+                                    <h3 class="expansion-panel-header-color">Edit question group form:</h3>
+                                    <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeEditQuestionSectionForm()" [hidden]="selectedSectionData.editingIndicator">close</mat-icon>
+                                </div>
+                                <div class="upload-container">
+                                    <form [formGroup]="editQuestionSectionForm">
+                                        <mat-form-field appearance="outline" class="w-100" [hidden]="selectedSectionData.questions.length > 0">
+                                            <mat-label>How many questions will be in this question group?</mat-label>
+                                            <select matNativeControl formControlName="view" (change)="questionSectionViewChanged()">
+                                                <option *ngFor="let option of QUESTION_SECTION_VIEW_TYPE_FORM_FIELD_OPTIONS" [value]="option.value" class="options">{{ option.viewValue }}</option>
+                                            </select>
+                                        </mat-form-field>
+                                        <div [hidden]="editQuestionSectionForm.value.view === QUESTION_SECTION_VIEW_TYPE.SINGLE_QUESTION">
+                                            <div class="m-b-1">
+                                                <mat-slide-toggle formControlName="answer_all_questions">Should all questions be answered?</mat-slide-toggle>
+                                            </div>
+                                            <mat-form-field appearance="outline" class="w-100" [hidden]="editQuestionSectionForm.value.answer_all_questions">
+                                                <mat-label>Number of questions to answer:</mat-label>
+                                                <input matInput formControlName="no_of_question_to_attempt" placeholder="Number of questions to attempt">
+                                                <mat-hint *ngIf="editQuestionSectionForm.errors?.numberShouldBeInteger" class="yellow-text">Should be a positive integer</mat-hint>
+                                                <mat-hint *ngIf="editQuestionSectionForm.errors?.numberShouldBeGreaterThanZeroError" class="yellow-text">Should be a positive integer > 0</mat-hint>
+                                            </mat-form-field>
+                                            <mat-form-field appearance="outline" class="w-100">
+                                                <mat-label>Title of question group (optional)</mat-label>
+                                                <input matInput formControlName="name" placeholder="Name of question group (optional)">
+                                            </mat-form-field>
+                                        </div>
+                                        <div class="m-b-1">
+                                            <mat-slide-toggle formControlName="section_mandatory">Mandatory question group</mat-slide-toggle>
+                                        </div>
+                                    </form>
+                                    <hr class="separator m-b-1">
+                                    <div class="d-flex align-center">
+                                        <button mat-flat-button class="reset-button m-r-05" [disabled]="selectedSectionData.editingIndicator" (click)="resetEditQuestionSectionForm()">Reset</button>
+                                        <button mat-flat-button class="green-button" [disabled]="editQuestionSectionForm.invalid || selectedSectionData.editingIndicator" (click)="editQuestionSection(selectedSectionData.section_id)">
+                                      <div class="d-flex align-center">
+                                        <mat-progress-spinner *ngIf="selectedSectionData.editingIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Submit
+                                      </div>
+                                    </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Questions of question section -->
+                            <div [hidden]="selectedSectionData.edit">
+                                <p *ngIf="selectedSectionData.questions.length === 0">No questions found.</p>
+                                <div *ngFor="let question of selectedSectionData.questions; let questionIdx = index;">
+                                    <div class="d-flex justify-content-between align-center faded-blue-color m-b-05">
+                                        <h3>Question {{ questionIdx + 1 }}:</h3>
+                                        <h3>{{ question.marks }} marks</h3>
+                                    </div>
+                                    <div [hidden]="question.edit">
+                                        <p class="text-justify m-b-1">
+                                            <span *ngIf="question.type === ALL_TYPE_QUESTIONS.MCQ">Multiple choice question</span>
+                                            <span *ngIf="question.type === ALL_TYPE_QUESTIONS.TRUE_FALSE">True / False question</span>
+                                            <span *ngIf="question.type === ALL_TYPE_QUESTIONS.ASSERTION">Assert True / False Question</span>
+                                            <span *ngIf="question.type === ALL_TYPE_QUESTIONS.FILL_IN_THE_BLANK">Fill in the blank question</span>
+                                            <span *ngIf="question.type === ALL_TYPE_QUESTIONS.SELECT_MULTIPLE_CHOICE">Select multiple choice question</span>
+                                            <span *ngIf="question.type === ALL_TYPE_QUESTIONS.NUMERIC_ANSWER">Numeric Answer Question</span>
+                                            <span *ngIf="question.type === ALL_TYPE_QUESTIONS.SHORT_ANSWER">Short Answer Question</span>
+                                            <span *ngIf="question.type === ALL_TYPE_QUESTIONS.DESCRIPTIVE_ANSWER">Descriptive Answer Question</span>
+                                        </p>
+                                        <div *ngIf="question.concept_label_id" class="m-b-1 m-t-1 added-label d-flex justify-content-between align-center">
+                                            <h3>{{ getConceptLabelName(question.concept_label_id) }}</h3>
+                                            <mat-icon class="delete-icon cursor-pointer m-l-05" [hidden]="question.delete || question.removingLabelIndicator" (click)="confirmRemoveConceptLabelFromQuestion(question)">delete</mat-icon>
+                                            <mat-progress-spinner [diameter]="20" mode="indeterminate" *ngIf="question.removingLabelIndicator"></mat-progress-spinner>
+                                        </div>
+                                        <h3 class="text-justify m-b-1" *ngIf="question.question">{{ question.question }}</h3>
+                                        <div class="m-b-1" *ngIf="question.image">
+                                            <mat-card>
+                                                <img class="image" [src]="question.image" [alt]="'Question ' + (questionIdx + 1) + ' image.'" onContextMenu="return false;">
+                                            </mat-card>
+                                            <div class="delete-image">
+                                                <button mat-flat-button class="white-button d-flex justify-content-center" [disabled]="question.deletingImageIndicator" (click)="confirmDeleteQuestionImage(question)">
+                                                <mat-icon *ngIf="!question.deletingImageIndicator" class="delete-icon">delete</mat-icon>
+                                                <mat-progress-spinner mode="indeterminate" *ngIf="question.deletingImageIndicator" [diameter]="25" class="m-t-05 m-b-05"></mat-progress-spinner>
+                                              </button>
+                                            </div>
+                                        </div>
+                                        <!-- True / False answer type question -->
+                                        <div *ngIf="question.type == ALL_TYPE_QUESTIONS.TRUE_FALSE">
+                                            <app-true-false-form [id]="question.question" [correctAnswer]="question.correct_answer" (correctAnswerChoice)="trueFalseAnswerChanged(question.question_id, $event)"></app-true-false-form>
+                                        </div>
+                                        <!-- Assertion answer type question -->
+                                        <div *ngIf="question.type == ALL_TYPE_QUESTIONS.ASSERTION">
+                                            <app-true-false-form [id]="question.question" [correctAnswer]="question.correct_answer" (correctAnswerChoice)="assertionAnswerChanged(question.question_id, $event)"></app-true-false-form>
+                                        </div>
+                                        <!-- Fill in the blank type question -->
+                                        <div *ngIf="question.type == ALL_TYPE_QUESTIONS.FILL_IN_THE_BLANK">
+                                            <div *ngIf="question.fill_in_the_blank_answer && !question.showAddAnswerForm">
+                                                <div class="upload-container-header d-flex justify-content-between align-center">
+                                                    <h3 class="expansion-panel-header-color">Checking rules:</h3>
+                                                    <mat-icon class="edit-icon m-l-05" (click)="question.showAddAnswerForm = true;">edit</mat-icon>
+                                                </div>
+                                                <div class="upload-container">
+                                                    <h3 *ngIf="!question.fill_in_the_blank_answer.manual_checking" class="m-b-05 faded-blue-color">Correct answer: {{ question.fill_in_the_blank_answer.correct_answer }}</h3>
+                                                    <h3 *ngIf="question.fill_in_the_blank_answer.manual_checking">Manual Checking.</h3>
+                                                    <h3 *ngIf="!question.fill_in_the_blank_answer.manual_checking" class="m-b-05">Automatic Checking.</h3>
+                                                    <h3 *ngIf="question.fill_in_the_blank_answer.enable_strict_checking">Answer will be directly compared with correct answer.</h3>
+                                                    <h3 *ngIf="!question.fill_in_the_blank_answer.enable_strict_checking">Answer will be lower cased, spaces will be removed and compared.</h3>
+                                                    <h3 *ngIf="question.fill_in_the_blank_answer.ignore_grammar" class="m-t-05">Articles and stop-words will be removed and compared.</h3>
+                                                    <h3 *ngIf="question.fill_in_the_blank_answer.ignore_special_characters" class="m-t-05">Special characters like punctuations will be removed and compared.</h3>
+                                                </div>
+                                            </div>
+                                            <app-fill-in-the-blank-form *ngIf="question.showAddAnswerForm || !question.fill_in_the_blank_answer" [question]="question" [currentSubjectSlug]="currentSubjectSlug"></app-fill-in-the-blank-form>
+                                        </div>
+                                        <!-- Numeric answer question -->
+                                        <div *ngIf="question.type == ALL_TYPE_QUESTIONS.NUMERIC_ANSWER">
+                                            <p class="m-b-1 d-flex justify-content-between align-center">
+                                                Correct answer: {{ question.correct_answer }}
+                                                <mat-icon *ngIf="question.correct_answer && !question.showAddAnswerForm" class="edit-icon icon-small cursor-pointer m-l-05 m-b-03" (click)="question.showAddAnswerForm = true;">edit</mat-icon>
+                                                <mat-icon *ngIf="question.correct_answer && question.showAddAnswerForm" class="cancel-icon icon-small cursor-pointer m-l-05" (click)="question.showAddAnswerForm = false;">close</mat-icon>
+                                            </p>
+                                            <app-numeric-question-add-correct-answer *ngIf="question.showAddAnswerForm" [correctAnswer]="question.correct_answer" [submittingIndicator]="question.showAddAnswerIndicator" (correctAnswerValue)="addUpdateCorrectNumericAnswerToQuestion(question, $event)"></app-numeric-question-add-correct-answer>
+                                            <div *ngIf="!question.correct_answer && !question.showAddAnswerForm" (click)="question.showAddAnswerForm = true;" class="d-flex justify-content-center align-center cursor-pointer add-option-button">
+                                                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                                                Add correct answer
+                                            </div>
+                                        </div>
+                                        <!-- Multiple choice question -->
+                                        <div *ngIf="question.type == ALL_TYPE_QUESTIONS.MCQ">
+                                            <p *ngIf="question.options.length === 0" class="m-b-1">No choices added.</p>
+                                            <ol>
+                                                <li *ngFor="let option of question.options" class="m-b-05">
+                                                    <div class="d-flex justify-content-between align-center">
+                                                        <div class="d-flex align-center">
+                                                            {{ option.option }}
+                                                            <mat-icon class="preview-icon m-l-05 cursor-normal" *ngIf="option.correct_answer">check</mat-icon>
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            <mat-icon class="m-l-05 edit-icon icon-small" *ngIf="!question.selectedOptionToEdit && !question.showAddAnswerForm && !option.deletingIndicator" (click)="editMcqOption(question, option)">edit</mat-icon>
+                                                            <mat-icon class="m-l-05 delete-icon icon-small" *ngIf="!(question.selectedOptionToEdit && question.showAddAnswerIndicator && question.selectedOptionToEdit.option_id === option.option_id) && !option.deletingIndicator" (click)="confirmDeleteMcqOption(question, option)">delete</mat-icon>
+                                                            <mat-progress-spinner *ngIf="option.deletingIndicator" mode="indeterminate" [diameter]="19"></mat-progress-spinner>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ol>
+                                            <app-mcq-form *ngIf="question.showAddAnswerForm" [question]="question" [currentSubjectSlug]="currentSubjectSlug"></app-mcq-form>
+                                            <div class="d-flex justify-content-center align-center cursor-pointer add-option-button" *ngIf="!question.showAddAnswerForm" (click)="question.showAddAnswerForm = true;">
+                                                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                                                Add choice
+                                            </div>
+                                        </div>
+                                        <!-- Select multiple question -->
+                                        <div *ngIf="question.type == ALL_TYPE_QUESTIONS.SELECT_MULTIPLE_CHOICE">
+                                            <p *ngIf="question.options.length === 0" class="m-b-1">No choices added.</p>
+                                            <ol>
+                                                <li *ngFor="let option of question.options" class="m-b-05">
+                                                    <div class="d-flex justify-content-between align-center">
+                                                        <div class="d-flex align-center">
+                                                            {{ option.option }}
+                                                            <mat-icon class="preview-icon m-l-05 cursor-normal" *ngIf="option.correct_answer">check</mat-icon>
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            <mat-icon class="m-l-05 edit-icon icon-small" *ngIf="!question.selectedOptionToEdit && !question.showAddAnswerForm && !option.deletingIndicator" (click)="editMultipleChoiceOption(question, option)">edit</mat-icon>
+                                                            <mat-icon class="m-l-05 delete-icon icon-small" *ngIf="!(question.selectedOptionToEdit && question.showAddAnswerIndicator && question.selectedOptionToEdit.option_id === option.option_id) && !option.deletingIndicator" (click)="confirmDeleteMultipleChoiceOption(question, option)">delete</mat-icon>
+                                                            <mat-progress-spinner *ngIf="option.deletingIndicator" mode="indeterminate" [diameter]="19"></mat-progress-spinner>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ol>
+                                            <app-select-multiple-answer-form *ngIf="question.showAddAnswerForm" [question]="question" [currentSubjectSlug]="currentSubjectSlug"></app-select-multiple-answer-form>
+                                            <div class="d-flex justify-content-center align-center cursor-pointer add-option-button" *ngIf="!question.showAddAnswerForm" (click)="question.showAddAnswerForm = true;">
+                                                <mat-icon class="m-r-05 add-icon">add_circle_outline</mat-icon>
+                                                Add choice
+                                            </div>
+                                        </div>
+                                        <!-- For uploading image -->
+                                        <div class="m-t-1 m-b-1" *ngIf="question.has_picture && !question.image">
+                                            <app-add-typed-test-question-image [question]="question" [currentInstituteSlug]="currentInstituteSlug" [currentSubjectSlug]="currentSubjectSlug"></app-add-typed-test-question-image>
+                                        </div>
+                                        <div class="d-flex justify-content-end m-t-1">
+                                            <button mat-stroked-button [disabled]="question.delete" class="stroked-button m-r-05" (click)="showEditQuestionFormInSection(question)">
+                                          <div class="d-flex align-center">
+                                            <mat-icon class="edit-icon m-r-05">edit</mat-icon>Question
+                                          </div>
+                                        </button>
+                                            <button mat-stroked-button class="stroked-button" [disabled]="question.delete" (click)="confirmDeleteQuestion(selectedSectionData, question)">
+                                          <div class="d-flex align-center">
+                                            <mat-progress-spinner class="m-r-05" *ngIf="question.delete" mode="indeterminate" [diameter]="20"></mat-progress-spinner>
+                                            <mat-icon class="delete-icon m-r-05" *ngIf="!question.delete">delete</mat-icon>Question
+                                          </div>
+                                        </button>
+                                        </div>
+                                    </div>
+                                    <!-- For editing question -->
+                                    <div *ngIf="question.edit" class="m-t-1 mat-elevation-z1">
+                                        <div class="d-flex justify-content-between align-center upload-container-header">
+                                            <h3 class="expansion-panel-header-color">Edit question form:</h3>
+                                            <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeEditQuestionFormInSection(question)" [hidden]="editQuestionIndicator">close</mat-icon>
+                                        </div>
+                                        <div class="upload-container">
+                                            <form [formGroup]="editQuestionForm">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Question *</mat-label>
+                                                    <textarea matInput formControlName="question" placeholder="Question"></textarea>
+                                                    <mat-error *ngIf="editQuestionForm.controls.question.errors?.characterLengthLessThanEqualTo">Question can not be greater than 2000 characters.</mat-error>
+                                                </mat-form-field>
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Concept label</mat-label>
+                                                    <select matNativeControl formControlName="concept_label">
+                                                  <option value="" class="options">No Label</option>
+                                                  <option *ngFor="let label of testDetails.labels" [value]="label.id" class="options">{{ label.name }}</option>
+                                                </select>
+                                                </mat-form-field>
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Mark *</mat-label>
+                                                    <input matInput formControlName="marks" placeholder="Mark (required)">
+                                                    <mat-error *ngIf="editQuestionForm.controls.marks.errors?.required">Mark is required.</mat-error>
+                                                    <mat-error *ngIf="!editQuestionForm.controls.marks.errors?.required && editQuestionForm.controls.marks.errors?.postiveIntegerValidator">Mark should be a positive number.</mat-error>
+                                                </mat-form-field>
+                                                <mat-slide-toggle *ngIf="!question.image" formControlName="has_picture">Question has picture</mat-slide-toggle>
+                                            </form>
+                                            <hr class="separator m-t-1 m-b-1" />
+                                            <div class="d-flex align-center">
+                                                <button mat-flat-button class="reset-button m-r-05" [disabled]="editQuestionIndicator" (click)="resetEditQuestionForm(question)">Reset</button>
+                                                <button mat-flat-button class="green-button" [disabled]="editQuestionForm.invalid || editQuestionIndicator" (click)="editQuestion(question)">
+                                              <div class="d-flex align-center">
+                                                <mat-progress-spinner *ngIf="editQuestionIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Submit
+                                              </div>
+                                            </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr class="separator m-t-1 m-b-1" *ngIf="selectedSectionData.view === QUESTION_SECTION_VIEW_TYPE.MULTIPLE_QUESTION" />
+                                </div>
+                                <!-- For adding question -->
+                                <div *ngIf="showAddQuestionForm" class="m-t-1 mat-elevation-z1">
+                                    <div class="d-flex justify-content-between align-center upload-container-header">
+                                        <h3 class="expansion-panel-header-color">Add question form:</h3>
+                                        <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="toggleAddQuestionInSection()" [hidden]="addQuestionIndicator">close</mat-icon>
+                                    </div>
+                                    <div class="upload-container">
+                                        <form [formGroup]="addQuestionForm">
+                                            <mat-form-field appearance="outline" class="w-100">
+                                                <mat-label>Question *</mat-label>
+                                                <textarea matInput formControlName="question" placeholder="Question"></textarea>
+                                                <mat-error *ngIf="addQuestionForm.controls.question.errors?.required">This field is required.</mat-error>
+                                                <mat-hint *ngIf="addQuestionForm.value.type === ALL_TYPE_QUESTIONS.FILL_IN_THE_BLANK" class="yellow-text">Please put _______ where you want blank to appear. Only one answer can be put per question.</mat-hint>
+                                            </mat-form-field>
+                                            <mat-form-field appearance="outline" class="w-100">
+                                                <mat-label>Question type *</mat-label>
+                                                <select matNativeControl formControlName="type">
+                                                <option value="" class="options">No Label</option>
+                                                <option *ngFor="let option of ALL_TYPE_QUESTION_FORM_FIELD_OPTIONS" [value]="option.value" class="options">{{ option.viewValue }}</option>
+                                              </select>
+                                                <mat-error *ngIf="addQuestionForm.controls.type.errors?.required">Question type is required.</mat-error>
+                                            </mat-form-field>
+                                            <mat-form-field appearance="outline" class="w-100">
+                                                <mat-label>Concept label</mat-label>
+                                                <select matNativeControl formControlName="concept_label">
+                                                <option value="" class="options">No Label</option>
+                                                <option *ngFor="let label of testDetails.labels" [value]="label.id" class="options">{{ label.name }}</option>
+                                              </select>
+                                            </mat-form-field>
+                                            <mat-form-field appearance="outline" class="w-100">
+                                                <mat-label>Mark *</mat-label>
+                                                <input matInput formControlName="marks" placeholder="Mark (required)">
+                                                <mat-error *ngIf="addQuestionForm.controls.marks.errors?.required">Mark is required.</mat-error>
+                                                <mat-error *ngIf="!addQuestionForm.controls.marks.errors?.required && addQuestionForm.controls.marks.errors?.postiveIntegerValidator">Mark should be a positive number.</mat-error>
+                                            </mat-form-field>
+                                            <mat-slide-toggle formControlName="has_picture">Question has picture</mat-slide-toggle>
+                                        </form>
+                                        <hr class="separator m-t-1 m-b-1" />
+                                        <div class="d-flex align-center">
+                                            <button mat-flat-button class="reset-button m-r-05" [disabled]="addQuestionIndicator" (click)="resetAddQuestionForm()">Reset</button>
+                                            <button mat-flat-button class="green-button" [disabled]="addQuestionForm.invalid || addQuestionIndicator" (click)="addQuestion(selectedSectionData)">
+                                          <div class="d-flex align-center">
+                                            <mat-progress-spinner *ngIf="addQuestionIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Submit
+                                          </div>
+                                        </button>
+                                        </div>
+                                        <mat-progress-bar class="m-t-1" *ngIf="addQuestionIndicator" mode="determinate" [value]="progress"></mat-progress-bar>
+                                        <div class="d-flex justify-content-end m-t-02" *ngIf="addQuestionIndicator">
+                                            {{ getFileSize(loadedFileSize) }} / {{ getFileSize(totalFileSize) }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button mat-stroked-button class="stroked-button m-t-1 d-block" *ngIf="!showAddQuestionForm && canAddQuestionInSection()" (click)="toggleAddQuestionInSection()">
+                              <div class="d-flex align-center">
+                                <mat-icon class="add-icon m-r-05">add</mat-icon>Question
+                              </div>
+                            </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- For adding question section -->
+                <div *ngIf="selectedSet.showAddSectionForm" class="m-t-1">
+                    <div class="d-flex justify-content-between align-center upload-container-header">
+                        <h3 class="expansion-panel-header-color">Add question group form:</h3>
+                        <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="hideAddQuestionSectionForm()" [hidden]="addQuestionSectionIndicator">close</mat-icon>
+                    </div>
+                    <div class="upload-container">
+                        <form [formGroup]="addQuestionSectionForm">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>How many questions will be in this question group?</mat-label>
+                                <select matNativeControl formControlName="view" (change)="questionSectionViewChanged()">
+                                <option *ngFor="let option of QUESTION_SECTION_VIEW_TYPE_FORM_FIELD_OPTIONS" [value]="option.value" class="options">{{ option.viewValue }}</option>
+                            </select>
+                            </mat-form-field>
+                            <div [hidden]="addQuestionSectionForm.value.view === QUESTION_SECTION_VIEW_TYPE.SINGLE_QUESTION">
+                                <div class="m-b-1">
+                                    <mat-slide-toggle formControlName="answer_all_questions">Should all questions be answered?</mat-slide-toggle>
+                                </div>
+                                <mat-form-field appearance="outline" class="w-100" [hidden]="addQuestionSectionForm.value.answer_all_questions">
+                                    <mat-label>Number of questions to answer:</mat-label>
+                                    <input matInput formControlName="no_of_question_to_attempt" placeholder="Number of questions to attempt">
+                                    <mat-hint *ngIf="addQuestionSectionForm.errors?.numberShouldBeInteger" class="yellow-text">Should be a positive integer</mat-hint>
+                                    <mat-hint *ngIf="addQuestionSectionForm.errors?.numberShouldBeGreaterThanZeroError" class="yellow-text">Should be a positive integer > 0</mat-hint>
+                                </mat-form-field>
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Title of question group (optional)</mat-label>
+                                    <input matInput formControlName="name" placeholder="Name of question group (optional)">
+                                </mat-form-field>
+                            </div>
+                            <div class="m-b-1">
+                                <mat-slide-toggle formControlName="section_mandatory">Mandatory question group</mat-slide-toggle>
+                            </div>
+                        </form>
+                        <hr class="separator m-b-1">
+                        <div class="d-flex align-center">
+                            <button mat-flat-button class="reset-button m-r-05" [disabled]="addQuestionSectionIndicator" (click)="resetAddQuestionSectionForm()">Reset</button>
+                            <button mat-flat-button class="green-button" [disabled]="addQuestionSectionForm.invalid || addQuestionSectionIndicator" (click)="addQuestionSection()">
+                          <div class="d-flex align-center">
+                            <mat-progress-spinner *ngIf="addQuestionSectionIndicator" mode="indeterminate" [diameter]="20" class="m-r-05"></mat-progress-spinner>Submit
+                          </div>
+                        </button>
+                        </div>
+                    </div>
+                </div>
+                <section class="m-t-1" *ngIf="!selectedSet.showAddSectionForm">
+                    <button mat-stroked-button class="stroked-button" [class.m-b-1]="mq.matches" [class.w-100]="mq.matches" (click)="showAddQuestionSectionForm()">
+                    <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
+                      <mat-icon class="add-icon m-r-05">add_icon</mat-icon>
+                      Add Question Group
+                    </div>
+                  </button>
+                    <button mat-stroked-button class="stroked-button" [class.m-l-05]="!mq.matches" [class.w-100]="mq.matches" *ngIf="setQuestions.length > 0">
+                    <div class="d-flex align-center" [class.justify-content-center]="mq.matches">
+                      <mat-icon class="add-icon m-r-05">check</mat-icon>
+                      Verify Question Paper
+                    </div>
+                  </button>
+                </section>
+            </div>
+        </div>
+    </div>
+</section>
+<section *ngIf="previewQuestionPaper" class="parent-container">
+    <div class="preview-header d-flex justify-content-between align-center">
+        <h1 *ngIf="!mq.matches" class="faded-blue-color">Question paper preview</h1>
+        <h3 *ngIf="mq.matches" class="faded-blue-color">Question paper preview</h3>
+        <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="closeQuestionPaperPreview()">close</mat-icon>
+    </div>
+    Preview question paper
+</section>

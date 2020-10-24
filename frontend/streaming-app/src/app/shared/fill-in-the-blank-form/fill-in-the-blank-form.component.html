@@ -1,0 +1,46 @@
+<div class="upload-container-header d-flex justify-content-between align-center">
+    <h3 class="expansion-panel-header-color">Fill in the blank checking options:</h3>
+    <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="question.showAddAnswerForm = false;">close</mat-icon>
+</div>
+<div class="upload-container">
+    <form [formGroup]="fillInTheBlankForm">
+        <mat-slide-toggle formControlName="manual_checking" [class.m-b-1]="!fillInTheBlankForm.value.manual_checking">Check answer manually</mat-slide-toggle>
+        <div *ngIf="!fillInTheBlankForm.value.manual_checking">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Correct answer *</mat-label>
+                <input matInput formControlName="correct_answer" placeholder="Correct answer">
+                <mat-hint *ngIf="fillInTheBlankForm.errors?.fillInTheBlankFormValidator" class="yellow-text">Correct answer is required.</mat-hint>
+                <mat-error *ngIf="fillInTheBlankForm.controls.correct_answer.errors?.characterLengthLessThanEqualTo">Answer can not be more than 300 characters.</mat-error>
+            </mat-form-field>
+            <div class="m-b-05">
+                <mat-slide-toggle formControlName="enable_strict_checking" (change)="answerStrictlyChanged()">Check strictly</mat-slide-toggle>
+            </div>
+            <mat-hint *ngIf="fillInTheBlankForm.value.enable_strict_checking" class="yellow-text" [class.opacity-05]="submitIndicator">Answer will be compared directly with correct answer.</mat-hint>
+            <mat-hint *ngIf="!fillInTheBlankForm.value.enable_strict_checking" class="yellow-text" [class.opacity-05]="submitIndicator">Answer will be lower-cased, blank spaces will be removed and compared.</mat-hint>
+            <div class="m-t-1" *ngIf="!fillInTheBlankForm.value.enable_strict_checking">
+                <div class="m-b-1">
+                    <div class="m-b-05">
+                        <mat-slide-toggle formControlName="ignore_grammar">Ignore grammar while checking</mat-slide-toggle>
+                    </div>
+                    <mat-hint *ngIf="fillInTheBlankForm.value.ignore_grammar" class="yellow-text" [class.opacity-05]="submitIndicator">Articles and stop-words will be removed & then compared.</mat-hint>
+                </div>
+                <div class="m-b-1">
+                    <div class="m-b-05">
+                        <mat-slide-toggle formControlName="ignore_special_characters">Ignore special characters while checking</mat-slide-toggle>
+                    </div>
+                    <mat-hint *ngIf="fillInTheBlankForm.value.ignore_special_characters" class="yellow-text" [class.opacity-05]="submitIndicator">Special characters will be removed & then compared.</mat-hint>
+                </div>
+            </div>
+        </div>
+    </form>
+    <hr class="separator m-b-1" />
+    <div class="d-flex align-center">
+        <button mat-flat-button class="reset-button m-r-05" [disabled]="submitIndicator" (click)="resetFillInTheBlankForm()">Reset</button>
+        <button mat-flat-button class="green-button" [disabled]="fillInTheBlankForm.invalid || submitIndicator" (click)="submitFillInTheBlankAnswer()">
+        <div class="d-flex align-center">
+          <mat-progress-spinner *ngIf="submitIndicator" mode="indeterminate" [diameter]="25" class="m-r-05"></mat-progress-spinner>
+          Submit
+          </div>
+      </button>
+    </div>
+</div>

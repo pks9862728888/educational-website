@@ -994,6 +994,7 @@ export class CreateTypedAutocheckTypeQuestionComponent implements OnInit {
             }
           });
         });
+        this.uiService.showSnackBar('True / False answer updated!', 2000);
         console.log(result);
       },
       errors => {

@@ -154,6 +154,7 @@ export interface SubjectTypedTestQuestions {
   concept_label_id: number;
 
   correct_answer?: string | boolean | number;
+  fill_in_the_blank_answer: FillInTheBlankAnswer;
   options?: QuestionAnswerOptions[];
   image?: string;
 
@@ -172,4 +173,12 @@ export interface QuestionAnswerOptions {
   correct_answer?: boolean;
 
   deletingIndicator?: boolean;
+}
+
+export interface FillInTheBlankAnswer {
+  correct_answer?: string;
+  enable_strict_checking?: boolean;
+  ignore_grammar?: boolean;
+  ignore_special_characters?: boolean;
+  manual_checking?: boolean;
 }
