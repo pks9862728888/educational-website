@@ -2930,6 +2930,8 @@ class SubjectTestFillInTheBlankCorrectAnswer(models.Model):
     ignore_special_characters = models.BooleanField(_('Ignore Special Characters'), default=True)
 
     def save(self, *args, **kwargs):
+        if self.correct_answer:
+            self.correct_answer = self.correct_answer.strip()
         if self.enable_strict_checking and (self.ignore_grammar or self.ignore_special_characters):
             raise ValueError('Grammar and special characters can not be ignored if strict checking is enabled.')
         super(SubjectTestFillInTheBlankCorrectAnswer, self).save(*args, **kwargs)

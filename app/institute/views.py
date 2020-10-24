@@ -6883,8 +6883,6 @@ class InstituteTestMinDetailsForQuestionCreationView(APIView):
                                         'ignore_grammar': fill_in_the_blank.ignore_grammar,
                                         'ignore_special_characters': fill_in_the_blank.ignore_special_characters
                                     }
-                                else:
-                                    question_data['fill_in_the_blank_answer'] = list()
 
                             questions.append(question_data)
 
@@ -7085,8 +7083,6 @@ class InstituteGetQuestionSetQuestionsView(APIView):
                                     'ignore_grammar': fill_in_the_blank.ignore_grammar,
                                     'ignore_special_characters': fill_in_the_blank.ignore_special_characters
                                 }
-                            else:
-                                question_data['fill_in_the_blank_answer'] = list()
 
                         questions.append(question_data)
 
@@ -7838,7 +7834,7 @@ class InstituteTestAddUpdateFillInTheBlankChecking(APIView):
             status_response = status.HTTP_201_CREATED
 
             if not answer:
-                answer = models.SubjectTestAssertionCorrectAnswer.objects.create(
+                answer = models.SubjectTestFillInTheBlankCorrectAnswer.objects.create(
                     question=question,
                     manual_checking=request.data.get('manual_checking'),
                     enable_strict_checking=request.data.get('enable_strict_checking'),
