@@ -95,6 +95,30 @@ export interface SubjectTestMinDetailsResponse {
   view_key?: string;
 }
 
+export interface SubjectTestFullDetailsResponse {
+  question_mode: string;
+  perm_type: string;
+  test_id: number;
+  test_slug: string;
+  name: string;
+  question_category: string;
+  type: string;
+  total_marks: number;
+  total_duration: number;
+  test_schedule_type: string;
+  test_schedule: number;
+  instruction: string;
+  no_of_optional_section_answer: number;
+  no_of_attempts: number;
+  publish_result_automatically: boolean;
+  enable_peer_check: boolean;
+  allow_question_preview_10_min_before: boolean;
+  shuffle_questions: boolean;
+  result_published: boolean;
+  test_live: boolean;
+}
+
+
 export interface CreateSubjectCourseMinDetailsResponse {
   has_subject_perm: boolean;
   view_order: Array<string>;

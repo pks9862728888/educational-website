@@ -1,11 +1,11 @@
 <section class="body-container">
     <div class="text-center">
-        <h1 class="expansion-panel-header-color">Test Name</h1>
+        <h1 class="expansion-panel-header-color">{{ testFullDetails.name }}</h1>
         <h3 class="faded-blue-color m-b-1">Biology, Class 1</h3>
-        <p class="m-b-1">Instructions: Sample instruction</p>
+        <p class="m-b-1" *ngIf="testFullDetails.instruction">Instructions: {{ testFullDetails.instruction }}</p>
         <div class="d-flex justify-content-between align-center faded-blue-color">
-            <p>10 minutes</p>
-            <p>10 Marks</p>
+            <p>{{ testFullDetails.total_duration }} minutes</p>
+            <p>{{ testFullDetails.total_marks }} Marks</p>
         </div>
     </div>
     <hr class="separator m-t-05 m-b-1" />

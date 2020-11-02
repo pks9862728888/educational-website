@@ -6759,7 +6759,9 @@ class InstituteTestFullDetailsView(APIView):
             'allow_question_preview_10_min_before': test.allow_question_preview_10_min_before,
             'shuffle_questions': test.shuffle_questions,
             'result_published': test.result_published,
-            'test_live': test.test_live
+            'test_live': test.test_live,
+            'subject_name': test.subject.name,
+            'class_name': test.subject.subject_class.name
         }, status=status.HTTP_200_OK)
 
 

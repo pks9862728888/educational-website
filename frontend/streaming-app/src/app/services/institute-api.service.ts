@@ -245,6 +245,10 @@ export class InstituteApiService {
     return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/get-test-min-details`;
   }
 
+  getFullTestDetailsUrl(instituteSlug: string, subjectSlug: string, testSlug: string) {
+    return `${this.instituteBaseUrl}${instituteSlug}/${subjectSlug}/${testSlug}/get-test-full-details`;
+  }
+
   getTestMinDetailsForQuestionCreationUrl(subjectSlug: string, testSlug: string) {
     return `${this.instituteBaseUrl}${subjectSlug}/${testSlug}/get-test-details-for-question-paper-creation`;
   }
@@ -1184,6 +1188,13 @@ export class InstituteApiService {
   getMinTestDetails(instituteSlug: string, subjectSlug: string, testSlug: string) {
     return this.httpClient.get(
       this.getMinTestDetailsUrl(instituteSlug, subjectSlug, testSlug),
+      { headers: this.getAuthHeader() }
+    );
+  }
+
+  getSubjectTestFullDetails(instituteSlug: string, subjectSlug: string, testSlug: string) {
+    return this.httpClient.get(
+      this.getFullTestDetailsUrl(instituteSlug, subjectSlug, testSlug),
       { headers: this.getAuthHeader() }
     );
   }

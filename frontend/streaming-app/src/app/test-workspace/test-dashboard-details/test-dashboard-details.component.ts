@@ -1,5 +1,6 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { SubjectTestFullDetailsResponse } from 'src/app/models/subject.model';
 
 @Component({
   selector: 'app-test-dashboard-details',
@@ -9,6 +10,7 @@ import { Component, OnInit } from '@angular/core';
 export class TestDashboardDetailsComponent implements OnInit {
 
   mq: MediaQueryList;
+  @Input() testFullDetails: SubjectTestFullDetailsResponse;
 
   constructor(
     private media: MediaMatcher

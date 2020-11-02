@@ -1,4 +1,9 @@
-<section class="parent-container">
+<section *ngIf="loadingIndicator || reloadIndicator || loadingError" class="parent-container">
+    <app-ui-loading *ngIf="loadingIndicator" [actionText]="'Loading test details...'"></app-ui-loading>
+    <app-ui-reload *ngIf="reloadIndicator" [errorText]="'Unable to load test details.'" (retryEvent)="getTestFullDetails()"></app-ui-reload>
+    <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
+</section>
+<section *ngIf="!loadingIndicator && !reloadIndicator && !loadingError" class="parent-container">
     <div *ngIf="mq.matches" class="row m-b-1 body-container">
         <mat-chip-list aria-label="Test Control selection">
             <mat-chip [class.selected-control-mb]="selectedControl !== 'TEST_DETAILS'" (click)="selectedControl = 'TEST_DETAILS'">Test Details</mat-chip>
@@ -56,7 +61,7 @@
             </div>
         </div>
         <div class="col" [class.m-l-1]="!mq.matches">
-            <app-test-dashboard-details *ngIf="selectedControl === 'TEST_DETAILS'"></app-test-dashboard-details>
+            <app-test-dashboard-details [testFullDetails]="testFullDetails" *ngIf="selectedControl === 'TEST_DETAILS'"></app-test-dashboard-details>
             <app-test-set-controls *ngIf="selectedControl === 'SET_CONTROLS'"></app-test-set-controls>
             <app-test-assign-question-paper *ngIf="selectedControl === 'ASSIGN_QUESTION_PAPER'"></app-test-assign-question-paper>
             <app-test-monitor-progress *ngIf="selectedControl === 'MONITOR_PROGRESS'"></app-test-monitor-progress>
