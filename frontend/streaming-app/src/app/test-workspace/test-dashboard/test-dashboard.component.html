@@ -55,7 +55,7 @@
                 <h3 class="m-l-1 add-icon">Performance Analysis</h3>
             </div>
         </div>
-        <div class="col body-container" [class.m-l-1]="!mq.matches">
+        <div class="col" [class.m-l-1]="!mq.matches">
             <app-test-dashboard-details *ngIf="selectedControl === 'TEST_DETAILS'"></app-test-dashboard-details>
             <app-test-set-controls *ngIf="selectedControl === 'SET_CONTROLS'"></app-test-set-controls>
             <app-test-assign-question-paper *ngIf="selectedControl === 'ASSIGN_QUESTION_PAPER'"></app-test-assign-question-paper>

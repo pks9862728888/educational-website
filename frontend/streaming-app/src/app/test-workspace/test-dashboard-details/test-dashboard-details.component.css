@@ -1,0 +1,53 @@
+p,
+h1,
+h3 {
+    padding: 0;
+    margin: 0;
+}
+
+.body-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 3px;
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.stroked-button {
+    border: 1px solid rgba(108, 117, 125, 0.5);
+}
+
+.faded-blue-color {
+    color: #7fc0ba;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td,
+th {
+    border: 1px solid rgba(108, 117, 125, 0.5);
+    text-align: left;
+    padding: 8px;
+}
+
+.m-t-05 {
+    margin-top: 0.5rem;
+}
+
+.m-t-1 {
+    margin-top: 1rem;
+}
+
+.m-r-05 {
+    margin-right: 0.5rem;
+}
+
+.m-b-05 {
+    margin-bottom: 0.5rem;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}

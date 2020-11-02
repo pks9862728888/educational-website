@@ -1,3 +1,4 @@
+import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -7,7 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class TestDashboardDetailsComponent implements OnInit {
 
-  constructor() { }
+  mq: MediaQueryList;
+
+  constructor(
+    private media: MediaMatcher
+  ) {
+    this.mq = this.media.matchMedia('(max-width: 600px)');
+  }
 
   ngOnInit(): void {
   }
