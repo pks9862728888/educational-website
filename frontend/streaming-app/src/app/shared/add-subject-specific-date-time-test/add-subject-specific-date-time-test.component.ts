@@ -99,7 +99,6 @@ export class AddSubjectSpecificDateTimeTestComponent implements OnInit {
       publish_result_automatically: [true, [Validators.required]],
       enable_peer_check: [false, [Validators.required]],
       allow_question_preview_10_min_before: [true, [Validators.required]],
-      allow_test_after_scheduled_date_and_time: [false, [Validators.required]],
       shuffle_questions: [true, [Validators.required]]
     });
     this.initializeForm();
@@ -120,7 +119,6 @@ export class AddSubjectSpecificDateTimeTestComponent implements OnInit {
       publish_result_automatically: true,
       enable_peer_check: false,
       allow_question_preview_10_min_before: false,
-      allow_test_after_scheduled_date_and_time: false,
       shuffle_questions: true
     });
     this.addTestForm.enable();

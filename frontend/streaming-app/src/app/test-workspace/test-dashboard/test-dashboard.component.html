@@ -4,10 +4,13 @@
     <app-ui-error-text *ngIf="loadingError" [errorText]="loadingError" [hideCloseButton]="true"></app-ui-error-text>
 </section>
 <section *ngIf="!loadingIndicator && !reloadIndicator && !loadingError" class="parent-container">
-    <div *ngIf="mq.matches" class="row m-b-1 body-container">
+    <div *ngIf="mq.matches" class="m-b-1 body-container">
+        <h1>Dashboard Controls:</h1>
+        <hr class="separator m-t-05 m-b-1" />
         <mat-chip-list aria-label="Test Control selection">
             <mat-chip [class.selected-control-mb]="selectedControl !== 'TEST_DETAILS'" (click)="selectedControl = 'TEST_DETAILS'">Test Details</mat-chip>
             <mat-chip [class.selected-control-mb]="selectedControl !== 'SET_CONTROLS'" (click)="selectedControl = 'SET_CONTROLS'">Set Controls</mat-chip>
+            <mat-chip class="selected-control-mb" (click)="navigateToCreateQuestionPaperView()">Create Question Paper</mat-chip>
             <mat-chip [class.selected-control-mb]="selectedControl !== 'ASSIGN_QUESTION_PAPER'" (click)="selectedControl = 'ASSIGN_QUESTION_PAPER'">Assign Question Paper</mat-chip>
             <mat-chip [class.selected-control-mb]="selectedControl !== 'MONITOR_PROGRESS'" (click)="selectedControl = 'MONITOR_PROGRESS'">Monitor Progress</mat-chip>
             <mat-chip [class.selected-control-mb]="selectedControl !== 'ANSWER_CHECKING'" (click)="selectedControl = 'ANSWER_CHECKING'">Answer Checking</mat-chip>
@@ -28,6 +31,12 @@
                     <h3 class="icon-text add-icon">S</h3>
                 </div>
                 <h3 class="m-l-1 add-icon">Set Controls</h3>
+            </div>
+            <div class="d-flex align-center icon-select-container cursor-pointer m-b-1" (click)="navigateToCreateQuestionPaperView()">
+                <div class="icon-text-container">
+                    <h3 class="icon-text add-icon">C</h3>
+                </div>
+                <h3 class="m-l-1 add-icon">Create Question Paper</h3>
             </div>
             <div class="d-flex align-center icon-select-container cursor-pointer m-b-1" (click)="selectedControl = 'ASSIGN_QUESTION_PAPER'">
                 <div class="icon-text-container" [class.selected-control]="selectedControl === 'ASSIGN_QUESTION_PAPER'">

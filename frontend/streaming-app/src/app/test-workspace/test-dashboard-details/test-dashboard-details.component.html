@@ -1,7 +1,65 @@
-<section class="body-container">
+<section class="body-container" *ngIf="editTest">
+    <div class="d-flex justify-content-between align-center upload-container-header">
+        <h3 class="expansion-panel-header-color">Edit test details form:</h3>
+        <mat-icon class="cancel-icon cursor-pointer m-l-05" (click)="editTest = false" [hidden]="editingIndicator">close</mat-icon>
+    </div>
+    <div class="upload-container">
+        <form [formGroup]="editTestForm">
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Test name:</mat-label>
+                <input matInput formControlName="name" placeholder="Test name">
+                <mat-hint *ngIf="editTestForm.controls.name.errors?.required" class="yellow-text">This field is required.</mat-hint>
+                <mat-hint *ngIf="!editTestForm.controls.name.errors?.required && editTestForm.controls.name.errors?.characterLengthLessThanEqualTo" class="yellow-text">Test name should be less than 31 characters.</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Total marks:</mat-label>
+                <input matInput formControlName="total_marks" placeholder="Total marks">
+                <mat-hint *ngIf="editTestForm.controls.total_marks.errors?.required" class="yellow-text">This field is required.</mat-hint>
+                <mat-hint *ngIf="!editTestForm.controls.total_marks.errors?.required && editTestForm.controls.total_marks.errors?.postiveIntegerValidator" class="yellow-text">Marks should be a positive number.</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Total duration (in minutes):</mat-label>
+                <input matInput formControlName="total_duration" placeholder="Total duration (in minutes)">
+                <mat-hint *ngIf="editTestForm.controls.total_duration.errors?.required" class="yellow-text">This field is required.</mat-hint>
+                <mat-hint *ngIf="!editTestForm.controls.total_duration.errors?.required && editTestForm.controls.total_duration.errors?.postiveIntegerValidator" class="yellow-text">Should be a positive integer.</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Instruction:</mat-label>
+                <textarea matInput formControlName="instruction" placeholder="Instruction"></textarea>
+                <mat-hint *ngIf="editTestForm.controls.instruction.errors?.characterLengthLessThanEqualTo" class="yellow-text">Should be less than 301 characters.</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Number of question groups to answer from optional groups (if any):</mat-label>
+                <input matInput formControlName="no_of_optional_section_answer" placeholder="Number of optional groups to answer from optional groups">
+                <mat-hint *ngIf="editTestForm.controls.no_of_optional_section_answer.errors?.required" class="yellow-text">This field is required.</mat-hint>
+                <mat-hint *ngIf="!editTestForm.controls.no_of_optional_section_answer.errors?.required && editTestForm.controls.no_of_optional_section_answer.errors?.isNumberValidator" class="yellow-text">Should be a number.</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-100" *ngIf="testFullDetails.type === GRADED_TYPES.UNGRADED">
+                <mat-label>Number of attempts of same test:</mat-label>
+                <input matInput formControlName="no_of_attempts" placeholder="Number of attempts of same test">
+                <mat-hint *ngIf="editTestForm.controls.no_of_attempts.errors?.required" class="yellow-text">This field is required.</mat-hint>
+                <mat-hint *ngIf="!editTestForm.controls.no_of_attempts.errors?.required && editTestForm.controls.no_of_attempts.errors?.postiveIntegerValidator" class="yellow-text">Should be a positive number.</mat-hint>
+            </mat-form-field>
+            <mat-slide-toggle formControlName="shuffle_questions" class="m-b-1">Shuffle questions</mat-slide-toggle><br />
+            <mat-slide-toggle formControlName="enable_peer_check" *ngIf="testFullDetails.question_category !== QUESTIONS_CATEGORY.AUTOCHECK_TYPE" class="m-b-1">Enable peer checking</mat-slide-toggle><br />
+            <mat-slide-toggle formControlName="allow_question_preview_10_min_before" class="m-b-1" *ngIf="testFullDetails.type !== GRADED_TYPES.UNGRADED">Question preview before 10 minutes of test</mat-slide-toggle><br />
+            <mat-slide-toggle formControlName="publish_result_automatically">Publish result automatically</mat-slide-toggle>
+        </form>
+        <hr class="separator" />
+        <div class="d-flex align-center">
+            <button mat-flat-button [disabled]="editingIndicator" class="reset-button m-r-05">Reset</button>
+            <button mat-flat-button [disabled]="!editingIndicator && editTestForm.invalid" class="green-button">
+              <div class="d-flex align-center">
+                <mat-progress-spinner *ngIf="editingIndicator" class="m-r-05" [diameter]="25" mode="indeterminate"></mat-progress-spinner>Submit
+              </div>
+            </button>
+        </div>
+    </div>
+</section>
+<section class="body-container" *ngIf="!editTest">
     <div class="text-center">
         <h1 class="expansion-panel-header-color">{{ testFullDetails.name }}</h1>
-        <h3 class="faded-blue-color m-b-1">Biology, Class 1</h3>
+        <h3 class="faded-blue-color m-b-1">{{ testFullDetails.subject_name }}, {{ testFullDetails.class_name }}</h3>
         <p class="m-b-1" *ngIf="testFullDetails.instruction">Instructions: {{ testFullDetails.instruction }}</p>
         <div class="d-flex justify-content-between align-center faded-blue-color">
             <p>{{ testFullDetails.total_duration }} minutes</p>
@@ -10,14 +68,23 @@
     </div>
     <hr class="separator m-t-05 m-b-1" />
     <div>
-        <h3 class="faded-blue-color m-b-05">GRADED UNSCHEDULED TEST</h3>
+        <h3 class="faded-blue-color m-b-05">
+            <span *ngIf="testFullDetails.type === GRADED_TYPES.GRADED">GRADED</span>
+            <span *ngIf="testFullDetails.type === GRADED_TYPES.UNGRADED">UNGRADED</span>&nbsp;
+            <span *ngIf="testFullDetails.test_schedule_type === TEST_SCHEDULE_TYPES.UNSCHEDULED">UNSCHEDULED</span>
+            <span *ngIf="testFullDetails.test_schedule_type === TEST_SCHEDULE_TYPES.SPECIFIC_DATE">SPECIFIC DATE</span>
+            <span *ngIf="testFullDetails.test_schedule_type === TEST_SCHEDULE_TYPES.SPECIFIC_DATE_AND_TIME">SPECIFIC DATE & TIME</span> &nbsp;TEST
+        </h3>
         <table>
-            <tr>
+            <tr *ngIf="testFullDetails.test_schedule_type !== TEST_SCHEDULE_TYPES.UNSCHEDULED">
                 <td>
                     <h3>Test Scheduled on:</h3>
                 </td>
                 <td>
-                    <h3>14th January, 2020, 12:01 AM</h3>
+                    <h3>
+                        <span *ngIf="testFullDetails.test_schedule_type === TEST_SCHEDULE_TYPES.SPECIFIC_DATE">{{ getOnlyDateFromUnixTimeStamp(testFullDetails.test_schedule) | date }}</span>
+                        <span *ngIf="testFullDetails.test_schedule_type === TEST_SCHEDULE_TYPES.SPECIFIC_DATE_AND_TIME">{{ getFullDateFromTimeStamp(testFullDetails.test_schedule) | date : 'medium' }}</span>
+                    </h3>
                 </td>
             </tr>
             <tr>
@@ -25,23 +92,24 @@
                     <h3>Shuffle Questions:</h3>
                 </td>
                 <td>
-                    <h3>True</h3>
+                    <h3 *ngIf="testFullDetails.shuffle_questions">True</h3>
+                    <h3 *ngIf="!testFullDetails.shuffle_questions">False</h3>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <h3>Number of questions to attempt from optional questions (if any):</h3>
+                    <h3>Number of question groups to attempt from optional groups (if any):</h3>
                 </td>
                 <td>
-                    <h3>1</h3>
+                    <h3>{{ testFullDetails.no_of_optional_section_answer }}</h3>
                 </td>
             </tr>
-            <tr>
+            <tr *ngIf="testFullDetails.type === GRADED_TYPES.UNGRADED">
                 <td>
                     <h3>Number of attempts of same test:</h3>
                 </td>
                 <td>
-                    <h3>1</h3>
+                    <h3>{{ testFullDetails.no_of_attempts }}</h3>
                 </td>
             </tr>
             <tr>
@@ -49,23 +117,26 @@
                     <h3>Publish result automatically when test finishes:</h3>
                 </td>
                 <td>
-                    <h3>False</h3>
+                    <h3 *ngIf="testFullDetails.publish_result_automatically">True</h3>
+                    <h3 *ngIf="!testFullDetails.publish_result_automatically">False</h3>
                 </td>
             </tr>
-            <tr>
+            <tr *ngIf="testFullDetails.question_category !== QUESTIONS_CATEGORY.AUTOCHECK_TYPE">
                 <td>
                     <h3>Peer - Peer checking of answers:</h3>
                 </td>
                 <td>
-                    <h3>Not Enabled</h3>
+                    <h3 *ngIf="testFullDetails.enable_peer_check">Enabled</h3>
+                    <h3 *ngIf="!testFullDetails.enable_peer_check">Not Enabled</h3>
                 </td>
             </tr>
-            <tr>
+            <tr *ngIf="testFullDetails.type === GRADED_TYPES.GRADED">
                 <td>
                     <h3>Allow question preview 10 minutes before:</h3>
                 </td>
                 <td>
-                    <h3>False</h3>
+                    <h3 *ngIf="testFullDetails.allow_question_preview_10_min_before">True</h3>
+                    <h3 *ngIf="!testFullDetails.allow_question_preview_10_min_before">False</h3>
                 </td>
             </tr>
             <tr>
@@ -73,7 +144,8 @@
                     <h3>Test live:</h3>
                 </td>
                 <td>
-                    <h3>False</h3>
+                    <h3 *ngIf="testFullDetails.test_live">True</h3>
+                    <h3 *ngIf="!testFullDetails.test_live">False</h3>
                 </td>
             </tr>
             <tr>
@@ -81,14 +153,15 @@
                     <h3>Result published:</h3>
                 </td>
                 <td>
-                    <h3>False</h3>
+                    <h3 *ngIf="testFullDetails.result_published">True</h3>
+                    <h3 *ngIf="!testFullDetails.result_published">False</h3>
                 </td>
             </tr>
         </table>
     </div>
     <hr class="separator m-t-1 m-b-1" />
     <div class="d-flex align-center justify-content-end">
-        <button mat-stroked-button class="stroked-button m-r-05">
+        <button mat-stroked-button class="stroked-button m-r-05" (click)="showEditTestForm()">
           <mat-icon class="edit-icon m-r-05">edit</mat-icon>Edit
         </button>
         <button mat-stroked-button class="stroked-button">

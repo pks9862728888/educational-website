@@ -96,6 +96,8 @@ export interface SubjectTestMinDetailsResponse {
 }
 
 export interface SubjectTestFullDetailsResponse {
+  subject_name: string;
+  class_name: string;
   question_mode: string;
   perm_type: string;
   test_id: number;

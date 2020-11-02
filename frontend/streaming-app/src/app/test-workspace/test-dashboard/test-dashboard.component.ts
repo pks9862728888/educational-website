@@ -1,8 +1,10 @@
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { SubjectTestFullDetailsResponse } from 'src/app/models/subject.model';
 import { InstituteApiService } from 'src/app/services/institute-api.service';
 import { UiService } from 'src/app/services/ui.service';
+import { QUESTIONS_CATEGORY, QUESTION_MODE } from 'src/constants';
 
 @Component({
   selector: 'app-test-dashboard',
@@ -28,7 +30,8 @@ export class TestDashboardComponent implements OnInit {
   constructor(
     private mediaMatcher: MediaMatcher,
     private instituteApiService: InstituteApiService,
-    private uiService: UiService
+    private uiService: UiService,
+    private router: Router
   ) {
     this.mq = this.mediaMatcher.matchMedia('(max-width: 600px)');
     const splittedPathName = window.location.pathname.split('/');
@@ -68,6 +71,23 @@ export class TestDashboardComponent implements OnInit {
         }
       }
     );
+  }
+
+  navigateToCreateQuestionPaperView() {
+    const hostName = window.location.pathname;
+    let path = hostName.slice(0, hostName.length - 'dashboard'.length) + 'create-question-paper/';
+    if (this.testFullDetails.question_category === QUESTIONS_CATEGORY.AUTOCHECK_TYPE &&
+      this.testFullDetails.question_mode === QUESTION_MODE.TYPED) {
+      path += 'autocheck-question-typed-mode';
+    } else if (this.testFullDetails.question_category === QUESTIONS_CATEGORY.ALL_TYPES &&
+      this.testFullDetails.question_mode === QUESTION_MODE.TYPED) {
+      path += 'all-question-typed-mode';
+    } else if (this.testFullDetails.question_mode === QUESTION_MODE.FILE) {
+      path += 'file-mode';
+    } else if (this.testFullDetails.question_mode === QUESTION_MODE.IMAGE) {
+      path += 'image-mode';
+    }
+    this.router.navigate([path]);
   }
 
 }

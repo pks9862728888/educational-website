@@ -75,7 +75,6 @@ export class AddSubjectUnsheduledTestComponent implements OnInit {
       publish_result_automatically: [true, [Validators.required]],
       enable_peer_check: [false, [Validators.required]],
       allow_question_preview_10_min_before: [true, [Validators.required]],
-      allow_test_on_scheduled_date_for_whole_day: [false, [Validators.required]],
       shuffle_questions: [true, [Validators.required]]
     });
     this.initializeForm();
@@ -95,7 +94,6 @@ export class AddSubjectUnsheduledTestComponent implements OnInit {
       publish_result_automatically: true,
       enable_peer_check: false,
       allow_question_preview_10_min_before: false,
-      allow_test_on_scheduled_date_for_whole_day: false,
       shuffle_questions: true
     });
     this.addTestForm.enable();
