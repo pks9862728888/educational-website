@@ -6675,6 +6675,92 @@ class InstituteTestMinDetailsView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class InstituteTestFullDetailsView(APIView):
+    """View for getting full details of test"""
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated, IsTeacher)
+
+    def get(self, *args, **kwargs):
+        """Only subject, class incharge and admin can view."""
+        subject = models.InstituteSubject.objects.filter(
+            subject_slug=kwargs.get('subject_slug')
+        ).only('subject_slug').first()
+
+        if not subject:
+            return Response({'error': _('Subject not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        institute = models.Institute.objects.filter(
+            institute_slug=kwargs.get('institute_slug')
+        ).only('institute_slug').first()
+
+        if not institute:
+            return Response({'error': _('Institute not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        perm_type = None
+        # Checking permission
+        if models.InstituteSubjectPermission.objects.filter(
+            to=subject,
+            invitee=self.request.user
+        ).exists():
+            perm_type = models.PermissionType.ROLE_BASED
+        else:
+            if models.InstituteClassPermission.objects.filter(
+                to__pk=subject.subject_class.pk,
+                invitee=self.request.user
+            ).exists():
+                perm_type = models.PermissionType.VIEW_ONLY
+            else:
+                if models.InstitutePermission.objects.filter(
+                    institute=institute,
+                    invitee=self.request.user,
+                    role=models.InstituteRole.ADMIN,
+                    active=True
+                ).exists():
+                    perm_type = models.PermissionType.VIEW_ONLY
+                else:
+                    return Response({'error': _('Permission denied.')},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+        # Getting license details
+        if not get_active_common_license(institute):
+            return Response({'error': _('Active LMS CMS license not found.')},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Getting test details
+        test = models.SubjectTest.objects.filter(
+            test_slug=kwargs.get('test_slug')
+        ).only('question_mode', 'perm_type', 'question_category',
+               'name', 'type', 'total_marks', 'total_duration',
+               'test_schedule_type', 'test_schedule', 'instruction',
+               'no_of_optional_section_answer', 'no_of_attempts',
+               'publish_result_automatically', 'enable_peer_check',
+               'allow_question_preview_10_min_before', 'shuffle_questions',
+               'result_published', 'test_live').first()
+
+        return Response({
+            'question_mode': test.question_mode,
+            'perm_type': perm_type,
+            'question_category': test.question_category,
+            'name': test.name,
+            'type': test.type,
+            'total_marks': test.total_marks,
+            'total_duration': test.total_duration,
+            'test_schedule_type': test.test_schedule_type,
+            'test_schedule': test.test_schedule,
+            'instruction': test.instruction,
+            'no_of_optional_section_answer': test.no_of_optional_section_answer,
+            'no_of_attempts': test.no_of_attempts,
+            'publish_result_automatically': test.publish_result_automatically,
+            'enable_peer_check': test.enable_peer_check,
+            'allow_question_preview_10_min_before': test.allow_question_preview_10_min_before,
+            'shuffle_questions': test.shuffle_questions,
+            'result_published': test.result_published,
+            'test_live': test.test_live
+        }, status=status.HTTP_200_OK)
+
+
 class InstituteTestMinDetailsForQuestionCreationView(APIView):
     """View for getting min details of test for question paper creation"""
     authentication_classes = (TokenAuthentication,)
