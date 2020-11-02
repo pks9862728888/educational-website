@@ -6731,7 +6731,7 @@ class InstituteTestFullDetailsView(APIView):
         # Getting test details
         test = models.SubjectTest.objects.filter(
             test_slug=kwargs.get('test_slug')
-        ).only('question_mode', 'perm_type', 'question_category',
+        ).only('test_slug', 'question_mode', 'question_category',
                'name', 'type', 'total_marks', 'total_duration',
                'test_schedule_type', 'test_schedule', 'instruction',
                'no_of_optional_section_answer', 'no_of_attempts',
@@ -6742,6 +6742,8 @@ class InstituteTestFullDetailsView(APIView):
         return Response({
             'question_mode': test.question_mode,
             'perm_type': perm_type,
+            'test_id': test.pk,
+            'test_slug': test.test_slug,
             'question_category': test.question_category,
             'name': test.name,
             'type': test.type,

@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
-    '192.168.43.215',
+    '192.168.43.25',
     '192.168.43.26',
     '192.168.43.27',
     '192.168.29.37',
@@ -92,7 +92,7 @@ ASGI_APPLICATION = "app.routing.application"
 
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:4200",
-    "http://192.168.43.215:4200",
+    "http://192.168.43.25:4200",
     "http://192.168.43.26:4200"
 ]
 
