@@ -1,0 +1,68 @@
+h1,
+h2,
+h3,
+.row,
+.col {
+    padding: 0;
+    margin: 0;
+}
+
+.parent-container {
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+.body-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 3px;
+    box-shadow: 1px 1px 1px #1f1f1f;
+}
+
+.icon-text {
+    font-size: 40px;
+    font-weight: bolder;
+    padding-top: 0.3rem;
+    text-align: center;
+}
+
+.icon-text-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 3px;
+}
+
+.icon-select-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    width: 250px;
+    padding: 0.5rem;
+}
+
+.icon-select-container:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: translateY(-3%);
+}
+
+.icon-select-container:hover .icon-text-container {
+    background-color: rgba(0, 255, 242, 0.116);
+}
+
+.selected-control {
+    background-color: rgba(0, 255, 242, 0.116);
+}
+
+.selected-control-mb {
+    background-color: #673ab7;
+    color: #fff;
+}
+
+.m-b-1 {
+    margin-bottom: 1rem;
+}
+
+.m-l-1 {
+    margin-left: 1rem;
+}

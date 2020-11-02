@@ -1,8 +1,5 @@
 import { currentInstituteRole,
-         INSTITUTE_ROLE_REVERSE,
-         purchasedLicenseExists,
-         paymentComplete
-        } from './../../constants';
+         INSTITUTE_ROLE_REVERSE } from './../../constants';
 import { Router, CanActivate, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 import { Injectable } from '@angular/core';
 

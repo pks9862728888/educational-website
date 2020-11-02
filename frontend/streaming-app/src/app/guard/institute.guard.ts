@@ -1,6 +1,14 @@
 import { Route } from '@angular/compiler/src/core';
-import { INSTITUTE_TYPE_REVERSE, purchasedLicenseExists, currentInstituteSlug, currentInstituteType, currentClassSlug, currentInstituteRole } from './../../constants';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, CanLoad } from '@angular/router';
+import { INSTITUTE_TYPE_REVERSE,
+         currentInstituteSlug,
+         currentInstituteType,
+         currentClassSlug,
+         currentInstituteRole } from './../../constants';
+import { CanActivate,
+         ActivatedRouteSnapshot,
+         RouterStateSnapshot,
+         Router,
+         CanLoad } from '@angular/router';
 import { Injectable } from '@angular/core';
 
 

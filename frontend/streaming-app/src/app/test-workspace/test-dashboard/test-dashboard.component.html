@@ -1,1 +1,68 @@
-<p>test-dashboard works!</p>
+<section class="parent-container">
+    <div *ngIf="mq.matches" class="row m-b-1 body-container">
+        <mat-chip-list aria-label="Test Control selection">
+            <mat-chip [class.selected-control-mb]="selectedControl !== 'TEST_DETAILS'" (click)="selectedControl = 'TEST_DETAILS'">Test Details</mat-chip>
+            <mat-chip [class.selected-control-mb]="selectedControl !== 'SET_CONTROLS'" (click)="selectedControl = 'SET_CONTROLS'">Set Controls</mat-chip>
+            <mat-chip [class.selected-control-mb]="selectedControl !== 'ASSIGN_QUESTION_PAPER'" (click)="selectedControl = 'ASSIGN_QUESTION_PAPER'">Assign Question Paper</mat-chip>
+            <mat-chip [class.selected-control-mb]="selectedControl !== 'MONITOR_PROGRESS'" (click)="selectedControl = 'MONITOR_PROGRESS'">Monitor Progress</mat-chip>
+            <mat-chip [class.selected-control-mb]="selectedControl !== 'ANSWER_CHECKING'" (click)="selectedControl = 'ANSWER_CHECKING'">Answer Checking</mat-chip>
+            <mat-chip [class.selected-control-mb]="selectedControl !== 'PUBLISH_RESULT'" (click)="selectedControl = 'PUBLISH_RESULT'">Publish Result</mat-chip>
+            <mat-chip [class.selected-control-mb]="selectedControl !== 'PERFORMANCE_ANALYSIS'" (click)="selectedControl = 'PERFORMANCE_ANALYSIS'">Performance Analysis</mat-chip>
+        </mat-chip-list>
+    </div>
+    <div class="row">
+        <div *ngIf="!mq.matches">
+            <div class="d-flex align-center icon-select-container cursor-pointer m-b-1" (click)="selectedControl = 'TEST_DETAILS'">
+                <div class="icon-text-container" [class.selected-control]="selectedControl === 'TEST_DETAILS'">
+                    <h3 class="icon-text add-icon">T</h3>
+                </div>
+                <h3 class="m-l-1 add-icon">Test Details</h3>
+            </div>
+            <div class="d-flex align-center icon-select-container cursor-pointer m-b-1" (click)="selectedControl = 'SET_CONTROLS'">
+                <div class="icon-text-container" [class.selected-control]="selectedControl === 'SET_CONTROLS'">
+                    <h3 class="icon-text add-icon">S</h3>
+                </div>
+                <h3 class="m-l-1 add-icon">Set Controls</h3>
+            </div>
+            <div class="d-flex align-center icon-select-container cursor-pointer m-b-1" (click)="selectedControl = 'ASSIGN_QUESTION_PAPER'">
+                <div class="icon-text-container" [class.selected-control]="selectedControl === 'ASSIGN_QUESTION_PAPER'">
+                    <h3 class="icon-text add-icon">Q</h3>
+                </div>
+                <h3 class="m-l-1 add-icon">Assign Question Paper</h3>
+            </div>
+            <div class="d-flex align-center icon-select-container cursor-pointer m-b-1" (click)="selectedControl = 'MONITOR_PROGRESS'">
+                <div class="icon-text-container" [class.selected-control]="selectedControl === 'MONITOR_PROGRESS'">
+                    <h3 class="icon-text add-icon">P</h3>
+                </div>
+                <h3 class="m-l-1 add-icon">Monitor Progress</h3>
+            </div>
+            <div class="d-flex align-center icon-select-container cursor-pointer m-b-1" (click)="selectedControl = 'ANSWER_CHECKING'">
+                <div class="icon-text-container" [class.selected-control]="selectedControl === 'ANSWER_CHECKING'">
+                    <h3 class="icon-text add-icon">A</h3>
+                </div>
+                <h3 class="m-l-1 add-icon">Answer Checking</h3>
+            </div>
+            <div class="d-flex align-center icon-select-container cursor-pointer m-b-1" (click)="selectedControl = 'PUBLISH_RESULT'">
+                <div class="icon-text-container" [class.selected-control]="selectedControl === 'PUBLISH_RESULT'">
+                    <h3 class="icon-text add-icon">R</h3>
+                </div>
+                <h3 class="m-l-1 add-icon">Publish Result</h3>
+            </div>
+            <div class="d-flex align-center icon-select-container cursor-pointer" (click)="selectedControl = 'PERFORMANCE_ANALYSIS'">
+                <div class="icon-text-container" [class.selected-control]="selectedControl === 'PERFORMANCE_ANALYSIS'">
+                    <h3 class="icon-text add-icon">P</h3>
+                </div>
+                <h3 class="m-l-1 add-icon">Performance Analysis</h3>
+            </div>
+        </div>
+        <div class="col body-container" [class.m-l-1]="!mq.matches">
+            <app-test-dashboard-details *ngIf="selectedControl === 'TEST_DETAILS'"></app-test-dashboard-details>
+            <app-test-set-controls *ngIf="selectedControl === 'SET_CONTROLS'"></app-test-set-controls>
+            <app-test-assign-question-paper *ngIf="selectedControl === 'ASSIGN_QUESTION_PAPER'"></app-test-assign-question-paper>
+            <app-test-monitor-progress *ngIf="selectedControl === 'MONITOR_PROGRESS'"></app-test-monitor-progress>
+            <app-test-answer-checking *ngIf="selectedControl === 'ANSWER_CHECKING'"></app-test-answer-checking>
+            <app-test-publish-result *ngIf="selectedControl === 'PUBLISH_RESULT'"></app-test-publish-result>
+            <app-test-performance-analysis *ngIf="selectedControl === 'PERFORMANCE_ANALYSIS'"></app-test-performance-analysis>
+        </div>
+    </div>
+</section>
